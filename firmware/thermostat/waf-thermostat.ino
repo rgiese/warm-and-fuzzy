@@ -6,6 +6,14 @@
 #include "waf-ds18b20.h"
 
 //
+// Particle configuration
+//
+
+PRODUCT_ID(8773);
+PRODUCT_VERSION(1); // Increment for each release
+
+
+//
 // Globals
 //
 
