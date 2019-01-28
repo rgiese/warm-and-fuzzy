@@ -1,3 +1,5 @@
+#include <Particle.h>
+
 #include <math.h>
 #include <Adafruit_DHT.h>
 #include <OneWire.h>
