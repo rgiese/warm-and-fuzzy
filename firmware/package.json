@@ -1,0 +1,19 @@
+{
+  "name": "warmandfuzzy-firmware",
+  "version": "1.0.0",
+  "description": "WarmAndFuzzy Particle Firmware",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "format:check": "cross-var prettier --check $npm_package_config_prettierglob",
+    "format:fix": "cross-var prettier --write $npm_package_config_prettierglob"
+  },
+  "config": {
+    "prettierglob": "{.,./**}/*.{js,json}"
+  },
+  "devDependencies": {
+    "cross-var": "^1.1.0",
+    "prettier": "^1.16.4"
+  }
+}
