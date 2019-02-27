@@ -6,6 +6,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
+    "build": "node firmware-build-tool/run.js hello",
     "format:check": "cross-var prettier --check $npm_package_config_prettierglob",
     "format:fix": "cross-var prettier --write $npm_package_config_prettierglob"
   },
@@ -14,6 +15,14 @@
   },
   "devDependencies": {
     "cross-var": "^1.1.0",
-    "prettier": "^1.16.4"
+    "prettier": "^1.16.4",
+    "oclif": "^1.12.10"
+  },
+  "files": [
+    "./firmware-build-tool",
+    "./thermostat"
+  ],
+  "oclif": {
+    "commands": "./firmware-build-tool/commands"
   }
 }
