@@ -15,3 +15,6 @@
 # Documentation
 - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
 
+# Useful links
+- [Guidelines for 1-Wire buses](https://www.maximintegrated.com/en/app-notes/index.mvp/id/148)
+
