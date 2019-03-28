@@ -2,10 +2,11 @@
 
 #include <math.h>
 #include <Adafruit_DHT.h>
-#include <OneWire.h>
 
 #include "waf-helpers.h"
-#include "waf-ds18b20.h"
+
+#include "onewire/OneWireGateway2484.h"
+#include "onewire/OneWireTemperatureSensor.h"
 
 //
 // Particle configuration
@@ -25,13 +26,11 @@ PRODUCT_VERSION(1); // Increment for each release
 // Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
 
 pin_t const c_dht22Pin = D2;
-pin_t const c_oneWirePin = D5;
 pin_t const c_rgRelayPins[] = { A0, A1, A2 };
 pin_t const c_LedPin = D7;
 
 DHT dht(c_dht22Pin, DHT22);
-WafOneWire oneWire(c_oneWirePin);
-
+OneWireGateway2484 oneWireGateway;
 
 //
 // Declarations
@@ -45,9 +44,13 @@ int onTestOutput(String options);
 
 void setup() 
 {
+    // Configure debugging output
+    Serial.begin();
+    Serial.println("Thermostat started.");
+
     // Configure I/O
 	dht.begin();
-    oneWire.Initialize();
+    oneWireGateway.Initialize();
 
     for (size_t idxPin = 0; idxPin < countof(c_rgRelayPins); ++idxPin)
     {
@@ -76,29 +79,50 @@ void loop()
 
     String externalData;
     {   
-        for (uint8_t idxDevice = 0; idxDevice < oneWire.DeviceCount(); ++idxDevice)
+        // Enumerate devices
+        OneWireAddress rgAddresses[16];
+        size_t cAddressesFound = 0;
+
+        unsigned long start = micros();
+
+        oneWireGateway.EnumerateDevices([&](OneWireAddress const& Address)
         {
-            // Acquire temperature reading
-            WafOneWireAddress const* const deviceAddress = oneWire.GetDeviceAddress(idxDevice);
-            
-            if (deviceAddress && deviceAddress->Address[0] == 0x28) // Ensure device exists and is a DS18B20 sensor
+            if (cAddressesFound < countof(rgAddresses))
             {
-                float const externalTemperature = oneWire.ReadDS18B20Temperature_Celsius(*deviceAddress);
-                
-                if (!isnan(externalTemperature))
+                rgAddresses[cAddressesFound] = Address;
+                ++cAddressesFound;
+            }
+        });
+
+        unsigned long end = micros();
+        Serial.printlnf("Conversion took %u micros", end - start);
+        
+        // Request temperature measurement from all sensors
+        if (OneWireTemperatureSensor::RequestMeasurement(oneWireGateway))
+        {
+            // Retrieve measurements and format values
+            for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress) 
+            {
+                OneWireAddress const& address = rgAddresses[idxAddress];
+
+                if (address.GetDeviceFamily() == 0x28) // Ensure device is a DS18B20 sensor
                 {
-                    if (externalData.length() > 0)
+                    float externalTemperature;
+                    if (OneWireTemperatureSensor::RetrieveMeasurement(externalTemperature, address, oneWireGateway))
                     {
-                        externalData.concat(",");
+                        if (externalData.length() > 0)
+                        {
+                            externalData.concat(",");
+                        }
+                        
+                        externalData.concat(
+                            String::format(
+                                "{\"%s\":%s}", 
+                                address.ToString().c_str(),
+                                floatToString(externalTemperature).c_str()
+                            )
+                        );
                     }
-                    
-                    externalData.concat(
-                        String::format(
-                            "{\"%s\":%s}", 
-                            deviceAddress->ToString().c_str(),
-                            floatToString(externalTemperature).c_str()
-                        )
-                    );
                 }
             }
         }
@@ -108,16 +132,17 @@ void loop()
     // Publish data
     //
 
-    Particle.publish(
-        "reading", 
+    String const publishedData = 
         String::format(
             "{\"ts\":%u,\"temp\":%s,\"humidity\":%s,\"external\":[%s]}", 
             Time.now(), 
             floatToString(temperature).c_str(), 
             floatToString(humidity).c_str(), 
-            externalData.c_str()), 
-        60 /* TTL, unused */, 
-        PRIVATE);
+            externalData.c_str()
+        );
+
+    Particle.publish("reading", publishedData, 60 /* TTL, unused */, PRIVATE);
+    Serial.println(publishedData.c_str());
 
 	delay(5 * 1000);
 }
