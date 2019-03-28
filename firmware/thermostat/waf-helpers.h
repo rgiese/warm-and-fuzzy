@@ -4,7 +4,11 @@
 #define __out
 #define __out_opt
 
-#define RETURN_IF_FALSE(x) if (!(x)) { return false; }
+#define RETURN_IF_FALSE(x) \
+    if (!(x))              \
+        {                  \
+            return false;  \
+        }
 
 
 template <typename T, std::size_t N>

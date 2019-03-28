@@ -6,18 +6,17 @@
 
 class OneWireAddress
 {
-public:
-    OneWireAddress()
-        : m_Address()
+   public:
+    OneWireAddress() : m_Address()
     {
     }
 
     void SetBit(size_t idxBit, bool IsSet)
     {
         if (idxBit >= 8 * countof(m_Address))
-        {
-            return;
-        }
+            {
+                return;
+            }
 
         size_t const idxByte = idxBit / 8;
         size_t const idxBitInByte = idxBit % 8;
@@ -31,9 +30,9 @@ public:
     bool GetBit(size_t idxBit) const
     {
         if (idxBit >= 8 * countof(m_Address))
-        {
-            return false;
-        }
+            {
+                return false;
+            }
 
         size_t const idxByte = idxBit / 8;
         size_t const idxBitInByte = idxBit % 8;
@@ -44,9 +43,9 @@ public:
     uint8_t GetByte(size_t idxByte) const
     {
         if (idxByte >= countof(m_Address))
-        {
-            return 0;
-        }
+            {
+                return 0;
+            }
 
         return m_Address[idxByte];
     }
@@ -69,17 +68,16 @@ public:
     String ToString() const
     {
         String str;
-        
+
         // LSB...MSB
         for (size_t idxByte = 0; idxByte < countof(m_Address); ++idxByte)
-        {
-            str.concat(String::format("%02x", m_Address[idxByte]));
-        }
-        
+            {
+                str.concat(String::format("%02x", m_Address[idxByte]));
+            }
+
         return str;
     }
 
-private:
+   private:
     uint8_t m_Address[8];
 };
-

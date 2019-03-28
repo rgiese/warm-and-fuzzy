@@ -5,10 +5,10 @@
 
 class OneWireGateway2484 : public IOneWireGateway
 {
-public:
+   public:
     OneWireGateway2484();
 
-public:
+   public:
     virtual bool Initialize();
 
     virtual bool Reset() const;
@@ -17,10 +17,10 @@ public:
 
     virtual bool EnumerateDevices(std::function<void(OneWireAddress const&)> OnAddress) const;
 
-private:
+   private:
     static uint8_t const sc_GatewayAddress = 0x18;
 
-    enum class GatewayCommand : uint8_t 
+    enum class GatewayCommand : uint8_t
     {
         DeviceReset = 0xF0,
         SetReadPointer = 0xE1,
@@ -44,12 +44,12 @@ private:
     {
         uint8_t Value;
 
-        struct // lowest bit to highest
+        struct  // lowest bit to highest
         {
-            uint8_t ActivePullup : 1;   // Generally recommended for best OneWire bus performance
-            uint8_t PowerDown : 1;      // Remove power from OneWire bus
-            uint8_t StrongPullup : 1;   // Strong pull-up to transiently provide greater bus power
-            uint8_t OverdriveSpeed : 1; // Overdrive speed on OneWire bus
+            uint8_t ActivePullup : 1;    // Generally recommended for best OneWire bus performance
+            uint8_t PowerDown : 1;       // Remove power from OneWire bus
+            uint8_t StrongPullup : 1;    // Strong pull-up to transiently provide greater bus power
+            uint8_t OverdriveSpeed : 1;  // Overdrive speed on OneWire bus
         };
     };
 
@@ -57,7 +57,7 @@ private:
     {
         uint8_t Value;
 
-        struct // lowest bit to highest
+        struct  // lowest bit to highest
         {
             uint8_t OneWireIsBusy : 1;
             uint8_t PresencePulseDetected : 1;
@@ -70,17 +70,20 @@ private:
         };
     };
 
-private:
+   private:
     mutable GatewayRegister m_LatestReadPointer;
 
-private:
+   private:
     bool ReadGatewayRegister(__out uint8_t& Value, GatewayRegister const Register) const;
     bool SetGatewayConfiguration(GatewayConfiguration const Configuration) const;
 
     bool WaitForOneWireIdle(__out_opt GatewayStatus* latestStatus = NULL) const;
-    bool Triplet(__out bool& FirstBit, __out bool& SecondBit, __out bool& DirectionTaken, uint8_t const DirectionRequested) const;
+    bool Triplet(__out bool& FirstBit,
+                 __out bool& SecondBit,
+                 __out bool& DirectionTaken,
+                 uint8_t const DirectionRequested) const;
 
-private:
+   private:
     // Internal helpers for single-byte writes
     void _writeGatewayData(uint8_t Data) const
     {
@@ -98,7 +101,7 @@ private:
     }
 
     // Internal helper for multi-byte unroll
-    template<typename T, typename... PayloadT>
+    template <typename T, typename... PayloadT>
     void _writeGatewayData(T Data, PayloadT... Remainder) const
     {
         _writeGatewayData(Data);
@@ -106,7 +109,7 @@ private:
     }
 
     // Write function
-    template<typename... PayloadT>
+    template <typename... PayloadT>
     bool WriteGatewayCommand(GatewayCommand const Command, PayloadT... Payload) const
     {
         // Write data
@@ -116,38 +119,38 @@ private:
 
         // Check for success
         if (status != 0)
-        {
-            m_LatestReadPointer = GatewayRegister::Unknown;
-            return false;
-        }
+            {
+                m_LatestReadPointer = GatewayRegister::Unknown;
+                return false;
+            }
 
         // Infer latest read pointer from command type
         // (caching this improves enumeration performance ~25%)
         switch (Command)
-        {
-            case GatewayCommand::DeviceReset: 
-                m_LatestReadPointer = GatewayRegister::Status;
-                break;
+            {
+                case GatewayCommand::DeviceReset:
+                    m_LatestReadPointer = GatewayRegister::Status;
+                    break;
 
-            case GatewayCommand::SetReadPointer:
-                m_LatestReadPointer = GatewayRegister::Unknown; // caller needs to set
-                break;
+                case GatewayCommand::SetReadPointer:
+                    m_LatestReadPointer = GatewayRegister::Unknown;  // caller needs to set
+                    break;
 
-            case GatewayCommand::WriteDeviceConfiguration:
-                m_LatestReadPointer = GatewayRegister::DeviceConfiguration;
-                break;
+                case GatewayCommand::WriteDeviceConfiguration:
+                    m_LatestReadPointer = GatewayRegister::DeviceConfiguration;
+                    break;
 
-            case GatewayCommand::OneWireReset:
-            case GatewayCommand::OneWireWriteByte:
-            case GatewayCommand::OneWireReadByte:
-            case GatewayCommand::OneWireTriplet:
-                m_LatestReadPointer = GatewayRegister::Status;
-                break;
+                case GatewayCommand::OneWireReset:
+                case GatewayCommand::OneWireWriteByte:
+                case GatewayCommand::OneWireReadByte:
+                case GatewayCommand::OneWireTriplet:
+                    m_LatestReadPointer = GatewayRegister::Status;
+                    break;
 
-            default:
-                m_LatestReadPointer = GatewayRegister::Unknown;
-                break;
-        }
+                default:
+                    m_LatestReadPointer = GatewayRegister::Unknown;
+                    break;
+            }
 
         return true;
     }
@@ -157,8 +160,7 @@ private:
 // Interface implementation
 //
 
-OneWireGateway2484::OneWireGateway2484()
-    : m_LatestReadPointer(GatewayRegister::Unknown)
+OneWireGateway2484::OneWireGateway2484() : m_LatestReadPointer(GatewayRegister::Unknown)
 {
 }
 
@@ -237,101 +239,105 @@ bool OneWireGateway2484::EnumerateDevices(std::function<void(OneWireAddress cons
     OneWireAddress address;
     uint8_t idxPreviousRound_LatestConflictingBit = c_NotSet;
 
-    for (size_t idxAttempt = 0; idxAttempt < 32; ++idxAttempt) // safeguard against runaway conditions
-    {
-        uint8_t idxLatestConflictingBit = c_NotSet;
-
-        // Reset bus
-        Reset();
-
-        // Check if any devices are present from presence pulse after bus reset
-        if (idxAttempt == 0)
+    for (size_t idxAttempt = 0; idxAttempt < 32; ++idxAttempt)  // safeguard against runaway conditions
         {
-            GatewayStatus status;
-            RETURN_IF_FALSE(ReadGatewayRegister(status.Value, GatewayRegister::Status));
+            uint8_t idxLatestConflictingBit = c_NotSet;
 
-            if (!status.PresencePulseDetected)
-            {
-                return false;
-            }
-        }
+            // Reset bus
+            Reset();
 
-        // Issue search command
-        RETURN_IF_FALSE(WriteCommand(OneWireCommand::SearchAll));
-
-        for (uint8_t idxBit = 0; idxBit < 64; ++idxBit)
-        {
-            bool const c_DefaultDirectionOnConflict = false;
-
-            bool const directionOnConflict =
-                // If there was no previous conflict...
-                (idxPreviousRound_LatestConflictingBit == c_NotSet)
-                    ? c_DefaultDirectionOnConflict // ...move in the default direction.
-                    // If we're at a bit prior to a previously conflicting bit...
-                    : (idxBit < idxPreviousRound_LatestConflictingBit)
-                        ? address.GetBit(idxBit) // ...follow the same path as before.
-                        // If we're at the site of the previously conflicting bit...
-                        : (idxBit == idxPreviousRound_LatestConflictingBit)
-                            ? !c_DefaultDirectionOnConflict  // ...choose a different path;
-                            :  c_DefaultDirectionOnConflict; // otherwise, choose the default direction again.
-
-            // The triplet operation will evaluate the retrieved bit/complement-bit values
-            // for the current address bit and send out a direction bit as follows:
-            //   0, 0: a mix of zeros and ones in the participating ROM IDs -> write requested direction bit
-            //   0, 1: there are only zeros in the participating ROM IDs -> auto-write zero
-            //   1, 0: there are only ones in the participating ROM IDs -> auto-write one 
-            //   1, 1: invalid condition -> auto-write one
-            bool firstBit;
-            bool secondBit;
-            bool directionTaken;
-            {
-                RETURN_IF_FALSE(Triplet(firstBit, secondBit, directionTaken, directionOnConflict));
-            }
-
-            if (firstBit && secondBit)
-            {
-                // Invalid condition (device must have gone missing, given initial presence pulse check), abort search
-                return false;
-            }
-            else if (firstBit == !secondBit)
-            {
-                // No conflict -> accept bit
-                address.SetBit(idxBit, firstBit);
-            }
-            else
-            {
-                // Conflict -> accept bit from direction taken (should be the same as `directionOnConflict` above)
-                address.SetBit(idxBit, directionTaken);
-
-                // Verify internal consistency
-                if (directionTaken != directionOnConflict)
+            // Check if any devices are present from presence pulse after bus reset
+            if (idxAttempt == 0)
                 {
-                    return false;
+                    GatewayStatus status;
+                    RETURN_IF_FALSE(ReadGatewayRegister(status.Value, GatewayRegister::Status));
+
+                    if (!status.PresencePulseDetected)
+                        {
+                            return false;
+                        }
                 }
 
-                // Remember we saw a conflict if we moved in the default direction (otherwise we don't need to revisit)
-                if (directionTaken == c_DefaultDirectionOnConflict)
+            // Issue search command
+            RETURN_IF_FALSE(WriteCommand(OneWireCommand::SearchAll));
+
+            for (uint8_t idxBit = 0; idxBit < 64; ++idxBit)
                 {
-                    idxLatestConflictingBit = idxBit;
+                    bool const c_DefaultDirectionOnConflict = false;
+
+                    bool const directionOnConflict =
+                        // If there was no previous conflict...
+                        (idxPreviousRound_LatestConflictingBit == c_NotSet)
+                            ? c_DefaultDirectionOnConflict  // ...move in the default direction.
+                            // If we're at a bit prior to a previously conflicting bit...
+                            : (idxBit < idxPreviousRound_LatestConflictingBit)
+                                  ? address.GetBit(idxBit)  // ...follow the same path as before.
+                                  // If we're at the site of the previously conflicting bit...
+                                  : (idxBit == idxPreviousRound_LatestConflictingBit)
+                                        ? !c_DefaultDirectionOnConflict  // ...choose a different path;
+                                        : c_DefaultDirectionOnConflict;  // otherwise, choose the default direction
+                                                                         // again.
+
+                    // The triplet operation will evaluate the retrieved bit/complement-bit values
+                    // for the current address bit and send out a direction bit as follows:
+                    //   0, 0: a mix of zeros and ones in the participating ROM IDs -> write requested direction bit
+                    //   0, 1: there are only zeros in the participating ROM IDs -> auto-write zero
+                    //   1, 0: there are only ones in the participating ROM IDs -> auto-write one
+                    //   1, 1: invalid condition -> auto-write one
+                    bool firstBit;
+                    bool secondBit;
+                    bool directionTaken;
+                    {
+                        RETURN_IF_FALSE(Triplet(firstBit, secondBit, directionTaken, directionOnConflict));
+                    }
+
+                    if (firstBit && secondBit)
+                        {
+                            // Invalid condition (device must have gone missing, given initial presence pulse check),
+                            // abort search
+                            return false;
+                        }
+                    else if (firstBit == !secondBit)
+                        {
+                            // No conflict -> accept bit
+                            address.SetBit(idxBit, firstBit);
+                        }
+                    else
+                        {
+                            // Conflict -> accept bit from direction taken (should be the same as `directionOnConflict`
+                            // above)
+                            address.SetBit(idxBit, directionTaken);
+
+                            // Verify internal consistency
+                            if (directionTaken != directionOnConflict)
+                                {
+                                    return false;
+                                }
+
+                            // Remember we saw a conflict if we moved in the default direction (otherwise we don't need
+                            // to revisit)
+                            if (directionTaken == c_DefaultDirectionOnConflict)
+                                {
+                                    idxLatestConflictingBit = idxBit;
+                                }
+                        }
                 }
-            }
+
+            if (address.IsValid())
+                {
+                    OnAddress(address);
+                }
+
+            if (idxLatestConflictingBit == c_NotSet)
+                {
+                    // No conflicts detected -> done finding devices
+                    return true;
+                }
+
+            idxPreviousRound_LatestConflictingBit = idxLatestConflictingBit;
         }
 
-        if (address.IsValid())
-        {
-            OnAddress(address);
-        }
-
-        if (idxLatestConflictingBit == c_NotSet)
-        {
-            // No conflicts detected -> done finding devices
-            return true;
-        }
-
-        idxPreviousRound_LatestConflictingBit = idxLatestConflictingBit;
-    }
-
-    return false; // Ran into runaway bounds
+    return false;  // Ran into runaway bounds
 }
 
 
@@ -343,10 +349,10 @@ bool OneWireGateway2484::ReadGatewayRegister(__out uint8_t& Value, GatewayRegist
 {
     // Set read pointer
     if (m_LatestReadPointer != Register)
-    {
-        RETURN_IF_FALSE(WriteGatewayCommand(GatewayCommand::SetReadPointer, Register));
-        m_LatestReadPointer = Register;
-    }
+        {
+            RETURN_IF_FALSE(WriteGatewayCommand(GatewayCommand::SetReadPointer, Register));
+            m_LatestReadPointer = Register;
+        }
 
     // Read
     uint8_t const cBytesAvailable = Wire.requestFrom(sc_GatewayAddress, static_cast<uint8_t>(1));
@@ -381,35 +387,40 @@ bool OneWireGateway2484::SetGatewayConfiguration(GatewayConfiguration const Conf
 bool OneWireGateway2484::WaitForOneWireIdle(__out_opt GatewayStatus* latestStatus) const
 {
     for (size_t idxSpin = 0; /* inline */; ++idxSpin)
-    {
-        GatewayStatus status;
-
-        RETURN_IF_FALSE(ReadGatewayRegister(status.Value, GatewayRegister::Status));
-
-        if (!status.OneWireIsBusy)
         {
-            if (latestStatus)
-            {
-                *latestStatus = status;
-            }
+            GatewayStatus status;
 
-            return true;
-        }
+            RETURN_IF_FALSE(ReadGatewayRegister(status.Value, GatewayRegister::Status));
 
-        // These delays are short enough (generally 0-3) that we'll just spin rather than delay for the first bunch of rounds
-        if (idxSpin > 10)
-        {
-            delayMicroseconds(100);
+            if (!status.OneWireIsBusy)
+                {
+                    if (latestStatus)
+                        {
+                            *latestStatus = status;
+                        }
+
+                    return true;
+                }
+
+            // These delays are short enough (generally 0-3) that we'll just spin rather than delay for the first bunch
+            // of rounds
+            if (idxSpin > 10)
+                {
+                    delayMicroseconds(100);
+                }
         }
-    }
 }
 
-bool OneWireGateway2484::Triplet(__out bool& FirstBit, __out bool& SecondBit, __out bool& DirectionTaken, uint8_t const DirectionRequested) const
+bool OneWireGateway2484::Triplet(__out bool& FirstBit,
+                                 __out bool& SecondBit,
+                                 __out bool& DirectionTaken,
+                                 uint8_t const DirectionRequested) const
 {
     GatewayStatus latestStatus;
     {
         RETURN_IF_FALSE(WaitForOneWireIdle());
-        RETURN_IF_FALSE(WriteGatewayCommand(GatewayCommand::OneWireTriplet, static_cast<uint8_t>((DirectionRequested ? 1 : 0) << 7)));
+        RETURN_IF_FALSE(WriteGatewayCommand(GatewayCommand::OneWireTriplet,
+                                            static_cast<uint8_t>((DirectionRequested ? 1 : 0) << 7)));
         RETURN_IF_FALSE(WaitForOneWireIdle(&latestStatus));
     }
 
