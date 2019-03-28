@@ -7,8 +7,8 @@
   "license": "ISC",
   "scripts": {
     "build": "node firmware-build-tool/run.js hello",
-    "format:check": "cross-var prettier --check $npm_package_config_prettierglob",
-    "format:fix": "cross-var prettier --write $npm_package_config_prettierglob"
+    "format:check": "cross-var prettier --check $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h}",
+    "format:fix": "cross-var prettier --write $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h} -i"
   },
   "config": {
     "prettierglob": "{.,./**}/*.{js,json}"
@@ -24,5 +24,8 @@
   ],
   "oclif": {
     "commands": "./firmware-build-tool/commands"
+  },
+  "dependencies": {
+    "clang-format": "^1.2.4"
   }
 }

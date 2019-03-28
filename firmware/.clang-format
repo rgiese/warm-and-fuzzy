@@ -1,0 +1,38 @@
+---
+# See http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
+BasedOnStyle: Google
+ColumnLimit: 120
+IndentWidth: 4
+---
+Language: JavaScript
+DisableFormat: true
+---
+Language: Cpp
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+BinPackArguments: false
+BinPackParameters: false
+
+BreakBeforeBraces: Custom
+BraceWrapping:   
+  AfterClass:      true
+  AfterControlStatement: true
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: true
+  BeforeCatch:     true
+  BeforeElse:      true
+  IndentBraces:    true
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+BreakConstructorInitializers: BeforeComma
+
+MaxEmptyLinesToKeep: 2
+...
