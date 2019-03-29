@@ -83,8 +83,6 @@ void loop()
         OneWireAddress rgAddresses[16];
         size_t cAddressesFound = 0;
 
-        unsigned long start = micros();
-
         oneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
             if (cAddressesFound < countof(rgAddresses))
                 {
@@ -92,9 +90,6 @@ void loop()
                     ++cAddressesFound;
                 }
         });
-
-        unsigned long end = micros();
-        Serial.printlnf("Conversion took %u micros", end - start);
 
         // Request temperature measurement from all sensors
         if (OneWireTemperatureSensor::RequestMeasurement(oneWireGateway))
