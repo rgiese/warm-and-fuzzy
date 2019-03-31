@@ -11,7 +11,8 @@ class OneWireTemperatureSensor
         // Reset bus
         RETURN_IF_FALSE(OneWireGateway.Reset());
 
-        // Request temperature conversion
+        // Request bus-wide temperature conversion
+        RETURN_IF_FALSE(OneWireGateway.WriteCommand(IOneWireGateway::OneWireCommand::SkipROM));
         RETURN_IF_FALSE(OneWireGateway.WriteCommand(IOneWireGateway::OneWireCommand::ConvertT));
 
         // Wait for conversion to complete
@@ -22,11 +23,11 @@ class OneWireTemperatureSensor
 
     static bool RequestMeasurement(OneWireAddress const& Address, IOneWireGateway const& OneWireGateway)
     {
-        // Reset bus and select device by address
+        // Reset bus
         RETURN_IF_FALSE(OneWireGateway.Reset());
-        RETURN_IF_FALSE(OneWireGateway.SelectAddress(Address));
 
-        // Request temperature conversion
+        // Request device-specific temperature conversion
+        RETURN_IF_FALSE(OneWireGateway.SelectAddress(Address));
         RETURN_IF_FALSE(OneWireGateway.WriteCommand(IOneWireGateway::OneWireCommand::ConvertT));
 
         // Wait for conversion to complete

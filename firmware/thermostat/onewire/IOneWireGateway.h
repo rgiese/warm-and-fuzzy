@@ -13,6 +13,7 @@ class IOneWireGateway
         // All devices
         ReadROM = 0x33,
         MatchROM = 0x55,
+        SkipROM = 0xCC,
         SearchAll = 0xF0,
         SearchAlarmed = 0xEC,
 
