@@ -1,10 +1,4 @@
-import {
-  Equals,
-  IsInt,
-  IsHexadecimal,
-  ArrayUnique,
-  IsNumber,
-} from "class-validator";
+import { Equals, IsInt, IsHexadecimal, ArrayUnique, IsNumber } from "class-validator";
 import { Type } from "class-transformer";
 
 // See https://github.com/typestack/class-transformer
