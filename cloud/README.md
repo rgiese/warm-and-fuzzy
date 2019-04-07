@@ -12,7 +12,22 @@
 - Manual deploy through VS Code
     - Also works but less useful progress reporting
 
-# Documentation
+# Cloud configuration
+## Particle webhook configuration
+- Event: `status`
+- To: `https://warmandfuzzy.azurewebsites.net/webhooks/particle/status` as POST
+- Request body (JSON) - _note_ presence/absence of quotes:
+    ```
+    {
+    "event": "{{{PARTICLE_EVENT_NAME}}}",
+    "data": {{{PARTICLE_EVENT_VALUE}}},
+    "device_id": "{{{PARTICLE_DEVICE_ID}}}",
+    "published_at": "{{{PARTICLE_PUBLISHED_AT}}}",
+    "fw_version": {{{PRODUCT_VERSION}}},
+    }
+    ```
+- Query parameters: provide `code` set to Azure Functions function key
+- Response topic: default of `{{PARTICLE_DEVICE_ID}}/hook-response/{{PARTICLE_EVENT_NAME}}`
 
 # Useful links
 - [Getting started with Azure functions](https://code.visualstudio.com/tutorials/functions-extension/getting-started)

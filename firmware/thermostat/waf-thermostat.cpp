@@ -36,6 +36,7 @@ OneWireGateway2484 oneWireGateway;
 // Declarations
 //
 
+void onStatusResponse(char const* szEvent, char const* szData);
 int onTestOutput(String options);
 
 //
@@ -60,6 +61,8 @@ void setup()
     pinMode(c_LedPin, OUTPUT);
 
     // Configure cloud interactions
+    Particle.subscribe(System.deviceID() + "/hook-response/status", onStatusResponse, MY_DEVICES);
+
     Particle.function("testOutput", onTestOutput);
 }
 
@@ -110,7 +113,7 @@ void loop()
                                                 externalData.concat(",");
                                             }
 
-                                        externalData.concat(String::format("{\"%s\":%s}",
+                                        externalData.concat(String::format("{id:\"%s\",\"temp\":%s}",
                                                                            address.ToString().c_str(),
                                                                            floatToString(externalTemperature).c_str()));
                                     }
@@ -123,17 +126,27 @@ void loop()
     // Publish data
     //
 
-    String const publishedData = String::format("{\"ts\":%u,\"temp\":%s,\"humidity\":%s,\"external\":[%s]}",
+    String const publishedData = String::format("{\"ts\":%u,\"temp\":%s,\"hum\":%s,\"ext\":[%s]}",
                                                 Time.now(),
                                                 floatToString(temperature).c_str(),
                                                 floatToString(humidity).c_str(),
                                                 externalData.c_str());
 
-    Particle.publish("reading", publishedData, 60 /* TTL, unused */, PRIVATE);
+    Particle.publish("status", publishedData, 60 /* TTL, unused */, PRIVATE);
     Serial.println(publishedData.c_str());
 
-    delay(5 * 1000);
+    delay(60 * 1000);
 }
+
+//
+// Subscriptions
+//
+
+void onStatusResponse(char const* szEvent, char const* szData)
+{
+    Serial.printlnf("Status response for %s: %s", szEvent, szData);
+}
+
 
 //
 // Functions

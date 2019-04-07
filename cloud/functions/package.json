@@ -16,5 +16,10 @@
     "@azure/functions": "^1.0.1-beta2",
     "typescript": "^3.3.3",
     "prettier": "^1.16.4"
+  },
+  "dependencies": {
+    "class-transformer": "^0.2.0",
+    "class-validator": "^0.9.1",
+    "reflect-metadata": "^0.1.13"
   }
 }
