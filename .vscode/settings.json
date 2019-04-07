@@ -1,5 +1,15 @@
 {
-    "cSpell.words": [
-        "countof"
-    ]
+  "cSpell.words": [
+    "countof", "webhook"
+  ],
+  "azureFunctions.projectRuntime": "~2",
+  "azureFunctions.projectLanguage": "TypeScript",
+  "azureFunctions.deploySubpath": "cloud/functions",
+  "azureFunctions.projectSubpath": "cloud/functions",
+  "azureFunctions.preDeployTask": "functions npm prune",
+  "files.exclude": {
+    "obj": true,
+    "bin": true
+  },
+  "debug.internalConsoleOptions": "neverOpen"
 }
