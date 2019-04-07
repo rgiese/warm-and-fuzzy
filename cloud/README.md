@@ -29,6 +29,9 @@
 - Query parameters: provide `code` set to Azure Functions function key
 - Response topic: default of `{{PARTICLE_DEVICE_ID}}/hook-response/{{PARTICLE_EVENT_NAME}}`
 
+# Documentation
+- [Azure Functions in Node](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-node)
+
 # Useful links
 - [Getting started with Azure functions](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
 - [Basic TypeScript functions](https://github.com/mhoeger/typescript-azure-functions)
