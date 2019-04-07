@@ -14,4 +14,6 @@
 
 # Useful links
 - [Getting started with Azure functions](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
+- [Basic TypeScript functions](https://github.com/mhoeger/typescript-azure-functions)
+- [Intermediate TypeScript functions](https://github.com/mhoeger/functions-typescript-intermediate)
 
