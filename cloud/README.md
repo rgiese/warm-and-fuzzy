@@ -9,6 +9,8 @@
     - `npm install`
     - `npm run build:production`
     - `func azure functionapp publish WarmAndFuzzy`
+- Manual deploy through VS Code
+    - Also works but less useful progress reporting
 
 # Documentation
 
