@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "func",
+      "command": "host start",
+      "problemMatcher": "$func-watch",
+      "isBackground": true,
+      "dependsOn": "functions npm build",
+      "options": {
+        "cwd": "${workspaceRoot}/cloud/functions"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "functions npm build",
+      "command": "npm run build",
+      "dependsOn": [
+        "func: extensions install",
+        "functions npm install"
+      ],
+      "problemMatcher": "$tsc",
+      "options": {
+        "cwd": "${workspaceRoot}/cloud/functions"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "functions npm install",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceRoot}/cloud/functions"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "functions npm prune",
+      "command": "npm prune --production",
+      "dependsOn": "functions npm build",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceRoot}/cloud/functions"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "functions",
+  "description": "",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build && func extensions install",
+    "start:host": "func start",
+    "start": "npm run start:host & npm run watch",
+    "build:production": "npm run prestart && npm prune --production",
+    "test": "echo \"No tests yet...\"",
+    "format:fix": "prettier --write {.,./**}/*.{js,json,ts}"
+  },
+  "devDependencies": {
+    "@azure/functions": "^1.0.1-beta2",
+    "typescript": "^3.3.3",
+    "prettier": "^1.16.4"
+  }
+}

@@ -1,0 +1,8 @@
+*.dat
+*.js.map
+*.ts
+.git*
+.vscode
+local.settings.json
+test
+tsconfig.json
