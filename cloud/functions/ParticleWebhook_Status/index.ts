@@ -1,40 +1,52 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
 import { parseAndValidateRequest } from "../common/parseRequest";
+import { AzureTableStorage } from "../common/azureTableStorage";
 
 import { StatusEvent } from "./statusEvent";
+
+const tableService = new AzureTableStorage();
 
 const httpTrigger: AzureFunction = async function(
   context: Context,
   req: HttpRequest
-): Promise<void> {
-  //
-  // Parse incoming status data
-  //
+): Promise<any> {
+  try {
+    // Parse incoming status data
+    const statusEvent = parseAndValidateRequest(StatusEvent, context, req);
 
-  const statusEvent = parseAndValidateRequest(StatusEvent, context, req);
+    context.log("Parsed body: ", statusEvent);
+    statusEvent.data.ext.map(x => context.log(x));
 
-  if (statusEvent === null) {
-    // parseAndValidateRequest set up the appropriate response already
-    return;
+    // Retrieve device configuration data
+    const deviceConfiguration = await tableService.TryRetrieveEntity(
+      "deviceConfig",
+      "default",
+      statusEvent.device_id
+    );
+    context.log("From table: ", deviceConfiguration);
+
+    // Return success response
+    return {
+      // Provide a compacted rendering of the JSON in the response (by default it's pretty)
+      body: JSON.stringify({ foo: "bar" }, undefined, 0),
+
+      // Force JSON content type
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+  } catch (error) {
+    context.log.error(error);
+
+    return {
+      status: 500,
+      body: {
+        error: "exception",
+        details: error,
+      },
+    };
   }
-
-  context.log("Parsed body: ", statusEvent);
-  statusEvent.data.ext.map(x => context.log(x));
-
-  //
-  // Return response
-  //
-
-  context.res = {
-    // Provide a compacted rendering of the JSON in the response (by default it's pretty)
-    body: JSON.stringify({ foo: "bar" }, undefined, 0),
-
-    // Force JSON content type
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
 };
 
 export default httpTrigger;

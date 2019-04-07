@@ -18,6 +18,8 @@
     "prettier": "^1.16.4"
   },
   "dependencies": {
+    "@types/node": "^11.13.0",
+    "azure-storage": "^2.10.2",
     "class-transformer": "^0.2.0",
     "class-validator": "^0.9.1",
     "reflect-metadata": "^0.1.13"

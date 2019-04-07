@@ -19,18 +19,10 @@ export function parseAndValidateRequest<T>(
     const validationErrors = validateSync(instance);
 
     if (validationErrors.length > 0) {
-      context.log.error("Request body validation errors: ", validationErrors);
-
-      context.res = {
-        status: 400,
-        body: {
-          error: "request body validation errors",
-          details: validationErrors,
-        },
-      };
-
-      return undefined;
+      context.log.error(validationErrors);
+      throw validationErrors;
     }
   }
+
   return instance;
 }
