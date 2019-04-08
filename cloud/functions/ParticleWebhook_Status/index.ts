@@ -1,6 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
-import { parseAndValidateRequest } from "../common/parseRequest";
 import { AzureTableStorage } from "../common/azureTableStorage";
 
 import { StatusEvent } from "./statusEvent";
@@ -13,8 +12,8 @@ const httpTrigger: AzureFunction = async function(
 ): Promise<any> {
   try {
     // Parse incoming status data
-    const statusEvent = parseAndValidateRequest(StatusEvent, context, req);
-
+    const statusEvent = new StatusEvent(context, req.body);
+    
     context.log("Parsed body: ", statusEvent);
     statusEvent.data.ext.map(x => context.log(x));
 

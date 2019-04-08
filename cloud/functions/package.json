@@ -3,7 +3,9 @@
   "description": "",
   "version": "0.1.0",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:schema && npm run build:ts",
+    "build:schema": "node scripts/generate-schemas.js",
+    "build:ts": "tsc",
     "watch": "tsc -w",
     "prestart": "npm run build && func extensions install",
     "start:host": "func start",
@@ -14,14 +16,15 @@
   },
   "devDependencies": {
     "@azure/functions": "^1.0.1-beta2",
+    "@types/node": "^11.13.0",
     "typescript": "^3.3.3",
-    "prettier": "^1.16.4"
+    "prettier": "^1.16.4",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
+    "typescript-json-schema": "^0.37.0"
   },
   "dependencies": {
-    "@types/node": "^11.13.0",
-    "azure-storage": "^2.10.2",
-    "class-transformer": "^0.2.0",
-    "class-validator": "^0.9.1",
-    "reflect-metadata": "^0.1.13"
+    "ajv": "^6.10.0",
+    "azure-storage": "^2.10.2"
   }
 }

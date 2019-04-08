@@ -1,8 +1,7 @@
-import { Equals, IsInt, IsHexadecimal, ArrayUnique, IsNumber } from "class-validator";
-import { Type } from "class-transformer";
+import * as Ajv from "ajv";
+import { Context } from "@azure/functions";
 
-// See https://github.com/typestack/class-transformer
-// See https://github.com/typestack/class-validator
+const ajvInstance = new Ajv();
 
 //
 // Example request body:
@@ -23,41 +22,51 @@ import { Type } from "class-transformer";
 // }
 //
 export class StatusEvent {
-  @Equals("status")
-  event: string;
+  event: "status";
 
-  @IsHexadecimal()
+  /**
+   * Hexadecimal Particle device ID
+   * @pattern ^([a-fA-F0-9]*)$
+   */
   device_id: string;
 
-  @Type(() => Date)
   published_at: Date;
 
-  @IsInt()
+  /**
+   * @type integer
+   */
   fw_version: number;
 
-  @Type(() => StatusEventData)
-  data: StatusEventData;
-}
+  data: {
+    /**
+     * @type integer
+     */
+    ts: number;
 
-export class StatusEventData {
-  @IsInt()
-  ts: number;
+    temp: number | "NaN";
+    hum: number | "NaN";
 
-  @IsNumber({ allowNaN: true }) // Allow NaN since the DHT22 fails to produce a measurement from time to time
-  temp: number;
+    ext: Array<{
+      /**
+       * Hexadecimal OneWire device ID
+       * @pattern ^([a-fA-F0-9]*)$
+       */
+      id: string;
 
-  @IsNumber({ allowNaN: true }) // (same)
-  hum: number;
+      temp: number;
+    }>;
+  };
 
-  @ArrayUnique()
-  @Type(() => StatusEventExternalData)
-  ext: StatusEventExternalData[];
-}
+  constructor(context: Context, data: any)
+  {
+    const validator = ajvInstance.compile(
+      require(context.executionContext.functionDirectory + "/../generated/schema/StatusEvent.json")
+    );
 
-export class StatusEventExternalData {
-  @IsHexadecimal()
-  id: string;
+    if (!validator(data)) {
+      throw validator.errors;
+    }
 
-  @IsNumber()
-  temp: number;
+    Object.assign(this, data);
+  }
 }
