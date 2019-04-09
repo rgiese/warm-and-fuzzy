@@ -1,10 +1,11 @@
 #include <Particle.h>
 
 #include <Adafruit_DHT.h>
-#include <math.h>
 
 #define ARDUINOJSON_ENABLE_PROGMEM 0
-#include "inc/ArduinoJson-v6.10.0.h"
+#include <ArduinoJson.h>
+
+#include <math.h>
 
 #include "waf-helpers.h"
 
