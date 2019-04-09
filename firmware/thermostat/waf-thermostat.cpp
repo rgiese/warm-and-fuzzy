@@ -3,6 +3,9 @@
 #include <Adafruit_DHT.h>
 #include <math.h>
 
+#define ARDUINOJSON_ENABLE_PROGMEM 0
+#include "inc/ArduinoJson-v6.10.0.h"
+
 #include "waf-helpers.h"
 
 #include "onewire/OneWireGateway2484.h"
