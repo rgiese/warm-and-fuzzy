@@ -6,9 +6,9 @@
 
 #define RETURN_IF_FALSE(x) \
     if (!(x))              \
-        {                  \
-            return false;  \
-        }
+    {                      \
+        return false;      \
+    }
 
 
 template <typename T, std::size_t N>

@@ -25,9 +25,9 @@ class OneWireCRC
         uint8_t crcAccumulator = 0;
 
         for (size_t idxData = 0; idxData < cbData; ++idxData)
-            {
-                crcAccumulator = sc_rgCrc[crcAccumulator ^ rgData[idxData]];
-            }
+        {
+            crcAccumulator = sc_rgCrc[crcAccumulator ^ rgData[idxData]];
+        }
 
         return crcAccumulator;
     }

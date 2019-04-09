@@ -42,12 +42,12 @@ class IOneWireGateway
     bool WriteBytes(uint8_t const rgValues[], uint8_t const cValues) const
     {
         for (uint8_t idxValue = 0; idxValue < cValues; ++idxValue)
+        {
+            if (!WriteByte(rgValues[idxValue]))
             {
-                if (!WriteByte(rgValues[idxValue]))
-                    {
-                        return false;
-                    }
+                return false;
             }
+        }
 
         return true;
     }
@@ -55,9 +55,9 @@ class IOneWireGateway
     bool SelectAddress(OneWireAddress const& Address) const
     {
         if (!WriteCommand(OneWireCommand::MatchROM))
-            {
-                return false;
-            }
+        {
+            return false;
+        }
 
         return WriteBytes(Address.Get(), 8);
     }
