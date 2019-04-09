@@ -2,6 +2,7 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
 import { AzureTableStorage } from "../common/azureTableStorage";
 
+import { DeviceConfiguration } from "./deviceConfiguration";
 import { StatusEvent } from "./statusEvent";
 
 const tableService = new AzureTableStorage();
@@ -18,17 +19,25 @@ const httpTrigger: AzureFunction = async function(
     statusEvent.data.v.map(x => context.log(x));
 
     // Retrieve device configuration data
-    const deviceConfiguration = await tableService.TryRetrieveEntity(
+    const deviceConfigurationJson = await tableService.TryRetrieveEntity(
       "deviceConfig",
       "default",
       statusEvent.device_id
     );
-    context.log("From table: ", deviceConfiguration);
+    context.log("From table: ", deviceConfigurationJson);
+
+    const deviceConfiguration = new DeviceConfiguration(context, deviceConfigurationJson);
 
     // Return success response
     return {
       // Provide a compacted rendering of the JSON in the response (by default it's pretty)
-      body: JSON.stringify({ foo: "bar" }, undefined, 0),
+      body: JSON.stringify(
+        {
+          sp: deviceConfiguration.setPoint,
+        },
+        undefined,
+        0
+      ),
 
       // Force JSON content type
       headers: {
