@@ -29,11 +29,14 @@ PRODUCT_VERSION(1);  // Increment for each release
 // Connect pin 4 (on the right) of the sensor to GROUND
 // Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
 
-pin_t const c_dht22Pin = D2;
-pin_t const c_rgRelayPins[] = {A0, A1, A2};
-pin_t const c_LedPin = D7;
+pin_t constexpr c_dht22Pin = D2;
+pin_t constexpr c_rgRelayPins[] = {A0, A1, A2};
+pin_t constexpr c_LedPin = D7;
 
 DHT dht(c_dht22Pin, DHT22);
+
+//
+uint8_t constexpr c_cOneWireDevices_Max = 16;
 OneWireGateway2484 oneWireGateway;
 
 //
@@ -80,48 +83,35 @@ void loop()
     // Acquire data
     //
 
-    // Note: Reading temperature or humidity takes about 250 milliseconds
+    // Onboard devices
     float const temperature = dht.getTempCelcius();
     float const humidity = dht.getHumidity();
 
-    String externalData;
-    {
-        // Enumerate devices
-        OneWireAddress rgAddresses[16];
-        size_t cAddressesFound = 0;
+    // Enumerate external devices
+    OneWireAddress rgAddresses[c_cOneWireDevices_Max];
+    size_t cAddressesFound = 0;
 
-        oneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
-            if (cAddressesFound < countof(rgAddresses))
+    oneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
+        if (cAddressesFound < countof(rgAddresses))
+        {
+            if (Address.GetDeviceFamily() == 0x28)  // Ensure device is a DS18B20 sensor
             {
                 rgAddresses[cAddressesFound] = Address;
                 ++cAddressesFound;
             }
-        });
+        }
+    });
 
-        // Request temperature measurement from all sensors
-        if (OneWireTemperatureSensor::RequestMeasurement(oneWireGateway))
+    // Request temperature measurement from all sensors
+    float rgExternalTemperatures[c_cOneWireDevices_Max] = {NAN};
+
+    if (OneWireTemperatureSensor::RequestMeasurement(oneWireGateway))
+    {
+        // Retrieve measurements
+        for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
         {
-            // Retrieve measurements and format values
-            for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
-            {
-                OneWireAddress const& address = rgAddresses[idxAddress];
-
-                if (address.GetDeviceFamily() == 0x28)  // Ensure device is a DS18B20 sensor
-                {
-                    float externalTemperature;
-                    if (OneWireTemperatureSensor::RetrieveMeasurement(externalTemperature, address, oneWireGateway))
-                    {
-                        if (externalData.length() > 0)
-                        {
-                            externalData.concat(",");
-                        }
-
-                        externalData.concat(String::format("{id:\"%s\",\"temp\":%s}",
-                                                           address.ToString().c_str(),
-                                                           floatToString(externalTemperature).c_str()));
-                    }
-                }
-            }
+            OneWireTemperatureSensor::RetrieveMeasurement(
+                rgExternalTemperatures[idxAddress], rgAddresses[idxAddress], oneWireGateway);
         }
     }
 
@@ -129,14 +119,50 @@ void loop()
     // Publish data
     //
 
-    String const publishedData = String::format("{\"ts\":%u,\"temp\":%s,\"hum\":%s,\"ext\":[%s]}",
-                                                Time.now(),
-                                                floatToString(temperature).c_str(),
-                                                floatToString(humidity).c_str(),
-                                                externalData.c_str());
+    size_t constexpr cchTelemetry =
+        static_strlen("{'ts':‭4294967295‬,'v':[]}")  // Top-level elements
+        + static_strlen("{'t':-100.0,'h':100.0},")       // Values from on-board sensors
+        + c_cOneWireDevices_Max *
+              static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
+        + 4;                                                                      // wiggle room
 
-    Particle.publish("status", publishedData, 60 /* TTL, unused */, PRIVATE);
-    Serial.println(publishedData.c_str());
+    FixedStringBuffer<cchTelemetry> sb;
+
+    sb.AppendFormat("{\"ts\":%u,\"v\":[", Time.now());
+    {
+        bool isCommaNeeded = false;
+
+        if (!isnan(temperature) && !isnan(humidity))
+        {
+            sb.AppendFormat("{\"t\":%.1f,\"h\":%.1f}", temperature, humidity);
+
+            isCommaNeeded = true;
+        }
+
+        for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
+        {
+            if (isnan(rgExternalTemperatures[idxAddress]))
+            {
+                continue;
+            }
+
+            if (isCommaNeeded)
+            {
+                sb.Append(",");
+            }
+
+            char rgAddress[OneWireAddress::sc_cchAsHexString_WithTerminator];
+            rgAddresses[idxAddress].ToString(rgAddress);
+
+            sb.AppendFormat("{\"id\":\"%s\",\"t\":%.1f}", rgAddress, rgExternalTemperatures[idxAddress]);
+
+            isCommaNeeded = true;
+        }
+    }
+    sb.AppendFormat("]}");
+
+    Particle.publish("status", sb.ToString(), 60 /* TTL, unused */, PRIVATE);
+    Serial.println(sb.ToString());
 
     delay(60 * 1000);
 }

@@ -6,6 +6,9 @@
 
 class OneWireAddress
 {
+   private:
+    static uint8_t constexpr sc_cAddressBytes = 8;
+
    public:
     OneWireAddress() : m_Address()
     {
@@ -65,19 +68,26 @@ class OneWireAddress
         return (OneWireCRC::Compute(m_Address, countof(m_Address) - 1) == m_Address[countof(m_Address) - 1]);
     }
 
-    String ToString() const
+
+    static size_t constexpr sc_cchAsHexString_WithTerminator = (sc_cAddressBytes * 2) + 1;
+
+    void ToString(char rgBuffer[sc_cchAsHexString_WithTerminator]) const
     {
-        String str;
+        auto toHexChar = [](uint8_t const v) -> char { return (v < 0xA) ? (v + '0') : ((v - 0xA) + 'A'); };
 
         // LSB...MSB
         for (size_t idxByte = 0; idxByte < countof(m_Address); ++idxByte)
         {
-            str.concat(String::format("%02x", m_Address[idxByte]));
+            uint8_t const lowerNibble = m_Address[idxByte] & 0xF;
+            uint8_t const upperNibble = m_Address[idxByte] >> 4;
+
+            rgBuffer[2 * idxByte + 0] = toHexChar(upperNibble);
+            rgBuffer[2 * idxByte + 1] = toHexChar(lowerNibble);
         }
 
-        return str;
+        rgBuffer[sc_cchAsHexString_WithTerminator - 1] = 0;
     }
 
    private:
-    uint8_t m_Address[8];
+    uint8_t m_Address[sc_cAddressBytes];
 };
