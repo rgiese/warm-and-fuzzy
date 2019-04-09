@@ -4,7 +4,7 @@
 
 class OneWireTemperatureSensor
 {
-   public:
+public:
     // Fine-grained functions
     static bool RequestMeasurement(IOneWireGateway const& OneWireGateway)
     {

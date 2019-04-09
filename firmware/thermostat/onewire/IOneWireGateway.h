@@ -6,7 +6,7 @@
 
 class IOneWireGateway
 {
-   public:
+public:
     // Constants
     enum class OneWireCommand : uint8_t
     {
@@ -22,7 +22,7 @@ class IOneWireGateway
         ReadScratchpad = 0xBE,
     };
 
-   public:
+public:
     // Interface
     virtual bool Initialize() = 0;
 
@@ -32,7 +32,7 @@ class IOneWireGateway
 
     virtual bool EnumerateDevices(std::function<void(OneWireAddress const&)> OnAddress) const = 0;
 
-   public:
+public:
     // Convenience helpers
     bool WriteCommand(OneWireCommand const Command) const
     {

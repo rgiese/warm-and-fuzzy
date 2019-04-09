@@ -6,11 +6,12 @@
 
 class OneWireAddress
 {
-   private:
+private:
     static uint8_t constexpr sc_cAddressBytes = 8;
 
-   public:
-    OneWireAddress() : m_Address()
+public:
+    OneWireAddress()
+        : m_Address()
     {
     }
 
@@ -88,6 +89,6 @@ class OneWireAddress
         rgBuffer[sc_cchAsHexString_WithTerminator - 1] = 0;
     }
 
-   private:
+private:
     uint8_t m_Address[sc_cAddressBytes];
 };

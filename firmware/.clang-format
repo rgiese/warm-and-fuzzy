@@ -14,6 +14,8 @@ AllowShortLoopsOnASingleLine: false
 BinPackArguments: false
 BinPackParameters: false
 
+AccessModifierOffset: -4
+
 BreakBeforeBraces: Custom
 BraceWrapping:   
   AfterClass:      true
@@ -33,6 +35,8 @@ BraceWrapping:
   SplitEmptyNamespace: true
 
 BreakConstructorInitializers: BeforeComma
+
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
 
 MaxEmptyLinesToKeep: 2
 ...

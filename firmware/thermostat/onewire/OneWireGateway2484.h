@@ -5,10 +5,10 @@
 
 class OneWireGateway2484 : public IOneWireGateway
 {
-   public:
+public:
     OneWireGateway2484();
 
-   public:
+public:
     virtual bool Initialize();
 
     virtual bool Reset() const;
@@ -17,7 +17,7 @@ class OneWireGateway2484 : public IOneWireGateway
 
     virtual bool EnumerateDevices(std::function<void(OneWireAddress const&)> OnAddress) const;
 
-   private:
+private:
     static uint8_t const sc_GatewayAddress = 0x18;
 
     enum class GatewayCommand : uint8_t
@@ -70,10 +70,10 @@ class OneWireGateway2484 : public IOneWireGateway
         };
     };
 
-   private:
+private:
     mutable GatewayRegister m_LatestReadPointer;
 
-   private:
+private:
     bool ReadGatewayRegister(__out uint8_t& Value, GatewayRegister const Register) const;
     bool SetGatewayConfiguration(GatewayConfiguration const Configuration) const;
 
@@ -83,7 +83,7 @@ class OneWireGateway2484 : public IOneWireGateway
                  __out bool& DirectionTaken,
                  uint8_t const DirectionRequested) const;
 
-   private:
+private:
     // Internal helpers for single-byte writes
     void _writeGatewayData(uint8_t Data) const
     {
@@ -160,7 +160,8 @@ class OneWireGateway2484 : public IOneWireGateway
 // Interface implementation
 //
 
-OneWireGateway2484::OneWireGateway2484() : m_LatestReadPointer(GatewayRegister::Unknown)
+OneWireGateway2484::OneWireGateway2484()
+    : m_LatestReadPointer(GatewayRegister::Unknown)
 {
 }
 

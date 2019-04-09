@@ -27,8 +27,10 @@ constexpr std::size_t static_strlen(T const (&)[N]) noexcept
 template <uint16_t cchBuffer>
 class FixedStringBuffer
 {
-   public:
-    FixedStringBuffer() : m_rgBuffer(), m_cchUsed()
+public:
+    FixedStringBuffer()
+        : m_rgBuffer()
+        , m_cchUsed()
     {
     }
 
@@ -67,11 +69,11 @@ class FixedStringBuffer
         return false;
     }
 
-   private:
+private:
     char m_rgBuffer[cchBuffer];
     uint16_t m_cchUsed;
 
-   private:
+private:
     bool Append(char const* const rgText, uint16_t const cchToAppend_WithTerminator)
     {
         uint16_t const cchRemaining = cchBuffer - m_cchUsed;
