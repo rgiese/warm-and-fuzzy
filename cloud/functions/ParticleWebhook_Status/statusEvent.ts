@@ -43,22 +43,26 @@ export class StatusEvent {
      */
     ts: number;
 
-    temp: number | "NaN";
-    hum: number | "NaN";
-
-    ext: Array<{
+    v: Array<{
       /**
-       * Hexadecimal OneWire device ID
+       * Hexadecimal OneWire device ID (optional, empty if from onboard sensor)
        * @pattern ^([a-fA-F0-9]*)$
        */
-      id: string;
+      id?: string;
 
-      temp: number;
+      /**
+       * Temperature
+       */
+      t: number;
+
+      /**
+       * Humidity
+       */
+      h?: number;
     }>;
   };
 
-  constructor(context: Context, data: any)
-  {
+  constructor(context: Context, data: any) {
     const validator = ajvInstance.compile(
       require(context.executionContext.functionDirectory + "/../generated/schema/StatusEvent.json")
     );

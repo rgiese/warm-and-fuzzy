@@ -13,9 +13,9 @@ const httpTrigger: AzureFunction = async function(
   try {
     // Parse incoming status data
     const statusEvent = new StatusEvent(context, req.body);
-    
+
     context.log("Parsed body: ", statusEvent);
-    statusEvent.data.ext.map(x => context.log(x));
+    statusEvent.data.v.map(x => context.log(x));
 
     // Retrieve device configuration data
     const deviceConfiguration = await tableService.TryRetrieveEntity(
