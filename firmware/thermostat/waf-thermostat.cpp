@@ -7,7 +7,8 @@
 
 #include <math.h>
 
-#include "waf-helpers.h"
+#include "inc/FixedStringBuffer.h"
+#include "inc/coredefs.h"
 
 #include "onewire/OneWireGateway2484.h"
 #include "onewire/OneWireTemperatureSensor.h"

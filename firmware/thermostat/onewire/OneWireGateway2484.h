@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../waf-helpers.h"
+#include "../inc/coredefs.h"
 #include "IOneWireGateway.h"
 
 class OneWireGateway2484 : public IOneWireGateway
