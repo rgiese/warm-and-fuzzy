@@ -6,17 +6,21 @@
 
 class OneWireAddress
 {
-   public:
-    OneWireAddress() : m_Address()
+private:
+    static uint8_t constexpr sc_cAddressBytes = 8;
+
+public:
+    OneWireAddress()
+        : m_Address()
     {
     }
 
     void SetBit(size_t idxBit, bool IsSet)
     {
         if (idxBit >= 8 * countof(m_Address))
-            {
-                return;
-            }
+        {
+            return;
+        }
 
         size_t const idxByte = idxBit / 8;
         size_t const idxBitInByte = idxBit % 8;
@@ -30,9 +34,9 @@ class OneWireAddress
     bool GetBit(size_t idxBit) const
     {
         if (idxBit >= 8 * countof(m_Address))
-            {
-                return false;
-            }
+        {
+            return false;
+        }
 
         size_t const idxByte = idxBit / 8;
         size_t const idxBitInByte = idxBit % 8;
@@ -43,9 +47,9 @@ class OneWireAddress
     uint8_t GetByte(size_t idxByte) const
     {
         if (idxByte >= countof(m_Address))
-            {
-                return 0;
-            }
+        {
+            return 0;
+        }
 
         return m_Address[idxByte];
     }
@@ -65,19 +69,26 @@ class OneWireAddress
         return (OneWireCRC::Compute(m_Address, countof(m_Address) - 1) == m_Address[countof(m_Address) - 1]);
     }
 
-    String ToString() const
+
+    static size_t constexpr sc_cchAsHexString_WithTerminator = (sc_cAddressBytes * 2) + 1;
+
+    void ToString(char rgBuffer[sc_cchAsHexString_WithTerminator]) const
     {
-        String str;
+        auto toHexChar = [](uint8_t const v) -> char { return (v < 0xA) ? (v + '0') : ((v - 0xA) + 'A'); };
 
         // LSB...MSB
         for (size_t idxByte = 0; idxByte < countof(m_Address); ++idxByte)
-            {
-                str.concat(String::format("%02x", m_Address[idxByte]));
-            }
+        {
+            uint8_t const lowerNibble = m_Address[idxByte] & 0xF;
+            uint8_t const upperNibble = m_Address[idxByte] >> 4;
 
-        return str;
+            rgBuffer[2 * idxByte + 0] = toHexChar(upperNibble);
+            rgBuffer[2 * idxByte + 1] = toHexChar(lowerNibble);
+        }
+
+        rgBuffer[sc_cchAsHexString_WithTerminator - 1] = 0;
     }
 
-   private:
-    uint8_t m_Address[8];
+private:
+    uint8_t m_Address[sc_cAddressBytes];
 };

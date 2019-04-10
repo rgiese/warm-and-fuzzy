@@ -3,6 +3,7 @@
 *.ts
 .git*
 .vscode
+scripts
 local.settings.json
 test
 tsconfig.json

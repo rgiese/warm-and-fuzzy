@@ -1,14 +1,16 @@
 #pragma once
 
+#include <Particle.h>
+
 #define __in
 #define __out
 #define __out_opt
 
 #define RETURN_IF_FALSE(x) \
     if (!(x))              \
-        {                  \
-            return false;  \
-        }
+    {                      \
+        return false;      \
+    }
 
 
 template <typename T, std::size_t N>
@@ -17,8 +19,8 @@ constexpr std::size_t countof(T const (&)[N]) noexcept
     return N;
 }
 
-
-String floatToString(float const value)
+template <typename T, std::size_t N>
+constexpr std::size_t static_strlen(T const (&)[N]) noexcept
 {
-    return !isnan(value) ? String::format("%.1f", value) : String("\"NaN\"");
+    return N - 1;
 }

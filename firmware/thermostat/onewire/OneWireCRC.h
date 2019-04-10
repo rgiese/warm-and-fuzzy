@@ -4,7 +4,7 @@
 
 class OneWireCRC
 {
-   public:
+public:
     static uint8_t Compute(uint8_t const* const rgData, size_t const cbData)
     {
         static uint8_t const sc_rgCrc[] = {
@@ -25,9 +25,9 @@ class OneWireCRC
         uint8_t crcAccumulator = 0;
 
         for (size_t idxData = 0; idxData < cbData; ++idxData)
-            {
-                crcAccumulator = sc_rgCrc[crcAccumulator ^ rgData[idxData]];
-            }
+        {
+            crcAccumulator = sc_rgCrc[crcAccumulator ^ rgData[idxData]];
+        }
 
         return crcAccumulator;
     }

@@ -1,23 +1,58 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
+import { AzureTableStorage } from "../common/azureTableStorage";
+
+import { DeviceConfiguration } from "./deviceConfiguration";
+import { StatusEvent } from "./statusEvent";
+
+const tableService = new AzureTableStorage();
+
 const httpTrigger: AzureFunction = async function(
   context: Context,
   req: HttpRequest
-): Promise<void> {
-  context.log("HTTP trigger function processed a request.");
-  const name = req.query.name || (req.body && req.body.name);
+): Promise<any> {
+  try {
+    // Parse incoming status data
+    const statusEvent = new StatusEvent(context, req.body);
 
-  if (name) {
-    context.res = {
-      // status: 200, /* Defaults to 200 */
-      body: { name }
+    context.log("Parsed body: ", statusEvent);
+    statusEvent.data.v.map(x => context.log(x));
+
+    // Retrieve device configuration data
+    const deviceConfigurationJson = await tableService.TryRetrieveEntity(
+      "deviceConfig",
+      "default",
+      statusEvent.device_id
+    );
+    context.log("From table: ", deviceConfigurationJson);
+
+    const deviceConfiguration = new DeviceConfiguration(context, deviceConfigurationJson);
+
+    // Return success response
+    return {
+      // Provide a compacted rendering of the JSON in the response (by default it's pretty)
+      body: JSON.stringify(
+        {
+          sp: deviceConfiguration.setPoint,
+        },
+        undefined,
+        0
+      ),
+
+      // Force JSON content type
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
-  } else {
-    context.res = {
-      status: 400,
+  } catch (error) {
+    context.log.error(error);
+
+    return {
+      status: 500,
       body: {
-        error: "Please pass a name on the query string or in the request body",
-      }
+        error: "exception",
+        details: error,
+      },
     };
   }
 };

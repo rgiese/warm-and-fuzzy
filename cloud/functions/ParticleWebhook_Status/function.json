@@ -5,13 +5,14 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get", "post"]
+      "methods": ["post"],
+      "route": "webhooks/particle/status"
     },
     {
       "type": "http",
       "direction": "out",
-      "name": "res"
+      "name": "$return"
     }
   ],
-  "scriptFile": "..\\dist\\ParticleWebhook_Status\\index.js"
+  "scriptFile": "../dist/ParticleWebhook_Status/index.js"
 }
