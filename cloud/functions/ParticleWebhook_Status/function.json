@@ -14,5 +14,5 @@
       "name": "$return"
     }
   ],
-  "scriptFile": "..\\dist\\ParticleWebhook_Status\\index.js"
+  "scriptFile": "../dist/ParticleWebhook_Status/index.js"
 }
