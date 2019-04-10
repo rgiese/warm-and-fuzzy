@@ -172,9 +172,50 @@ void loop()
 // Subscriptions
 //
 
+void onInvalidStatusResponse(char const* szEvent, char const* szData, char const* szReason)
+{
+    Serial.printlnf("onStatusResponse: %s for %s = %s", szReason, szEvent, szData);
+}
+
 void onStatusResponse(char const* szEvent, char const* szData)
 {
-    Serial.printlnf("Status response for %s: %s", szEvent, szData);
+    if (strstr(szEvent, "/hook-response/status/0") == nullptr)  // [deviceID]/hook-response/status/0
+    {
+        onInvalidStatusResponse("Unexpected event", szEvent, szData);
+        return;
+    }
+
+    // Set up document
+    size_t constexpr cbJsonDocument = JSON_OBJECT_SIZE(1)  // {"sp":25.0}
+                                      + countof("sp")      // string copy of "sp"
+        ;
+
+    StaticJsonDocument<cbJsonDocument> jsonDocument;
+    {
+        DeserializationError const jsonError = deserializeJson(jsonDocument, szData);
+
+        if (jsonError)
+        {
+            onInvalidStatusResponse("Failed to deserialize", szEvent, szData);
+            return;
+        }
+    }
+
+    // Extract values from document
+    float setPoint;
+    {
+        JsonVariant variant = jsonDocument.getMember("sp");
+
+        if (variant.isNull() || !variant.is<float>())
+        {
+            onInvalidStatusResponse("'sp' missing or invalid", szEvent, szData);
+            return;
+        }
+
+        setPoint = variant.as<float>();
+    }
+
+    Serial.printlnf("Updated config: set point = %.1f", setPoint);
 }
 
 
