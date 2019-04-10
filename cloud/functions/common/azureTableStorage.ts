@@ -7,6 +7,7 @@ export interface ITableEntity {
 }
 
 export class AzureTableStorage {
+  // https://github.com/Azure/azure-storage-node (newer SDK (azure-storage-js) doesn't support Table storage yet)
   private tableService: AzureStorage.TableService;
 
   constructor() {
