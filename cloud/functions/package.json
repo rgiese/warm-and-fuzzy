@@ -13,19 +13,22 @@
     "start:host": "func start",
     "test": "echo \"No tests yet...\"",
     "format:fix": "prettier --write {.,./**}/*.{js,json,ts}",
-    "lint": "tslint --project .",
-    "lint:fix": "tslint --fix --project ."
+    "lint": "eslint {.,./**}/*.ts",
+    "lint:fix": "eslint --fix {.,./**}/*.ts"
   },
   "devDependencies": {
     "@azure/functions": "^1.0.1-beta2",
     "@types/node": "^11.13.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.1.0",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
     "prettier": "^1.16.4",
-    "tslint": "^5.15.0",
-    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.4.2",
-    "typescript-json-schema": "^0.37.0"
+    "typescript-json-schema": "^0.37.0",
+    "@typescript-eslint/eslint-plugin": "^1.6.0",
+    "@typescript-eslint/parser": "^1.6.0",
+    "eslint-plugin-prettier": "^3.0.1"
   },
   "dependencies": {
     "ajv": "^6.10.0",
