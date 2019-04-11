@@ -4,15 +4,17 @@
   "version": "0.1.0",
   "scripts": {
     "build": "npm run build:schema && npm run build:ts",
+    "build:production": "npm run prestart && npm prune --production",
     "build:schema": "node scripts/generate-schemas.js",
     "build:ts": "tsc",
     "watch": "tsc -w",
     "prestart": "npm install && npm run build && func extensions install",
-    "start:host": "func start",
     "start": "npm run start:host & npm run watch",
-    "build:production": "npm run prestart && npm prune --production",
+    "start:host": "func start",
     "test": "echo \"No tests yet...\"",
-    "format:fix": "prettier --write {.,./**}/*.{js,json,ts}"
+    "format:fix": "prettier --write {.,./**}/*.{js,json,ts}",
+    "lint": "tslint --project .",
+    "lint:fix": "tslint --fix --project ."
   },
   "devDependencies": {
     "@azure/functions": "^1.0.1-beta2",
@@ -20,6 +22,8 @@
     "fs": "0.0.1-security",
     "path": "^0.12.7",
     "prettier": "^1.16.4",
+    "tslint": "^5.15.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.4.2",
     "typescript-json-schema": "^0.37.0"
   },
