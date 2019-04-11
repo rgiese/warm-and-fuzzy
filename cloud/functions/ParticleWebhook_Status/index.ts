@@ -21,8 +21,9 @@ const httpTrigger: AzureFunction = async function(
         (value): TableEntity => {
           return {
             PartitionKey: "default",
-            RowKey: (value.id ? value.id : statusEvent.device_id).toLowerCase(),
+            RowKey: (value.id || statusEvent.device_id).toLowerCase(),
             PublishedTime: statusEvent.published_at,
+            DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
             Temperature: value.t,
             Humidity: value.h,
           };
