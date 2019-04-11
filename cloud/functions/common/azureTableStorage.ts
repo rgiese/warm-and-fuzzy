@@ -3,7 +3,15 @@ import * as AzureStorage from "azure-storage";
 export interface ITableEntity {
   PartitionKey?: string;
   RowKey?: string;
-  [key: string]: string | number | boolean | undefined;
+  [key: string]: string | number | boolean | Date | undefined;
+}
+
+export enum TableInsertStrategy {
+  Insert,
+  InsertOrReplace,
+  InsertOrMerge,
+  Merge,
+  Update,
 }
 
 export class AzureTableStorage {
@@ -20,14 +28,37 @@ export class AzureTableStorage {
   //       reject() the error instead, and remember that reject() does not alter control flow.
   //
 
-  async InsertOrMergeEntities(
+  private insertStrategyToOperationType(insertStrategy: TableInsertStrategy): string {
+    switch (insertStrategy) {
+      case TableInsertStrategy.Insert:
+        return AzureStorage.Constants.TableConstants.Operations.INSERT;
+      case TableInsertStrategy.InsertOrReplace:
+        return AzureStorage.Constants.TableConstants.Operations.INSERT_OR_REPLACE;
+      case TableInsertStrategy.InsertOrMerge:
+        return AzureStorage.Constants.TableConstants.Operations.INSERT_OR_MERGE;
+      case TableInsertStrategy.Merge:
+        return AzureStorage.Constants.TableConstants.Operations.MERGE;
+      case TableInsertStrategy.Update:
+        return AzureStorage.Constants.TableConstants.Operations.UPDATE;
+      default:
+        throw new Error(`Unexpected insertStrategy ${insertStrategy}`);
+    }
+  }
+
+  async InsertEntities(
     tableName: string,
-    entities: ITableEntity[]
+    entities: ITableEntity[],
+    insertStrategy: TableInsertStrategy
   ): Promise<AzureStorage.TableService.BatchResult[]> {
     return new Promise((resolve, reject) => {
       let batch = new AzureStorage.TableBatch();
       {
-        entities.forEach(entity => batch.insertOrMergeEntity(this.entityToTableRecord(entity)));
+        entities.forEach(entity =>
+          batch.addOperation(
+            this.insertStrategyToOperationType(insertStrategy),
+            this.entityToTableRecord(entity)
+          )
+        );
       }
 
       this.tableService.executeBatch(
@@ -44,32 +75,6 @@ export class AzureTableStorage {
           }
 
           resolve(batchResults);
-        }
-      );
-    });
-  }
-
-  async InsertOrMergeEntity(
-    tableName: string,
-    entity: ITableEntity
-  ): Promise<AzureStorage.TableService.EntityMetadata> {
-    return new Promise((resolve, reject) => {
-      const tableRecord = this.entityToTableRecord(entity);
-
-      this.tableService.insertOrMergeEntity(
-        tableName,
-        tableRecord,
-        (
-          error: AzureStorage.StorageError,
-          entityResponse: AzureStorage.TableService.EntityMetadata,
-          response: AzureStorage.ServiceResponse
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(entityResponse);
         }
       );
     });
