@@ -31,14 +31,14 @@
 ## Particle webhook configuration
 - Event: `status`
 - To: `https://warmandfuzzy.azurewebsites.net/webhooks/particle/status` as POST
-- Request body (JSON) - _note_ presence/absence of quotes:
+- Request body (JSON) - _note_ presence/absence of quotes and field names different from the defaults:
     ```
     {
     "event": "{{{PARTICLE_EVENT_NAME}}}",
     "data": {{{PARTICLE_EVENT_VALUE}}},
-    "device_id": "{{{PARTICLE_DEVICE_ID}}}",
-    "published_at": "{{{PARTICLE_PUBLISHED_AT}}}",
-    "fw_version": {{{PRODUCT_VERSION}}},
+    "deviceId": "{{{PARTICLE_DEVICE_ID}}}",
+    "publishedAt": "{{{PARTICLE_PUBLISHED_AT}}}",
+    "firmwareVersion": {{{PRODUCT_VERSION}}},
     }
     ```
 - Query parameters: provide `code` set to Azure Functions function key

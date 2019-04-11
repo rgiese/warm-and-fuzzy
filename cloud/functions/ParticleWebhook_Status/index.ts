@@ -21,8 +21,8 @@ const httpTrigger: AzureFunction = async function(
         (value): TableEntity => {
           return {
             PartitionKey: "default",
-            RowKey: (value.id || statusEvent.device_id).toLowerCase(),
-            PublishedTime: statusEvent.published_at,
+            RowKey: (value.id || statusEvent.deviceId).toLowerCase(),
+            PublishedTime: statusEvent.publishedAt,
             DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
             Temperature: value.t,
             Humidity: value.h,
@@ -41,7 +41,7 @@ const httpTrigger: AzureFunction = async function(
     const deviceConfigurationJson = await tableService.TryRetrieveEntity(
       "deviceConfig",
       "default",
-      statusEvent.device_id
+      statusEvent.deviceId
     );
 
     const deviceConfiguration = new DeviceConfiguration(context, deviceConfigurationJson);

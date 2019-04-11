@@ -99,7 +99,7 @@ export class AzureTableStorage {
           (error: AzureStorage.StorageError, tableRecord: any): void => {
             if (error) {
               if (error.statusCode == 404 && returnNullOnNotFound) {
-                resolve(null);
+                resolve(undefined);
               } else {
                 reject(error);
               }

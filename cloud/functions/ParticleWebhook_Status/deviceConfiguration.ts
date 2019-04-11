@@ -7,6 +7,8 @@ export class DeviceConfiguration {
   public setPoint: number;
 
   public constructor(context: Context, data: any) {
+    this.setPoint = NaN;
+
     const validator = ajvInstance.compile(
       require(context.executionContext.functionDirectory +
         "/../generated/schema/DeviceConfiguration.json")

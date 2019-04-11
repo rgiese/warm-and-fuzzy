@@ -27,14 +27,14 @@ export class StatusEvent {
    * Hexadecimal Particle device ID
    * @pattern ^([a-fA-F0-9]*)$
    */
-  public device_id: string;
+  public deviceId: string;
 
-  public published_at: Date;
+  public publishedAt: Date;
 
   /**
    * @type integer
    */
-  public fw_version: number;
+  public firmwareVersion: number;
 
   public data: {
     /**
@@ -62,6 +62,12 @@ export class StatusEvent {
   };
 
   public constructor(context: Context, data: any) {
+    this.event = "status";
+    this.deviceId = "";
+    this.publishedAt = new Date(0);
+    this.firmwareVersion = 0;
+    this.data = { ts: 0, v: [] };
+
     const validator = ajvInstance.compile(
       require(context.executionContext.functionDirectory + "/../generated/schema/StatusEvent.json")
     );
