@@ -20,18 +20,58 @@ export class AzureTableStorage {
   //       reject() the error instead, and remember that reject() does not alter control flow.
   //
 
-  async AddOrMergeEntity(tableName: string, entity: ITableEntity): Promise<ITableEntity> {
+  async InsertOrMergeEntities(
+    tableName: string,
+    entities: ITableEntity[]
+  ): Promise<AzureStorage.TableService.BatchResult[]> {
+    return new Promise((resolve, reject) => {
+      let batch = new AzureStorage.TableBatch();
+      {
+        entities.forEach(entity => batch.insertOrMergeEntity(this.entityToTableRecord(entity)));
+      }
+
+      this.tableService.executeBatch(
+        tableName,
+        batch,
+        (
+          error: AzureStorage.StorageError,
+          batchResults: AzureStorage.TableService.BatchResult[],
+          response: AzureStorage.ServiceResponse
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          resolve(batchResults);
+        }
+      );
+    });
+  }
+
+  async InsertOrMergeEntity(
+    tableName: string,
+    entity: ITableEntity
+  ): Promise<AzureStorage.TableService.EntityMetadata> {
     return new Promise((resolve, reject) => {
       const tableRecord = this.entityToTableRecord(entity);
 
-      this.tableService.insertOrMergeEntity(tableName, tableRecord, err => {
-        if (err) {
-          reject(err);
-          return;
-        }
+      this.tableService.insertOrMergeEntity(
+        tableName,
+        tableRecord,
+        (
+          error: AzureStorage.StorageError,
+          entityResponse: AzureStorage.TableService.EntityMetadata,
+          response: AzureStorage.ServiceResponse
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
 
-        resolve(entity);
-      });
+          resolve(entityResponse);
+        }
+      );
     });
   }
 
@@ -46,12 +86,12 @@ export class AzureTableStorage {
         tableName,
         partitionKey,
         rowKey,
-        (err, tableRecord) => {
-          if (err) {
-            if (err["statusCode"] == 404 && returnNullOnNotFound) {
+        (error, tableRecord) => {
+          if (error) {
+            if (error["statusCode"] == 404 && returnNullOnNotFound) {
               resolve(null);
             } else {
-              reject(err);
+              reject(error);
             }
 
             return;

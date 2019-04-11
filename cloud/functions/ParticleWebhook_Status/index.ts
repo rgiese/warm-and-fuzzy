@@ -18,6 +18,24 @@ const httpTrigger: AzureFunction = async function(
     context.log("Parsed body: ", statusEvent);
     statusEvent.data.v.map(x => context.log(x));
 
+    // Store latest values (ignoring out-of-order delivery)
+    {
+      const latestValueEntities = statusEvent.data.v.map(value => {
+        return {
+          PartitionKey: "default",
+          RowKey: (value.id ? value.id : statusEvent.device_id).toLowerCase(),
+          //FUTURE: PublishedTime: statusEvent.published_at,
+          Temperature: value.t,
+          Humidity: value.h,
+        };
+      });
+
+      const batchResult = await tableService.InsertOrMergeEntities(
+        "latestValues",
+        latestValueEntities
+      );
+    }
+
     // Retrieve device configuration data
     const deviceConfigurationJson = await tableService.TryRetrieveEntity(
       "deviceConfig",
