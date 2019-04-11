@@ -6,6 +6,7 @@
     "rootDir": ".",
     "sourceMap": true,
     "strict": false,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "noImplicitAny": true
   }
 }

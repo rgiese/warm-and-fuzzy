@@ -4,9 +4,9 @@ import { Context } from "@azure/functions";
 const ajvInstance = new Ajv();
 
 export class DeviceConfiguration {
-  setPoint: number;
+  public setPoint: number;
 
-  constructor(context: Context, data: any) {
+  public constructor(context: Context, data: any) {
     const validator = ajvInstance.compile(
       require(context.executionContext.functionDirectory +
         "/../generated/schema/DeviceConfiguration.json")

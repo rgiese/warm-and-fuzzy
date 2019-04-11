@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
-import { AzureTableStorage, TableInsertStrategy } from "../common/azureTableStorage";
+import { AzureTableStorage, TableEntity, TableInsertStrategy } from "../common/azureTableStorage";
 
 import { DeviceConfiguration } from "./deviceConfiguration";
 import { StatusEvent } from "./statusEvent";
@@ -17,15 +17,17 @@ const httpTrigger: AzureFunction = async function(
 
     // Store latest values (ignoring out-of-order delivery)
     {
-      const latestValueEntities = statusEvent.data.v.map(value => {
-        return {
-          PartitionKey: "default",
-          RowKey: (value.id ? value.id : statusEvent.device_id).toLowerCase(),
-          PublishedTime: statusEvent.published_at,
-          Temperature: value.t,
-          Humidity: value.h,
-        };
-      });
+      const latestValueEntities = statusEvent.data.v.map(
+        (value): TableEntity => {
+          return {
+            PartitionKey: "default",
+            RowKey: (value.id ? value.id : statusEvent.device_id).toLowerCase(),
+            PublishedTime: statusEvent.published_at,
+            Temperature: value.t,
+            Humidity: value.h,
+          };
+        }
+      );
 
       await tableService.InsertEntities(
         "latestValues",

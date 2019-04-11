@@ -21,28 +21,28 @@ const ajvInstance = new Ajv();
 // }
 //
 export class StatusEvent {
-  event: "status";
+  public event: "status";
 
   /**
    * Hexadecimal Particle device ID
    * @pattern ^([a-fA-F0-9]*)$
    */
-  device_id: string;
+  public device_id: string;
 
-  published_at: Date;
+  public published_at: Date;
 
   /**
    * @type integer
    */
-  fw_version: number;
+  public fw_version: number;
 
-  data: {
+  public data: {
     /**
      * @type integer
      */
     ts: number;
 
-    v: Array<{
+    v: {
       /**
        * Hexadecimal OneWire device ID (optional, empty if from onboard sensor)
        * @pattern ^([a-fA-F0-9]*)$
@@ -58,10 +58,10 @@ export class StatusEvent {
        * Humidity
        */
       h?: number;
-    }>;
+    }[];
   };
 
-  constructor(context: Context, data: any) {
+  public constructor(context: Context, data: any) {
     const validator = ajvInstance.compile(
       require(context.executionContext.functionDirectory + "/../generated/schema/StatusEvent.json")
     );
