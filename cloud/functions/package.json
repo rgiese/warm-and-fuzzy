@@ -7,6 +7,7 @@
     "build:production": "npm run prestart && npm prune --production",
     "build:schema": "node scripts/generate-schemas.js",
     "build:ts": "tsc",
+    "deploy:production": "func azure functionapp publish WarmAndFuzzy",
     "watch": "tsc -w",
     "prestart": "npm install && npm run build && func extensions install",
     "start": "npm run start:host & npm run watch",
