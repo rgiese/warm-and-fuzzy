@@ -189,7 +189,7 @@ void loop()
         }
         sb.AppendFormat("]}");
 
-        // Blocking call to Particle.publish()
+        // Blocking call to Particle.publish(), up to ~22 sec timeout
         Particle.publish("status", sb.ToString(), 60 /* TTL, unused */, PRIVATE);
 
         Serial.println(sb.ToString());
