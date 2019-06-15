@@ -80,6 +80,9 @@ void setup()
 
 void loop()
 {
+    // WiFi testing
+    Serial.printlnf("WiFi SSID: %s", WiFi.SSID());
+
     //
     // Acquire data
     //
