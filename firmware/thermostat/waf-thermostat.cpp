@@ -51,11 +51,18 @@ int onTestOutput(String options);
 // Setup
 //
 
+SYSTEM_THREAD(ENABLED); // separate app thread from networking thread, c.f. https://docs.particle.io/reference/device-os/firmware/photon/#system-thread
+SYSTEM_MODE(SEMI_AUTOMATIC); // defer networking connection until explicit call, c.f. https://docs.particle.io/reference/device-os/firmware/photon/#semi-automatic-mode
+
 void setup()
 {
     // Configure debugging output
     Serial.begin();
     Serial.println("Thermostat started.");
+
+    Serial.print("Delaying for startup testing... ");
+    delay(10 * 1000);
+    Serial.println("done.");
 
     // Configure I/O
     dht.begin();
@@ -68,10 +75,14 @@ void setup()
 
     pinMode(c_LedPin, OUTPUT);
 
-    // Configure cloud interactions
+    // Configure cloud interactions (async since we're not yet connected to the cloud, courtesy of SYSTEM_MODE = SEMI_AUTOMATIC)
     Particle.subscribe(System.deviceID() + "/hook-response/status", onStatusResponse, MY_DEVICES);
-
     Particle.function("testOutput", onTestOutput);
+
+    // Request connection to cloud (not blocking)
+    Serial.println("Connecting to cloud...");
+    Particle.connect();
+    Serial.println("Connected.");
 }
 
 //
@@ -81,7 +92,7 @@ void setup()
 void loop()
 {
     // WiFi testing
-    Serial.printlnf("WiFi SSID: %s", WiFi.SSID());
+    Serial.printlnf("WiFi SSID: %s (connected: %d)", WiFi.SSID(), Particle.connected());
 
     //
     // Acquire data
@@ -165,7 +176,11 @@ void loop()
     }
     sb.AppendFormat("]}");
 
+    // Blocking call to Particle.publish()
+    Serial.printf("Publishing (%d)... ", Particle.connected());
     Particle.publish("status", sb.ToString(), 60 /* TTL, unused */, PRIVATE);
+    Serial.printlnf("done (%d).", Particle.connected());
+
     Serial.println(sb.ToString());
 
     delay(60 * 1000);
