@@ -8,8 +8,6 @@
 #include <math.h>
 
 #include "inc/Activity.h"
-#include "inc/FixedStringBuffer.h"
-#include "inc/FixedQueue.h"
 #include "inc/coredefs.h"
 
 #include "onewire/OneWireGateway2484.h"
@@ -41,6 +39,10 @@ DHT dht(c_dht22Pin, DHT22);
 //
 uint8_t constexpr c_cOneWireDevices_Max = 16;
 OneWireGateway2484 oneWireGateway;
+
+// Publishers
+#include "publishers/StatusPublisher.h"
+StatusPublisher g_StatusPublisher;
 
 //
 // Declarations
@@ -146,60 +148,17 @@ void loop()
     //
 
     {
-        Activity publishActivity("Publish");
-
-        size_t constexpr cchTelemetry =
-            static_strlen("{'ts':‭4294967295‬,'v':[]}")  // Top-level elements
-            + static_strlen("{'t':-100.0,'h':100.0},")       // Values from on-board sensors
-            + c_cOneWireDevices_Max *
-                  static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
-            + 4;                                                                      // wiggle room
-
-        FixedStringBuffer<cchTelemetry> sb;
-
-        sb.AppendFormat("{\"ts\":%u,\"v\":[", Time.now());
-        {
-            bool isCommaNeeded = false;
-
-            if (!isnan(onboardTemperature) && !isnan(onboardHumidity))
-            {
-                sb.AppendFormat("{\"t\":%.1f,\"h\":%.1f}", onboardTemperature, onboardHumidity);
-
-                isCommaNeeded = true;
-            }
-
-            for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
-            {
-                if (isnan(rgExternalTemperatures[idxAddress]))
-                {
-                    continue;
-                }
-
-                if (isCommaNeeded)
-                {
-                    sb.Append(",");
-                }
-
-                char rgAddress[OneWireAddress::sc_cchAsHexString_WithTerminator];
-                rgAddresses[idxAddress].ToString(rgAddress);
-
-                sb.AppendFormat("{\"id\":\"%s\",\"t\":%.1f}", rgAddress, rgExternalTemperatures[idxAddress]);
-
-                isCommaNeeded = true;
-            }
-        }
-        sb.AppendFormat("]}");
-
-        // Blocking call to Particle.publish(), up to ~22 sec timeout
-        Particle.publish("status", sb.ToString(), 60 /* TTL, unused */, PRIVATE);
-
-        Serial.println(sb.ToString());
+        Activity publishActivity("PublishStatus");
+        g_StatusPublisher.Publish(onboardTemperature, onboardHumidity, rgAddresses, cAddressesFound, rgExternalTemperatures);
     }
+
+    //
+    // Delay until next iteration
+    //
 
     {
         Activity loopDelayActivity("LoopDelay");
-
-        delay(60 * 1000);
+        delay(10 * 1000);
     }
 }
 
