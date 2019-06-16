@@ -44,6 +44,9 @@ OneWireGateway2484 oneWireGateway;
 #include "publishers/StatusPublisher.h"
 StatusPublisher g_StatusPublisher;
 
+// Verification
+unsigned long g_LastLoopEnterTime_msec;
+
 //
 // Declarations
 //
@@ -100,6 +103,16 @@ void setup()
 
 void loop()
 {
+    unsigned long const loopStartTime_msec = millis();
+
+    if (g_LastLoopEnterTime_msec != 0)
+    {
+        unsigned long const timeSinceLastLoopStart_msec = loopStartTime_msec - g_LastLoopEnterTime_msec;
+        Serial.printlnf("-- Time since last loop start: %lu msec", timeSinceLastLoopStart_msec);
+    }
+
+    g_LastLoopEnterTime_msec = loopStartTime_msec;
+
     //
     // Acquire data
     //
@@ -159,7 +172,21 @@ void loop()
 
     {
         Activity loopDelayActivity("LoopDelay");
-        delay(10 * 1000);
+
+        unsigned long const loopEndTime_msec = millis();
+        unsigned long const loopDuration_msec = loopEndTime_msec - loopStartTime_msec;
+
+        unsigned long const loopDesiredCadence_msec = 60 * 1000;
+
+        if (loopDuration_msec > loopDesiredCadence_msec)
+        {
+            // No further delay required
+        }
+        else
+        {
+            // Delay for remainder of desired cadence
+            delay(loopDesiredCadence_msec - loopDuration_msec);
+        }
     }
 }
 
