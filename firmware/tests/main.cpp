@@ -21,7 +21,7 @@ typedef unsigned short uint16_t;
 
 bool testFixedQueue()
 {
-    constexpr uint16_t cchItem_Max = 64;
+    constexpr uint16_t cchItem_Max = 16;
     constexpr uint16_t nItems_Max = 4;
     
     std::string const string1("String1");
@@ -147,6 +147,13 @@ bool testFixedQueue()
         testQueue.pop();
 
         // Verify empty queue
+        VERIFY(testQueue.empty(), true);
+
+
+        // Add over-long string
+        std::string longString("This is a very long string beyond our character limits.");
+        testQueue.push(longString.c_str());
+
         VERIFY(testQueue.empty(), true);
     }
 
