@@ -9,6 +9,7 @@
 
 #include "inc/Activity.h"
 #include "inc/FixedStringBuffer.h"
+#include "inc/FixedQueue.h"
 #include "inc/coredefs.h"
 
 #include "onewire/OneWireGateway2484.h"
