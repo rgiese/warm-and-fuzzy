@@ -149,7 +149,8 @@ void loop()
 
     {
         Activity publishActivity("PublishStatus");
-        g_StatusPublisher.Publish(onboardTemperature, onboardHumidity, rgAddresses, cAddressesFound, rgExternalTemperatures);
+        g_StatusPublisher.Publish(
+            onboardTemperature, onboardHumidity, rgAddresses, cAddressesFound, rgExternalTemperatures);
     }
 
     //

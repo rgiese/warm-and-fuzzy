@@ -5,14 +5,13 @@ class FixedQueue
 {
 public:
     typedef uint16_t size_type;
-    
+
 public:
     FixedQueue()
         : m_rgszQueue()
         , m_nItems()
         , m_idxFront()
     {
-
     }
 
     ~FixedQueue()
@@ -27,14 +26,14 @@ public:
 
     size_type size() const
     {
-        return m_nItems;       
+        return m_nItems;
     }
 
     size_type constexpr capacity()
     {
         return nItems_Max;
     }
-    
+
     char const* front() const
     {
         if (empty())

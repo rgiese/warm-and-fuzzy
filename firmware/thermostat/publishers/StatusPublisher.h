@@ -2,8 +2,8 @@
 
 #include <Particle.h>
 
-#include "../inc/QueuedPublisher.h"
 #include "../inc/FixedStringBuffer.h"
+#include "../inc/QueuedPublisher.h"
 
 class StatusPublisher
 {
@@ -19,13 +19,11 @@ public:
     }
 
 public:
-    void Publish(
-        float const onboardTemperature,
-        float const onboardHumidity,
-        OneWireAddress const* const rgAddresses,
-        size_t const cAddressesFound,
-        float const* const rgExternalTemperatures
-    )
+    void Publish(float const onboardTemperature,
+                 float const onboardHumidity,
+                 OneWireAddress const* const rgAddresses,
+                 size_t const cAddressesFound,
+                 float const* const rgExternalTemperatures)
     {
         FixedStringBuffer<cchEventData> sb;
 
@@ -69,10 +67,10 @@ public:
 private:
     static size_t constexpr cchEventData =
         static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬,'v':[]}")  // Top-level elements
-        + static_strlen("{'t':-100.0,'h':100.0},")       // Values from on-board sensors
+        + static_strlen("{'t':-100.0,'h':100.0},")                              // Values from on-board sensors
         + c_cOneWireDevices_Max *
-                static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
-        + 4;      
+              static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
+        + 4;
 
 private:
     QueuedPublisher<cchEventData, 8> m_QueuedPublisher;

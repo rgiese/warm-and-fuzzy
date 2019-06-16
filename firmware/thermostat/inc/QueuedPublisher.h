@@ -34,7 +34,6 @@ public:
                 // Stop trying to empty queue (might have lost connectivity or got rate-limited)
                 break;
             }
-            
         }
 
         // If there's still a queue, just enqueue the latest data
@@ -63,7 +62,7 @@ private:
     {
         //
         // Publish WITH_ACK to ensure that the cloud has acknowledged delivery of the event.
-        // Without WITH_ACK, we may falsely succeed (and thus lose data) 
+        // Without WITH_ACK, we may falsely succeed (and thus lose data)
         // when the network has gone away but the Particle OS hasn't yet refreshed its connectivity state
         // to realize that the network is gone.
         //

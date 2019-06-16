@@ -9,21 +9,22 @@ typedef unsigned short uint16_t;
 // Headers to be tested
 #include "../thermostat/inc/FixedQueue.h"
 
-#define VERIFY(x, expectedResult) \
-    { \
-        auto const fResult = (x); \
-        if (fResult != expectedResult) \
-        { \
-            std::cout << "Test failed (" << __FILE__ << "#" << __LINE__ << "): " << #x << ": got " << fResult << ", expected " << expectedResult << std::endl; \
-            return false; \
-        } \
-    } \
+#define VERIFY(x, expectedResult)                                                                             \
+    {                                                                                                         \
+        auto const fResult = (x);                                                                             \
+        if (fResult != expectedResult)                                                                        \
+        {                                                                                                     \
+            std::cout << "Test failed (" << __FILE__ << "#" << __LINE__ << "): " << #x << ": got " << fResult \
+                      << ", expected " << expectedResult << std::endl;                                        \
+            return false;                                                                                     \
+        }                                                                                                     \
+    }
 
 bool testFixedQueue()
 {
     constexpr uint16_t cchItem_Max = 16;
     constexpr uint16_t nItems_Max = 4;
-    
+
     std::string const string1("String1");
     std::string const string2("String2");
     std::string const string3("String3");
@@ -198,6 +199,6 @@ int main()
     }
 
     printf("Tests passed.\n");
-    
+
     return 0;
 }
