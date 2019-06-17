@@ -7,8 +7,10 @@
 
 #include <math.h>
 
-#include "inc/Activity.h"
 #include "inc/coredefs.h"
+
+#include "inc/Activity.h"
+#include "inc/Configuration.h"
 
 #include "onewire/OneWireGateway2484.h"
 #include "onewire/OneWireTemperatureSensor.h"
@@ -39,6 +41,9 @@ DHT dht(c_dht22Pin, DHT22);
 //
 uint8_t constexpr c_cOneWireDevices_Max = 16;
 OneWireGateway2484 oneWireGateway;
+
+// Configuration
+Configuration g_Configuration;
 
 // Publishers
 #include "publishers/StatusPublisher.h"
@@ -73,6 +78,11 @@ void setup()
         Activity testActivity("StartupTestDelay");
         delay(10 * 1000);
     }
+
+    // Set up configuration
+    g_Configuration.Initialize();
+
+    Serial.printlnf("Current configuration: set point = %.1f", g_Configuration.SetPoint());
 
     // Configure I/O
     dht.begin();
@@ -167,6 +177,14 @@ void loop()
     }
 
     //
+    // Perform deferred maintainance
+    //
+
+    {
+        EEPROM.performPendingErase();
+    }
+
+    //
     // Delay until next iteration
     //
 
@@ -238,6 +256,10 @@ void onStatusResponse(char const* szEvent, char const* szData)
 
         setPoint = variant.as<float>();
     }
+
+    // Commit values
+    g_Configuration.SetPoint(setPoint);
+    g_Configuration.Flush();
 
     Serial.printlnf("Updated config: set point = %.1f", setPoint);
 }
