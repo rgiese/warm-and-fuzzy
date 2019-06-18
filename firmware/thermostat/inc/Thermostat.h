@@ -52,6 +52,14 @@ public:
 
             return true;
         }
+
+        AllowedActions Clamp() const
+        {
+            AllowedActions clamped = *this;
+            clamped.Value &= 0x7;
+
+            return clamped;
+        }
     };
 };
 

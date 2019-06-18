@@ -57,7 +57,7 @@ public:
         }
         else if (m_Data.Header.Version != ConfigurationHeader::sc_CurrentVersion)
         {
-            // FUTURE: Migrate cbData
+            // FUTURE: Migrate data
             LoadDefaults();
         }
 
@@ -171,9 +171,10 @@ private:
     decltype(Configuration::ConfigurationData::FieldName) FieldName(        \
         decltype(Configuration::ConfigurationData::FieldName) value)        \
     {                                                                       \
-        if (value != m_Data.FieldName)                                      \
+        auto const acceptedValue = clamp##FieldName(value);                 \
+        if (acceptedValue != m_Data.FieldName)                              \
         {                                                                   \
-            m_Data.FieldName = value;                                       \
+            m_Data.FieldName = acceptedValue;                               \
             m_fIsDirty = true;                                              \
         }                                                                   \
         return m_Data.FieldName;                                            \
@@ -205,11 +206,31 @@ private:
         m_Data.Header.Version = ConfigurationHeader::sc_CurrentVersion;
         m_Data.Header.cbData = sizeof(m_Data);
 
-        m_Data.SetPoint = 18.0f;
-        m_Data.Threshold = 1.0f;
-        m_Data.Cadence = 60;
-        m_Data.AllowedActions = Thermostat::AllowedActions();
+        SetPoint(18.0f);
+        Threshold(1.0f);
+        Cadence(60);
+        AllowedActions(Thermostat::AllowedActions());
 
         m_fIsDirty = true;
+    }
+
+    float clampSetPoint(float const value) const
+    {
+        return clamp(value, 16.0f, 40.0f);
+    }
+
+    float clampThreshold(float const value) const
+    {
+        return clamp(value, 0.25f, 2.0f);
+    }
+
+    uint16_t clampCadence(uint16_t const value) const
+    {
+        return clamp(value, static_cast<uint16_t>(10), static_cast<uint16_t>(3600));
+    }
+
+    Thermostat::AllowedActions clampAllowedActions(Thermostat::AllowedActions const& value) const
+    {
+        return value.Clamp();
     }
 };
