@@ -52,6 +52,9 @@ const httpTrigger: AzureFunction = async function(
       body: JSON.stringify(
         {
           sp: deviceConfiguration.setPoint,
+          th: deviceConfiguration.threshold,
+          ca: deviceConfiguration.cadence,
+          am: deviceConfiguration.allowedModes,
         },
         undefined,
         0
