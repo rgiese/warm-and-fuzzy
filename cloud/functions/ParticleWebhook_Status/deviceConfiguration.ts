@@ -6,7 +6,6 @@ const ajvInstance = new Ajv();
 export class DeviceConfiguration {
   /**
    * @name DeviceConfiguration#setPoint
-   * @default NaN
    *
    * Target temperature to maintain
    * Units: Celsius
@@ -15,7 +14,6 @@ export class DeviceConfiguration {
 
   /**
    * @name DeviceConfiguration#threshold
-   * @default NaN
    *
    * Hysteresis threshold around target
    * Units: Celsius
@@ -24,7 +22,6 @@ export class DeviceConfiguration {
 
   /**
    * @name DeviceConfiguration#cadence
-   * @default NaN
    *
    * Operational cadence
    * Units: seconds
@@ -32,25 +29,24 @@ export class DeviceConfiguration {
   public cadence: number;
 
   /**
-   * @name DeviceConfiguration#allowedModes
-   * @default ""
+   * @name DeviceConfiguration#allowedActions
    *
-   * Allowed modes of operation:
+   * Allowed actions:
    * - heating ("H")
    * - cooling ("C")
    * - circulation ("R")
    *
    * For example: "HCR"
    *
-   * May be left empty if no operations are permitted.
+   * May be left empty if no actions are permitted.
    */
-  public allowedModes: string;
+  public allowedActions: string;
 
   public constructor(context: Context, data: any) {
     this.setPoint = NaN;
     this.threshold = NaN;
     this.cadence = NaN;
-    this.allowedModes = "";
+    this.allowedActions = "";
 
     const validator = ajvInstance.compile(
       require(context.executionContext.functionDirectory +

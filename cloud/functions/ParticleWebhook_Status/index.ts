@@ -54,7 +54,7 @@ const httpTrigger: AzureFunction = async function(
           sp: deviceConfiguration.setPoint,
           th: deviceConfiguration.threshold,
           ca: deviceConfiguration.cadence,
-          am: deviceConfiguration.allowedModes,
+          aa: deviceConfiguration.allowedActions,
         },
         undefined,
         0
