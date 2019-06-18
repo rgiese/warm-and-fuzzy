@@ -4,7 +4,7 @@
 
 //
 // A note on EEPROM emulation on Particle devices:
-// (c.f. https://github.com/particle-iot/device-os > services/inc/eeprom_emulation.h)
+// (c.f. https://github.com/particle-iot/device-os/blob/develop/services/inc/eeprom_emulation.h)
 //
 // The Device OS virtualizes EEPROM on top of Flash;
 // as such, reads are cheap, append-writes are semi-expensive, and erases (overwrites) are quite expensive.
