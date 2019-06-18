@@ -251,61 +251,49 @@ void onStatusResponse(char const* szEvent, char const* szData)
     }
 
     // Extract values from document
+    // (goofy macro because ArduinoJson's variant.is<> can't be used inside a template with gcc)
+
+#define GET_JSON_VALUE(MemberName, Target)                                               \
+    JsonVariant variant = jsonDocument.getMember(MemberName);                            \
+                                                                                         \
+    if (variant.isNull() || !variant.is<decltype(Target)>())                             \
+    {                                                                                    \
+        onInvalidStatusResponse("'" MemberName "' missing or invalid", szEvent, szData); \
+        return;                                                                          \
+    }                                                                                    \
+                                                                                         \
+    Target = variant.as<decltype(Target)>();
+
     float setPoint;
     {
-        JsonVariant variant = jsonDocument.getMember("sp");
-
-        if (variant.isNull() || !variant.is<float>())
-        {
-            onInvalidStatusResponse("'sp' missing or invalid", szEvent, szData);
-            return;
-        }
-
-        setPoint = variant.as<float>();
+        GET_JSON_VALUE("sp", setPoint);
     }
 
     float threshold;
     {
-        JsonVariant variant = jsonDocument.getMember("th");
-
-        if (variant.isNull() || !variant.is<float>())
-        {
-            onInvalidStatusResponse("'th' missing or invalid", szEvent, szData);
-            return;
-        }
-
-        threshold = variant.as<float>();
+        GET_JSON_VALUE("th", threshold);
     }
 
     uint16_t cadence;
     {
-        JsonVariant variant = jsonDocument.getMember("ca");
-
-        if (variant.isNull() || !variant.is<uint16_t>())
-        {
-            onInvalidStatusResponse("'ca' missing or invalid", szEvent, szData);
-            return;
-        }
-
-        cadence = variant.as<uint16_t>();
+        GET_JSON_VALUE("ca", cadence);
     }
 
     Thermostat::AllowedActions allowedActions;
     {
-        JsonVariant variant = jsonDocument.getMember("aa");
-
-        if (variant.isNull() || !variant.is<char const*>())
+        char const* szAllowedActions;
         {
-            onInvalidStatusResponse("'aa' missing or invalid", szEvent, szData);
-            return;
+            GET_JSON_VALUE("aa", szAllowedActions);
         }
 
-        if (!allowedActions.UpdateFromString(variant.as<char const*>()))
+        if (!allowedActions.UpdateFromString(szAllowedActions))
         {
             onInvalidStatusResponse("'aa' contains invalid token", szEvent, szData);
             return;
         }
     }
+
+#undef GET_JSON_VALUE
 
     // Commit values
     g_Configuration.SetPoint(setPoint);

@@ -92,7 +92,7 @@ public:
     //
     void PrintConfiguration() const
     {
-        Serial.printlnf("SetPoint = %.1f C, Threshold = +-%.1f C, Cadence = %u sec, AllowedActions = [%c%c%c]",
+        Serial.printlnf("SetPoint = %.1f C, Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = [%c%c%c]",
                         SetPoint(),
                         Threshold(),
                         Cadence(),
