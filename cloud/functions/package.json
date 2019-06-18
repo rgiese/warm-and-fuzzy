@@ -26,7 +26,6 @@
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-promise": "^4.1.1",
-    "fs": "0.0.1-security",
     "path": "^0.12.7",
     "prettier": "^1.16.4",
     "typescript": "^3.4.2",
@@ -34,6 +33,6 @@
   },
   "dependencies": {
     "ajv": "^6.10.0",
-    "azure-storage": "^2.10.2"
+    "azure-storage": "^2.10.3"
   }
 }
