@@ -42,6 +42,7 @@ public:
 public:
     //
     // Operations
+    // (see further below for accessors)
     //
 
     void Initialize()
@@ -67,6 +68,11 @@ public:
         }
     }
 
+    bool IsDirty() const
+    {
+        return m_fIsDirty;
+    }
+
     void Flush()
     {
         if (!m_fIsDirty)
@@ -82,35 +88,17 @@ public:
     }
 
     //
-    // Accessors
+    // Debugging
     //
-
-    float SetPoint() const
+    void PrintConfiguration() const
     {
-        return m_Data.SetPoint;
-    }
-
-    float SetPoint(float value)
-    {
-        if (value != m_Data.SetPoint)
-        {
-            m_Data.SetPoint = value;
-            m_fIsDirty = true;
-        }
-
-        return SetPoint();
-    }
-
-private:
-    void LoadDefaults()
-    {
-        m_Data.Header.Signature = ConfigurationHeader::sc_Signature;
-        m_Data.Header.Version = ConfigurationHeader::sc_CurrentVersion;
-        m_Data.Header.cbData = sizeof(m_Data);
-
-        m_Data.SetPoint = 18.0f;
-
-        m_fIsDirty = true;
+        Serial.printlnf("SetPoint = %.1f C, Threshold = +-%.1f C, Cadence = %u sec, AllowedActions = [%c%c%c]",
+                        SetPoint(),
+                        Threshold(),
+                        Cadence(),
+                        AllowedActions().Heat ? 'H' : '_',
+                        AllowedActions().Cool ? 'C' : '_',
+                        AllowedActions().Circulate ? 'R' : '_');
     }
 
 private:
@@ -135,17 +123,93 @@ private:
     {
         ConfigurationHeader Header;
 
+        /**
+         * @name SetPoint
+         *
+         * Target temperature to maintain
+         * Units: Celsius
+         */
         float SetPoint;
+
+        /**
+         * @name Threshold
+         *
+         * Hysteresis threshold around target
+         * Units: Celsius
+         */
+        float Threshold;
+
+        /**
+         * @name Cadence
+         * Operational cadence
+         * Units: seconds
+         */
+        uint16_t Cadence;
+
+        /**
+         * @name AllowedActions
+         * Allowed actions (e.g. heat, cool, circulate)
+         */
+        Thermostat::AllowedActions AllowedActions;
 
         ConfigurationData()
             : Header()
             , SetPoint()
+            , Threshold()
+            , Cadence()
+            , AllowedActions()
         {
         }
     };
 
+#define WAF_GENERATE_CONFIGURATION_ACCESSOR(FieldName)                      \
+    decltype(Configuration::ConfigurationData::FieldName) FieldName() const \
+    {                                                                       \
+        return m_Data.FieldName;                                            \
+    }                                                                       \
+                                                                            \
+    decltype(Configuration::ConfigurationData::FieldName) FieldName(        \
+        decltype(Configuration::ConfigurationData::FieldName) value)        \
+    {                                                                       \
+        if (value != m_Data.FieldName)                                      \
+        {                                                                   \
+            m_Data.FieldName = value;                                       \
+            m_fIsDirty = true;                                              \
+        }                                                                   \
+        return m_Data.FieldName;                                            \
+    }
+
+public:
+    //
+    // Accessors
+    //
+
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(SetPoint);
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(Threshold);
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(Cadence);
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(AllowedActions);
+
+private:
+#undef WAF_GENERATE_CONFIGURATION_ACCESSOR
+
+private:
     ConfigurationData m_Data;
     bool m_fIsDirty;
 
     static constexpr int sc_EEPROMAddress = 0;
+
+private:
+    void LoadDefaults()
+    {
+        m_Data.Header.Signature = ConfigurationHeader::sc_Signature;
+        m_Data.Header.Version = ConfigurationHeader::sc_CurrentVersion;
+        m_Data.Header.cbData = sizeof(m_Data);
+
+        m_Data.SetPoint = 18.0f;
+        m_Data.Threshold = 1.0f;
+        m_Data.Cadence = 60;
+        m_Data.AllowedActions = Thermostat::AllowedActions();
+
+        m_fIsDirty = true;
+    }
 };

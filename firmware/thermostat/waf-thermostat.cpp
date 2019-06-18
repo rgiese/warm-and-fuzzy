@@ -10,6 +10,8 @@
 #include "inc/coredefs.h"
 
 #include "inc/Activity.h"
+#include "inc/Thermostat.h"
+
 #include "inc/Configuration.h"
 
 #include "onewire/OneWireGateway2484.h"
@@ -82,7 +84,8 @@ void setup()
     // Set up configuration
     g_Configuration.Initialize();
 
-    Serial.printlnf("Current configuration: set point = %.1f", g_Configuration.SetPoint());
+    Serial.print("Current configuration: ");
+    g_Configuration.PrintConfiguration();
 
     // Configure I/O
     dht.begin();
@@ -194,7 +197,7 @@ void loop()
         unsigned long const loopEndTime_msec = millis();
         unsigned long const loopDuration_msec = loopEndTime_msec - loopStartTime_msec;
 
-        unsigned long const loopDesiredCadence_msec = 60 * 1000;
+        unsigned long const loopDesiredCadence_msec = g_Configuration.Cadence() * 1000;
 
         if (loopDuration_msec > loopDesiredCadence_msec)
         {
@@ -212,7 +215,7 @@ void loop()
 // Subscriptions
 //
 
-void onInvalidStatusResponse(char const* szEvent, char const* szData, char const* szReason)
+void onInvalidStatusResponse(char const* szReason, char const* szEvent, char const* szData)
 {
     Serial.printlnf("onStatusResponse: %s for %s = %s", szReason, szEvent, szData);
 }
@@ -228,8 +231,12 @@ void onStatusResponse(char const* szEvent, char const* szData)
     }
 
     // Set up document
-    size_t constexpr cbJsonDocument = JSON_OBJECT_SIZE(1)  // {"sp":25.0}
-                                      + countof("sp")      // string copy of "sp"
+    size_t constexpr cbJsonDocument = JSON_OBJECT_SIZE(4)  // {"sp":25.0, "th": 1.0, "ca": 60, "aa": "HCR"}
+                                      + countof("sp")      // string copy of "sp" (setPoint)
+                                      + countof("th")      // string copy of "th" (threshold)
+                                      + countof("ca")      // string copy of "ca" (cadence)
+                                      + countof("aa")      // string copy of "am" (allowedActions)
+                                      + countof("HCR")     // string copy of potential values for aa (allowedActions)
         ;
 
     StaticJsonDocument<cbJsonDocument> jsonDocument;
@@ -257,11 +264,60 @@ void onStatusResponse(char const* szEvent, char const* szData)
         setPoint = variant.as<float>();
     }
 
+    float threshold;
+    {
+        JsonVariant variant = jsonDocument.getMember("th");
+
+        if (variant.isNull() || !variant.is<float>())
+        {
+            onInvalidStatusResponse("'th' missing or invalid", szEvent, szData);
+            return;
+        }
+
+        threshold = variant.as<float>();
+    }
+
+    uint16_t cadence;
+    {
+        JsonVariant variant = jsonDocument.getMember("ca");
+
+        if (variant.isNull() || !variant.is<uint16_t>())
+        {
+            onInvalidStatusResponse("'ca' missing or invalid", szEvent, szData);
+            return;
+        }
+
+        cadence = variant.as<uint16_t>();
+    }
+
+    Thermostat::AllowedActions allowedActions;
+    {
+        JsonVariant variant = jsonDocument.getMember("aa");
+
+        if (variant.isNull() || !variant.is<char const*>())
+        {
+            onInvalidStatusResponse("'aa' missing or invalid", szEvent, szData);
+            return;
+        }
+
+        if (!allowedActions.UpdateFromString(variant.as<char const*>()))
+        {
+            onInvalidStatusResponse("'aa' contains invalid token", szEvent, szData);
+            return;
+        }
+    }
+
     // Commit values
     g_Configuration.SetPoint(setPoint);
-    g_Configuration.Flush();
+    g_Configuration.Threshold(threshold);
+    g_Configuration.Cadence(cadence);
+    g_Configuration.AllowedActions(allowedActions);
 
-    Serial.printlnf("Updated config: set point = %.1f", setPoint);
+    Serial.print(g_Configuration.IsDirty() ? "Updated" : "Retained");
+    Serial.print(" configuration: ");
+    g_Configuration.PrintConfiguration();
+
+    g_Configuration.Flush();
 }
 
 
