@@ -7,8 +7,10 @@
 
 #include <math.h>
 
-#include "inc/FixedStringBuffer.h"
 #include "inc/coredefs.h"
+
+#include "inc/Activity.h"
+#include "inc/Configuration.h"
 
 #include "onewire/OneWireGateway2484.h"
 #include "onewire/OneWireTemperatureSensor.h"
@@ -40,6 +42,16 @@ DHT dht(c_dht22Pin, DHT22);
 uint8_t constexpr c_cOneWireDevices_Max = 16;
 OneWireGateway2484 oneWireGateway;
 
+// Configuration
+Configuration g_Configuration;
+
+// Publishers
+#include "publishers/StatusPublisher.h"
+StatusPublisher g_StatusPublisher;
+
+// Verification
+unsigned long g_LastLoopEnterTime_msec;
+
 //
 // Declarations
 //
@@ -51,11 +63,26 @@ int onTestOutput(String options);
 // Setup
 //
 
+SYSTEM_THREAD(ENABLED);       // separate app thread from networking thread, c.f.
+                              // https://docs.particle.io/reference/device-os/firmware/photon/#system-thread
+SYSTEM_MODE(SEMI_AUTOMATIC);  // defer networking connection until explicit call, c.f.
+                              // https://docs.particle.io/reference/device-os/firmware/photon/#semi-automatic-mode
+
 void setup()
 {
     // Configure debugging output
     Serial.begin();
     Serial.println("Thermostat started.");
+
+    {
+        Activity testActivity("StartupTestDelay");
+        delay(10 * 1000);
+    }
+
+    // Set up configuration
+    g_Configuration.Initialize();
+
+    Serial.printlnf("Current configuration: set point = %.1f", g_Configuration.SetPoint());
 
     // Configure I/O
     dht.begin();
@@ -68,10 +95,16 @@ void setup()
 
     pinMode(c_LedPin, OUTPUT);
 
-    // Configure cloud interactions
+    // Configure cloud interactions (async since we're not yet connected to the cloud, courtesy of SYSTEM_MODE =
+    // SEMI_AUTOMATIC)
     Particle.subscribe(System.deviceID() + "/hook-response/status", onStatusResponse, MY_DEVICES);
-
     Particle.function("testOutput", onTestOutput);
+
+    // Request connection to cloud (not blocking)
+    {
+        Activity connectActivity("Connect");
+        Particle.connect();
+    }
 }
 
 //
@@ -80,39 +113,56 @@ void setup()
 
 void loop()
 {
+    unsigned long const loopStartTime_msec = millis();
+
+    if (g_LastLoopEnterTime_msec != 0)
+    {
+        unsigned long const timeSinceLastLoopStart_msec = loopStartTime_msec - g_LastLoopEnterTime_msec;
+        Serial.printlnf("-- Time since last loop start: %lu msec", timeSinceLastLoopStart_msec);
+    }
+
+    g_LastLoopEnterTime_msec = loopStartTime_msec;
+
     //
     // Acquire data
     //
 
-    // Onboard devices
-    float const temperature = dht.getTempCelcius();
-    float const humidity = dht.getHumidity();
+    float onboardTemperature;
+    float onboardHumidity;
 
-    // Enumerate external devices
     OneWireAddress rgAddresses[c_cOneWireDevices_Max];
     size_t cAddressesFound = 0;
 
-    oneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
-        if (cAddressesFound < countof(rgAddresses))
-        {
-            if (Address.GetDeviceFamily() == 0x28)  // Ensure device is a DS18B20 sensor
-            {
-                rgAddresses[cAddressesFound] = Address;
-                ++cAddressesFound;
-            }
-        }
-    });
-
-    // Request temperature measurement from all sensors
     float rgExternalTemperatures[c_cOneWireDevices_Max] = {NAN};
 
-    if (OneWireTemperatureSensor::RequestMeasurement(oneWireGateway))
     {
-        // Retrieve measurements
-        for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
+        Activity acquireDataActivity("AcquireData");
+
+        // Onboard devices
+        onboardTemperature = dht.getTempCelcius();
+        onboardHumidity = dht.getHumidity();
+
+        // Enumerate external devices
+        oneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
+            if (cAddressesFound < countof(rgAddresses))
+            {
+                if (Address.GetDeviceFamily() == 0x28)  // Ensure device is a DS18B20 sensor
+                {
+                    rgAddresses[cAddressesFound] = Address;
+                    ++cAddressesFound;
+                }
+            }
+        });
+
+        // Request temperature measurement from all sensors
+        if (OneWireTemperatureSensor::RequestMeasurement(oneWireGateway))
         {
-            OneWireTemperatureSensor::RetrieveMeasurement(
-                rgExternalTemperatures[idxAddress], rgAddresses[idxAddress], oneWireGateway);
+            // Retrieve measurements
+            for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
+            {
+                OneWireTemperatureSensor::RetrieveMeasurement(
+                    rgExternalTemperatures[idxAddress], rgAddresses[idxAddress], oneWireGateway);
+            }
         }
     }
 
@@ -120,52 +170,42 @@ void loop()
     // Publish data
     //
 
-    size_t constexpr cchTelemetry =
-        static_strlen("{'ts':‭4294967295‬,'v':[]}")  // Top-level elements
-        + static_strlen("{'t':-100.0,'h':100.0},")       // Values from on-board sensors
-        + c_cOneWireDevices_Max *
-              static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
-        + 4;                                                                      // wiggle room
-
-    FixedStringBuffer<cchTelemetry> sb;
-
-    sb.AppendFormat("{\"ts\":%u,\"v\":[", Time.now());
     {
-        bool isCommaNeeded = false;
+        Activity publishActivity("PublishStatus");
+        g_StatusPublisher.Publish(
+            onboardTemperature, onboardHumidity, rgAddresses, cAddressesFound, rgExternalTemperatures);
+    }
 
-        if (!isnan(temperature) && !isnan(humidity))
+    //
+    // Perform deferred maintainance
+    //
+
+    {
+        EEPROM.performPendingErase();
+    }
+
+    //
+    // Delay until next iteration
+    //
+
+    {
+        Activity loopDelayActivity("LoopDelay");
+
+        unsigned long const loopEndTime_msec = millis();
+        unsigned long const loopDuration_msec = loopEndTime_msec - loopStartTime_msec;
+
+        unsigned long const loopDesiredCadence_msec = 60 * 1000;
+
+        if (loopDuration_msec > loopDesiredCadence_msec)
         {
-            sb.AppendFormat("{\"t\":%.1f,\"h\":%.1f}", temperature, humidity);
-
-            isCommaNeeded = true;
+            // No further delay required
         }
-
-        for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
+        else
         {
-            if (isnan(rgExternalTemperatures[idxAddress]))
-            {
-                continue;
-            }
-
-            if (isCommaNeeded)
-            {
-                sb.Append(",");
-            }
-
-            char rgAddress[OneWireAddress::sc_cchAsHexString_WithTerminator];
-            rgAddresses[idxAddress].ToString(rgAddress);
-
-            sb.AppendFormat("{\"id\":\"%s\",\"t\":%.1f}", rgAddress, rgExternalTemperatures[idxAddress]);
-
-            isCommaNeeded = true;
+            // Delay for remainder of desired cadence
+            delay(loopDesiredCadence_msec - loopDuration_msec);
         }
     }
-    sb.AppendFormat("]}");
-
-    Particle.publish("status", sb.ToString(), 60 /* TTL, unused */, PRIVATE);
-    Serial.println(sb.ToString());
-
-    delay(60 * 1000);
 }
 
 //
@@ -179,6 +219,8 @@ void onInvalidStatusResponse(char const* szEvent, char const* szData, char const
 
 void onStatusResponse(char const* szEvent, char const* szData)
 {
+    Activity statusResponseActivity("StatusResponse");
+
     if (strstr(szEvent, "/hook-response/status/0") == nullptr)  // [deviceID]/hook-response/status/0
     {
         onInvalidStatusResponse("Unexpected event", szEvent, szData);
@@ -215,6 +257,10 @@ void onStatusResponse(char const* szEvent, char const* szData)
         setPoint = variant.as<float>();
     }
 
+    // Commit values
+    g_Configuration.SetPoint(setPoint);
+    g_Configuration.Flush();
+
     Serial.printlnf("Updated config: set point = %.1f", setPoint);
 }
 
@@ -225,6 +271,8 @@ void onStatusResponse(char const* szEvent, char const* szData)
 
 int onTestOutput(String options)
 {
+    Activity testOutputActivity("OnTestOutput");
+
     // The command should be formatted as N=[0,1], e.g. 2=1 to turn on relay 2.
     if (options.length() != 3)
     {
