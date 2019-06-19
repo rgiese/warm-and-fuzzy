@@ -72,7 +72,8 @@ const httpTrigger: AzureFunction = async function(
       // Provide a compacted rendering of the JSON in the response (by default it's pretty)
       body: JSON.stringify(
         {
-          sp: deviceConfiguration.setPoint,
+          sh: deviceConfiguration.setPointHeat,
+          sc: deviceConfiguration.setPointCool,
           th: deviceConfiguration.threshold,
           ca: deviceConfiguration.cadence,
           aa: deviceConfiguration.allowedActions,

@@ -28,41 +28,31 @@ void Thermostat::Initialize()
 
 void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperature)
 {
-    float const setPoint_Lower = Configuration.SetPoint() - Configuration.Threshold();
-    float const setPoint_Upper = Configuration.SetPoint() + Configuration.Threshold();
-
     // Compute proposed action, defaulting to continuing the current course of action
     Thermostat::Actions proposedActions = m_CurrentActions;
 
     // Heat
-    if (m_CurrentActions.Heat && CurrentTemperature > setPoint_Upper)
+    if (m_CurrentActions.Heat && CurrentTemperature > (Configuration.SetPointHeat() + Configuration.Threshold()))
     {
         proposedActions.Heat = false;
     }
-    else if (!m_CurrentActions.Heat && CurrentTemperature < setPoint_Lower)
+    else if (!m_CurrentActions.Heat && CurrentTemperature < (Configuration.SetPointHeat() - Configuration.Threshold()))
     {
         proposedActions.Heat = true;
     }
 
     // Cool
-    if (m_CurrentActions.Cool && CurrentTemperature < setPoint_Lower)
+    if (m_CurrentActions.Cool && CurrentTemperature < (Configuration.SetPointCool() - Configuration.Threshold()))
     {
         proposedActions.Cool = false;
     }
-    else if (!m_CurrentActions.Cool && CurrentTemperature > setPoint_Upper)
+    else if (!m_CurrentActions.Cool && CurrentTemperature > (Configuration.SetPointCool() + Configuration.Threshold()))
     {
         proposedActions.Cool = true;
     }
 
-    // Circulate (consider as supplementary cooling)
-    if (m_CurrentActions.Circulate && CurrentTemperature < setPoint_Lower)
-    {
-        proposedActions.Circulate = false;
-    }
-    else if (!m_CurrentActions.Circulate && CurrentTemperature > setPoint_Upper)
-    {
-        proposedActions.Circulate = true;
-    }
+    // Circulate - FUTURE
+    proposedActions.Circulate = false;
 
     // Intersect with allowed actions
     proposedActions = proposedActions & Configuration.AllowedActions();

@@ -240,8 +240,9 @@ void onStatusResponse(char const* szEvent, char const* szData)
     }
 
     // Set up document
-    size_t constexpr cbJsonDocument = JSON_OBJECT_SIZE(4)  // {"sp":25.0, "th": 1.0, "ca": 60, "aa": "HCR"}
-                                      + countof("sp")      // string copy of "sp" (setPoint)
+    size_t constexpr cbJsonDocument = JSON_OBJECT_SIZE(5)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR"}
+                                      + countof("sh")      // string copy of "sh" (setPointHeat)
+                                      + countof("sc")      // string copy of "sc" (setPointCool)
                                       + countof("th")      // string copy of "th" (threshold)
                                       + countof("ca")      // string copy of "ca" (cadence)
                                       + countof("aa")      // string copy of "am" (allowedActions)
@@ -273,9 +274,14 @@ void onStatusResponse(char const* szEvent, char const* szData)
                                                                                          \
     Target = variant.as<decltype(Target)>();
 
-    float setPoint;
+    float setPointHeat;
     {
-        GET_JSON_VALUE("sp", setPoint);
+        GET_JSON_VALUE("sh", setPointHeat);
+    }
+
+    float setPointCool;
+    {
+        GET_JSON_VALUE("sc", setPointCool);
     }
 
     float threshold;
@@ -305,7 +311,8 @@ void onStatusResponse(char const* szEvent, char const* szData)
 #undef GET_JSON_VALUE
 
     // Commit values
-    g_Configuration.SetPoint(setPoint);
+    g_Configuration.SetPointHeat(setPointHeat);
+    g_Configuration.SetPointCool(setPointCool);
     g_Configuration.Threshold(threshold);
     g_Configuration.Cadence(cadence);
     g_Configuration.AllowedActions(allowedActions);

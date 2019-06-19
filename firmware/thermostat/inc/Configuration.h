@@ -92,13 +92,16 @@ public:
     //
     void PrintConfiguration() const
     {
-        Serial.printlnf("SetPoint = %.1f C, Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = [%c%c%c]",
-                        SetPoint(),
-                        Threshold(),
-                        Cadence(),
-                        AllowedActions().Heat ? 'H' : '_',
-                        AllowedActions().Cool ? 'C' : '_',
-                        AllowedActions().Circulate ? 'R' : '_');
+        Serial.printlnf(
+            "SetPoints = %.1f C (heat) / %.1f C (cool), Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = "
+            "[%c%c%c]",
+            SetPointHeat(),
+            SetPointCool(),
+            Threshold(),
+            Cadence(),
+            AllowedActions().Heat ? 'H' : '_',
+            AllowedActions().Cool ? 'C' : '_',
+            AllowedActions().Circulate ? 'R' : '_');
     }
 
 private:
@@ -124,12 +127,20 @@ private:
         ConfigurationHeader Header;
 
         /**
-         * @name SetPoint
+         * @name SetPointHeat
          *
-         * Target temperature to maintain
+         * Target temperature for heating
          * Units: Celsius
          */
-        float SetPoint;
+        float SetPointHeat;
+
+        /**
+         * @name SetPointCool
+         *
+         * Target temperature for cooling
+         * Units: Celsius
+         */
+        float SetPointCool;
 
         /**
          * @name Threshold
@@ -154,7 +165,8 @@ private:
 
         ConfigurationData()
             : Header()
-            , SetPoint()
+            , SetPointHeat()
+            , SetPointCool()
             , Threshold()
             , Cadence()
             , AllowedActions()
@@ -185,7 +197,8 @@ public:
     // Accessors
     //
 
-    WAF_GENERATE_CONFIGURATION_ACCESSOR(SetPoint);
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(SetPointHeat);
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(SetPointCool);
     WAF_GENERATE_CONFIGURATION_ACCESSOR(Threshold);
     WAF_GENERATE_CONFIGURATION_ACCESSOR(Cadence);
     WAF_GENERATE_CONFIGURATION_ACCESSOR(AllowedActions);
@@ -206,7 +219,8 @@ private:
         m_Data.Header.Version = ConfigurationHeader::sc_CurrentVersion;
         m_Data.Header.cbData = sizeof(m_Data);
 
-        SetPoint(18.0f);
+        SetPointHeat(18.0f);
+        SetPointCool(20.0f);
         Threshold(1.0f);
         Cadence(60);
         AllowedActions(Thermostat::Actions());
@@ -214,7 +228,12 @@ private:
         m_fIsDirty = true;
     }
 
-    float clampSetPoint(float const value) const
+    float clampSetPointHeat(float const value) const
+    {
+        return clamp(value, 16.0f, 40.0f);
+    }
+
+    float clampSetPointCool(float const value) const
     {
         return clamp(value, 16.0f, 40.0f);
     }

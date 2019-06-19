@@ -5,17 +5,25 @@ const ajvInstance = new Ajv();
 
 export class DeviceConfiguration {
   /**
-   * @name DeviceConfiguration#setPoint
+   * @name DeviceConfiguration#setPointHeat
    *
-   * Target temperature to maintain
+   * Target temperature for heating
    * Units: Celsius
    */
-  public setPoint: number;
+  public setPointHeat: number;
+
+  /**
+   * @name DeviceConfiguration#setPointCool
+   *
+   * Target temperature for cooling
+   * Units: Celsius
+   */
+  public setPointCool: number;
 
   /**
    * @name DeviceConfiguration#threshold
    *
-   * Hysteresis threshold around target
+   * Hysteresis threshold around targets
    * Units: Celsius
    */
   public threshold: number;
@@ -43,7 +51,8 @@ export class DeviceConfiguration {
   public allowedActions: string;
 
   public constructor(context: Context, data: any) {
-    this.setPoint = NaN;
+    this.setPointHeat = NaN;
+    this.setPointCool = NaN;
     this.threshold = NaN;
     this.cadence = NaN;
     this.allowedActions = "";
