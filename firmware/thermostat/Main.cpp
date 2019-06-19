@@ -168,13 +168,23 @@ void loop()
     }
 
     //
+    // Apply data
+    //
+
+    g_Thermostat.Apply(g_Configuration, onboardTemperature, onboardHumidity);
+
+    //
     // Publish data
     //
 
     {
         Activity publishActivity("PublishStatus");
-        g_StatusPublisher.Publish(
-            onboardTemperature, onboardHumidity, rgAddresses, cAddressesFound, rgExternalTemperatures);
+        g_StatusPublisher.Publish(g_Thermostat.CurrentActions(),
+                                  onboardTemperature,
+                                  onboardHumidity,
+                                  rgAddresses,
+                                  cAddressesFound,
+                                  rgExternalTemperatures);
     }
 
     //

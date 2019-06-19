@@ -2,6 +2,8 @@
 
 #include <Particle.h>
 
+class Configuration;
+
 class Thermostat
 {
 public:
@@ -69,13 +71,22 @@ public:
 public:
     void Initialize();
 
+    void Apply(Configuration const& Configuration, float CurrentTemperature, float CurrentHumidity);
+
+    Actions CurrentActions() const
+    {
+        return m_CurrentActions;
+    }
+
 private:
     static pin_t constexpr sc_RelayPin_Heat = A0;
     static pin_t constexpr sc_RelayPin_Cool = A1;
     static pin_t constexpr sc_RelayPin_Circulate = A2;
 
+    Actions m_CurrentActions;
+
 private:
-    void Apply(Actions const& Actions);
+    void ApplyActions(Actions const& Actions);
 };
 
 
