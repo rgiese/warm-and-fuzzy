@@ -171,7 +171,7 @@ void loop()
     // Apply data
     //
 
-    g_Thermostat.Apply(g_Configuration, onboardTemperature, onboardHumidity);
+    g_Thermostat.Apply(g_Configuration, onboardTemperature);
 
     //
     // Publish data

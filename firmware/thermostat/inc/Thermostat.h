@@ -62,6 +62,14 @@ public:
 
             return clamped;
         }
+
+        Actions operator&(Actions const& other) const
+        {
+            Actions combinedActions = *this;
+            combinedActions.Value &= other.Value;
+
+            return combinedActions;
+        }
     };
 
 public:
@@ -71,7 +79,7 @@ public:
 public:
     void Initialize();
 
-    void Apply(Configuration const& Configuration, float CurrentTemperature, float CurrentHumidity);
+    void Apply(Configuration const& Configuration, float CurrentTemperature);
 
     Actions CurrentActions() const
     {
