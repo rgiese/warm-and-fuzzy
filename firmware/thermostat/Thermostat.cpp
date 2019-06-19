@@ -18,8 +18,9 @@ Thermostat::~Thermostat()
 
 void Thermostat::Initialize()
 {
+    // See ApplyActions() for explanation
     pinMode(sc_RelayPin_Heat, OUTPUT);
-    pinMode(sc_RelayPin_Cool, OUTPUT);
+    pinMode(sc_RelayPin_SwitchOver, OUTPUT);
     pinMode(sc_RelayPin_Circulate, OUTPUT);
 
     ApplyActions(m_CurrentActions);
@@ -83,7 +84,22 @@ void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperat
 
 void Thermostat::ApplyActions(Thermostat::Actions const& Actions)
 {
-    digitalWrite(sc_RelayPin_Heat, Actions.Heat);
-    digitalWrite(sc_RelayPin_Cool, Actions.Cool);
-    digitalWrite(sc_RelayPin_Circulate, Actions.Circulate);
+    //
+    // Relays are used in the following configuration:
+    //
+    // - Radiant heat
+    //   - sc_RelayPin_Heat = call for heat
+    //
+    // - Heat pump
+    //   - sc_RelayPin_Heat = call for work (heat [default] or cool)
+    //   - sc_RelayPin_SwitchOver = switch over call for heat into call for cool
+    //   - sc_RelayPin_Circulate = turn on circulator fan
+    //
+    // There are many heat pumps and not all are like mine,
+    // but there's no value in adding the complexity to make this configurable for other setups until needed...
+    //
+
+    digitalWrite(sc_RelayPin_Heat, Actions.Heat || Actions.Cool);
+    digitalWrite(sc_RelayPin_SwitchOver, Actions.Cool);
+    digitalWrite(sc_RelayPin_Circulate, Actions.Heat || Actions.Cool || Actions.Circulate);
 }

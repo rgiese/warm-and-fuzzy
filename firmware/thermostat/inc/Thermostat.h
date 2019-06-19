@@ -87,8 +87,9 @@ public:
     }
 
 private:
+    // See ApplyActions() for explanation
     static pin_t constexpr sc_RelayPin_Heat = A0;
-    static pin_t constexpr sc_RelayPin_Cool = A1;
+    static pin_t constexpr sc_RelayPin_SwitchOver = A1;
     static pin_t constexpr sc_RelayPin_Circulate = A2;
 
     Actions m_CurrentActions;
