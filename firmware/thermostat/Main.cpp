@@ -37,11 +37,11 @@ PRODUCT_VERSION(1);  // Increment for each release
 pin_t constexpr c_dht22Pin = D2;
 pin_t constexpr c_LedPin = D7;
 
-DHT dht(c_dht22Pin, DHT22);
+DHT g_OnboardSensor(c_dht22Pin, DHT22);
 
 //
 uint8_t constexpr c_cOneWireDevices_Max = 16;
-OneWireGateway2484 oneWireGateway;
+OneWireGateway2484 g_OneWireGateway;
 
 // Configuration
 Configuration g_Configuration;
@@ -86,8 +86,8 @@ void setup()
     g_Configuration.PrintConfiguration();
 
     // Configure I/O
-    dht.begin();
-    oneWireGateway.Initialize();
+    g_OnboardSensor.begin();
+    g_OneWireGateway.Initialize();
 
     pinMode(c_LedPin, OUTPUT);
 
@@ -140,11 +140,11 @@ void loop()
         Activity acquireDataActivity("AcquireData");
 
         // Onboard devices
-        onboardTemperature = dht.getTempCelcius();
-        onboardHumidity = dht.getHumidity();
+        onboardTemperature = g_OnboardSensor.getTempCelcius();
+        onboardHumidity = g_OnboardSensor.getHumidity();
 
         // Enumerate external devices
-        oneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
+        g_OneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
             if (cAddressesFound < countof(rgAddresses))
             {
                 if (Address.GetDeviceFamily() == 0x28)  // Ensure device is a DS18B20 sensor
@@ -156,13 +156,13 @@ void loop()
         });
 
         // Request temperature measurement from all sensors
-        if (OneWireTemperatureSensor::RequestMeasurement(oneWireGateway))
+        if (OneWireTemperatureSensor::RequestMeasurement(g_OneWireGateway))
         {
             // Retrieve measurements
             for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
             {
                 OneWireTemperatureSensor::RetrieveMeasurement(
-                    rgExternalTemperatures[idxAddress], rgAddresses[idxAddress], oneWireGateway);
+                    rgExternalTemperatures[idxAddress], rgAddresses[idxAddress], g_OneWireGateway);
             }
         }
     }
