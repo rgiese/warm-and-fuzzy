@@ -42,6 +42,13 @@ export class StatusEvent {
      */
     ts: number;
 
+    /**
+     * @type integer
+     */
+    ser: number;
+
+    ca: string;
+
     v: {
       /**
        * Hexadecimal OneWire device ID (optional, empty if from onboard sensor)
@@ -66,7 +73,7 @@ export class StatusEvent {
     this.deviceId = "";
     this.publishedAt = new Date(0);
     this.firmwareVersion = 0;
-    this.data = { ts: 0, v: [] };
+    this.data = { ts: 0, ser: 0, ca: "", v: [] };
 
     const validator = ajvInstance.compile(
       require(context.executionContext.functionDirectory + "/../generated/schema/StatusEvent.json")

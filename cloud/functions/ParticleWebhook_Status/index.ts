@@ -24,6 +24,7 @@ const httpTrigger: AzureFunction = async function(
             RowKey: (value.id || statusEvent.deviceId).toLowerCase(),
             PublishedTime: statusEvent.publishedAt,
             DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
+            DeviceLocalSerial: statusEvent.data.ser,
             Temperature: value.t,
             Humidity: value.h,
           };
@@ -33,6 +34,26 @@ const httpTrigger: AzureFunction = async function(
       await tableService.InsertEntities(
         "latestValues",
         latestValueEntities,
+        TableInsertStrategy.InsertOrReplace
+      );
+    }
+
+    // Store latest actions
+    {
+      const latestActionsEntities = [
+        {
+          PartitionKey: "default",
+          RowKey: statusEvent.deviceId.toLowerCase(),
+          PublishedTime: statusEvent.publishedAt,
+          DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
+          DeviceLocalSerial: statusEvent.data.ser,
+          CurrentActions: statusEvent.data.ca,
+        },
+      ];
+
+      await tableService.InsertEntities(
+        "latestActions",
+        latestActionsEntities,
         TableInsertStrategy.InsertOrReplace
       );
     }
