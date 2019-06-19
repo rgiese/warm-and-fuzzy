@@ -7,7 +7,7 @@
 
 #include <math.h>
 
-#include "inc/coredefs.h"
+#include "inc/CoreDefs.h"
 
 #include "inc/Activity.h"
 #include "inc/Thermostat.h"
