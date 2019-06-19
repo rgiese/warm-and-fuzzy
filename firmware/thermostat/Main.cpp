@@ -35,7 +35,6 @@ PRODUCT_VERSION(1);  // Increment for each release
 // Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
 
 pin_t constexpr c_dht22Pin = D2;
-pin_t constexpr c_rgRelayPins[] = {A0, A1, A2};
 pin_t constexpr c_LedPin = D7;
 
 DHT dht(c_dht22Pin, DHT22);
@@ -47,19 +46,18 @@ OneWireGateway2484 oneWireGateway;
 // Configuration
 Configuration g_Configuration;
 
+// Services
+Thermostat g_Thermostat;
+
 // Publishers
 #include "publishers/StatusPublisher.h"
 StatusPublisher g_StatusPublisher;
-
-// Verification
-unsigned long g_LastLoopEnterTime_msec;
 
 //
 // Declarations
 //
 
 void onStatusResponse(char const* szEvent, char const* szData);
-int onTestOutput(String options);
 
 //
 // Setup
@@ -91,17 +89,14 @@ void setup()
     dht.begin();
     oneWireGateway.Initialize();
 
-    for (size_t idxPin = 0; idxPin < countof(c_rgRelayPins); ++idxPin)
-    {
-        pinMode(c_rgRelayPins[idxPin], OUTPUT);
-    }
-
     pinMode(c_LedPin, OUTPUT);
 
-    // Configure cloud interactions (async since we're not yet connected to the cloud, courtesy of SYSTEM_MODE =
-    // SEMI_AUTOMATIC)
+    // Configure services
+    g_Thermostat.Initialize();
+
+    // Configure cloud interactions
+    // (async since we're not yet connected to the cloud, courtesy of SYSTEM_MODE = SEMI_AUTOMATIC)
     Particle.subscribe(System.deviceID() + "/hook-response/status", onStatusResponse, MY_DEVICES);
-    Particle.function("testOutput", onTestOutput);
 
     // Request connection to cloud (not blocking)
     {
@@ -110,21 +105,24 @@ void setup()
     }
 }
 
+
 //
 // Loop
 //
 
 void loop()
 {
+    static unsigned long s_LastLoopEnterTime_msec = 0;
+
     unsigned long const loopStartTime_msec = millis();
 
-    if (g_LastLoopEnterTime_msec != 0)
+    if (s_LastLoopEnterTime_msec != 0)
     {
-        unsigned long const timeSinceLastLoopStart_msec = loopStartTime_msec - g_LastLoopEnterTime_msec;
+        unsigned long const timeSinceLastLoopStart_msec = loopStartTime_msec - s_LastLoopEnterTime_msec;
         Serial.printlnf("-- Time since last loop start: %lu msec", timeSinceLastLoopStart_msec);
     }
 
-    g_LastLoopEnterTime_msec = loopStartTime_msec;
+    s_LastLoopEnterTime_msec = loopStartTime_msec;
 
     //
     // Acquire data
@@ -211,6 +209,7 @@ void loop()
     }
 }
 
+
 //
 // Subscriptions
 //
@@ -279,7 +278,7 @@ void onStatusResponse(char const* szEvent, char const* szData)
         GET_JSON_VALUE("ca", cadence);
     }
 
-    Thermostat::AllowedActions allowedActions;
+    Thermostat::Actions allowedActions;
     {
         char const* szAllowedActions;
         {
@@ -306,53 +305,4 @@ void onStatusResponse(char const* szEvent, char const* szData)
     g_Configuration.PrintConfiguration();
 
     g_Configuration.Flush();
-}
-
-
-//
-// Functions
-//
-
-int onTestOutput(String options)
-{
-    Activity testOutputActivity("OnTestOutput");
-
-    // The command should be formatted as N=[0,1], e.g. 2=1 to turn on relay 2.
-    if (options.length() != 3)
-    {
-        return -1;
-    }
-
-    if (options.charAt(1) != '=')
-    {
-        return -1;
-    }
-
-    pin_t const idxRelay = static_cast<pin_t const>(options.charAt(0) - '0');
-    uint8_t const desiredValue = static_cast<uint8_t const>(options.charAt(2) - '0');
-
-    if (idxRelay >= countof(c_rgRelayPins))
-    {
-        return -1;
-    }
-
-    if (desiredValue > 1)
-    {
-        return -1;
-    }
-
-    // Force relay output
-    digitalWrite(c_rgRelayPins[idxRelay], desiredValue);
-
-    // Flash on-board LED as confirmation
-    for (size_t idxFlash = 0; idxFlash < 2; ++idxFlash)
-    {
-        digitalWrite(c_LedPin, HIGH);
-        delay(250);
-
-        digitalWrite(c_LedPin, LOW);
-        delay(250);
-    }
-
-    return 0;
 }

@@ -5,7 +5,7 @@
 class Thermostat
 {
 public:
-    union AllowedActions
+    union Actions
     {
         uint8_t Value;
 
@@ -16,30 +16,30 @@ public:
             bool Circulate : 1;
         };
 
-        AllowedActions()
+        Actions()
         {
             Value = 0;
         }
 
-        bool UpdateFromString(char const* const szAllowedActions)
+        bool UpdateFromString(char const* const szActions)
         {
             // Parse
-            AllowedActions allowedActions;
+            Actions actions;
 
-            for (char const* szAction = szAllowedActions; *szAction != 0; ++szAction)
+            for (char const* szAction = szActions; *szAction != 0; ++szAction)
             {
                 switch (*szAction)
                 {
                     case 'H':
-                        allowedActions.Heat = true;
+                        actions.Heat = true;
                         break;
 
                     case 'C':
-                        allowedActions.Cool = true;
+                        actions.Cool = true;
                         break;
 
                     case 'R':
-                        allowedActions.Circulate = true;
+                        actions.Circulate = true;
                         break;
 
                     default:
@@ -48,14 +48,14 @@ public:
             }
 
             // Commit
-            *this = allowedActions;
+            *this = actions;
 
             return true;
         }
 
-        AllowedActions Clamp() const
+        Actions Clamp() const
         {
-            AllowedActions clamped = *this;
+            Actions clamped = *this;
             clamped.Value &= 0x7;
 
             return clamped;
@@ -65,14 +65,27 @@ public:
 public:
     Thermostat();
     ~Thermostat();
+
+public:
+    void Initialize();
+
+private:
+    static pin_t constexpr sc_RelayPin_Heat = A0;
+    static pin_t constexpr sc_RelayPin_Cool = A1;
+    static pin_t constexpr sc_RelayPin_Circulate = A2;
+
+private:
+    void Apply(Actions const& Actions);
 };
 
-inline bool operator==(Thermostat::AllowedActions const& lhs, Thermostat::AllowedActions const& rhs)
+
+inline bool operator==(Thermostat::Actions const& lhs, Thermostat::Actions const& rhs)
 {
     return lhs.Value == rhs.Value;
 }
 
-inline bool operator!=(Thermostat::AllowedActions const& lhs, Thermostat::AllowedActions const& rhs)
+
+inline bool operator!=(Thermostat::Actions const& lhs, Thermostat::Actions const& rhs)
 {
     return !(lhs == rhs);
 }

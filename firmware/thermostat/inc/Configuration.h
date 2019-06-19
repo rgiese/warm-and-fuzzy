@@ -150,7 +150,7 @@ private:
          * @name AllowedActions
          * Allowed actions (e.g. heat, cool, circulate)
          */
-        Thermostat::AllowedActions AllowedActions;
+        Thermostat::Actions AllowedActions;
 
         ConfigurationData()
             : Header()
@@ -209,7 +209,7 @@ private:
         SetPoint(18.0f);
         Threshold(1.0f);
         Cadence(60);
-        AllowedActions(Thermostat::AllowedActions());
+        AllowedActions(Thermostat::Actions());
 
         m_fIsDirty = true;
     }
@@ -229,7 +229,7 @@ private:
         return clamp(value, static_cast<uint16_t>(10), static_cast<uint16_t>(3600));
     }
 
-    Thermostat::AllowedActions clampAllowedActions(Thermostat::AllowedActions const& value) const
+    Thermostat::Actions clampAllowedActions(Thermostat::Actions const& value) const
     {
         return value.Clamp();
     }
