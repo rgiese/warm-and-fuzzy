@@ -61,14 +61,18 @@ public:
             return clamped;
         }
     };
+
+public:
+    Thermostat();
+    ~Thermostat();
 };
 
-bool operator==(Thermostat::AllowedActions const& lhs, Thermostat::AllowedActions const& rhs)
+inline bool operator==(Thermostat::AllowedActions const& lhs, Thermostat::AllowedActions const& rhs)
 {
     return lhs.Value == rhs.Value;
 }
 
-bool operator!=(Thermostat::AllowedActions const& lhs, Thermostat::AllowedActions const& rhs)
+inline bool operator!=(Thermostat::AllowedActions const& lhs, Thermostat::AllowedActions const& rhs)
 {
     return !(lhs == rhs);
 }
