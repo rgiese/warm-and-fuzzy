@@ -1,0 +1,5 @@
+# Hosting for webapp/
+[build]
+  base = "webapp/"
+  command = "npm run build"
+  publish = "build"
