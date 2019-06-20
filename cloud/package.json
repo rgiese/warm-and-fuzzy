@@ -20,7 +20,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "format:fix": "prettier --write {.,./**}/*.{css,js,jsx,json,ts,tsx}",
+    "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,js,jsx,json,ts,tsx}",
     "lint": "eslint {.,./**}/*.{ts,tsx}",
     "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
