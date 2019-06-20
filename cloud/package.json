@@ -7,6 +7,10 @@
     "@types/node": "12.0.8",
     "@types/react": "16.8.21",
     "@types/react-dom": "16.8.4",
+    "eslint-config-prettier": "^5.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "prettier": "^1.18.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
@@ -16,7 +20,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "format:fix": "prettier --write {.,./**}/*.{css,js,jsx,json,ts,tsx}",
+    "lint": "eslint {.,./**}/*.{ts,tsx}",
+    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
   "eslintConfig": {
     "extends": "react-app"
