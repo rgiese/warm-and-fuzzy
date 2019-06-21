@@ -2,9 +2,9 @@ import React from "react";
 import { Button } from "react-bootstrap";
 
 class Home extends React.Component<any> {
-  login() {
+  login = () => {
     this.props.auth.login();
-  }
+  };
 
   render() {
     const { isAuthenticated } = this.props.auth;
