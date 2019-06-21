@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
-import { Route, Link } from "react-router-dom";
+import { Route, Link, Switch } from "react-router-dom";
 
 import Auth from "./services/Auth";
 
@@ -32,6 +32,8 @@ class App extends React.Component<any> {
     auth.logout();
   };
 
+  // Documentation for Router:
+  // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
   render() {
     const { isAuthenticated } = auth;
 
@@ -53,15 +55,17 @@ class App extends React.Component<any> {
           </Button>
         )}
 
-        <Route path="/" render={props => <Home auth={auth} {...props} />} />
+        <Switch>
+          <Route path="/home" render={props => <Home auth={auth} {...props} />} />
 
-        <Route
-          path="/callback"
-          render={props => {
-            handleAuthentication(props);
-            return <Callback {...props} />;
-          }}
-        />
+          <Route
+            path="/callback"
+            render={props => {
+              handleAuthentication(props);
+              return <Callback {...props} />;
+            }}
+          />
+        </Switch>
       </div>
     );
   }
