@@ -32,7 +32,9 @@
     "typescript-json-schema": "^0.37.0"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^8.3.2",
     "ajv": "^6.10.0",
-    "azure-storage": "^2.10.3"
+    "azure-storage": "^2.10.3",
+    "jsonwebtoken": "^8.5.1"
   }
 }

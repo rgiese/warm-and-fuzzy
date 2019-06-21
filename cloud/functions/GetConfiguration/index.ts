@@ -1,12 +1,13 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
 import { AzureTableStorage } from "../common/azureTableStorage";
+import { authenticatedFunction } from "../common/authenticatedFunction";
 
 import { DeviceConfiguration } from "../schema/deviceConfiguration";
 
 const tableService = new AzureTableStorage();
 
-const httpTrigger: AzureFunction = async function(
+const httpTrigger: AzureFunction = authenticatedFunction("read:config", async function(
   context: Context,
   req: HttpRequest
 ): Promise<any> {
@@ -51,6 +52,6 @@ const httpTrigger: AzureFunction = async function(
       },
     };
   }
-};
+});
 
 export default httpTrigger;
