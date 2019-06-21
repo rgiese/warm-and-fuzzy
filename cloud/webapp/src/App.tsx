@@ -9,19 +9,19 @@ import Home from "./components/Home";
 
 import "./App.css";
 
-const auth = new Auth();
-
-const handleAuthentication = (props: any) => {
-  if (/access_token|id_token|error/.test(props.location.hash)) {
-    auth.handleAuthentication();
-  }
-};
-
 class App extends React.Component<any> {
+  auth = new Auth();
+
+  handleAuthentication = (props: any) => {
+    if (/access_token|id_token|error/.test(props.location.hash)) {
+      this.auth.handleAuthentication();
+    }
+  };
+
   componentDidMount() {}
 
   login = () => {
-    auth.login();
+    this.auth.login();
   };
 
   // renewToken = () => {
@@ -29,14 +29,12 @@ class App extends React.Component<any> {
   // };
 
   logout = () => {
-    auth.logout();
+    this.auth.logout();
   };
 
   // Documentation for Router:
   // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
   render() {
-    const { isAuthenticated } = auth;
-
     return (
       <div>
         <Link to="/home">
@@ -44,24 +42,24 @@ class App extends React.Component<any> {
             Home
           </Button>
         </Link>
-        {!isAuthenticated() && (
+        {!this.auth.isAuthenticated() && (
           <Button id="qsLoginBtn" variant="primary" className="btn-margin" onClick={this.login}>
             Log In
           </Button>
         )}
-        {isAuthenticated() && (
+        {this.auth.isAuthenticated() && (
           <Button id="qsLogoutBtn" variant="primary" className="btn-margin" onClick={this.logout}>
             Log Out
           </Button>
         )}
 
         <Switch>
-          <Route path="/home" render={props => <Home auth={auth} {...props} />} />
+          <Route path="/home" render={props => <Home auth={this.auth} {...props} />} />
 
           <Route
             path="/callback"
             render={props => {
-              handleAuthentication(props);
+              this.handleAuthentication(props);
               return <Callback {...props} />;
             }}
           />
