@@ -2,7 +2,7 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
 import { AzureTableStorage, TableEntity, TableInsertStrategy } from "../common/azureTableStorage";
 
-import { DeviceConfiguration } from "./deviceConfiguration";
+import { DeviceConfiguration } from "../schema/deviceConfiguration";
 import { StatusEvent } from "./statusEvent";
 
 const tableService = new AzureTableStorage();
