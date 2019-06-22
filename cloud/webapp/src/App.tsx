@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import { Route, Link, Switch } from "react-router-dom";
 
-import Auth from "./services/Auth";
+import { GlobalAuth } from "./services/Auth";
 
 import Callback from "./components/Callback";
 import Home from "./components/Home";
@@ -10,26 +10,20 @@ import Home from "./components/Home";
 import "./App.css";
 
 class App extends React.Component<any> {
-  auth = new Auth();
-
   handleAuthentication = (props: any) => {
     if (/access_token|id_token|error/.test(props.location.hash)) {
-      this.auth.handleAuthentication();
+      GlobalAuth.handleAuthentication();
     }
   };
 
   componentDidMount() {}
 
   login = () => {
-    this.auth.login();
+    GlobalAuth.login();
   };
 
-  // renewToken = () => {
-  //   auth.renewToken();
-  // };
-
   logout = () => {
-    this.auth.logout();
+    GlobalAuth.logout();
   };
 
   // Documentation for Router:
@@ -42,19 +36,19 @@ class App extends React.Component<any> {
             Home
           </Button>
         </Link>
-        {!this.auth.isAuthenticated() && (
+        {!GlobalAuth.isAuthenticated() && (
           <Button id="qsLoginBtn" variant="primary" className="btn-margin" onClick={this.login}>
             Log In
           </Button>
         )}
-        {this.auth.isAuthenticated() && (
+        {GlobalAuth.isAuthenticated() && (
           <Button id="qsLogoutBtn" variant="primary" className="btn-margin" onClick={this.logout}>
             Log Out
           </Button>
         )}
 
         <Switch>
-          <Route path="/home" render={props => <Home auth={this.auth} {...props} />} />
+          <Route path="/home" render={props => <Home {...props} />} />
 
           <Route
             path="/callback"

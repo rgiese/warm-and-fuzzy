@@ -7,7 +7,7 @@ import { AUTH_CONFIG } from "./auth0-variables";
 
 const customClaimsNamespace = "https://warmandfuzzy.house/";
 
-export default class Auth {
+class Auth {
   accessToken: any;
   idToken: any;
   expiresAt: any;
@@ -20,18 +20,6 @@ export default class Auth {
     scope: "openid",
     audience: "https://api.warmandfuzzy.house",
   });
-
-  constructor() {
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
-    this.handleAuthentication = this.handleAuthentication.bind(this);
-    this.isAuthenticated = this.isAuthenticated.bind(this);
-    this.getAccessToken = this.getAccessToken.bind(this);
-    this.getIdToken = this.getIdToken.bind(this);
-    this.getUserName = this.getUserName.bind(this);
-    this.getUserEmail = this.getUserEmail.bind(this);
-    this.renewSession = this.renewSession.bind(this);
-  }
 
   login() {
     this.auth0.authorize();
@@ -117,3 +105,5 @@ export default class Auth {
     return new Date().getTime() < expiresAt;
   }
 }
+
+export let GlobalAuth = new Auth();

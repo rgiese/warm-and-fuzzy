@@ -1,17 +1,19 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 
+import { GlobalAuth } from "../services/Auth";
+
 import axios from "axios";
 
 class Home extends React.Component<any> {
   login = () => {
-    this.props.auth.login();
+    GlobalAuth.login();
   };
 
   testApi = () => {
-    console.log("JWT: " + this.props.auth.getAccessToken());
+    console.log("JWT: " + GlobalAuth.getAccessToken());
 
-    const headers = { Authorization: `Bearer ${this.props.auth.getAccessToken()}` };
+    const headers = { Authorization: `Bearer ${GlobalAuth.getAccessToken()}` };
 
     axios
       .get(`https://warmandfuzzy.azurewebsites.net/api/v1/getconfig`, { headers })
@@ -20,19 +22,19 @@ class Home extends React.Component<any> {
   };
 
   render() {
-    const { isAuthenticated } = this.props.auth;
+    const isAuthenticated = GlobalAuth.isAuthenticated();
 
     return (
       <div className="container">
-        {isAuthenticated() && (
+        {isAuthenticated && (
           <>
-            <h4>Hi, {this.props.auth.getUserName()}, you are logged in!</h4>
+            <h4>Hi, {GlobalAuth.getUserName()}, you are logged in!</h4>
             <Button variant="primary" onClick={this.testApi}>
               Test API
             </Button>
           </>
         )}
-        {!isAuthenticated() && (
+        {!isAuthenticated && (
           <h4>
             You are not logged in! Please{" "}
             <Button id="qsLoginBtn" variant="primary" className="btn-margin" onClick={this.login}>
