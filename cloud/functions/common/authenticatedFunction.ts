@@ -10,7 +10,7 @@ const jwtOptions = {
   algorithms: ["RS256"],
 };
 
-export function authenticatedFunction(requiredScope: string, next: AzureFunction): any {
+export function authenticatedFunction(requiredPermission: string, next: AzureFunction): any {
   return async (context: Context, req: HttpRequest): Promise<any> => {
     try {
       // Retrieve access token from request headers
@@ -38,12 +38,12 @@ export function authenticatedFunction(requiredScope: string, next: AzureFunction
         jwtOptions
       )) as any;
 
-      // Validate required scope is present
-      const scopes = (decodedAccessToken.scope as string).split(" ");
+      // Validate required permission is present
+      const permissions = decodedAccessToken.permissions as string[];
 
-      if (!scopes.includes(requiredScope)) {
+      if (!permissions.includes(requiredPermission)) {
         throw new UnauthorizedError(
-          `Scope ${requiredScope} not included in ${JSON.stringify(scopes)}`
+          `Permission "${requiredPermission}" not included in ${JSON.stringify(permissions)}`
         );
       }
 

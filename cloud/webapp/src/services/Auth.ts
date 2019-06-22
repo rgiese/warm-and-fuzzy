@@ -13,7 +13,7 @@ export default class Auth {
     clientID: AUTH_CONFIG.clientID,
     redirectUri: window.location.origin + AUTH_CONFIG.callbackRoute,
     responseType: "token id_token",
-    scope: "openid read:config",
+    scope: "openid",
     audience: "https://api.warmandfuzzy.house"
   });
 
