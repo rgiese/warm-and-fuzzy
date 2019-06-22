@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Button } from "react-bootstrap";
 
 import { GlobalAuth } from "../services/Auth";
@@ -6,11 +6,7 @@ import { GlobalAuth } from "../services/Auth";
 import axios from "axios";
 
 class Home extends React.Component<any> {
-  login = () => {
-    GlobalAuth.login();
-  };
-
-  testApi = () => {
+  private testApi = (): void => {
     console.log("JWT: " + GlobalAuth.getAccessToken());
 
     const headers = { Authorization: `Bearer ${GlobalAuth.getAccessToken()}` };
@@ -21,7 +17,7 @@ class Home extends React.Component<any> {
       .catch(error => window.alert(error.message));
   };
 
-  render() {
+  public render(): ReactNode {
     const isAuthenticated = GlobalAuth.isAuthenticated();
 
     return (
@@ -37,7 +33,12 @@ class Home extends React.Component<any> {
         {!isAuthenticated && (
           <h4>
             You are not logged in! Please{" "}
-            <Button id="qsLoginBtn" variant="primary" className="btn-margin" onClick={this.login}>
+            <Button
+              id="qsLoginBtn"
+              variant="primary"
+              className="btn-margin"
+              onClick={GlobalAuth.login}
+            >
               Log In
             </Button>{" "}
             to continue.

@@ -8,11 +8,12 @@ import { AUTH_CONFIG } from "./auth0-variables";
 const customClaimsNamespace = "https://warmandfuzzy.house/";
 
 class Auth {
-  accessToken: any;
-  idToken: any;
-  expiresAt: any;
+  private accessToken: any;
+  private idToken: any;
+  private expiresAt: any;
+  private tokenRenewalTimeout: any;
 
-  auth0 = new Auth0.WebAuth({
+  private auth0 = new Auth0.WebAuth({
     domain: AUTH_CONFIG.domain,
     clientID: AUTH_CONFIG.clientID,
     redirectUri: window.location.origin + AUTH_CONFIG.callbackRoute,
@@ -21,12 +22,12 @@ class Auth {
     audience: "https://api.warmandfuzzy.house",
   });
 
-  login() {
+  public login(): void {
     this.auth0.authorize();
   }
 
-  handleAuthentication() {
-    this.auth0.parseHash((err, authResult) => {
+  public handleAuthentication(): void {
+    this.auth0.parseHash((err, authResult): void => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
       } else if (err) {
@@ -37,51 +38,53 @@ class Auth {
     });
   }
 
-  getAccessToken() {
+  public isAuthenticated(): boolean {
+    // Check whether the current time is past the
+    // access token's expiry time
+    let expiresAt = this.expiresAt;
+    return new Date().getTime() < expiresAt;
+  }
+
+  public getAccessToken(): any {
     return this.accessToken;
   }
 
-  getIdToken() {
+  public getIdToken(): any {
     return this.idToken;
   }
 
-  getUserName() {
+  public getUserName(): string | undefined {
     const decodedIdToken = JwtDecode(this.idToken) as any;
     return decodedIdToken[customClaimsNamespace + "user_name"];
   }
 
-  getUserEmail() {
+  public getUserEmail(): string | undefined {
     const decodedIdToken = JwtDecode(this.idToken) as any;
     return decodedIdToken[customClaimsNamespace + "user_email"];
   }
 
-  setSession(authResult: any) {
+  private setSession(authResult: any): void {
     // Set isLoggedIn flag in localStorage
     localStorage.setItem("isLoggedIn", "true");
 
     // Set the time that the access token will expire at
-    let expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+    const expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+
     this.accessToken = authResult.accessToken;
     this.idToken = authResult.idToken;
     this.expiresAt = expiresAt;
 
-    // navigate to the home route
+    // Schedule token renewal
+    this.scheduleRenewal();
+
+    // Navigate to the home route
     History.replace("/home");
   }
 
-  renewSession() {
-    this.auth0.checkSession({}, (err, authResult) => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        this.setSession(authResult);
-      } else if (err) {
-        this.logout();
-        console.log(err);
-        alert(`Could not get a new token (${err.error}: ${err.error_description}).`);
-      }
-    });
-  }
+  public logout(): void {
+    // Clear token renewal
+    clearTimeout(this.tokenRenewalTimeout);
 
-  logout() {
     // Remove tokens and expiry time
     this.accessToken = null;
     this.idToken = null;
@@ -98,11 +101,25 @@ class Auth {
     History.replace("/home");
   }
 
-  isAuthenticated() {
-    // Check whether the current time is past the
-    // access token's expiry time
-    let expiresAt = this.expiresAt;
-    return new Date().getTime() < expiresAt;
+  private scheduleRenewal(): void {
+    const timeout = this.expiresAt - Date.now();
+    if (timeout > 0) {
+      this.tokenRenewalTimeout = setTimeout((): void => {
+        this.renewSession();
+      }, timeout);
+    }
+  }
+
+  private renewSession(): void {
+    this.auth0.checkSession({}, (err, authResult): void => {
+      if (authResult && authResult.accessToken && authResult.idToken) {
+        this.setSession(authResult);
+      } else if (err) {
+        this.logout();
+        console.log(err);
+        alert(`Could not get a new token (${err.error}: ${err.error_description}).`);
+      }
+    });
   }
 }
 

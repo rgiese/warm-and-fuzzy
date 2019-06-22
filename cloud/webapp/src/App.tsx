@@ -1,6 +1,6 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Button } from "react-bootstrap";
-import { Route, Link, Switch } from "react-router-dom";
+import { Route, Link, Switch, RouteComponentProps } from "react-router-dom";
 
 import { GlobalAuth } from "./services/Auth";
 
@@ -10,25 +10,15 @@ import Home from "./components/Home";
 import "./App.css";
 
 class App extends React.Component<any> {
-  handleAuthentication = (props: any) => {
+  private handleAuthentication = (props: RouteComponentProps): void => {
     if (/access_token|id_token|error/.test(props.location.hash)) {
       GlobalAuth.handleAuthentication();
     }
   };
 
-  componentDidMount() {}
-
-  login = () => {
-    GlobalAuth.login();
-  };
-
-  logout = () => {
-    GlobalAuth.logout();
-  };
-
   // Documentation for Router:
   // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
-  render() {
+  public render(): ReactNode {
     return (
       <div>
         <Link to="/home">
@@ -37,24 +27,33 @@ class App extends React.Component<any> {
           </Button>
         </Link>
         {!GlobalAuth.isAuthenticated() && (
-          <Button id="qsLoginBtn" variant="primary" className="btn-margin" onClick={this.login}>
+          <Button
+            id="qsLoginBtn"
+            variant="primary"
+            className="btn-margin"
+            onClick={GlobalAuth.login}
+          >
             Log In
           </Button>
         )}
         {GlobalAuth.isAuthenticated() && (
-          <Button id="qsLogoutBtn" variant="primary" className="btn-margin" onClick={this.logout}>
+          <Button
+            id="qsLogoutBtn"
+            variant="primary"
+            className="btn-margin"
+            onClick={GlobalAuth.logout}
+          >
             Log Out
           </Button>
         )}
 
         <Switch>
-          <Route path="/home" render={props => <Home {...props} />} />
-
+          <Route path="/home" component={Home} />} />
           <Route
             path="/callback"
-            render={props => {
+            render={(props: RouteComponentProps): ReactNode => {
               this.handleAuthentication(props);
-              return <Callback {...props} />;
+              return <Callback />;
             }}
           />
         </Switch>

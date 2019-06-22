@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import React, { Component, ReactNode } from "react";
 
 class Callback extends Component {
-  render() {
+  public render(): ReactNode {
     return <div>Loading...</div>;
   }
 }
