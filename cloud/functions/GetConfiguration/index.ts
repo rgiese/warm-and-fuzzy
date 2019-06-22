@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
 import { AzureTableStorage } from "../common/azureTableStorage";
-import { authenticatedFunction } from "../common/authenticatedFunction";
+import { authenticatedFunction, InjectedRequestHeaders } from "../common/authenticatedFunction";
 
 import { DeviceConfiguration } from "../schema/deviceConfiguration";
 
@@ -12,6 +12,8 @@ const httpTrigger: AzureFunction = authenticatedFunction("read:config", async fu
   req: HttpRequest
 ): Promise<any> {
   try {
+    context.log("Tenant: " + req.headers[InjectedRequestHeaders.Tenant]);
+
     // Retrieve device configuration data
     const deviceConfigurationJson = await tableService.TryRetrieveEntity(
       "deviceConfig",

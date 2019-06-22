@@ -41,7 +41,23 @@
 - Provide roles
     - Administrator: `read:config`, `write:config`
     - Viewer: `read:config`
-- Assign roles to users as needed
+- Provide rules
+    - `Add tenant to access token`
+        ```
+        function (user, context, callback) {
+        const namespace = 'https://warmandfuzzy.house/';
+        
+        if (user.app_metadata.hasOwnProperty('tenant')) {
+            context.accessToken[namespace + 'tenant'] = user.app_metadata.tenant;
+        }
+        
+        callback(null, user, context);
+        }
+        ```
+- User setup
+    - Assign roles to users as needed
+    - Assign tenant IDs to users as appropriate
+        - In `app_metadata`, add `"tenant": "<name of tenant>"`
 
 ## Azure storage configuration
 - Provide standard storage account (e.g. `warmandfuzzyprod`)

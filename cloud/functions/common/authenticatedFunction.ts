@@ -10,6 +10,10 @@ const jwtOptions = {
   algorithms: ["RS256"],
 };
 
+export const InjectedRequestHeaders = {
+  Tenant: "X-WAF-Tenant",
+};
+
 export function authenticatedFunction(requiredPermission: string, next: AzureFunction): any {
   return async (context: Context, req: HttpRequest): Promise<any> => {
     try {
@@ -46,6 +50,15 @@ export function authenticatedFunction(requiredPermission: string, next: AzureFun
           `Permission "${requiredPermission}" not included in ${JSON.stringify(permissions)}`
         );
       }
+
+      // Process custom claims
+      const customClaimsNamespace = "https://warmandfuzzy.house/";
+
+      const customClaims = {
+        Tenant: customClaimsNamespace + "tenant",
+      };
+
+      req.headers[InjectedRequestHeaders.Tenant] = decodedAccessToken[customClaims.Tenant];
 
       // Call wrapped function to do the real work
       return next(context, req);
