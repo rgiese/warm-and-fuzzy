@@ -26,7 +26,7 @@ class App extends React.Component<any> {
             Home
           </Button>
         </Link>
-        {!GlobalAuth.isAuthenticated() && (
+        {!GlobalAuth.IsAuthenticated && (
           <Button
             id="qsLoginBtn"
             variant="primary"
@@ -36,7 +36,7 @@ class App extends React.Component<any> {
             Log In
           </Button>
         )}
-        {GlobalAuth.isAuthenticated() && (
+        {GlobalAuth.IsAuthenticated && (
           <Button
             id="qsLogoutBtn"
             variant="primary"

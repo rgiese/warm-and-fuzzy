@@ -38,27 +38,27 @@ class Auth {
     });
   }
 
-  public isAuthenticated(): boolean {
+  public get IsAuthenticated(): boolean {
     // Check whether the current time is past the
     // access token's expiry time
     let expiresAt = this.expiresAt;
     return new Date().getTime() < expiresAt;
   }
 
-  public getAccessToken(): any {
+  public get AccessToken(): any {
     return this.accessToken;
   }
 
-  public getIdToken(): any {
+  public get IdToken(): any {
     return this.idToken;
   }
 
-  public getUserName(): string | undefined {
+  public get UserName(): string | undefined {
     const decodedIdToken = JwtDecode(this.idToken) as any;
     return decodedIdToken[customClaimsNamespace + "user_name"];
   }
 
-  public getUserEmail(): string | undefined {
+  public get UserEmail(): string | undefined {
     const decodedIdToken = JwtDecode(this.idToken) as any;
     return decodedIdToken[customClaimsNamespace + "user_email"];
   }

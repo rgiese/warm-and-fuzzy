@@ -7,9 +7,9 @@ import axios from "axios";
 
 class Home extends React.Component<any> {
   private testApi = (): void => {
-    console.log("JWT: " + GlobalAuth.getAccessToken());
+    console.log("JWT: " + GlobalAuth.AccessToken);
 
-    const headers = { Authorization: `Bearer ${GlobalAuth.getAccessToken()}` };
+    const headers = { Authorization: `Bearer ${GlobalAuth.AccessToken}` };
 
     axios
       .get(`https://warmandfuzzy.azurewebsites.net/api/v1/getconfig`, { headers })
@@ -18,19 +18,17 @@ class Home extends React.Component<any> {
   };
 
   public render(): ReactNode {
-    const isAuthenticated = GlobalAuth.isAuthenticated();
-
     return (
       <div className="container">
-        {isAuthenticated && (
+        {GlobalAuth.IsAuthenticated && (
           <>
-            <h4>Hi, {GlobalAuth.getUserName()}, you are logged in!</h4>
+            <h4>Hi, {GlobalAuth.UserName}, you are logged in!</h4>
             <Button variant="primary" onClick={this.testApi}>
               Test API
             </Button>
           </>
         )}
-        {!isAuthenticated && (
+        {!GlobalAuth.IsAuthenticated && (
           <h4>
             You are not logged in! Please{" "}
             <Button
