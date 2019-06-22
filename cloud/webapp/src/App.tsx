@@ -10,6 +10,14 @@ import Home from "./components/Home";
 import "./App.css";
 
 class App extends React.Component<any> {
+  private login = (): void => {
+    GlobalAuth.login();
+  };
+
+  private logout = (): void => {
+    GlobalAuth.logout();
+  };
+
   private handleAuthentication = (props: RouteComponentProps): void => {
     if (/access_token|id_token|error/.test(props.location.hash)) {
       GlobalAuth.handleAuthentication();
@@ -27,22 +35,12 @@ class App extends React.Component<any> {
           </Button>
         </Link>
         {!GlobalAuth.IsAuthenticated && (
-          <Button
-            id="qsLoginBtn"
-            variant="primary"
-            className="btn-margin"
-            onClick={GlobalAuth.login}
-          >
+          <Button id="qsLoginBtn" variant="primary" className="btn-margin" onClick={this.login}>
             Log In
           </Button>
         )}
         {GlobalAuth.IsAuthenticated && (
-          <Button
-            id="qsLogoutBtn"
-            variant="primary"
-            className="btn-margin"
-            onClick={GlobalAuth.logout}
-          >
+          <Button id="qsLogoutBtn" variant="primary" className="btn-margin" onClick={this.logout}>
             Log Out
           </Button>
         )}

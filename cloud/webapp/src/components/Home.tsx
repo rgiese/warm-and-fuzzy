@@ -6,6 +6,10 @@ import { GlobalAuth } from "../services/Auth";
 import axios from "axios";
 
 class Home extends React.Component<any> {
+  private login = (): void => {
+    GlobalAuth.login();
+  };
+
   private testApi = (): void => {
     console.log("JWT: " + GlobalAuth.AccessToken);
 
@@ -31,12 +35,7 @@ class Home extends React.Component<any> {
         {!GlobalAuth.IsAuthenticated && (
           <h4>
             You are not logged in! Please{" "}
-            <Button
-              id="qsLoginBtn"
-              variant="primary"
-              className="btn-margin"
-              onClick={GlobalAuth.login}
-            >
+            <Button id="qsLoginBtn" variant="primary" className="btn-margin" onClick={this.login}>
               Log In
             </Button>{" "}
             to continue.
