@@ -1,7 +1,11 @@
 import Auth0 from "auth0-js";
+import JwtDecode from "jwt-decode";
+
 import History from "./History";
 
 import { AUTH_CONFIG } from "./auth0-variables";
+
+const customClaimsNamespace = "https://warmandfuzzy.house/";
 
 export default class Auth {
   accessToken: any;
@@ -14,7 +18,7 @@ export default class Auth {
     redirectUri: window.location.origin + AUTH_CONFIG.callbackRoute,
     responseType: "token id_token",
     scope: "openid",
-    audience: "https://api.warmandfuzzy.house"
+    audience: "https://api.warmandfuzzy.house",
   });
 
   constructor() {
@@ -24,6 +28,8 @@ export default class Auth {
     this.isAuthenticated = this.isAuthenticated.bind(this);
     this.getAccessToken = this.getAccessToken.bind(this);
     this.getIdToken = this.getIdToken.bind(this);
+    this.getUserName = this.getUserName.bind(this);
+    this.getUserEmail = this.getUserEmail.bind(this);
     this.renewSession = this.renewSession.bind(this);
   }
 
@@ -49,6 +55,16 @@ export default class Auth {
 
   getIdToken() {
     return this.idToken;
+  }
+
+  getUserName() {
+    const decodedIdToken = JwtDecode(this.idToken) as any;
+    return decodedIdToken[customClaimsNamespace + "user_name"];
+  }
+
+  getUserEmail() {
+    const decodedIdToken = JwtDecode(this.idToken) as any;
+    return decodedIdToken[customClaimsNamespace + "user_email"];
   }
 
   setSession(authResult: any) {

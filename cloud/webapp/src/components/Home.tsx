@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 
-import axios from 'axios';
+import axios from "axios";
 
 class Home extends React.Component<any> {
   login = () => {
@@ -11,12 +11,13 @@ class Home extends React.Component<any> {
   testApi = () => {
     console.log("JWT: " + this.props.auth.getAccessToken());
 
-    const headers = { 'Authorization': `Bearer ${this.props.auth.getAccessToken()}`}
+    const headers = { Authorization: `Bearer ${this.props.auth.getAccessToken()}` };
 
-    axios.get(`https://warmandfuzzy.azurewebsites.net/api/v1/getconfig`, { headers })
+    axios
+      .get(`https://warmandfuzzy.azurewebsites.net/api/v1/getconfig`, { headers })
       .then(response => console.log(JSON.stringify(response)))
       .catch(error => window.alert(error.message));
-  }
+  };
 
   render() {
     const { isAuthenticated } = this.props.auth;
@@ -25,8 +26,10 @@ class Home extends React.Component<any> {
       <div className="container">
         {isAuthenticated() && (
           <>
-            <h4>You are logged in!</h4>
-            <Button variant="primary" onClick={this.testApi}>Test API</Button>
+            <h4>Hi, {this.props.auth.getUserName()}, you are logged in!</h4>
+            <Button variant="primary" onClick={this.testApi}>
+              Test API
+            </Button>
           </>
         )}
         {!isAuthenticated() && (

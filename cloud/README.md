@@ -54,6 +54,17 @@
         callback(null, user, context);
         }
         ```
+    - `Add user email address and name to ID token`
+        ```
+        function (user, context, callback) {
+          const namespace = 'https://warmandfuzzy.house/';
+                
+          context.idToken[namespace + 'user_email'] = user.email;
+          context.idToken[namespace + 'user_name'] = user.name;
+
+          callback(null, user, context);
+        }
+        ```
 - User setup
     - Assign roles to users as needed
     - Assign tenant IDs to users as appropriate
