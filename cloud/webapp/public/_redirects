@@ -1,0 +1,4 @@
+# For documentation, see https://www.netlify.com/docs/redirects/
+
+# Make history pushstate and React BrowserRouter work for our SPA
+/*    /index.html   200

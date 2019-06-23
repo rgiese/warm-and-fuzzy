@@ -9,8 +9,13 @@
       "Values": {
         "AzureWebJobsStorage": "",
         "FUNCTIONS_WORKER_RUNTIME": "node",
-        "AZURE_STORAGE_CONNECTION_STRING": "<connection string to warmandfuzzyprod>"
-      }
+        "AZURE_STORAGE_CONNECTION_STRING": "<connection string to warmandfuzzyprod>",
+        "AUTH0_SECRET": "<auth0 public key from https://grumpycorp.auth0.com/.well-known/jwks.json>"
+      },
+      "Host": {
+        "LocalHttpPort": 7071,
+        "CORS": "*"
+      }      
     }
     ```
 
@@ -18,31 +23,91 @@
 - Manual deploy from CLI
     - `az account set --subscription "WarmAndFuzzy"`
     - `npm install`
-    - `npm run build:production`
-    - `func azure functionapp publish WarmAndFuzzy`
+    - `npm run build:production` (or just `npm run build` and wait a bit longer)
+    - `npm run deploy:production`
 - Manual deploy through VS Code
     - Also works but less useful progress reporting
 
 # Cloud configuration
+
+## Auth0 configuration
+- Provide `WarmAndFuzzy` application (Single Page Application)
+    - Allowed callback URLs: `https://app.warmandfuzzy.house/callback, http://localhost:3000/callback`
+    - Allowed web origins. logout URLs: `https://app.warmandfuzzy.house, http://localhost:3000`
+    - Connections: user-path auth only (no social)
+- Provide `api.warmandfuzzy.house` API (identifier `https://api.warmandfuzzy.house`)
+    - Enable RBAC and Add Permissions in Access Token
+    - Create permissions: `read:config`, `write:config`
+- Provide roles
+    - Administrator: `read:config`, `write:config`
+    - Viewer: `read:config`
+- Provide rules
+    - `Add tenant to access token`
+        ```
+        function (user, context, callback) {
+        const namespace = 'https://warmandfuzzy.house/';
+        
+        if (user.app_metadata.hasOwnProperty('tenant')) {
+            context.accessToken[namespace + 'tenant'] = user.app_metadata.tenant;
+        }
+        
+        callback(null, user, context);
+        }
+        ```
+    - `Add user email address and name to ID token`
+        ```
+        function (user, context, callback) {
+          const namespace = 'https://warmandfuzzy.house/';
+                
+          context.idToken[namespace + 'user_email'] = user.email;
+          context.idToken[namespace + 'user_name'] = user.name;
+
+          callback(null, user, context);
+        }
+        ```
+- User setup
+    - Assign roles to users as needed
+    - Assign tenant IDs to users as appropriate
+        - In `app_metadata`, add `"tenant": "<name of tenant>"`
+
 ## Azure storage configuration
 - Provide standard storage account (e.g. `warmandfuzzyprod`)
-    - Provide table `deviceConfig`
+    - Provide tables `deviceConfig`, `latestActions`, `latestValues`
+
+## Azure Functions app
+- Provide `WarmAndFuzzy` Functions application
+    - Provide application settings (i.e. environment variables)
+        - `AUTH0_SECRET` = Auth0 public key from https://grumpycorp.auth0.com/.well-known/jwks.json
+        - `AZURE_STORAGE_CONNECTION_STRING` = connection string to `warmandfuzzyprod` storage account per above
+    - Add CORS rules
+        - `https://app.warmandfuzzy.house`
+        - `http://localhost:3000`
 
 ## Particle webhook configuration
-- Event: `status`
-- To: `https://warmandfuzzy.azurewebsites.net/webhooks/particle/status` as POST
-- Request body (JSON) - _note_ presence/absence of quotes and field names different from the defaults:
-    ```
-    {
-    "event": "{{{PARTICLE_EVENT_NAME}}}",
-    "data": {{{PARTICLE_EVENT_VALUE}}},
-    "deviceId": "{{{PARTICLE_DEVICE_ID}}}",
-    "publishedAt": "{{{PARTICLE_PUBLISHED_AT}}}",
-    "firmwareVersion": {{{PRODUCT_VERSION}}},
-    }
-    ```
-- Query parameters: provide `code` set to Azure Functions function key
-- Response topic: default of `{{PARTICLE_DEVICE_ID}}/hook-response/{{PARTICLE_EVENT_NAME}}`
+- Provide status event webhook
+    - Event: `status`
+    - To: `https://warmandfuzzy.azurewebsites.net/webhooks/particle/status` as POST
+    - Request body (JSON) - _note_ presence/absence of quotes and field names different from the defaults:
+        ```
+        {
+        "event": "{{{PARTICLE_EVENT_NAME}}}",
+        "data": {{{PARTICLE_EVENT_VALUE}}},
+        "deviceId": "{{{PARTICLE_DEVICE_ID}}}",
+        "publishedAt": "{{{PARTICLE_PUBLISHED_AT}}}",
+        "firmwareVersion": {{{PRODUCT_VERSION}}},
+        }
+        ```
+    - Query parameters: provide `code` set to Azure Functions function key (retrieve from Azure portal)
+    - Response topic: default of `{{PARTICLE_DEVICE_ID}}/hook-response/{{PARTICLE_EVENT_NAME}}`
+
+## Netlify
+- Provide site for `warm-and-fuzzy`
+    - Connect to GitHub, enable deploy previews and branch deploys
+    - Add `app.warmandfuzzy.house` as custom domain
+    - Ensure there's an SSL certificate once the custom domain is listed
+
+## CloudFlare
+- CNAME `app.warmandfuzzy.house` to `warm-and-fuzzy.netlify.com.`
 
 # Documentation
 - [Azure Functions in Node](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-node)
