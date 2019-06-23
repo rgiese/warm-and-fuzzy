@@ -5,8 +5,6 @@ import History from "./History";
 
 import { AUTH_CONFIG } from "./auth0-variables";
 
-const customClaimsNamespace = "https://warmandfuzzy.house/";
-
 class Auth {
   private accessToken: any;
   private idToken: any;
@@ -17,9 +15,9 @@ class Auth {
     domain: AUTH_CONFIG.domain,
     clientID: AUTH_CONFIG.clientID,
     redirectUri: window.location.origin + AUTH_CONFIG.callbackRoute,
+    audience: AUTH_CONFIG.audience,
     responseType: "token id_token",
     scope: "openid",
-    audience: "https://api.warmandfuzzy.house",
   });
 
   public login(): void {
@@ -55,12 +53,12 @@ class Auth {
 
   public get UserName(): string | undefined {
     const decodedIdToken = JwtDecode(this.idToken) as any;
-    return decodedIdToken[customClaimsNamespace + "user_name"];
+    return decodedIdToken[AUTH_CONFIG.customClaimsNamespace + "user_name"];
   }
 
   public get UserEmail(): string | undefined {
     const decodedIdToken = JwtDecode(this.idToken) as any;
-    return decodedIdToken[customClaimsNamespace + "user_email"];
+    return decodedIdToken[AUTH_CONFIG.customClaimsNamespace + "user_email"];
   }
 
   private setSession(authResult: any): void {

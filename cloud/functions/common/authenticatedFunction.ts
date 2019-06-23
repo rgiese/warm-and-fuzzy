@@ -1,14 +1,10 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import * as JsonWebToken from "jsonwebtoken";
 
+import { AUTH_CONFIG } from "./auth0-variables";
+
 class UnauthorizedError extends Error {}
 class InternalServerError extends Error {}
-
-const jwtOptions = {
-  audience: "https://api.warmandfuzzy.house",
-  issuer: "https://grumpycorp.auth0.com/",
-  algorithms: ["RS256"],
-};
 
 export const InjectedRequestHeaders = {
   Tenant: "X-WAF-Tenant",
@@ -36,11 +32,11 @@ export function authenticatedFunction(requiredPermission: string, next: AzureFun
       const auth0SecretWithEnvelope = `-----BEGIN CERTIFICATE-----\n${auth0Secret}\n-----END CERTIFICATE-----\n`;
 
       // Validate and decode access token including issuer and audience
-      const decodedAccessToken = (await JsonWebToken.verify(
-        accessToken,
-        auth0SecretWithEnvelope,
-        jwtOptions
-      )) as any;
+      const decodedAccessToken = (await JsonWebToken.verify(accessToken, auth0SecretWithEnvelope, {
+        audience: AUTH_CONFIG.audience,
+        issuer: `https://${AUTH_CONFIG.domain}/`,
+        algorithms: ["RS256"],
+      })) as any;
 
       // Validate required permission is present
       const permissions = decodedAccessToken.permissions as string[];
@@ -52,10 +48,8 @@ export function authenticatedFunction(requiredPermission: string, next: AzureFun
       }
 
       // Process custom claims
-      const customClaimsNamespace = "https://warmandfuzzy.house/";
-
       const customClaims = {
-        Tenant: customClaimsNamespace + "tenant",
+        Tenant: AUTH_CONFIG.customClaimsNamespace + "tenant",
       };
 
       req.headers[InjectedRequestHeaders.Tenant] = decodedAccessToken[customClaims.Tenant];
