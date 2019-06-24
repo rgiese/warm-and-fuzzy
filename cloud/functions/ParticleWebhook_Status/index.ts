@@ -4,6 +4,7 @@ import { AzureTableStorage, TableEntity, TableInsertStrategy } from "../common/a
 
 import { DeviceConfiguration } from "../schema/deviceConfiguration";
 import { StatusEvent } from "./statusEvent";
+import { DeviceToTenant } from "../schema/deviceToTenant";
 
 const tableService = new AzureTableStorage();
 
@@ -14,14 +15,26 @@ const httpTrigger: AzureFunction = async function(
   try {
     // Parse incoming status data
     const statusEvent = new StatusEvent(context, req.body);
+    const deviceId = statusEvent.deviceId.toLowerCase();
+
+    // Locate tenant name for device
+    const deviceToTenantJson = await tableService.TryRetrieveEntity(
+      "deviceToTenant",
+      "default",
+      deviceId
+    );
+
+    const deviceToTenant = new DeviceToTenant(context, deviceToTenantJson);
+
+    const tenantName = deviceToTenant.tenantName;
 
     // Store latest values (ignoring out-of-order delivery)
     {
       const latestValueEntities = statusEvent.data.v.map(
         (value): TableEntity => {
           return {
-            PartitionKey: "default",
-            RowKey: (value.id || statusEvent.deviceId).toLowerCase(),
+            PartitionKey: tenantName,
+            RowKey: (value.id || deviceId).toLowerCase(),
             PublishedTime: statusEvent.publishedAt,
             DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
             DeviceLocalSerial: statusEvent.data.ser,
@@ -42,8 +55,8 @@ const httpTrigger: AzureFunction = async function(
     {
       const latestActionsEntities = [
         {
-          PartitionKey: "default",
-          RowKey: statusEvent.deviceId.toLowerCase(),
+          PartitionKey: tenantName,
+          RowKey: deviceId,
           PublishedTime: statusEvent.publishedAt,
           DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
           DeviceLocalSerial: statusEvent.data.ser,
@@ -61,8 +74,8 @@ const httpTrigger: AzureFunction = async function(
     // Retrieve device configuration data
     const deviceConfigurationJson = await tableService.TryRetrieveEntity(
       "deviceConfig",
-      "default",
-      statusEvent.deviceId
+      tenantName,
+      deviceId
     );
 
     const deviceConfiguration = new DeviceConfiguration(context, deviceConfigurationJson);

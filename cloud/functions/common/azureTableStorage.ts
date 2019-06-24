@@ -122,6 +122,44 @@ export class AzureTableStorage {
     return this.RetrieveEntity(tableName, partitionKey, rowKey, true);
   }
 
+  public async QueryEntities(
+    tableName: string,
+    query: AzureStorage.TableQuery,
+    returnNullOnNotFound: boolean = false
+  ): Promise<TableEntity[]> {
+    return new Promise<TableEntity[]>(
+      (resolve, reject): void => {
+        this.tableService.queryEntities<TableEntity>(
+          tableName,
+          query,
+          (null as unknown) as AzureStorage.TableService.TableContinuationToken, // AzureStorage's TypeScript definition is a bit broken
+          (
+            error: AzureStorage.StorageError,
+            result: AzureStorage.TableService.QueryEntitiesResult<TableEntity>
+            //,response: AzureStorage.ServiceResponse
+          ): void => {
+            if (error) {
+              if (error.statusCode == 404 && returnNullOnNotFound) {
+                resolve(undefined);
+              } else {
+                reject(error);
+              }
+
+              return;
+            }
+
+            // FUTURE: Deal with result.continuationToken
+            resolve(
+              result.entries.map(
+                (tableRecord): TableEntity => this.tableRecordToEntity(tableRecord)
+              )
+            );
+          }
+        );
+      }
+    );
+  }
+
   private entityToTableRecord(entity: TableEntity): any {
     let tableRecord: any = {};
 

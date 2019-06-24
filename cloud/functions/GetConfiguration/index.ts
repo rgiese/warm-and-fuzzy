@@ -1,9 +1,8 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import * as AzureStorage from "azure-storage";
 
 import { AzureTableStorage } from "../common/azureTableStorage";
 import { authenticatedFunction, InjectedRequestHeaders } from "../common/authenticatedFunction";
-
-import { DeviceConfiguration } from "../schema/deviceConfiguration";
 
 const tableService = new AzureTableStorage();
 
@@ -12,31 +11,32 @@ const httpTrigger: AzureFunction = authenticatedFunction("read:config", async fu
   req: HttpRequest
 ): Promise<any> {
   try {
-    context.log("Tenant: " + req.headers[InjectedRequestHeaders.Tenant]);
+    const tenantName = req.headers[InjectedRequestHeaders.Tenant];
+    context.log("Tenant: " + tenantName);
 
     // Retrieve device configuration data
-    const deviceConfigurationJson = await tableService.TryRetrieveEntity(
+    const deviceConfigEntities = await tableService.QueryEntities(
       "deviceConfig",
-      "default",
-      "17002c001247363333343437"
+      new AzureStorage.TableQuery().where("PartitionKey eq ?", tenantName)
     );
 
-    const deviceConfiguration = new DeviceConfiguration(context, deviceConfigurationJson);
+    const deviceConfigRecords = deviceConfigEntities.map(
+      (deviceConfigEntity): object => {
+        return {
+          id: deviceConfigEntity.RowKey,
+          setPointHeat: deviceConfigEntity.setPointHeat,
+          setPointCool: deviceConfigEntity.setPointCool,
+          threshold: deviceConfigEntity.threshold,
+          cadence: deviceConfigEntity.cadence,
+          allowedActions: deviceConfigEntity.allowedActions,
+        };
+      }
+    );
 
     // Return success response
     return {
       // Provide a compacted rendering of the JSON in the response (by default it's pretty)
-      body: JSON.stringify(
-        {
-          sh: deviceConfiguration.setPointHeat,
-          sc: deviceConfiguration.setPointCool,
-          th: deviceConfiguration.threshold,
-          ca: deviceConfiguration.cadence,
-          aa: deviceConfiguration.allowedActions,
-        },
-        undefined,
-        0
-      ),
+      body: JSON.stringify(deviceConfigRecords, undefined, 0),
 
       // Force JSON content type
       headers: {
