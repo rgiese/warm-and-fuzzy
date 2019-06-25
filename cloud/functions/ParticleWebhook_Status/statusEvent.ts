@@ -9,15 +9,17 @@ const ajvInstance = new Ajv();
 //   "event": "status",
 //   "data": {
 //     "ts": 1554656303,
+//     "ser": 42,
+//     "ca": "C",
 //     "v": [
 //       { "t": 22.0, "h": 53.9 },
 //       { "id": "2800581f0b0000d6", "t": 22.9 },
 //       { "id": "28c0e61d0b0000a3", "t": 21.7 }
 //     ]
 //   },
-//   "device_id": "17002c001247363333343437",
-//   "published_at": "2019-04-07T16:58:25.604Z",
-//   "fw_version": 1
+//   "deviceId": "17002c001247363333343437",
+//   "publishedAt": "2019-04-07T16:58:25.604Z",
+//   "firmwareVersion": 1
 // }
 //
 export class StatusEvent {

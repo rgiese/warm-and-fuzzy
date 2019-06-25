@@ -1,10 +1,13 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 
-import { AzureTableStorage, TableEntity, TableInsertStrategy } from "../common/azureTableStorage";
+import { AzureTableStorage, TableInsertStrategy } from "../common/azureTableStorage";
 
 import { DeviceConfiguration } from "../schema/deviceConfiguration";
-import { StatusEvent } from "./statusEvent";
 import { DeviceToTenant } from "../schema/deviceToTenant";
+import { LatestActions } from "../schema/latestActions";
+import { LatestValues } from "../schema/latestValues";
+
+import { StatusEvent } from "./statusEvent";
 
 const tableService = new AzureTableStorage();
 
@@ -18,67 +21,61 @@ const httpTrigger: AzureFunction = async function(
     const deviceId = statusEvent.deviceId.toLowerCase();
 
     // Locate tenant name for device
-    const deviceToTenantJson = await tableService.TryRetrieveEntity(
+    const deviceToTenant = await tableService.TryRetrieveEntity(
       "deviceToTenant",
       "default",
-      deviceId
+      deviceId,
+      DeviceToTenant
     );
-
-    const deviceToTenant = new DeviceToTenant(context, deviceToTenantJson);
-
-    const tenantName = deviceToTenant.tenantName;
 
     // Store latest values (ignoring out-of-order delivery)
     {
-      const latestValueEntities = statusEvent.data.v.map(
-        (value): TableEntity => {
-          return {
-            PartitionKey: tenantName,
-            RowKey: (value.id || deviceId).toLowerCase(),
-            PublishedTime: statusEvent.publishedAt,
-            DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
-            DeviceLocalSerial: statusEvent.data.ser,
-            Temperature: value.t,
-            Humidity: value.h,
-          };
+      const latestValues = statusEvent.data.v.map(
+        (value): LatestValues => {
+          return Object.assign(new LatestValues(), {
+            tenant: deviceToTenant.tenant,
+            deviceId: (value.id || deviceId).toLowerCase(),
+            publishedTime: statusEvent.publishedAt,
+            deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
+            deviceLocalSerial: statusEvent.data.ser,
+            temperature: value.t,
+            humidity: value.h || 0,
+          });
         }
       );
 
       await tableService.InsertEntities(
         "latestValues",
-        latestValueEntities,
+        latestValues,
         TableInsertStrategy.InsertOrReplace
       );
     }
 
     // Store latest actions
     {
-      const latestActionsEntities = [
-        {
-          PartitionKey: tenantName,
-          RowKey: deviceId,
-          PublishedTime: statusEvent.publishedAt,
-          DeviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
-          DeviceLocalSerial: statusEvent.data.ser,
-          CurrentActions: statusEvent.data.ca,
-        },
-      ];
+      const latestActions = Object.assign(new LatestActions(), {
+        tenant: deviceToTenant.tenant,
+        deviceId: deviceId,
+        publishedTime: statusEvent.publishedAt,
+        deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
+        deviceLocalSerial: statusEvent.data.ser,
+        currentActions: statusEvent.data.ca,
+      });
 
       await tableService.InsertEntities(
         "latestActions",
-        latestActionsEntities,
+        [latestActions],
         TableInsertStrategy.InsertOrReplace
       );
     }
 
     // Retrieve device configuration data
-    const deviceConfigurationJson = await tableService.TryRetrieveEntity(
+    const deviceConfiguration = await tableService.TryRetrieveEntity(
       "deviceConfig",
-      tenantName,
-      deviceId
+      deviceToTenant.tenant,
+      deviceId,
+      DeviceConfiguration
     );
-
-    const deviceConfiguration = new DeviceConfiguration(context, deviceConfigurationJson);
 
     // Return success response
     return {
@@ -107,7 +104,7 @@ const httpTrigger: AzureFunction = async function(
       status: 500,
       body: {
         error: "exception",
-        details: error,
+        message: error.message,
       },
     };
   }

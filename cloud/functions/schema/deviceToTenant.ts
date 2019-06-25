@@ -1,23 +1,23 @@
-import * as Ajv from "ajv";
-import { Context } from "@azure/functions";
-
-const ajvInstance = new Ajv();
+import { IsRowKey } from "../common/azureTableStorage";
 
 export class DeviceToTenant {
-  public tenantName: string;
+  /**
+   * @name DeviceToTenant#deviceId
+   *
+   * Device ID (assigned by Particle)
+   */
+  @IsRowKey
+  public deviceId: string;
 
-  public constructor(context: Context, data: any) {
-    this.tenantName = "";
+  /**
+   * @name DeviceToTenant#tenant
+   *
+   * Tenant name (assigned by WarmAndFuzzy)
+   */
+  public tenant: string;
 
-    const validator = ajvInstance.compile(
-      require(context.executionContext.functionDirectory +
-        "/../generated/schema/DeviceToTenant.json")
-    );
-
-    if (!validator(data)) {
-      throw validator.errors;
-    }
-
-    Object.assign(this, data);
+  public constructor() {
+    this.deviceId = "";
+    this.tenant = "";
   }
 }
