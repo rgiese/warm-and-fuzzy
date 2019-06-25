@@ -119,32 +119,24 @@ export class AzureTableStorage {
   ): Promise<AzureStorage.TableService.BatchResult[]> {
     let batch = new AzureStorage.TableBatch();
 
-    entities.forEach(
-      (entity): void => {
-        batch.addOperation(insertStrategy, this.entityToRecord(entity));
-      }
-    );
+    entities.forEach((entity): void => {
+      batch.addOperation(insertStrategy, this.entityToRecord(entity));
+    });
 
-    return new Promise(
-      (resolve, reject): void => {
-        this.tableService.executeBatch(
-          tableName,
-          batch,
-          (
-            error: AzureStorage.StorageError,
-            batchResults: AzureStorage.TableService.BatchResult[]
-            //,response: AzureStorage.ServiceResponse
-          ): void => {
-            if (error) {
-              reject(error);
-              return;
-            }
+    return new Promise((resolve, reject): void => {
+      this.tableService.executeBatch(tableName, batch, (
+        error: AzureStorage.StorageError,
+        batchResults: AzureStorage.TableService.BatchResult[]
+        //,response: AzureStorage.ServiceResponse
+      ): void => {
+        if (error) {
+          reject(error);
+          return;
+        }
 
-            resolve(batchResults);
-          }
-        );
-      }
-    );
+        resolve(batchResults);
+      });
+    });
   }
 
   public async RetrieveEntity<T>(
@@ -154,33 +146,31 @@ export class AzureTableStorage {
     type: new () => T,
     returnNullOnNotFound: boolean = false
   ): Promise<T> {
-    return new Promise<T>(
-      (resolve, reject): void => {
-        this.tableService.retrieveEntity<any>(
-          tableName,
-          partitionKey,
-          rowKey,
-          (error: AzureStorage.StorageError, record: any): void => {
-            if (error) {
-              if (error.statusCode === 404 && returnNullOnNotFound) {
-                resolve(undefined);
-              } else {
-                reject(error);
-              }
-
-              return;
-            }
-
-            try {
-              resolve(this.recordToEntity(record, type));
-            } catch (error) {
+    return new Promise<T>((resolve, reject): void => {
+      this.tableService.retrieveEntity<any>(
+        tableName,
+        partitionKey,
+        rowKey,
+        (error: AzureStorage.StorageError, record: any): void => {
+          if (error) {
+            if (error.statusCode === 404 && returnNullOnNotFound) {
+              resolve(undefined);
+            } else {
               reject(error);
-              return;
             }
+
+            return;
           }
-        );
-      }
-    );
+
+          try {
+            resolve(this.recordToEntity(record, type));
+          } catch (error) {
+            reject(error);
+            return;
+          }
+        }
+      );
+    });
   }
 
   public async TryRetrieveEntity<T>(
@@ -198,38 +188,36 @@ export class AzureTableStorage {
     type: new () => T,
     returnNullOnNotFound: boolean = false
   ): Promise<T[]> {
-    return new Promise<T[]>(
-      (resolve, reject): void => {
-        this.tableService.queryEntities<any>(
-          tableName,
-          query,
-          (null as unknown) as AzureStorage.TableService.TableContinuationToken, // AzureStorage's TypeScript definition is a bit broken
-          (
-            error: AzureStorage.StorageError,
-            result: AzureStorage.TableService.QueryEntitiesResult<any>
-            //,response: AzureStorage.ServiceResponse
-          ): void => {
-            if (error) {
-              if (error.statusCode === 404 && returnNullOnNotFound) {
-                resolve(undefined);
-              } else {
-                reject(error);
-              }
-
-              return;
-            }
-
-            // FUTURE: Deal with result.continuationToken
-            try {
-              resolve(result.entries.map((record): any => this.recordToEntity(record, type)));
-            } catch (error) {
+    return new Promise<T[]>((resolve, reject): void => {
+      this.tableService.queryEntities<any>(
+        tableName,
+        query,
+        (null as unknown) as AzureStorage.TableService.TableContinuationToken, // AzureStorage's TypeScript definition is a bit broken
+        (
+          error: AzureStorage.StorageError,
+          result: AzureStorage.TableService.QueryEntitiesResult<any>
+          //,response: AzureStorage.ServiceResponse
+        ): void => {
+          if (error) {
+            if (error.statusCode === 404 && returnNullOnNotFound) {
+              resolve(undefined);
+            } else {
               reject(error);
-              return;
             }
+
+            return;
           }
-        );
-      }
-    );
+
+          // FUTURE: Deal with result.continuationToken
+          try {
+            resolve(result.entries.map((record): any => this.recordToEntity(record, type)));
+          } catch (error) {
+            reject(error);
+            return;
+          }
+        }
+      );
+    });
   }
 
   //
@@ -240,54 +228,52 @@ export class AzureTableStorage {
     let record: any = {};
 
     // Enumerate properties on source object
-    Object.keys(entity).forEach(
-      (propertyName): void => {
-        // Must have property descriptor to proceed
-        const propertyDescriptor = Object.getOwnPropertyDescriptor(entity, propertyName);
+    Object.keys(entity).forEach((propertyName): void => {
+      // Must have property descriptor to proceed
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(entity, propertyName);
 
-        if (!propertyDescriptor) {
-          return;
-        }
-
-        // Retrieve (or default-initialize) property metadata from decorators
-        const propertyMetadata =
-          (Reflect.getMetadata(
-            propertyMetadataSymbol,
-            entity,
-            propertyName
-          ) as EntityPropertyMetadata) || new EntityPropertyMetadata();
-
-        // Determine property data type and value from decorator
-        const propertyDataType =
-          propertyMetadata.dataType || this.inferDataType(propertyDescriptor.value);
-        const propertyValue =
-          propertyDataType === DataType.DateTime
-            ? propertyDescriptor.value.toISOString()
-            : propertyDescriptor.value;
-
-        // For partition or row keys, rename and coerce to string as needed
-        const recordPropertyName = propertyMetadata.isPartitionKey
-          ? "PartitionKey"
-          : propertyMetadata.isRowKey
-          ? "RowKey"
-          : propertyName;
-
-        const recordPropertyValue =
-          propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
-            ? String(propertyValue)
-            : propertyValue;
-
-        const recordPropertyDataType =
-          propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
-            ? DataType.String
-            : propertyDataType;
-
-        record[recordPropertyName] = {
-          _: recordPropertyValue,
-          $: recordPropertyDataType,
-        };
+      if (!propertyDescriptor) {
+        return;
       }
-    );
+
+      // Retrieve (or default-initialize) property metadata from decorators
+      const propertyMetadata =
+        (Reflect.getMetadata(
+          propertyMetadataSymbol,
+          entity,
+          propertyName
+        ) as EntityPropertyMetadata) || new EntityPropertyMetadata();
+
+      // Determine property data type and value from decorator
+      const propertyDataType =
+        propertyMetadata.dataType || this.inferDataType(propertyDescriptor.value);
+      const propertyValue =
+        propertyDataType === DataType.DateTime
+          ? propertyDescriptor.value.toISOString()
+          : propertyDescriptor.value;
+
+      // For partition or row keys, rename and coerce to string as needed
+      const recordPropertyName = propertyMetadata.isPartitionKey
+        ? "PartitionKey"
+        : propertyMetadata.isRowKey
+        ? "RowKey"
+        : propertyName;
+
+      const recordPropertyValue =
+        propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
+          ? String(propertyValue)
+          : propertyValue;
+
+      const recordPropertyDataType =
+        propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
+          ? DataType.String
+          : propertyDataType;
+
+      record[recordPropertyName] = {
+        _: recordPropertyValue,
+        $: recordPropertyDataType,
+      };
+    });
 
     return record;
   }
@@ -300,107 +286,101 @@ export class AzureTableStorage {
     let entity = new type();
 
     // Enumerate properties on source record, validate
-    Object.keys(record).forEach(
-      (propertyName): void => {
-        switch (propertyName) {
-          case "PartitionKey":
-          case "RowKey":
-          case "Timestamp":
-          case ".metadata":
-            // Skip further checks (will be assigned to target object if so defined)
-            return;
-
-          default:
-            if (!(entity as any).hasOwnProperty(propertyName)) {
-              throw new UnrecognizedPropertyType(
-                `Property '${propertyName}' in table record not present in user-defined entity`
-              );
-            }
-        }
-      }
-    );
-
-    // Enumerate properties on target entity, validate and assign values
-    Object.keys(entity).forEach(
-      (propertyName): void => {
-        // Must have property descriptor to proceed
-        const propertyDescriptor = Object.getOwnPropertyDescriptor(entity, propertyName);
-
-        if (!propertyDescriptor) {
+    Object.keys(record).forEach((propertyName): void => {
+      switch (propertyName) {
+        case "PartitionKey":
+        case "RowKey":
+        case "Timestamp":
+        case ".metadata":
+          // Skip further checks (will be assigned to target object if so defined)
           return;
-        }
 
-        // Retrieve (or default-initialize) property metadata from decorators
-        const propertyMetadata =
-          (Reflect.getMetadata(
-            propertyMetadataSymbol,
-            entity,
-            propertyName
-          ) as EntityPropertyMetadata) || new EntityPropertyMetadata();
-
-        // Determine property data type and value from decorator
-        const propertyDataType =
-          propertyMetadata.dataType || this.inferDataType(propertyDescriptor.value);
-
-        // For row keys, rename and coerce to string as needed
-        const recordPropertyName = propertyMetadata.isPartitionKey
-          ? "PartitionKey"
-          : propertyMetadata.isRowKey
-          ? "RowKey"
-          : propertyName;
-
-        const recordPropertyExpectedDataType =
-          propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
-            ? DataType.String
-            : propertyDataType;
-
-        // Retrieve matching table record entity
-        if (!record[recordPropertyName]) {
-          throw new InternalError(
-            `Property '${recordPropertyName}' should have been caught in earlier type check`
-          );
-        }
-
-        const recordPropertyData = record[recordPropertyName];
-
-        // Ensure types match
-        if (recordPropertyData.$) {
-          // Azure gave us an explicit type
-          if (recordPropertyData.$ !== recordPropertyExpectedDataType) {
-            throw new MismatchedProperty(
-              `Property '${recordPropertyName}' is of explicit type ${
-                recordPropertyData.$
-              } in record, ${recordPropertyExpectedDataType} in entity`
+        default:
+          if (!(entity as any).hasOwnProperty(propertyName)) {
+            throw new UnrecognizedPropertyType(
+              `Property '${propertyName}' in table record not present in user-defined entity`
             );
           }
-        } else {
-          // Infer type
-          const recordPropertyActualDataType = this.inferDataType(recordPropertyData._);
+      }
+    });
 
-          if (recordPropertyActualDataType !== recordPropertyExpectedDataType) {
-            if (!this.canUpcast(recordPropertyActualDataType, recordPropertyExpectedDataType)) {
-              throw new MismatchedProperty(
-                `Property '${recordPropertyName}' is of implicit type ${recordPropertyActualDataType} in record, ${recordPropertyExpectedDataType} in entity`
-              );
-            }
+    // Enumerate properties on target entity, validate and assign values
+    Object.keys(entity).forEach((propertyName): void => {
+      // Must have property descriptor to proceed
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(entity, propertyName);
+
+      if (!propertyDescriptor) {
+        return;
+      }
+
+      // Retrieve (or default-initialize) property metadata from decorators
+      const propertyMetadata =
+        (Reflect.getMetadata(
+          propertyMetadataSymbol,
+          entity,
+          propertyName
+        ) as EntityPropertyMetadata) || new EntityPropertyMetadata();
+
+      // Determine property data type and value from decorator
+      const propertyDataType =
+        propertyMetadata.dataType || this.inferDataType(propertyDescriptor.value);
+
+      // For row keys, rename and coerce to string as needed
+      const recordPropertyName = propertyMetadata.isPartitionKey
+        ? "PartitionKey"
+        : propertyMetadata.isRowKey
+        ? "RowKey"
+        : propertyName;
+
+      const recordPropertyExpectedDataType =
+        propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
+          ? DataType.String
+          : propertyDataType;
+
+      // Retrieve matching table record entity
+      if (!record[recordPropertyName]) {
+        throw new InternalError(
+          `Property '${recordPropertyName}' should have been caught in earlier type check`
+        );
+      }
+
+      const recordPropertyData = record[recordPropertyName];
+
+      // Ensure types match
+      if (recordPropertyData.$) {
+        // Azure gave us an explicit type
+        if (recordPropertyData.$ !== recordPropertyExpectedDataType) {
+          throw new MismatchedProperty(
+            `Property '${recordPropertyName}' is of explicit type ${recordPropertyData.$} in record, ${recordPropertyExpectedDataType} in entity`
+          );
+        }
+      } else {
+        // Infer type
+        const recordPropertyActualDataType = this.inferDataType(recordPropertyData._);
+
+        if (recordPropertyActualDataType !== recordPropertyExpectedDataType) {
+          if (!this.canUpcast(recordPropertyActualDataType, recordPropertyExpectedDataType)) {
+            throw new MismatchedProperty(
+              `Property '${recordPropertyName}' is of implicit type ${recordPropertyActualDataType} in record, ${recordPropertyExpectedDataType} in entity`
+            );
           }
         }
-
-        // Assign value
-        const recordValue =
-          propertyDataType === DataType.DateTime
-            ? new Date(Date.parse(recordPropertyData._))
-            : recordPropertyData._;
-
-        // Restore proper type for row key properties (coerced to string)
-        const propertyValue =
-          propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
-            ? this.tryParseValue(recordPropertyData._ as string, propertyDataType)
-            : recordValue;
-
-        (entity as any)[propertyName] = propertyValue;
       }
-    );
+
+      // Assign value
+      const recordValue =
+        propertyDataType === DataType.DateTime
+          ? new Date(Date.parse(recordPropertyData._))
+          : recordPropertyData._;
+
+      // Restore proper type for row key properties (coerced to string)
+      const propertyValue =
+        propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
+          ? this.tryParseValue(recordPropertyData._ as string, propertyDataType)
+          : recordValue;
+
+      (entity as any)[propertyName] = propertyValue;
+    });
 
     return entity;
   }
