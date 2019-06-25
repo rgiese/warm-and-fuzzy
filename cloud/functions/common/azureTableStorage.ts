@@ -30,15 +30,15 @@ class EntityPropertyMetadata {
 // Property metadata
 //
 
-export enum DataType {
-  String, // Edm.String
+export const enum DataType {
+  String = "Edm.String",
   // Edm.Binary
-  Int64, // Edm.Int64
-  Int32, // Edm.Int32
-  Double, // Edm.Double
-  DateTime, // Edm.DateTime
+  Int64 = "Edm.Int64",
+  Int32 = "Edm.Int32",
+  Double = "Edm.Double",
+  DateTime = "Edm.DateTime",
   // Edm.Guid
-  Boolean, // Edm.Boolean
+  Boolean = "Edm.Boolean",
 }
 
 // IsPartitionKey decorator
@@ -89,26 +89,14 @@ class InternalError extends Error {}
 // Operations
 //
 
-export enum TableInsertStrategy {
-  Insert,
-  InsertOrReplace,
-  InsertOrMerge,
-  Merge,
-  Update,
+// c.f. https://github.com/Azure/azure-storage-node/blob/master/lib/common/util/constants.js -> TableConstants.Operations
+export const enum TableInsertStrategy {
+  Insert = "INSERT",
+  InsertOrReplace = "INSERT_OR_REPLACE",
+  InsertOrMerge = "INSERT_OR_MERGE",
+  Merge = "MERGE",
+  Update = "UPDATE",
 }
-
-//
-// Internals
-//
-
-const DataTypeToEdmName = new Map<DataType, string>([
-  [DataType.String, "Edm.String"],
-  [DataType.Int64, "Edm.Int64"],
-  [DataType.Int32, "Edm.Int32"],
-  [DataType.Double, "Edm.Double"],
-  [DataType.DateTime, "Edm.DateTime"],
-  [DataType.Boolean, "Edm.Boolean"],
-]);
 
 export class AzureTableStorage {
   // https://github.com/Azure/azure-storage-node (newer SDK (azure-storage-js) doesn't support Table storage yet)
@@ -133,10 +121,7 @@ export class AzureTableStorage {
 
     entities.forEach(
       (entity): void => {
-        batch.addOperation(
-          this.insertStrategyToOperationType(insertStrategy),
-          this.entityToRecord(entity)
-        );
+        batch.addOperation(insertStrategy, this.entityToRecord(entity));
       }
     );
 
@@ -286,19 +271,20 @@ export class AzureTableStorage {
           : propertyMetadata.isRowKey
           ? "RowKey"
           : propertyName;
+
         const recordPropertyValue =
           propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
             ? String(propertyValue)
             : propertyValue;
+
         const recordPropertyDataType =
           propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
             ? DataType.String
             : propertyDataType;
-        const recordPropertyEdmName = DataTypeToEdmName.get(recordPropertyDataType);
 
         record[recordPropertyName] = {
           _: recordPropertyValue,
-          $: recordPropertyEdmName,
+          $: recordPropertyDataType,
         };
       }
     );
@@ -362,11 +348,11 @@ export class AzureTableStorage {
           : propertyMetadata.isRowKey
           ? "RowKey"
           : propertyName;
+
         const recordPropertyExpectedDataType =
           propertyMetadata.isPartitionKey || propertyMetadata.isRowKey
             ? DataType.String
             : propertyDataType;
-        const recordPropertyExpectedEdmName = DataTypeToEdmName.get(recordPropertyExpectedDataType);
 
         // Retrieve matching table record entity
         if (!record[recordPropertyName]) {
@@ -380,22 +366,21 @@ export class AzureTableStorage {
         // Ensure types match
         if (recordPropertyData.$) {
           // Azure gave us an explicit type
-          if (recordPropertyData.$ !== recordPropertyExpectedEdmName) {
+          if (recordPropertyData.$ !== recordPropertyExpectedDataType) {
             throw new MismatchedProperty(
               `Property '${recordPropertyName}' is of explicit type ${
                 recordPropertyData.$
-              } in record, ${recordPropertyExpectedEdmName} in entity`
+              } in record, ${recordPropertyExpectedDataType} in entity`
             );
           }
         } else {
           // Infer type
           const recordPropertyActualDataType = this.inferDataType(recordPropertyData._);
-          const recordPropertyActualEdmName = DataTypeToEdmName.get(recordPropertyActualDataType);
 
           if (recordPropertyActualDataType !== recordPropertyExpectedDataType) {
             if (!this.canUpcast(recordPropertyActualDataType, recordPropertyExpectedDataType)) {
               throw new MismatchedProperty(
-                `Property '${recordPropertyName}' is of implicit type ${recordPropertyActualEdmName} in record, ${recordPropertyExpectedEdmName} in entity`
+                `Property '${recordPropertyName}' is of implicit type ${recordPropertyActualDataType} in record, ${recordPropertyExpectedDataType} in entity`
               );
             }
           }
@@ -488,28 +473,7 @@ export class AzureTableStorage {
       // __fallthrough;
 
       default:
-        throw new InternalError(
-          `canUpcast: not prepared for ${DataTypeToEdmName.get(
-            sourceType
-          )}->${DataTypeToEdmName.get(targetType)} mapping`
-        );
-    }
-  }
-
-  private insertStrategyToOperationType(insertStrategy: TableInsertStrategy): string {
-    switch (insertStrategy) {
-      case TableInsertStrategy.Insert:
-        return AzureStorage.Constants.TableConstants.Operations.INSERT;
-      case TableInsertStrategy.InsertOrReplace:
-        return AzureStorage.Constants.TableConstants.Operations.INSERT_OR_REPLACE;
-      case TableInsertStrategy.InsertOrMerge:
-        return AzureStorage.Constants.TableConstants.Operations.INSERT_OR_MERGE;
-      case TableInsertStrategy.Merge:
-        return AzureStorage.Constants.TableConstants.Operations.MERGE;
-      case TableInsertStrategy.Update:
-        return AzureStorage.Constants.TableConstants.Operations.UPDATE;
-      default:
-        throw new Error(`Unexpected insertStrategy ${insertStrategy}`);
+        throw new InternalError(`canUpcast: not prepared for ${sourceType}->${targetType} mapping`);
     }
   }
 }
