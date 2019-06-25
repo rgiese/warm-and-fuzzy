@@ -16,18 +16,9 @@
       "label": "functions npm build",
       "command": "npm run build",
       "dependsOn": [
-        "func: extensions install",
-        "functions npm install"
+        "func: extensions install"
       ],
       "problemMatcher": "$tsc",
-      "options": {
-        "cwd": "${workspaceRoot}/cloud/functions"
-      }
-    },
-    {
-      "type": "shell",
-      "label": "functions npm install",
-      "command": "npm install",
       "options": {
         "cwd": "${workspaceRoot}/cloud/functions"
       }
