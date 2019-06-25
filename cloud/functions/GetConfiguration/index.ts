@@ -4,6 +4,8 @@ import * as AzureStorage from "azure-storage";
 import { AzureTableStorage } from "../common/azureTableStorage";
 import { authenticatedFunction, InjectedRequestHeaders } from "../common/authenticatedFunction";
 
+import { DeviceConfiguration } from "../schema/deviceConfiguration";
+
 const tableService = new AzureTableStorage();
 
 const httpTrigger: AzureFunction = authenticatedFunction("read:config", async function(
@@ -11,32 +13,20 @@ const httpTrigger: AzureFunction = authenticatedFunction("read:config", async fu
   req: HttpRequest
 ): Promise<any> {
   try {
-    const tenantName = req.headers[InjectedRequestHeaders.Tenant];
-    context.log("Tenant: " + tenantName);
+    const tenant = req.headers[InjectedRequestHeaders.Tenant];
+    context.log("Tenant: " + tenant);
 
     // Retrieve device configuration data
-    const deviceConfigEntities = await tableService.QueryEntities(
+    const deviceConfigurations = await tableService.QueryEntities(
       "deviceConfig",
-      new AzureStorage.TableQuery().where("PartitionKey eq ?", tenantName)
-    );
-
-    const deviceConfigRecords = deviceConfigEntities.map(
-      (deviceConfigEntity): object => {
-        return {
-          id: deviceConfigEntity.RowKey,
-          setPointHeat: deviceConfigEntity.setPointHeat,
-          setPointCool: deviceConfigEntity.setPointCool,
-          threshold: deviceConfigEntity.threshold,
-          cadence: deviceConfigEntity.cadence,
-          allowedActions: deviceConfigEntity.allowedActions,
-        };
-      }
+      new AzureStorage.TableQuery().where("PartitionKey eq ?", tenant),
+      DeviceConfiguration
     );
 
     // Return success response
     return {
       // Provide a compacted rendering of the JSON in the response (by default it's pretty)
-      body: JSON.stringify(deviceConfigRecords, undefined, 0),
+      body: JSON.stringify(deviceConfigurations, undefined, 0),
 
       // Force JSON content type
       headers: {
@@ -50,7 +40,7 @@ const httpTrigger: AzureFunction = authenticatedFunction("read:config", async fu
       status: 500,
       body: {
         error: "exception",
-        details: error,
+        message: error.message,
       },
     };
   }

@@ -1,15 +1,21 @@
-import * as Ajv from "ajv";
-import { Context } from "@azure/functions";
-
-const ajvInstance = new Ajv();
+import { DataType, IsRowKey, IsType } from "../common/azureTableStorage";
 
 export class DeviceConfiguration {
+  /**
+   * @name DeviceConfiguration#deviceId
+   *
+   * Device ID (assigned by Particle)
+   */
+  @IsRowKey
+  public deviceId: string;
+
   /**
    * @name DeviceConfiguration#setPointHeat
    *
    * Target temperature for heating
    * Units: Celsius
    */
+  @IsType(DataType.Double)
   public setPointHeat: number;
 
   /**
@@ -18,6 +24,7 @@ export class DeviceConfiguration {
    * Target temperature for cooling
    * Units: Celsius
    */
+  @IsType(DataType.Double)
   public setPointCool: number;
 
   /**
@@ -26,6 +33,7 @@ export class DeviceConfiguration {
    * Hysteresis threshold around targets
    * Units: Celsius
    */
+  @IsType(DataType.Double)
   public threshold: number;
 
   /**
@@ -34,6 +42,7 @@ export class DeviceConfiguration {
    * Operational cadence
    * Units: seconds
    */
+  @IsType(DataType.Int32)
   public cadence: number;
 
   /**
@@ -50,22 +59,12 @@ export class DeviceConfiguration {
    */
   public allowedActions: string;
 
-  public constructor(context: Context, data: any) {
+  public constructor() {
+    this.deviceId = "";
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
     this.threshold = NaN;
     this.cadence = NaN;
     this.allowedActions = "";
-
-    const validator = ajvInstance.compile(
-      require(context.executionContext.functionDirectory +
-        "/../generated/schema/DeviceConfiguration.json")
-    );
-
-    if (!validator(data)) {
-      throw validator.errors;
-    }
-
-    Object.assign(this, data);
   }
 }

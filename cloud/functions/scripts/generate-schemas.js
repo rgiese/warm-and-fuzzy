@@ -5,8 +5,6 @@ const TJS = require("typescript-json-schema");
 // Register types to be translated here
 const typeRegistry = [
   { fileName: "ParticleWebhook_Status/statusEvent.ts", typeName: "StatusEvent" },
-  { fileName: "schema/deviceConfiguration.ts", typeName: "DeviceConfiguration" },
-  { fileName: "schema/deviceToTenant.ts", typeName: "DeviceToTenant" },
 ];
 
 // Generate schemas

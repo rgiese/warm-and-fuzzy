@@ -12,7 +12,11 @@
     "isolatedModules": true,
     "esModuleInterop": true,
 
+    "experimentalDecorators": true,
+
     "allowJs": true,
+    "jsx": "preserve",
+
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
 
@@ -20,8 +24,7 @@
     "noUnusedLocals": true,
     "noImplicitAny": true,
 
-    "noEmit": true,
-    "jsx": "preserve"
+    "noEmit": true
   },
   "include": ["src"]
 }
