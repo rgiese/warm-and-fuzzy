@@ -1,0 +1,20 @@
+service:
+  name: warm-and-fuzzy-api
+  tenant: grumpycorp
+  app: warmandfuzzy
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+
+functions:
+  hello:
+    handler: api/v1/getConfig/handler.getConfig
+    events:
+      - http:
+          method: get
+          path: api/v1/getConfig
