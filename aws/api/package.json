@@ -4,6 +4,7 @@
   "author": "robin@grumpycorp.com",
   "version": "1.0.0",
   "scripts": {
+    "start": "sls offline start",
     "dev:tsc": "tsc",
     "format:fix": "prettier --write {.,./src/**}/*.{js,json,ts}",
     "lint": "eslint {.,./**}/*.{ts,tsx}",
@@ -16,6 +17,13 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.17",
     "@types/node": "^10.12.18",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "prettier": "^1.18.2",
     "serverless-webpack": "^5.2.0",
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",
