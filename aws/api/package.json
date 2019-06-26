@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "sls offline start",
+    "deploy:prod": "sls deploy -v --stage prod",
     "dev:tsc": "tsc",
     "format:fix": "prettier --write {.,./src/**}/*.{js,json,ts}",
     "lint": "eslint {.,./**}/*.{ts,tsx}",
