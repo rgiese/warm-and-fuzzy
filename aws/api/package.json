@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "sls offline start",
+    "deploy:dev": "sls deploy -v",
     "deploy:prod": "sls deploy -v --stage prod",
     "dev:tsc": "tsc",
     "format:fix": "prettier --write {.,./resources/**,./api/**}/*.{js,json,ts,yml}",
