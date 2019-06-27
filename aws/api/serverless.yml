@@ -5,6 +5,8 @@ plugins:
   - serverless-offline
 
 custom:
+  # Distinguish WarmAndFuzzy resource names from other resources in same AWS account
+  prefix: "WarmAndFuzzy"
   # Our stage is based on what is passed in when running serverless commands.
   # Fall back to 'dev' (as set in the provider section below) if not specified.
   stage: ${opt:stage, self:provider.stage}
