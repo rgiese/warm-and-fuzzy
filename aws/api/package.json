@@ -7,7 +7,7 @@
     "start": "sls offline start",
     "deploy:prod": "sls deploy -v --stage prod",
     "dev:tsc": "tsc",
-    "format:fix": "prettier --write {.,./src/**}/*.{js,json,ts}",
+    "format:fix": "prettier --write {.,./resources/**,./api/**}/*.{js,json,ts,yml}",
     "lint": "eslint {.,./**}/*.{ts,tsx}",
     "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
