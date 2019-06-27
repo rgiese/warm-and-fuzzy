@@ -9,6 +9,9 @@ provider:
   runtime: nodejs10.x
   region: us-west-2
 
+resources:
+  - ${file(resources/api-gateway-errors.yml)}
+
 functions:
   apiGetConfig:
     handler: api/v1/getConfig/handler.getConfig
