@@ -17,6 +17,8 @@ provider:
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
+  - ${file(resources/cognito-user-pool.yml)}
+  - ${file(resources/cognito-identity-pool.yml)}
 
 functions:
   apiGetConfig:
@@ -25,3 +27,5 @@ functions:
       - http:
           method: get
           path: api/v1/getConfig
+          cors: true
+          authorizer: aws_iam
