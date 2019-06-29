@@ -11,6 +11,10 @@ Resources:
         - email
       AutoVerifiedAttributes:
         - email
+      Schema:
+        - Mutable: false
+          Name: "email"
+          Required: true
 
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
