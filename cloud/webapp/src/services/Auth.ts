@@ -1,9 +1,7 @@
 import Auth0 from "auth0-js";
 import JwtDecode from "jwt-decode";
 
-import History from "./History";
-
-import { AUTH_CONFIG } from "./auth0-variables";
+import Config from "../config";
 
 const localStorageKeys = {
   expiresAt: "auth.expiresAt",
@@ -15,10 +13,10 @@ class Auth {
   private tokenRenewalTimeout: any;
 
   private auth0 = new Auth0.WebAuth({
-    domain: AUTH_CONFIG.domain,
-    clientID: AUTH_CONFIG.clientID,
-    redirectUri: window.location.origin + AUTH_CONFIG.callbackRoute,
-    audience: AUTH_CONFIG.audience,
+    domain: Config.auth0.domain,
+    clientID: Config.auth0.clientID,
+    redirectUri: window.location.origin + Config.auth0.callbackRoute,
+    audience: Config.auth0.audience,
     responseType: "token id_token",
     scope: "openid",
   });
@@ -32,15 +30,26 @@ class Auth {
     this.auth0.authorize();
   }
 
-  public handleAuthentication(): void {
-    this.auth0.parseHash((err, authResult): void => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        this.setSession(authResult);
-      } else if (err) {
-        History.replace("/home");
-        console.log(err);
-        alert(`Error: ${err.error}. Check the console for further details.`);
-      }
+  public async handleAuthentication(): Promise<boolean> {
+    // Called in response to the universal auth page redirecting to our /callback
+
+    return new Promise((resolve, reject): void => {
+      // Promise-ify Auth0's API
+      this.auth0.parseHash((err, authResult): void => {
+        if (authResult && authResult.accessToken && authResult.idToken) {
+          this.setSession(authResult);
+          resolve(this.IsAuthenticated);
+        } else if (err) {
+          console.log(err);
+          alert(`HandleAuthentication error: ${err.error}. Check the console for further details.`);
+          reject(err);
+        } else {
+          alert(
+            `HandleAuthentication error: Authentication yielded neither error nor success - huh.`
+          );
+          reject(false);
+        }
+      });
     });
   }
 
@@ -76,7 +85,7 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[AUTH_CONFIG.customClaimsNamespace + "user_name"];
+    return decodedIdToken[Config.auth0.customClaimsNamespace + "user_name"];
   }
 
   public get UserEmail(): string | undefined {
@@ -87,7 +96,7 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[AUTH_CONFIG.customClaimsNamespace + "user_email"];
+    return decodedIdToken[Config.auth0.customClaimsNamespace + "user_email"];
   }
 
   private setSession(authResult: any): void {
@@ -100,9 +109,6 @@ class Auth {
 
     // Schedule token renewal
     this.scheduleRenewal();
-
-    // Navigate to the home route
-    History.replace("/home");
   }
 
   public logout(): void {
@@ -117,13 +123,15 @@ class Auth {
     this.auth0.logout({
       returnTo: window.location.origin,
     });
-
-    // navigate to the home route
-    History.replace("/home");
   }
 
   private scheduleRenewal(): void {
+    if (this.tokenRenewalTimeout) {
+      clearTimeout(this.tokenRenewalTimeout);
+    }
+
     const timeout = this.ExpiresAt - Date.now();
+
     if (timeout > 0) {
       this.tokenRenewalTimeout = setTimeout((): void => {
         this.renewSession();
