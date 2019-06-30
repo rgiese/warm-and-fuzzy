@@ -16,13 +16,19 @@ provider:
   runtime: nodejs10.x
   region: us-west-2
   stage: dev
+  environment:
+    AUTH_TOKEN_ISSUER: "https://grumpycorp.auth0.com/"
+    AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
+    AUTH_AUDIENCE: "https://api.warmandfuzzy.house"
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
-  - ${file(resources/cognito-user-pool.yml)}
-  - ${file(resources/cognito-identity-pool.yml)}
 
 functions:
+  auth0Authorizer:
+    handler: api/auth/handler.authorize
+    cors: true
+    #integration: lambda
   apiGetConfig:
     handler: api/v1/getConfig/handler.getConfig
     events:
@@ -30,4 +36,4 @@ functions:
           method: get
           path: api/v1/getConfig
           cors: true
-          authorizer: aws_iam
+          authorizer: auth0Authorizer
