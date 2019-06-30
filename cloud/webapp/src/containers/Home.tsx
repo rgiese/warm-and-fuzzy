@@ -1,11 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Auth } from "aws-amplify";
-import ApiGatewayClientFactory from "aws-api-gateway-client";
-
-import config from "../config";
 
 import AuthStateProps from "../common/AuthStateProps";
+
+import ApiGateway from "../services/ApiGateway";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends AuthStateProps {}
@@ -36,32 +34,16 @@ class Home extends React.Component<Props, State> {
       const content = await this.fetchContent();
       this.setState({ content });
     } catch (e) {
-      alert(e);
+      alert(`FetchContent exception: ${e}`);
     }
 
     this.setState({ isLoading: false });
   }
 
   private async fetchContent(): Promise<string> {
-    const currentUserCredentials = await Auth.currentUserCredentials();
-    console.log(currentUserCredentials);
-
-    // const amplifyData = await API.get("warm-and-fuzzy-api", "/api/v1/getConfigOpen", {
-    //   //headers: { Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}` }
-    // });
-
-    var apigClient = ApiGatewayClientFactory.newClient({
-      //apiKey: argv.apiKey,
-      accessKey: currentUserCredentials.accessKeyId,
-      secretKey: currentUserCredentials.secretAccessKey,
-      sessionToken: currentUserCredentials.sessionToken,
-      region: config.apiGateway.REGION,
-      invokeUrl: config.apiGateway.URL,
-    });
-
-    const result = await apigClient.invokeApi({}, "/api/v1/getConfig", "GET", {}, {});
-
-    return result;
+    const foo = await ApiGateway("GET", "/api/v1/getConfig", undefined);
+    console.log(foo);
+    return foo.data;
   }
 
   private renderLander(): React.ReactElement {
