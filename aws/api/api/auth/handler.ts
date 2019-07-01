@@ -1,38 +1,71 @@
-import { Authorizer } from "./authorizer";
-import { AWSPolicyGenerator } from "./aws-policy-generator";
+import { CustomAuthorizerHandler } from "aws-lambda";
 
-const authorizer = new Authorizer(
-  process.env.AUTH_TOKEN_ISSUER,
-  process.env.AUTH_JWKS_URI,
-  process.env.AUTH_AUDIENCE
-);
+import * as JsonWebToken from "jsonwebtoken";
+import * as JsonWebKeySet from "jwks-rsa";
 
-export const authorize = (event: any, {/* context */}, callback: any): any => {
+class Jwks {
+  private static jsonWebKeyClient = JsonWebKeySet({
+    jwksUri: process.env.AUTH_JWKS_URI,
+    strictSsl: true,
+    cache: true,
+  });
+
+  public static getSigningKey(kid: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+      Jwks.jsonWebKeyClient.getSigningKey(kid, (err, key) => {
+        if (err) {
+          reject(err);
+        }
+
+        resolve(key.publicKey || key.rsaPublicKey);
+      });
+    });
+  }
+}
+
+export const authorize: CustomAuthorizerHandler = async event => {
   try {
-    console.log("event", event);
+    // Retrieve access token from request headers
     if (!event.authorizationToken) {
-      return callback("Unauthorized");
+      return Promise.reject("Unauthorized");
     }
 
     const tokenParts = event.authorizationToken.split(" ");
     const bearerToken = tokenParts[1];
 
     if (!(tokenParts[0].toLowerCase() === "bearer" && bearerToken)) {
-      // No auth token provided
-      return callback("Unauthorized");
+      return Promise.reject("Unauthorized");
     }
 
-    authorizer
-      .authorize(bearerToken)
-      .then(result => {
-        callback(null, AWSPolicyGenerator.generate(result.sub, "Allow", event.methodArn));
-      })
-      .catch(err => {
-        console.log(err);
-        callback("Unauthorized");
-      });
+    // Decode access token to retrieve key id
+    const decodedToken: any = JsonWebToken.decode(bearerToken, { complete: true });
+
+    // Retrieve public key
+    const signingKey = await Jwks.getSigningKey(decodedToken.header.kid);
+
+    // Verify access token
+    const verifiedToken = (await JsonWebToken.verify(bearerToken, signingKey, {
+      audience: process.env.AUTH_AUDIENCE,
+      issuer: process.env.AUTH_TOKEN_ISSUER,
+      algorithms: ["RS256"],
+    })) as any;
+
+    // Return policy
+    return {
+      principalId: verifiedToken.sub,
+      policyDocument: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Action: "execute-api:Invoke",
+            Effect: "Allow",
+            Resource: event.methodArn,
+          },
+        ],
+      },
+    };
   } catch (err) {
     console.log(err);
-    callback("Unauthorized");
+    return Promise.reject("Unauthorized");
   }
 };
