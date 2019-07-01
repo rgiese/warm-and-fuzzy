@@ -3,6 +3,8 @@ import { CustomAuthorizerHandler } from "aws-lambda";
 import * as JsonWebToken from "jsonwebtoken";
 import * as JsonWebKeySet from "jwks-rsa";
 
+import Authorizations from "./Authorizations";
+
 class Jwks {
   private static jsonWebKeyClient = JsonWebKeySet({
     jwksUri: process.env.AUTH_JWKS_URI,
@@ -50,6 +52,20 @@ export const authorize: CustomAuthorizerHandler = async event => {
       algorithms: ["RS256"],
     })) as any;
 
+    // Extract custom information from token
+    const customClaimIds = {
+      Tenant: process.env.AUTH_CUSTOM_CLAIMS_NAMESPACE + "tenant",
+    };
+
+    const authorizations: Authorizations = {
+      AuthorizedTenant: verifiedToken[customClaimIds.Tenant],
+      AuthorizedPermissions: (verifiedToken.permissions as string[]).join(","),
+    };
+
+    if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
+      return Promise.reject("Unauthorized");
+    }
+
     // Return policy
     return {
       principalId: verifiedToken.sub,
@@ -63,6 +79,7 @@ export const authorize: CustomAuthorizerHandler = async event => {
           },
         ],
       },
+      context: authorizations,
     };
   } catch (err) {
     console.log(err);

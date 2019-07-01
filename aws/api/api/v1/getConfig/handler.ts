@@ -1,7 +1,15 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 
+import Authorizations, { UnauthorizedResponse } from "../../auth/Authorizations";
+
 export const getConfig: APIGatewayProxyHandler = async event => {
+  const authorizations = event.requestContext.authorizer as Authorizations;
+
+  if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
+    return UnauthorizedResponse;
+  }
+
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Credentials": true,
@@ -12,7 +20,7 @@ export const getConfig: APIGatewayProxyHandler = async event => {
     headers: headers,
     body: JSON.stringify(
       {
-        message: "Go Serverless Webpack (Typescript) v1.0! Your function executed successfully!",
+        message: `Welcome to ${authorizations.AuthorizedTenant}, you can ${authorizations.AuthorizedPermissions}`,
         input: event,
       },
       null,
