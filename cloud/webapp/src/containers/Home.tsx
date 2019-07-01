@@ -1,7 +1,8 @@
 import React from "react";
 
 import AuthStateProps from "../common/AuthStateProps";
-import ApiGateway from "../services/ApiGateway";
+
+import Api from "../services/Api";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends AuthStateProps {}
@@ -29,19 +30,13 @@ class Home extends React.Component<Props, State> {
     }
 
     try {
-      const content = await this.fetchContent();
+      const content = await Api.getConfig();
       this.setState({ content });
     } catch (e) {
-      alert(`FetchContent exception: ${e}`);
+      alert(`GetConfig: ${e}`);
     }
 
     this.setState({ isLoading: false });
-  }
-
-  private async fetchContent(): Promise<string> {
-    const foo = await ApiGateway("GET", "/api/v1/getConfig", undefined);
-    console.log(foo);
-    return foo.data;
   }
 
   private renderLander(): React.ReactElement {
@@ -49,7 +44,11 @@ class Home extends React.Component<Props, State> {
   }
 
   private renderContent(): React.ReactElement {
-    return <div>Your Notes!</div>;
+    return (
+      <div>
+        <code>{JSON.stringify(this.state.content)}</code>
+      </div>
+    );
   }
 
   public render(): React.ReactElement {
