@@ -28,7 +28,7 @@ const Dev: Config = {
   auth0: CommonAuth0Config,
   apiGateway: {
     REGION: "us-west-2",
-    URL: "https://y7vsc717ei.execute-api.us-west-2.amazonaws.com/dev",
+    URL: "https://dev.api.warmandfuzzy.house",
   },
 };
 
@@ -37,7 +37,7 @@ const Prod: Config = {
   auth0: CommonAuth0Config,
   apiGateway: {
     REGION: "us-west-2",
-    URL: "https://20ub3q0uol.execute-api.us-west-2.amazonaws.com/prod",
+    URL: "https://prod.api.warmandfuzzy.house",
   },
 };
 

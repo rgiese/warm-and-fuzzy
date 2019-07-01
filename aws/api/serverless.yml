@@ -3,6 +3,7 @@ service: warm-and-fuzzy-api
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-domain-manager
 
 custom:
   # Distinguish WarmAndFuzzy resource names from other resources in same AWS account
@@ -10,6 +11,11 @@ custom:
   # Our stage is based on what is passed in when running serverless commands.
   # Fall back to 'dev' (as set in the provider section below) if not specified.
   stage: ${opt:stage, self:provider.stage}
+  # API domain management (run `serverless create_domain` once per stage to create domain in Route53)
+  customDomain:
+    stage: ${self:custom.stage}
+    domainName: ${self:custom.stage}.api.warmandfuzzy.house
+    createRoute53Record: true
 
 provider:
   name: aws
@@ -26,10 +32,11 @@ resources:
   - ${file(resources/api-gateway-errors.yml)}
 
 functions:
+  # Authorizers
   auth0Authorizer:
     handler: api/auth/handler.authorize
     cors: true
-    #integration: lambda
+  # API
   apiGetConfig:
     handler: api/v1/getConfig/handler.getConfig
     events:
