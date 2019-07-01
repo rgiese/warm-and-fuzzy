@@ -32,8 +32,8 @@
 
 ## Auth0 configuration
 - Provide `WarmAndFuzzy` application (Single Page Application)
-    - Allowed callback URLs: `https://app.warmandfuzzy.house/callback, http://localhost:3000/callback`
-    - Allowed web origins. logout URLs: `https://app.warmandfuzzy.house, http://localhost:3000`
+    - Allowed callback URLs: `https://app.warmandfuzzy.house/callback, http://localhost:3000/callback, https://*--warm-and-fuzzy.netlify.com/callback`
+    - Allowed web origins. logout URLs: `https://app.warmandfuzzy.house, http://localhost:3000, https://*--warm-and-fuzzy.netlify.com`
     - Connections: user-path auth only (no social)
 - Provide `api.warmandfuzzy.house` API (identifier `https://api.warmandfuzzy.house`)
     - Enable RBAC and Add Permissions in Access Token
