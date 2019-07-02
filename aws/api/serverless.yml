@@ -62,13 +62,13 @@ functions:
   auth0Authorizer:
     handler: api/auth/handler.authorize
     cors: true
-  # API
-  apiGetConfig:
-    handler: api/v1/getConfig/index.get
+  # Config API
+  apiConfig_List:
+    handler: api/v1/config/index.list
     events:
       - http:
           method: get
-          path: api/v1/getConfig
+          path: api/v1/config
           cors: true
           authorizer: auth0Authorizer
   # Webhooks

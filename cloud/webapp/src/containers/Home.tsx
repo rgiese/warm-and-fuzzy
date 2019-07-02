@@ -2,7 +2,7 @@ import React from "react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
-import Api from "../services/Api";
+import ConfigApi from "../services/ConfigApi";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends AuthStateProps {}
@@ -30,10 +30,10 @@ class Home extends React.Component<Props, State> {
     }
 
     try {
-      const content = await Api.getConfig();
+      const content = await ConfigApi.list();
       this.setState({ content });
     } catch (e) {
-      alert(`GetConfig: ${e}`);
+      alert(`GET config: ${e}`);
     }
 
     this.setState({ isLoading: false });
