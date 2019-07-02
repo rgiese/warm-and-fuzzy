@@ -13,6 +13,8 @@
     "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
   "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.5.1",
     "serverless-domain-manager": "^3.2.6",

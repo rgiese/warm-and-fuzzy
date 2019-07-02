@@ -16,6 +16,9 @@ custom:
     stage: ${self:custom.stage}
     domainName: ${self:custom.stage}.api.warmandfuzzy.house
     createRoute53Record: true
+  # Dev environment
+  serverless-offline:
+    port: 3001
 
 provider:
   name: aws
@@ -27,9 +30,23 @@ provider:
     AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
     AUTH_AUDIENCE: "https://api.warmandfuzzy.house"
     AUTH_CUSTOM_CLAIMS_NAMESPACE: "https://warmandfuzzy.house/"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      # Restrict our IAM role permissions to the above table
+      Resource:
+        - "Fn::GetAtt": [ThermostatConfigTable, Arn]
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
+  - ${file(resources/dynamodb-thermostat-config.yml)}
 
 functions:
   # Authorizers
