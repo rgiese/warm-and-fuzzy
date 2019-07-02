@@ -1,16 +1,16 @@
-import { hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
+import { hashKey, attribute, table } from "@aws/dynamodb-data-mapper-annotations";
 
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
 @table("DeviceTenancy")
-export default class ThermostatConfiguration {
+export default class DeviceTenancy {
   public constructor() {
     this.deviceId = "";
     this.tenant = "";
   }
 
   /**
-   * @name ThermostatConfiguration#deviceId
+   * @name DeviceTenancy#deviceId
    *
    * Device ID (assigned by Particle)
    */
@@ -18,10 +18,10 @@ export default class ThermostatConfiguration {
   public deviceId: string;
 
   /**
-   * @name ThermostatConfiguration#deviceId
+   * @name DeviceTenancy#tenant
    *
    * Tenant (assigned by WarmAndFuzzy)
    */
-  @rangeKey()
+  @attribute()
   public tenant: string;
 }
