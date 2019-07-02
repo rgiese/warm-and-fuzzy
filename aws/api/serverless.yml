@@ -43,7 +43,9 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      # Restrict our IAM role permissions to the above table
+        - dynamodb:BatchGetItem
+        - dynamodb:BatchWriteItem
+      # Restrict our IAM role permissions to the given tables
       Resource:
         - "Fn::GetAtt": [DeviceTenancyTable, Arn]
         - "Fn::GetAtt": [LatestActionsTable, Arn]
