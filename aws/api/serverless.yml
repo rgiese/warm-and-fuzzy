@@ -45,10 +45,12 @@ provider:
         - dynamodb:DeleteItem
       # Restrict our IAM role permissions to the above table
       Resource:
+        - "Fn::GetAtt": [DeviceTenancyTable, Arn]
         - "Fn::GetAtt": [ThermostatConfigTable, Arn]
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
+  - ${file(resources/dynamodb-device-tenancy.yml)}
   - ${file(resources/dynamodb-thermostat-config.yml)}
 
 functions:
