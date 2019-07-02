@@ -1,32 +1,8 @@
 # Dev setup
-- Make sure nodejs-lts is installed (e.g. via Choco)
-- `npm install -g azure-functions-core-tools@2`
-- Install the Azure Functions VS Code extension
-- Configure local settings in `functions/local.settings.json`:
-    ```
-    {
-      "IsEncrypted": false,
-      "Values": {
-        "AzureWebJobsStorage": "",
-        "FUNCTIONS_WORKER_RUNTIME": "node",
-        "AZURE_STORAGE_CONNECTION_STRING": "<connection string to warmandfuzzyprod>",
-        "AUTH0_SECRET": "<auth0 public key from https://grumpycorp.auth0.com/.well-known/jwks.json>"
-      },
-      "Host": {
-        "LocalHttpPort": 7071,
-        "CORS": "*"
-      }      
-    }
-    ```
+- `npm install -g serverless`
 
 # Deploy
-- Manual deploy from CLI
-    - `az account set --subscription "WarmAndFuzzy"`
-    - `npm install`
-    - `npm run build:production` (or just `npm run build` and wait a bit longer)
-    - `npm run deploy:production`
-- Manual deploy through VS Code
-    - Also works but less useful progress reporting
+- Manual deploy from CLI: `npm run deploy:dev` or ...`deploy:prod`
 
 # Cloud configuration
 
@@ -70,23 +46,14 @@
     - Assign tenant IDs to users as appropriate
         - In `app_metadata`, add `"tenant": "<name of tenant>"`
 
-## Azure storage configuration
-- Provide standard storage account (e.g. `warmandfuzzyprod`)
-    - Provide tables `deviceConfig`, `latestActions`, `latestValues`
-
-## Azure Functions app
-- Provide `WarmAndFuzzy` Functions application
-    - Provide application settings (i.e. environment variables)
-        - `AUTH0_SECRET` = Auth0 public key from https://grumpycorp.auth0.com/.well-known/jwks.json
-        - `AZURE_STORAGE_CONNECTION_STRING` = connection string to `warmandfuzzyprod` storage account per above
-    - Add CORS rules
-        - `https://app.warmandfuzzy.house`
-        - `http://localhost:3000`
+## AWS configuration
+- Make sure there's a certificate for `*.api.warmandfuzzy.house`
+- Run `serverless create_domain` and `serverless create_domain --stage prod` once to set up AWS internally
 
 ## Particle webhook configuration
 - Provide status event webhook
     - Event: `status`
-    - To: `https://warmandfuzzy.azurewebsites.net/webhooks/particle/status` as POST
+    - To: `https://dev.api.warmandfuzzy.house/webhooks/particle/status` as POST
     - Request body (JSON) - _note_ presence/absence of quotes and field names different from the defaults:
         ```
         {
@@ -97,7 +64,7 @@
         "firmwareVersion": {{{PRODUCT_VERSION}}},
         }
         ```
-    - Query parameters: provide `code` set to Azure Functions function key (retrieve from Azure portal)
+    - Authorization: provide header `x-api-key` set to API key given when deploying to AWS
     - Response topic: default of `{{PARTICLE_DEVICE_ID}}/hook-response/{{PARTICLE_EVENT_NAME}}`
 
 ## Netlify
@@ -105,16 +72,3 @@
     - Connect to GitHub, enable deploy previews and branch deploys
     - Add `app.warmandfuzzy.house` as custom domain
     - Ensure there's an SSL certificate once the custom domain is listed
-
-## CloudFlare
-- CNAME `app.warmandfuzzy.house` to `warm-and-fuzzy.netlify.com.`
-
-# Documentation
-- [Azure Functions in Node](https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-node)
-
-# Useful links
-- [Getting started with Azure functions](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
-- [Basic TypeScript functions](https://github.com/mhoeger/typescript-azure-functions)
-- [Intermediate TypeScript functions](https://github.com/mhoeger/functions-typescript-intermediate)
-- [Azure Tables in TypeScript](https://www.nepomuceno.me/2018/07/08/using-table-storage-in-typescript/)
-
