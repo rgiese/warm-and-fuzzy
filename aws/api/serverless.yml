@@ -30,6 +30,7 @@ provider:
     AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
     AUTH_AUDIENCE: "https://api.warmandfuzzy.house"
     AUTH_CUSTOM_CLAIMS_NAMESPACE: "https://warmandfuzzy.house/"
+    DYNAMODB_REGION: ${self:provider.region}
   iamRoleStatements:
     - Effect: Allow
       Action:
