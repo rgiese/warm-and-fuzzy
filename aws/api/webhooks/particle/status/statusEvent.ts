@@ -4,23 +4,7 @@ const hexStringRegEx = /^([a-fA-F0-9]+)$/;
 const dateTimeRegEx = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z/;
 
 //
-// Example request body:
-// {
-//   "event": "status",
-//   "data": {
-//     "ts": 1554656303,
-//     "ser": 42,
-//     "ca": "C",
-//     "v": [
-//       { "t": 22.0, "h": 53.9 },
-//       { "id": "2800581f0b0000d6", "t": 22.9 },
-//       { "id": "28c0e61d0b0000a3", "t": 21.7 }
-//     ]
-//   },
-//   "deviceId": "17002c001247363333343437",
-//   "publishedAt": "2019-04-07T16:58:25.604Z",
-//   "firmwareVersion": 1
-// }
+// For an example request body, see ./exampleEvent.json.
 //
 // Type-wise this becomes:
 //
@@ -78,6 +62,10 @@ export class StatusEventMeasurement {
         throw new MalformedData("data.v.id");
     }
 
+    if (typeof rhs.t !== "number") {
+      throw new MalformedData("data.v.t");
+    }
+
     this.t = rhs.t;
 
     if (typeof rhs.h !== "undefined" && typeof rhs.h !== "number") {
@@ -110,19 +98,19 @@ export class StatusEventData {
   public v: StatusEventMeasurement[];
 
   public constructor(rhs: any) {
-    if (!rhs.ts || typeof rhs.ts !== "number") {
+    if (typeof rhs.ts !== "number") {
       throw new MalformedData("data.ts");
     }
 
     this.ts = rhs.ts;
 
-    if (!rhs.ser || typeof rhs.ser !== "number") {
+    if (typeof rhs.ser !== "number") {
       throw new MalformedData("data.ser");
     }
 
     this.ser = rhs.ser;
 
-    if (!rhs.ca || typeof rhs.ca !== "string") {
+    if (typeof rhs.ca !== "string") {
       throw new MalformedData("data.ca");
     }
 
@@ -150,24 +138,24 @@ export class StatusEvent {
 
     this.event = rhs.event;
 
-    if (!rhs.deviceId || !hexStringRegEx.test(rhs.deviceId)) {
+    if (typeof rhs.deviceId !== "string" || !hexStringRegEx.test(rhs.deviceId)) {
       throw new MalformedData("deviceId");
     }
 
     this.deviceId = rhs.deviceId.toLowerCase();
 
-    if (!rhs.publishedAt || !dateTimeRegEx.test(rhs.publishedAt)) {
+    if (typeof rhs.publishedAt !== "string" || !dateTimeRegEx.test(rhs.publishedAt)) {
       throw new MalformedData("publishedAt");
     }
     this.publishedAt = rhs.publishedAt;
 
-    if (!rhs.firmwareVersion) {
+    if (typeof rhs.firmwareVersion !== "number") {
       throw new MalformedData("firmwareVersion");
     }
 
     this.firmwareVersion = rhs.firmwareVersion;
 
-    if (!rhs.data || typeof rhs.data !== "object") {
+    if (typeof rhs.data !== "object") {
       throw new MalformedData("data");
     }
 
