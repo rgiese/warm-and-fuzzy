@@ -1,16 +1,11 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 
+import Responses from "../../../common/Responses";
+
 export const post: APIGatewayProxyHandler = async event => {
-  return {
-    statusCode: 200,
-    body: JSON.stringify(
-      {
-        message: `Hello Particle`,
-        input: event,
-      },
-      null,
-      2
-    ),
-  };
+  return Responses.success({
+    message: `Hello Particle`,
+    input: event,
+  });
 };

@@ -1,7 +1,9 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 
-import Authorizations, { UnauthorizedResponse } from "../../auth/Authorizations";
+import Authorizations from "../../auth/Authorizations";
+
+import Responses from "../../../common/Responses";
 
 import ThermostatConfiguration from "../../../types/db/ThermostatConfiguration";
 import DbMapper from "../../../types/db/DbMapper";
@@ -10,13 +12,8 @@ export const get: APIGatewayProxyHandler = async event => {
   const authorizations = event.requestContext.authorizer as Authorizations;
 
   if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
-    return UnauthorizedResponse;
+    return Responses.noTenantOrPermissions();
   }
-
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Credentials": true,
-  };
 
   // const testConfig = Object.assign(new ThermostatConfiguration(), {
   //   tenant: "AmazingHouse",
@@ -38,18 +35,10 @@ export const get: APIGatewayProxyHandler = async event => {
     configs.push(config);
   }
 
-  return {
-    statusCode: 200,
-    headers: headers,
-    body: JSON.stringify(
-      {
-        message: `Welcome to ${authorizations.AuthorizedTenant}, you can ${
-          authorizations.AuthorizedPermissions
-        } over ${JSON.stringify(configs)}`,
-        input: event,
-      },
-      null,
-      2
-    ),
-  };
+  return Responses.success({
+    message: `Welcome to ${authorizations.AuthorizedTenant}, you can ${
+      authorizations.AuthorizedPermissions
+    } over ${JSON.stringify(configs)}`,
+    input: event,
+  });
 };
