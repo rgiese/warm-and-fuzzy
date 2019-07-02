@@ -1,0 +1,20 @@
+Resources:
+  LatestValuesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: LatestValues
+      KeySchema:
+        # Partition key
+        - AttributeName: tenant
+          KeyType: HASH
+        # Sort key
+        - AttributeName: deviceId
+          KeyType: RANGE
+      AttributeDefinitions:
+        # Partition key
+        - AttributeName: tenant
+          AttributeType: S
+        # Sort key
+        - AttributeName: deviceId
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
