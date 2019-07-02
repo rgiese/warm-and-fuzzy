@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "target": "es2017",
     "lib": ["es2017"],
 
@@ -8,8 +9,15 @@
 
     "moduleResolution": "node",
 
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "skipLibCheck": true,
+
+    "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "noImplicitAny": true
   },
   "exclude": ["node_modules"]
 }

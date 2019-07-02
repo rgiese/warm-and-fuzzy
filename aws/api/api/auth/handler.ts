@@ -7,14 +7,14 @@ import Authorizations from "./Authorizations";
 
 class Jwks {
   private static jsonWebKeyClient = JsonWebKeySet({
-    jwksUri: process.env.AUTH_JWKS_URI,
+    jwksUri: process.env.AUTH_JWKS_URI as string,
     strictSsl: true,
     cache: true,
   });
 
   public static getSigningKey(kid: any): Promise<string> {
     return new Promise((resolve, reject) => {
-      Jwks.jsonWebKeyClient.getSigningKey(kid, (err, key) => {
+      Jwks.jsonWebKeyClient.getSigningKey(kid, (err: any, key: any) => {
         if (err) {
           reject(err);
         }
