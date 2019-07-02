@@ -1,0 +1,40 @@
+{
+  "name": "warm-and-fuzzy-api",
+  "description": "WarmAndFuzzy API",
+  "author": "robin@grumpycorp.com",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "sls offline start",
+    "deploy:dev": "sls deploy -v",
+    "deploy:prod": "sls deploy -v --stage prod",
+    "dev:tsc": "tsc",
+    "format:fix": "prettier --write {.,./resources/**,./api/**,./common/**,./types/**,./webhooks/**}/*.{js,json,ts,yml}",
+    "lint": "eslint {.,./**}/*.{ts,tsx}",
+    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
+  },
+  "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^1.5.1",
+    "serverless-domain-manager": "^3.2.6",
+    "serverless-offline": "^5.5.0",
+    "source-map-support": "^0.5.10"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.17",
+    "@types/jsonwebtoken": "^8.3.2",
+    "@types/node": "^10.12.18",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "prettier": "^1.18.2",
+    "serverless-webpack": "^5.2.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.4",
+    "webpack": "^4.29.0"
+  }
+}

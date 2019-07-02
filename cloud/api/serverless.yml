@@ -1,0 +1,84 @@
+service: warm-and-fuzzy-api
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-domain-manager
+
+custom:
+  # Distinguish WarmAndFuzzy resource names from other resources in same AWS account
+  prefix: "WarmAndFuzzy"
+  # Our stage is based on what is passed in when running serverless commands.
+  # Fall back to 'dev' (as set in the provider section below) if not specified.
+  stage: ${opt:stage, self:provider.stage}
+  # API domain management (run `serverless create_domain` once per stage to create domain in Route53)
+  customDomain:
+    stage: ${self:custom.stage}
+    domainName: ${self:custom.stage}.api.warmandfuzzy.house
+    createRoute53Record: true
+  # Dev environment
+  serverless-offline:
+    port: 3001
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: us-west-2
+  stage: dev
+  apiKeys:
+    - Webhooks.Particle.${self:custom.stage}
+  environment:
+    AUTH_TOKEN_ISSUER: "https://grumpycorp.auth0.com/"
+    AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
+    AUTH_AUDIENCE: "https://api.warmandfuzzy.house"
+    AUTH_CUSTOM_CLAIMS_NAMESPACE: "https://warmandfuzzy.house/"
+    DYNAMODB_REGION: ${self:provider.region}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchGetItem
+        - dynamodb:BatchWriteItem
+      # Restrict our IAM role permissions to the given tables
+      Resource:
+        - "Fn::GetAtt": [DeviceTenancyTable, Arn]
+        - "Fn::GetAtt": [LatestActionsTable, Arn]
+        - "Fn::GetAtt": [LatestValuesTable, Arn]
+        - "Fn::GetAtt": [ThermostatConfigTable, Arn]
+
+resources:
+  - ${file(resources/api-gateway-errors.yml)}
+  - ${file(resources/dynamodb-device-tenancy.yml)}
+  - ${file(resources/dynamodb-latest-action.yml)}
+  - ${file(resources/dynamodb-latest-value.yml)}
+  - ${file(resources/dynamodb-thermostat-config.yml)}
+
+functions:
+  # Authorizers
+  auth0Authorizer:
+    handler: api/auth/handler.authorize
+    cors: true
+  # Config API
+  apiConfig_List:
+    handler: api/v1/config/index.list
+    events:
+      - http:
+          method: get
+          path: api/v1/config
+          cors: true
+          authorizer: auth0Authorizer
+  # Webhooks
+  particleStatus:
+    handler: webhooks/particle/status/index.post
+    events:
+      - http:
+          method: post
+          path: webhooks/particle/status
+          cors: true
+          private: true

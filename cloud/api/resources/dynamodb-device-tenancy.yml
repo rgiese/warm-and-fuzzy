@@ -1,0 +1,14 @@
+Resources:
+  DeviceTenancyTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: DeviceTenancy
+      KeySchema:
+        # Partition key
+        - AttributeName: deviceId
+          KeyType: HASH
+      AttributeDefinitions:
+        # Partition key
+        - AttributeName: deviceId
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
