@@ -6,7 +6,7 @@ import Authorizations, { UnauthorizedResponse } from "../../auth/Authorizations"
 import ThermostatConfiguration from "../../../types/db/ThermostatConfiguration";
 import DbMapper from "../../../types/db/DbMapper";
 
-export const getConfig: APIGatewayProxyHandler = async event => {
+export const get: APIGatewayProxyHandler = async event => {
   const authorizations = event.requestContext.authorizer as Authorizations;
 
   if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {

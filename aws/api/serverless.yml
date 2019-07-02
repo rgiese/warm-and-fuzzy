@@ -64,7 +64,7 @@ functions:
     cors: true
   # API
   apiGetConfig:
-    handler: api/v1/getConfig/handler.getConfig
+    handler: api/v1/getConfig/index.get
     events:
       - http:
           method: get
@@ -73,7 +73,7 @@ functions:
           authorizer: auth0Authorizer
   # Webhooks
   particleStatus:
-    handler: webhooks/particle/status/handler.postStatus
+    handler: webhooks/particle/status/index.post
     events:
       - http:
           method: post
