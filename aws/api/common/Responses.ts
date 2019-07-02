@@ -5,6 +5,10 @@ export default class Responses {
     return Responses.buildResponse(200, body);
   }
 
+  public static badRequest(body: any): APIGatewayProxyResult {
+    return Responses.buildResponse(400, body);
+  }
+
   public static noTenantOrPermissions(): APIGatewayProxyResult {
     return Responses.buildResponse(401, "Unauthorized - no tenant or permissions defined");
   }
