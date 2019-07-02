@@ -25,6 +25,8 @@ provider:
   runtime: nodejs10.x
   region: us-west-2
   stage: dev
+  apiKeys:
+    - Webhooks.Particle.${self:custom.stage}
   environment:
     AUTH_TOKEN_ISSUER: "https://grumpycorp.auth0.com/"
     AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
@@ -63,3 +65,12 @@ functions:
           path: api/v1/getConfig
           cors: true
           authorizer: auth0Authorizer
+  # Webhooks
+  particleStatus:
+    handler: webhooks/particle/status/handler.postStatus
+    events:
+      - http:
+          method: post
+          path: webhooks/particle/status
+          cors: true
+          private: true

@@ -8,7 +8,7 @@
     "deploy:dev": "sls deploy -v",
     "deploy:prod": "sls deploy -v --stage prod",
     "dev:tsc": "tsc",
-    "format:fix": "prettier --write {.,./resources/**,./api/**,./types/**}/*.{js,json,ts,yml}",
+    "format:fix": "prettier --write {.,./resources/**,./api/**,./types/**,./webhooks/**}/*.{js,json,ts,yml}",
     "lint": "eslint {.,./**}/*.{ts,tsx}",
     "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
