@@ -7,8 +7,7 @@ Resources:
         gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
         gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
       ResponseType: EXPIRED_TOKEN
-      RestApiId:
-        Ref: "ApiGatewayRestApi"
+      RestApiId: !Ref ApiGatewayRestApi
       StatusCode: "401"
   GatewayResponseAuthFailure:
     Type: "AWS::ApiGateway::GatewayResponse"
@@ -17,8 +16,7 @@ Resources:
         gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
         gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
       ResponseType: UNAUTHORIZED
-      RestApiId:
-        Ref: "ApiGatewayRestApi"
+      RestApiId: !Ref ApiGatewayRestApi
       StatusCode: "401"
   # Debugging aid
   GatewayResponseDefault5XX:
@@ -28,5 +26,4 @@ Resources:
         gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
         gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
       ResponseType: DEFAULT_5XX
-      RestApiId:
-        Ref: "ApiGatewayRestApi"
+      RestApiId: !Ref ApiGatewayRestApi
