@@ -1,6 +1,5 @@
-import { Resolvers } from "../generated/graphqlTypes";
-
-import { DbMapper, ThermostatConfiguration } from "../types/db";
+import { Resolvers } from "../../generated/graphqlTypes";
+import { DbMapper, ThermostatConfiguration } from "../shared/db";
 
 const resolvers: Resolvers = {
   Query: {

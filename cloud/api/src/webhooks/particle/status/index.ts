@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 
-import Responses from "../../../common/Responses";
+import Responses from "../../../shared/Responses";
 
 import {
   DbMapper,
@@ -9,7 +9,7 @@ import {
   LatestAction,
   LatestValue,
   ThermostatConfiguration,
-} from "../../../types/db";
+} from "../../../shared/db";
 import { StatusEvent } from "./statusEvent";
 
 var deviceTenancyCache = new Map();

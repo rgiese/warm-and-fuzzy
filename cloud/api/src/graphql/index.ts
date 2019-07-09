@@ -1,11 +1,11 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { ApolloServer, makeExecutableSchema } from "apollo-server-lambda";
 
-import Authorizations from "../api/auth/Authorizations";
+import Authorizations from "../auth/Authorizations";
 import { Context } from "./context";
 
 import resolvers from "./resolvers";
-import typeDefs from "../../shared/schema.graphql";
+import typeDefs from "../../../shared/schema.graphql";
 
 const logger = { log: (e: any) => console.log(e) };
 

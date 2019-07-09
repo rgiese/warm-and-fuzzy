@@ -12,9 +12,9 @@
     "predeploy:prod": "npm-run-all build:*",
     "deploy:prod": "sls deploy -v --stage prod",
     "dev:tsc": "tsc",
-    "format:fix": "prettier --write {.,./resources/**,./api/**,./common/**,./graphql/**,./types/**,./webhooks/**}/*.{js,json,ts,yml}",
-    "lint": "eslint {.,./**}/*.{ts,tsx}",
-    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
+    "format:fix": "prettier --write {.,../shared/**,./resources/**,./src/**}/*.{graphql,js,json,ts,yml}",
+    "lint": "eslint ./src/**/*.{ts,tsx}",
+    "lint:fix": "eslint --fix ./src/**/*.{ts,tsx}"
   },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",

@@ -6,9 +6,9 @@ generates:
       # c.f. https://github.com/dotansimha/graphql-code-generator/issues/1133
       useIndexSignature: true
       showUnusedMappers: true
-      contextType: ../graphql/context#Context
+      contextType: ../src/graphql/context#Context
       mappers:
-        ThermostatConfiguration: ../types/db#ThermostatConfiguration
+        ThermostatConfiguration: ../src/shared/db#ThermostatConfiguration
     plugins:
       - add: "/* eslint-disable */"
       - typescript
