@@ -4,10 +4,7 @@ import "source-map-support/register";
 import Authorizations from "../../auth/Authorizations";
 
 import Responses from "../../../common/Responses";
-
-import LatestAction from "../../../types/db/LatestAction";
-import LatestValue from "../../../types/db/LatestValue";
-import DbMapper from "../../../types/db/DbMapper";
+import { DbMapper, LatestAction, LatestValue } from "../../../types/db";
 
 export const list: APIGatewayProxyHandler = async event => {
   // Authorize

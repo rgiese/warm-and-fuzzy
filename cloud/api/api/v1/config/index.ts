@@ -5,8 +5,7 @@ import Authorizations from "../../auth/Authorizations";
 
 import Responses from "../../../common/Responses";
 
-import ThermostatConfiguration from "../../../types/db/ThermostatConfiguration";
-import DbMapper from "../../../types/db/DbMapper";
+import { DbMapper, ThermostatConfiguration } from "../../../types/db";
 
 export const list: APIGatewayProxyHandler = async event => {
   const authorizations = event.requestContext.authorizer as Authorizations;
