@@ -17,8 +17,6 @@
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.5.1",
-    "serverless-domain-manager": "^3.2.6",
-    "serverless-offline": "^5.5.1",
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {
@@ -32,6 +30,8 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "prettier": "^1.18.2",
+    "serverless-domain-manager": "^3.2.6",
+    "serverless-offline": "^5.5.1",
     "serverless-webpack": "^5.2.0",
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",
