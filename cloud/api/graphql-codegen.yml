@@ -1,4 +1,4 @@
-schema: graphql/schema.graphql
+schema: ../shared/schema.graphql
 
 generates:
   ./generated/graphqlTypes.ts:

@@ -5,7 +5,7 @@ import Authorizations from "../api/auth/Authorizations";
 import { Context } from "./context";
 
 import resolvers from "./resolvers";
-import typeDefs from "./schema.graphql";
+import typeDefs from "../../shared/schema.graphql";
 
 const logger = { log: (e: any) => console.log(e) };
 
