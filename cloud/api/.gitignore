@@ -9,4 +9,5 @@ jspm_packages
 .webpack
 
 # Dev output
+generated/
 lib/

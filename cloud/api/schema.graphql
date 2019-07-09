@@ -1,0 +1,21 @@
+type ThermostatConfig {
+  deviceId: ID!
+  tenant: String!
+
+  name: String!
+
+  allowedActions: String!
+  setPointHeat: Float!
+  setPointCool: Float!
+  threshold: Float!
+
+  cadence: Int!
+}
+
+type Query {
+  getThermostatConfig(tenant: String!, deviceId: ID!): ThermostatConfig!
+}
+
+schema {
+  query: Query
+}
