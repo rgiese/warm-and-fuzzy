@@ -16,6 +16,8 @@ custom:
     stage: ${self:custom.stage}
     domainName: ${self:custom.stage}.api.warmandfuzzy.house
     createRoute53Record: true
+  # DynamoDB
+  dynamoDbTablePrefix: ${self:custom.stage}.
   # Dev environment
   serverless-offline:
     port: 3001
@@ -32,7 +34,8 @@ provider:
     AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
     AUTH_AUDIENCE: "https://api.warmandfuzzy.house"
     AUTH_CUSTOM_CLAIMS_NAMESPACE: "https://warmandfuzzy.house/"
-    DYNAMODB_REGION: ${self:provider.region}
+    DYNAMODB_REGION: "${self:provider.region}"
+    DYNAMODB_TABLE_NAME_PREFIX: "${self:custom.dynamoDbTablePrefix}"
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -47,10 +50,10 @@ provider:
         - dynamodb:BatchWriteItem
       # Restrict our IAM role permissions to the given tables
       Resource:
-        - "Fn::GetAtt": [DeviceTenancyTable, Arn]
-        - "Fn::GetAtt": [LatestActionsTable, Arn]
-        - "Fn::GetAtt": [LatestValuesTable, Arn]
-        - "Fn::GetAtt": [ThermostatConfigTable, Arn]
+        - !GetAtt DeviceTenancyTable.Arn
+        - !GetAtt LatestActionsTable.Arn
+        - !GetAtt LatestValuesTable.Arn
+        - !GetAtt ThermostatConfigTable.Arn
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
