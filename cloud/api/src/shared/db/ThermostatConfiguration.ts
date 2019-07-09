@@ -8,6 +8,7 @@ export default class ThermostatConfiguration {
     this.tenant = "";
     this.deviceId = "";
 
+    this.name = "";
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
     this.threshold = NaN;
@@ -30,6 +31,14 @@ export default class ThermostatConfiguration {
    */
   @rangeKey()
   public deviceId: string;
+
+  /**
+   * @name ThermostatConfiguration#name
+   *
+   * User-facing name
+   */
+  @attribute()
+  public name: string;
 
   /**
    * @name ThermostatConfiguration#setPointHeat
