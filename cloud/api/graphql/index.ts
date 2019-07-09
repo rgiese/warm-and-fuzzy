@@ -12,7 +12,7 @@ import DbMapper from "../types/db/DbMapper";
 
 const resolvers: Resolvers = {
   Query: {
-    hello: async (_parent, _args, context) => {
+    getThermostatConfigurations: async (_parent, _args, context) => {
       let configs: ThermostatConfiguration[] = [];
 
       for await (const config of DbMapper.query(ThermostatConfiguration, {
@@ -21,7 +21,17 @@ const resolvers: Resolvers = {
         configs.push(config);
       }
 
-      return JSON.stringify(configs);
+      return configs;
+    },
+    getThermostatConfiguration: async (_parents, args, context) => {
+      const thermostatConfiguration = await DbMapper.get(
+        Object.assign(new ThermostatConfiguration(), {
+          tenant: context.authorizations.AuthorizedTenant,
+          deviceId: args.deviceId,
+        })
+      );
+
+      return thermostatConfiguration;
     },
   },
 };
