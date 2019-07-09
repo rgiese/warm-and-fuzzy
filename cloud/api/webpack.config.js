@@ -17,7 +17,7 @@ module.exports = {
   target: "node",
   module: {
     rules: [
-      // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
+      { test: /\.(graphql|gql)$/, exclude: /node_modules/, loader: "graphql-tag/loader" },
       { test: /\.tsx?$/, loader: "ts-loader" },
     ],
   },
