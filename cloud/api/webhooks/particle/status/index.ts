@@ -12,6 +12,8 @@ import ThermostatConfiguration from "../../../types/db/ThermostatConfiguration";
 
 import { StatusEvent } from "./statusEvent";
 
+var deviceTenancyCache = new Map();
+
 export const post: APIGatewayProxyHandler = async event => {
   // Parse incoming status data
   const requestBody = event.body;
@@ -31,14 +33,20 @@ export const post: APIGatewayProxyHandler = async event => {
   }
 
   // Locate tenant name for device
-  let tenant: string;
-  try {
-    const deviceTenancy = await DbMapper.get(
-      Object.assign(new DeviceTenancy(), { deviceId: statusEvent.deviceId })
-    );
-    tenant = deviceTenancy.tenant;
-  } catch (e) {
-    return Responses.badRequest({ unrecognizedDeviceId: statusEvent.deviceId });
+  // - these values should be immutable so we can just cache them without any invalidation
+  let tenant = deviceTenancyCache.get(statusEvent.deviceId);
+
+  if (!tenant) {
+    try {
+      const deviceTenancy = await DbMapper.get(
+        Object.assign(new DeviceTenancy(), { deviceId: statusEvent.deviceId })
+      );
+
+      tenant = deviceTenancy.tenant;
+      deviceTenancyCache.set(statusEvent.deviceId, tenant);
+    } catch (e) {
+      return Responses.badRequest({ unrecognizedDeviceId: statusEvent.deviceId });
+    }
   }
 
   // Store latest values (ignoring out-of-order delivery)
