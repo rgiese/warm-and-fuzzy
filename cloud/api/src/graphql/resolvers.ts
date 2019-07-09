@@ -25,6 +25,38 @@ const resolvers: Resolvers = {
       return thermostatConfiguration;
     },
   },
+  Mutation: {
+    createThermostatConfiguration: async (_parent, args, context) => {
+      // Build new object with provided values
+      const thermostatConfiguration = Object.assign(new ThermostatConfiguration(), {
+        tenant: context.authorizations.AuthorizedTenant,
+        deviceId: args.deviceId,
+        ...args.thermostatConfiguration,
+      });
+
+      // Persist changes
+      await DbMapper.put(thermostatConfiguration);
+
+      return thermostatConfiguration;
+    },
+    updateThermostatConfiguration: async (_parent, args, context) => {
+      // Retrieve existing item
+      const thermostatConfiguration = await DbMapper.get(
+        Object.assign(new ThermostatConfiguration(), {
+          tenant: context.authorizations.AuthorizedTenant,
+          deviceId: args.deviceId,
+        })
+      );
+
+      // Copy over mutated values
+      Object.assign(thermostatConfiguration, args.thermostatConfiguration);
+
+      // Persist changes
+      await DbMapper.put(thermostatConfiguration);
+
+      return thermostatConfiguration;
+    },
+  },
 };
 
 export default resolvers;
