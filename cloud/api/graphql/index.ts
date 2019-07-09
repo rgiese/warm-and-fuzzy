@@ -1,11 +1,13 @@
 import { ApolloServer, makeExecutableSchema } from "apollo-server-lambda";
+
+import { Resolvers } from "../generated/graphqlTypes";
 import typeDefs from "./schema.graphql";
 
 const logger = { log: (e: any) => console.log(e) };
 
-const resolvers = {
+const resolvers: Resolvers = {
   Query: {
-    hello: () => "Hello world!",
+    hello: () => "Hello world",
   },
 };
 

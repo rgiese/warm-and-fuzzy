@@ -2,7 +2,10 @@ schema: graphql/schema.graphql
 
 generates:
   ./generated/graphqlTypes.ts:
+    config:
+      # c.f. https://github.com/dotansimha/graphql-code-generator/issues/1133
+      useIndexSignature: true
+      showUnusedMappers: true
     plugins:
       - "typescript"
-      #- "typescript-resolvers"
-      #- "typescript-operations"
+      - "typescript-resolvers"

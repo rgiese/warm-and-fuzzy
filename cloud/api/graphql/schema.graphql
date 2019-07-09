@@ -1,11 +1,11 @@
+schema {
+  query: Query
+}
+
 type Query {
   hello: String
   #getThermostatConfigs(tenant: String!): [ThermostatConfig!]!
   #getThermostatConfig(tenant: String!, deviceId: ID!): ThermostatConfig!
-}
-
-schema {
-  query: Query
 }
 
 # type ThermostatConfig {
