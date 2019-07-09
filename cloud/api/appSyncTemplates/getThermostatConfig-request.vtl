@@ -1,0 +1,8 @@
+{
+    "version" : "2017-02-28",
+    "operation" : "GetItem",
+    "key": {
+        "tenant": { "S": "${context.arguments.tenant}" },
+        "deviceId": { "S": "${context.arguments.deviceId}" }
+    }
+}

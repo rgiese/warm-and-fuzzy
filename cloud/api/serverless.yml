@@ -4,6 +4,8 @@ plugins:
   - serverless-webpack
   - serverless-offline
   - serverless-domain-manager
+  - serverless-appsync-plugin
+  - serverless-appsync-offline
 
 custom:
   # Distinguish WarmAndFuzzy resource names from other resources in same AWS account
@@ -21,6 +23,32 @@ custom:
   # Dev environment
   serverless-offline:
     port: 3001
+  appsync-offline:
+    port: 3002
+  # AppSync
+  appSync:
+    name: ${self:custom.stage}.${self:service}
+    authenticationType: API_KEY
+    schema: schema.graphql
+    dataSources:
+      - type: AMAZON_DYNAMODB
+        name: ThermostatConfig
+        config:
+          tableName: !Ref ThermostatConfigTable
+          iamRoleStatements:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:GetItem
+              Resource:
+                - !GetAtt ThermostatConfigTable.Arn
+    mappingTemplatesLocation: ./appSyncTemplates
+    mappingTemplates:
+      - dataSource: ThermostatConfig
+        type: Query
+        field: getThermostatConfig
+        request: getThermostatConfig-request.vtl
+        response: getThermostatConfig-response.vtl
 
 provider:
   name: aws

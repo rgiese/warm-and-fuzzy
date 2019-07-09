@@ -8,7 +8,7 @@
     "deploy:dev": "sls deploy -v",
     "deploy:prod": "sls deploy -v --stage prod",
     "dev:tsc": "tsc",
-    "format:fix": "prettier --write {.,./resources/**,./api/**,./common/**,./types/**,./webhooks/**}/*.{js,json,ts,yml}",
+    "format:fix": "prettier --write {.,./resources/**,./api/**,./common/**,./types/**,./webhooks/**}/*.{graphql,js,json,ts,yml}",
     "lint": "eslint {.,./**}/*.{ts,tsx}",
     "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
@@ -30,6 +30,8 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "prettier": "^1.18.2",
+    "serverless-appsync-offline": "^1.3.3",
+    "serverless-appsync-plugin": "^1.1.2",
     "serverless-domain-manager": "^3.2.6",
     "serverless-offline": "^5.5.1",
     "serverless-webpack": "^5.2.0",
