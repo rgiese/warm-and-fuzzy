@@ -2,7 +2,7 @@ Resources:
   ThermostatConfigTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: ThermostatConfig
+      TableName: ${self:custom.dynamoDbTablePrefix}ThermostatConfig
       KeySchema:
         # Partition key
         - AttributeName: tenant

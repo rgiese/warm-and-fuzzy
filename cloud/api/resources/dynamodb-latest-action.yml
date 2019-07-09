@@ -2,7 +2,7 @@ Resources:
   LatestActionsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: LatestActions
+      TableName: ${self:custom.dynamoDbTablePrefix}LatestActions
       KeySchema:
         # Partition key
         - AttributeName: tenant

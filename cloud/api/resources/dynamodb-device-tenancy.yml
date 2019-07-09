@@ -2,7 +2,7 @@ Resources:
   DeviceTenancyTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: DeviceTenancy
+      TableName: ${self:custom.dynamoDbTablePrefix}DeviceTenancy
       KeySchema:
         # Partition key
         - AttributeName: deviceId
