@@ -6,6 +6,8 @@ generates:
       # c.f. https://github.com/dotansimha/graphql-code-generator/issues/1133
       useIndexSignature: true
       showUnusedMappers: true
+      contextType: ../graphql/context#Context
     plugins:
-      - "typescript"
-      - "typescript-resolvers"
+      - add: "/* eslint-disable */"
+      - typescript
+      - typescript-resolvers

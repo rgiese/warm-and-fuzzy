@@ -92,10 +92,12 @@ functions:
           path: graphql
           method: get
           cors: true
+          authorizer: auth0Authorizer
       - http:
           path: graphql
           method: post
           cors: true
+          authorizer: auth0Authorizer
   # Webhooks
   particleStatus:
     handler: webhooks/particle/status/index.post
