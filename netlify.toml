@@ -1,11 +1,11 @@
 # Hosting for web app
 [build]
   base = "cloud/webapp/"
-  command = "WAF_API_STAGE=dev npm run build"
+  command = "REACT_APP_API_STAGE=dev npm run build"
   publish = "cloud/webapp/build/"
 
 [context.production]
-  command = "WAF_API_STAGE=prod npm run build"
+  command = "REACT_APP_API_STAGE=prod npm run build"
 
 # Always redirect any request to our index.html and return the status code 200.
 [[redirects]]
