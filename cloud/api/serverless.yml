@@ -65,6 +65,7 @@ resources:
 functions:
   # Authorizers
   auth0Authorizer:
+    # Gives access to ARNs {stage}/*/api/* and {stage}/*/graphql
     handler: src/auth/handler.authorize
     cors: true
   # Config API
