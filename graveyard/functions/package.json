@@ -1,7 +1,13 @@
 {
-  "name": "functions",
-  "description": "",
-  "version": "0.1.0",
+  "name": "warm-and-fuzzy-api",
+  "description": "WarmAndFuzzy API",
+  "author": "robin@grumpycorp.com",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "version": "1.0.0",
   "scripts": {
     "build": "npm run build:schema && npm run build:ts",
     "build:production": "npm run prestart && npm prune --production",

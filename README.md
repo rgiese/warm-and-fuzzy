@@ -9,3 +9,7 @@ as well as [all related posts](https://www.grumpycorp.com/tags/posts/warm-and-fu
 - [React-based web app](webapp/README.md)
 - [Hardware](hardware/README.md)
 - [Firmware](firmware/README.md)
+
+# License
+
+Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).

@@ -1,10 +1,13 @@
 {
-  "name": "warmandfuzzy-firmware",
+  "name": "warm-and-fuzzy-firmware",
+  "description": "WarmAndFuzzy firmware",
+  "author": "robin@grumpycorp.com",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
   "version": "1.0.0",
-  "description": "WarmAndFuzzy Particle Firmware",
-  "main": "index.js",
-  "author": "",
-  "license": "ISC",
   "scripts": {
     "build": "node firmware-build-tool/run.js build -p thermostat",
     "flash": "node firmware-build-tool/run.js flash -p thermostat",
@@ -13,7 +16,7 @@
     "monitor": "node firmware-build-tool/run.js monitor"
   },
   "config": {
-    "prettierglob": "{.,./**}/*.{js,json}"
+    "prettierglob": "{.,./**}/*.{js,json,md}"
   },
   "devDependencies": {
     "clang-format": "^1.2.4",

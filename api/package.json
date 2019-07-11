@@ -2,6 +2,11 @@
   "name": "warm-and-fuzzy-api",
   "description": "WarmAndFuzzy API",
   "author": "robin@grumpycorp.com",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
   "version": "1.0.0",
   "scripts": {
     "prestart": "npm-run-all codegen:*",
