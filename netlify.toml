@@ -1,8 +1,8 @@
 # Hosting for web app
 [build]
-  base = "cloud/webapp/"
+  base = "webapp/"
   command = "REACT_APP_API_STAGE=dev npm run build"
-  publish = "cloud/webapp/build/"
+  publish = "webapp/build/"
 
 [context.production]
   command = "REACT_APP_API_STAGE=prod npm run build"
