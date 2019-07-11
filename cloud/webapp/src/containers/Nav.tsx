@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import Config, { ConfigStageName } from "../config";
+
 import AuthStateProps from "../common/AuthStateProps";
 import { GlobalAuth } from "../services/Auth";
 
@@ -32,6 +34,7 @@ class Nav extends React.Component<Props, State> {
         ) : (
           <span onClick={this.handleLogout}>[ Log out ]</span>
         )}
+        {Config.isProduction ? `` : `[stage: ${ConfigStageName}]`}
       </>
     );
   }

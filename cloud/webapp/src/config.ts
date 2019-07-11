@@ -23,23 +23,36 @@ const CommonAuth0Config: Auth0Config = {
   customClaimsNamespace: "https://warmandfuzzy.house/",
 };
 
-const Dev: Config = {
-  isProduction: false,
-  auth0: CommonAuth0Config,
-  apiGateway: {
-    REGION: "us-west-2",
-    URL: "https://dev.api.warmandfuzzy.house",
+const configByStage: { [key: string]: Config } = {
+  local: {
+    isProduction: false,
+    auth0: CommonAuth0Config,
+    apiGateway: {
+      REGION: "us-west-2",
+      URL: "http://localhost:3001",
+    },
+  },
+
+  dev: {
+    isProduction: false,
+    auth0: CommonAuth0Config,
+    apiGateway: {
+      REGION: "us-west-2",
+      URL: "https://dev.api.warmandfuzzy.house",
+    },
+  },
+
+  prod: {
+    isProduction: true,
+    auth0: CommonAuth0Config,
+    apiGateway: {
+      REGION: "us-west-2",
+      URL: "https://prod.api.warmandfuzzy.house",
+    },
   },
 };
 
-const Prod: Config = {
-  isProduction: true,
-  auth0: CommonAuth0Config,
-  apiGateway: {
-    REGION: "us-west-2",
-    URL: "https://prod.api.warmandfuzzy.house",
-  },
-};
+// Default to dev stage
+export const ConfigStageName = process.env.REACT_APP_API_STAGE || "dev";
 
-// Default to dev environment
-export default process.env.WAF_API_STAGE === "prod" ? Prod : Dev;
+export default configByStage[ConfigStageName];
