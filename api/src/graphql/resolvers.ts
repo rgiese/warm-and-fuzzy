@@ -34,9 +34,10 @@ const resolvers: GraphQL.Resolvers = {
         deviceId: args.deviceId,
       });
 
-      ThermostatConfigurationMapper.privateFromPublic(thermostatConfiguration, args.thermostatConfiguration);
-
-      console.log(`Created: ${JSON.stringify(thermostatConfiguration)}`);
+      ThermostatConfigurationMapper.privateFromPublic(
+        thermostatConfiguration,
+        args.thermostatConfiguration
+      );
 
       // Persist changes
       await DbMapper.put(thermostatConfiguration);
@@ -53,7 +54,10 @@ const resolvers: GraphQL.Resolvers = {
       );
 
       // Copy over mutated values
-      ThermostatConfigurationMapper.privateFromPublicUpdate(thermostatConfiguration, args.thermostatConfiguration);
+      ThermostatConfigurationMapper.privateFromPublicUpdate(
+        thermostatConfiguration,
+        args.thermostatConfiguration
+      );
 
       // Persist changes
       await DbMapper.put(thermostatConfiguration);
