@@ -7,8 +7,7 @@ generates:
       useIndexSignature: true
       showUnusedMappers: true
       contextType: ../src/graphql/context#Context
-      mappers:
-        ThermostatConfiguration: ../src/shared/db#ThermostatConfiguration
+      constEnums: true
     plugins:
       - add: "/* eslint-disable */"
       - typescript

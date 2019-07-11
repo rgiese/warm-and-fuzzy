@@ -1,15 +1,16 @@
-import { Resolvers } from "../../generated/graphqlTypes";
+import * as GraphQL from "../../generated/graphqlTypes";
 import { DbMapper, ThermostatConfiguration } from "../shared/db";
+import ThermostatConfigurationMapper from "./mappers/ThermostatConfigurationMapper";
 
-const resolvers: Resolvers = {
+const resolvers: GraphQL.Resolvers = {
   Query: {
     getThermostatConfigurations: async (_parent, _args, context) => {
-      let configs: ThermostatConfiguration[] = [];
+      let configs: GraphQL.ThermostatConfiguration[] = [];
 
       for await (const config of DbMapper.query(ThermostatConfiguration, {
         tenant: context.authorizations.AuthorizedTenant,
       })) {
-        configs.push(config);
+        configs.push(ThermostatConfigurationMapper.publicFromPrivate(config));
       }
 
       return configs;
@@ -22,22 +23,25 @@ const resolvers: Resolvers = {
         })
       );
 
-      return thermostatConfiguration;
+      return ThermostatConfigurationMapper.publicFromPrivate(thermostatConfiguration);
     },
   },
   Mutation: {
     createThermostatConfiguration: async (_parent, args, context) => {
       // Build new object with provided values
-      const thermostatConfiguration = Object.assign(new ThermostatConfiguration(), {
+      let thermostatConfiguration = Object.assign(new ThermostatConfiguration(), {
         tenant: context.authorizations.AuthorizedTenant,
         deviceId: args.deviceId,
-        ...args.thermostatConfiguration,
       });
+
+      ThermostatConfigurationMapper.privateFromPublic(thermostatConfiguration, args.thermostatConfiguration);
+
+      console.log(`Created: ${JSON.stringify(thermostatConfiguration)}`);
 
       // Persist changes
       await DbMapper.put(thermostatConfiguration);
 
-      return thermostatConfiguration;
+      return ThermostatConfigurationMapper.publicFromPrivate(thermostatConfiguration);
     },
     updateThermostatConfiguration: async (_parent, args, context) => {
       // Retrieve existing item
@@ -49,12 +53,12 @@ const resolvers: Resolvers = {
       );
 
       // Copy over mutated values
-      Object.assign(thermostatConfiguration, args.thermostatConfiguration);
+      ThermostatConfigurationMapper.privateFromPublicUpdate(thermostatConfiguration, args.thermostatConfiguration);
 
       // Persist changes
       await DbMapper.put(thermostatConfiguration);
 
-      return thermostatConfiguration;
+      return ThermostatConfigurationMapper.publicFromPrivate(thermostatConfiguration);
     },
   },
 };

@@ -11,11 +11,11 @@ type Query {
 type Mutation {
   createThermostatConfiguration(
     deviceId: ID!
-    thermostatConfiguration: ThermostatConfigurationCreateInput
+    thermostatConfiguration: ThermostatConfigurationCreateInput!
   ): ThermostatConfiguration!
   updateThermostatConfiguration(
     deviceId: ID!
-    thermostatConfiguration: ThermostatConfigurationUpdateInput
+    thermostatConfiguration: ThermostatConfigurationUpdateInput!
   ): ThermostatConfiguration!
 }
 
@@ -26,7 +26,7 @@ type Mutation {
 input ThermostatConfigurationCreateInput {
   name: String!
 
-  allowedActions: String!
+  allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
   threshold: Float!
@@ -37,7 +37,7 @@ input ThermostatConfigurationCreateInput {
 input ThermostatConfigurationUpdateInput {
   name: String
 
-  allowedActions: String
+  allowedActions: [ThermostatAction!]
   setPointHeat: Float
   setPointCool: Float
   threshold: Float
@@ -51,10 +51,16 @@ type ThermostatConfiguration {
 
   name: String!
 
-  allowedActions: String!
+  allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
   threshold: Float!
 
   cadence: Int!
+}
+
+enum ThermostatAction {
+  Heat
+  Cool
+  Circulate
 }
