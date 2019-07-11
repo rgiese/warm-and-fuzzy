@@ -1,13 +1,10 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 
-import Authorizations from "../../auth/Authorizations";
+import Authorizations from "../../../auth/Authorizations";
 
-import Responses from "../../../common/Responses";
-
-import LatestAction from "../../../types/db/LatestAction";
-import LatestValue from "../../../types/db/LatestValue";
-import DbMapper from "../../../types/db/DbMapper";
+import Responses from "../../../shared/Responses";
+import { DbMapper, LatestAction, LatestValue } from "../../../shared/db";
 
 export const list: APIGatewayProxyHandler = async event => {
   // Authorize

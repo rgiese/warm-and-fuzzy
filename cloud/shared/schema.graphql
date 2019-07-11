@@ -1,0 +1,60 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  getThermostatConfigurations: [ThermostatConfiguration!]!
+  getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration!
+}
+
+type Mutation {
+  createThermostatConfiguration(
+    deviceId: ID!
+    thermostatConfiguration: ThermostatConfigurationCreateInput
+  ): ThermostatConfiguration!
+  updateThermostatConfiguration(
+    deviceId: ID!
+    thermostatConfiguration: ThermostatConfigurationUpdateInput
+  ): ThermostatConfiguration!
+}
+
+#
+# ThermostatConfiguration
+#
+
+input ThermostatConfigurationCreateInput {
+  name: String!
+
+  allowedActions: String!
+  setPointHeat: Float!
+  setPointCool: Float!
+  threshold: Float!
+
+  cadence: Int!
+}
+
+input ThermostatConfigurationUpdateInput {
+  name: String
+
+  allowedActions: String
+  setPointHeat: Float
+  setPointCool: Float
+  threshold: Float
+
+  cadence: Int
+}
+
+type ThermostatConfiguration {
+  deviceId: ID!
+  tenant: String!
+
+  name: String!
+
+  allowedActions: String!
+  setPointHeat: Float!
+  setPointCool: Float!
+  threshold: Float!
+
+  cadence: Int!
+}

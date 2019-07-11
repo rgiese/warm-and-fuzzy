@@ -65,11 +65,12 @@ resources:
 functions:
   # Authorizers
   auth0Authorizer:
-    handler: api/auth/handler.authorize
+    # Gives access to ARNs {stage}/*/api/* and {stage}/*/graphql
+    handler: src/auth/handler.authorize
     cors: true
   # Config API
   apiConfig_List:
-    handler: api/v1/config/index.list
+    handler: src/rest/v1/config/index.list
     events:
       - http:
           method: get
@@ -77,16 +78,30 @@ functions:
           cors: true
           authorizer: auth0Authorizer
   apiLatest_List:
-    handler: api/v1/latest/index.list
+    handler: src/rest/v1/latest/index.list
     events:
       - http:
           method: get
           path: api/v1/latest
           cors: true
           authorizer: auth0Authorizer
+  # GraphQL
+  graphql:
+    handler: src/graphql/index.graphqlHandler
+    events:
+      - http:
+          path: graphql
+          method: get
+          cors: true
+          authorizer: auth0Authorizer
+      - http:
+          path: graphql
+          method: post
+          cors: true
+          authorizer: auth0Authorizer
   # Webhooks
   particleStatus:
-    handler: webhooks/particle/status/index.post
+    handler: src/webhooks/particle/status/index.post
     events:
       - http:
           method: post

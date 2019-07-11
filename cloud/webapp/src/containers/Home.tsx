@@ -4,6 +4,8 @@ import AuthStateProps from "../common/AuthStateProps";
 
 import ConfigApi from "../services/ConfigApi";
 
+import ThermostatConfigs from "../components/ThermostatConfigs";
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends AuthStateProps {}
 
@@ -33,7 +35,7 @@ class Home extends React.Component<Props, State> {
       const content = await ConfigApi.list();
       this.setState({ content });
     } catch (e) {
-      alert(`GET config: ${e}`);
+      console.log(`GET config: ${e}`);
     }
 
     this.setState({ isLoading: false });
@@ -46,6 +48,7 @@ class Home extends React.Component<Props, State> {
   private renderContent(): React.ReactElement {
     return (
       <div>
+        <ThermostatConfigs />
         <code>{JSON.stringify(this.state.content)}</code>
       </div>
     );

@@ -1,15 +1,15 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 
-import Responses from "../../../common/Responses";
+import Responses from "../../../shared/Responses";
 
-import DbMapper from "../../../types/db/DbMapper";
-
-import DeviceTenancy from "../../../types/db/DeviceTenancy";
-import LatestAction from "../../../types/db/LatestAction";
-import LatestValue from "../../../types/db/LatestValue";
-import ThermostatConfiguration from "../../../types/db/ThermostatConfiguration";
-
+import {
+  DbMapper,
+  DeviceTenancy,
+  LatestAction,
+  LatestValue,
+  ThermostatConfiguration,
+} from "../../../shared/db";
 import { StatusEvent } from "./statusEvent";
 
 var deviceTenancyCache = new Map();

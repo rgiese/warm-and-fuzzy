@@ -66,21 +66,55 @@ export const authorize: CustomAuthorizerHandler = async event => {
       return Promise.reject("Unauthorized");
     }
 
-    // Return policy
-    return {
+    // Build policy
+
+    //
+    // As part of the returned policy, we have to specify the ARN of what we're granting the caller access to.
+    // We're helpfully given the ARN of the method this authorizer is protecting (event.methodArn);
+    // however, since our response gets cached (as it should), we have to expand the ARN to include
+    // all of the APIs that fall under our protection.
+    //
+    // We're going to give the caller access to:
+    //   - all APIs (*/api/*)
+    //   - our GraphQL API (*/graphql/*)
+    // ...under the gateway and stage we're pointing at.
+    //
+    // The target (resource) ARN consists of the following '/'-separated components:
+    //
+    // For (e.g.) "arn:aws:execute-api:us-west-2:random-account-id:random-api-id/dev/GET/api/v1/config":
+    // - Base ARN (e.g. "arn:aws:execute-api:us-west-2:random-account-id:random-api-id")
+    // - Stage (e.g. "dev")
+    // - Method (e.g. "GET")
+    // - Endpoint path (e.g. "api/v1/config")
+    //
+
+    // Separate ARN components
+    const arnComponents = event.methodArn.split("/");
+    const arnBase = arnComponents.slice(0, 2).join("/"); // e.g. "arn:.../dev"
+
+    const policy = {
       principalId: verifiedToken.sub,
       policyDocument: {
         Version: "2012-10-17",
         Statement: [
+          // API
           {
             Action: "execute-api:Invoke",
             Effect: "Allow",
-            Resource: event.methodArn,
+            Resource: `${arnBase}/*/api/*`,
+          },
+          // GraphQL
+          {
+            Action: "execute-api:Invoke",
+            Effect: "Allow",
+            Resource: `${arnBase}/*/graphql`,
           },
         ],
       },
       context: authorizations,
     };
+
+    return policy;
   } catch (err) {
     console.log(err);
     return Promise.reject("Unauthorized");
