@@ -19,13 +19,13 @@
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
-    "apollo-server-lambda": "^2.6.7",
+    "apollo-server-lambda": "^2.6.8",
     "bufferutil": "^4.0.1",
     "graphql": "^14.4.2",
     "jsonwebtoken": "^8.5.1",
-    "jwks-rsa": "^1.5.1",
+    "jwks-rsa": "^1.6.0",
     "serverless-domain-manager": "^3.2.6",
-    "serverless-offline": "^5.5.1",
+    "serverless-offline": "^5.7.3",
     "source-map-support": "^0.5.10",
     "utf-8-validate": "^5.0.2"
   },
