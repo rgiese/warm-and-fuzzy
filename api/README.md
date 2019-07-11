@@ -1,5 +1,9 @@
 # Dev setup
 - `npm install -g serverless`
+- `npm install`
+
+# Running locally
+- `npm start`
 
 # Deploy
 - Manual deploy from CLI: `npm run deploy:dev` or ...`deploy:prod`
@@ -66,9 +70,3 @@
         ```
     - Authorization: provide header `x-api-key` set to API key given when deploying to AWS
     - Response topic: default of `{{PARTICLE_DEVICE_ID}}/hook-response/{{PARTICLE_EVENT_NAME}}`
-
-## Netlify
-- Provide site for `warm-and-fuzzy`
-    - Connect to GitHub, enable deploy previews and branch deploys
-    - Add `app.warmandfuzzy.house` as custom domain
-    - Ensure there's an SSL certificate once the custom domain is listed
