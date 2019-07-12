@@ -49,7 +49,7 @@ class Home extends React.Component<Props, State> {
     return (
       <div>
         <ThermostatConfigs />
-        <code>{JSON.stringify(this.state.content)}</code>
+        {/*<code>{JSON.stringify(this.state.content)}</code>*/}
       </div>
     );
   }

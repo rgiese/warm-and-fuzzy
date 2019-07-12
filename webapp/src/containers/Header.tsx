@@ -1,0 +1,61 @@
+import React from "react";
+import { Link } from "react-router-dom";
+
+import Config, { ConfigStageName } from "../config";
+
+import AuthStateProps from "../common/AuthStateProps";
+import { GlobalAuth } from "../services/Auth";
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface Props extends AuthStateProps {}
+
+class State {}
+
+class Header extends React.Component<Props, State> {
+  public constructor(props: Props) {
+    super(props);
+    this.state = new State();
+  }
+
+  private handleLogin = (): void => {
+    GlobalAuth.login();
+  };
+
+  private handleLogout = (): void => {
+    GlobalAuth.logout();
+  };
+
+  public render(): React.ReactElement {
+    return (
+      <nav className="cf pv2 bg-accent-mono-light sans">
+        <div className="fl dib pl2">
+          {/*** Logo ***/}
+          <div className="dib ph1 ph2-ns">
+            <Link className="link dim" to="/">
+              Home
+            </Link>
+          </div>
+
+          {/*** Login/logout ***/}
+          <div className="dib ph1 ph2-ns">
+            {!this.props.isAuthenticated ? (
+              <span className="link dim f5 black-80" onClick={this.handleLogin}>
+                Log in
+              </span>
+            ) : (
+              <span className="link dim f5 black-80" onClick={this.handleLogout}>
+                Log out
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="fr dn dib-ns ph3">
+          <span className="accent">{Config.isProduction ? `` : `[stage: ${ConfigStageName}]`}</span>
+        </div>
+      </nav>
+    );
+  }
+}
+
+export default Header;
