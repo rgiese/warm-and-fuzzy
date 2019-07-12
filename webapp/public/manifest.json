@@ -3,12 +3,12 @@
   "name": "Warm and Fuzzy",
   "icons": [
     {
-      "src": "assets/icon-48x48.png",
+      "src": "assets/icon-48x48.png?v=6933c40c56d96621327d004fd50f1445",
       "sizes": "48x48",
       "type": "image/png"
     },
     {
-      "src": "assets/icon-96x96.png",
+      "src": "assets/icon-96x96.png?v=6933c40c56d96621327d004fd50f1445",
       "sizes": "96x96",
       "type": "image/png"
     }
