@@ -6,6 +6,8 @@ import Config, { ConfigStageName } from "../config";
 import AuthStateProps from "../common/AuthStateProps";
 import { GlobalAuth } from "../services/Auth";
 
+import { ReactComponent as GrumpyBird } from "../assets/grumpy-robin.svg";
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends AuthStateProps {}
 
@@ -31,27 +33,31 @@ class Header extends React.Component<Props, State> {
         <div className="fl dib pl2">
           {/*** Logo ***/}
           <div className="dib ph1 ph2-ns">
+            <GrumpyBird className="v-mid w2 h2 pr2" />
             <Link className="link dim" to="/">
               Home
             </Link>
           </div>
+        </div>
+
+        <div className="fr dib ph3">
+          {/*** Prod/dev indicator ***/}
+          <span className="f5 accent">
+            {Config.isProduction ? `` : `[stage: ${ConfigStageName}]`}
+          </span>
 
           {/*** Login/logout ***/}
           <div className="dib ph1 ph2-ns">
             {!this.props.isAuthenticated ? (
-              <span className="link dim f5 black-80" onClick={this.handleLogin}>
+              <button className="link dim f5 black-80" onClick={this.handleLogin}>
                 Log in
-              </span>
+              </button>
             ) : (
-              <span className="link dim f5 black-80" onClick={this.handleLogout}>
+              <button className="link dim f5 black-80" onClick={this.handleLogout}>
                 Log out
-              </span>
+              </button>
             )}
           </div>
-        </div>
-
-        <div className="fr dn dib-ns ph3">
-          <span className="accent">{Config.isProduction ? `` : `[stage: ${ConfigStageName}]`}</span>
         </div>
       </nav>
     );
