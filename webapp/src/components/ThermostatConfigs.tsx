@@ -32,7 +32,8 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                 return (
                   <div key={thermostatConfiguration.deviceId}>
                     {thermostatConfiguration.name}: {thermostatConfiguration.setPointCool} /{" "}
-                    {thermostatConfiguration.setPointHeat} = {thermostatConfiguration.allowedActions}
+                    {thermostatConfiguration.setPointHeat} ={" "}
+                    {thermostatConfiguration.allowedActions}
                   </div>
                 );
               }
