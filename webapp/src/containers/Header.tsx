@@ -28,6 +28,9 @@ class Header extends React.Component<Props, State> {
   };
 
   public render(): React.ReactElement {
+    const tenant = GlobalAuth.Tenant;
+    const userName = GlobalAuth.UserName;
+
     return (
       <nav className="cf pv2 bg-accent-mono-light sans">
         <div className="fl dib pl2">
@@ -35,7 +38,7 @@ class Header extends React.Component<Props, State> {
           <div className="dib ph1 ph2-ns">
             <GrumpyBird className="v-mid w2 h2 pr2" />
             <Link className="link dim" to="/">
-              Home
+              Home {tenant ? ` - ${tenant}` : ``}
             </Link>
           </div>
         </div>
@@ -54,7 +57,7 @@ class Header extends React.Component<Props, State> {
               </button>
             ) : (
               <button className="link dim f5 black-80" onClick={this.handleLogout}>
-                Log out
+                Log out {userName ? userName.split(" ")[0] : ""}
               </button>
             )}
           </div>

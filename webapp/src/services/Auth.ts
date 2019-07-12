@@ -99,6 +99,28 @@ class Auth {
     return decodedIdToken[Config.auth0.customClaimsNamespace + "user_email"];
   }
 
+  public get Tenant(): string | undefined {
+    const accessToken = this.AccessToken;
+
+    if (accessToken === null) {
+      return undefined;
+    }
+
+    const decodedAccessToken = JwtDecode(accessToken) as any;
+    return decodedAccessToken[Config.auth0.customClaimsNamespace + "tenant"];
+  }
+
+  public get Permissions(): string[] {
+    const accessToken = this.AccessToken;
+
+    if (accessToken === null) {
+      return [];
+    }
+
+    const decodedAccessToken = JwtDecode(accessToken) as any;
+    return decodedAccessToken["permissions"];
+  }
+
   private setSession(authResult: any): void {
     // Set the time that the access token will expire at
     const expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
