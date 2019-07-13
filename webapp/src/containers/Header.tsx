@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Config, { ConfigStageName } from "../config";
 
 import AuthStateProps from "../common/AuthStateProps";
-import { GlobalAuth } from "../services/Auth";
+import { GlobalAuth, Permissions } from "../services/Auth";
 
 import { ReactComponent as GrumpyBird } from "../assets/grumpy-robin.svg";
 
@@ -31,16 +31,27 @@ class Header extends React.Component<Props, State> {
     const tenant = GlobalAuth.Tenant;
     const userName = GlobalAuth.UserName;
 
+    const permissions = GlobalAuth.Permissions;
+
     return (
       <nav className="cf pv2 bg-accent-mono-light sans">
         <div className="fl dib pl2">
           {/*** Logo ***/}
           <div className="dib ph1 ph2-ns">
             <GrumpyBird className="v-mid w2 h2 pr2" />
-            <Link className="link dim" to="/">
-              Home {tenant ? ` - ${tenant}` : ``}
+            <Link className="link dim black-80" to="/">
+              {tenant ? `${tenant}` : `Home`}
             </Link>
           </div>
+
+          {/*** Config ***/}
+          {permissions.includes(Permissions.WriteConfig) && (
+            <div className="dib ph1 ph2-ns">
+              <Link className="link dim black-80" to="/configuration">
+                Configuration
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="fr dib ph3">

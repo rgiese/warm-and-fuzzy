@@ -10,8 +10,10 @@ import ApolloClient from "./services/ApolloClient";
 import History from "./services/History";
 
 import AppliedRoute from "./components/AppliedRoute";
+import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 import AuthCallback from "./containers/AuthCallback";
+import Configuration from "./containers/Configuration";
 import Home from "./containers/Home";
 import NotFound from "./containers/NotFound";
 
@@ -66,6 +68,12 @@ class App extends React.Component<Props, State> {
                 <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
                 {/* Actual pages */}
                 <AppliedRoute path="/" exact component={Home} props={childProps} />
+                <AuthenticatedRoute
+                  path="/configuration"
+                  exact
+                  component={Configuration}
+                  props={childProps}
+                />
                 {/* Finally, catch all unmatched routes */}
                 <Route component={NotFound} />
               </Switch>

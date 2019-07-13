@@ -10,11 +10,7 @@ export default ({ component: C, props: propsToInject, ...rest }: Props): React.R
   <Route
     {...rest}
     render={(props): any =>
-      propsToInject.isAuthenticated ? (
-        <C {...props} {...propsToInject} />
-      ) : (
-        <Redirect to={`/login?redirect=${props.location.pathname}${props.location.search}`} />
-      )
+      propsToInject.isAuthenticated ? <C {...props} {...propsToInject} /> : <Redirect to={`/`} />
     }
   />
 );

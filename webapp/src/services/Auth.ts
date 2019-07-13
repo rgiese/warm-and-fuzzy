@@ -9,6 +9,11 @@ const localStorageKeys = {
   idToken: "auth.idToken",
 };
 
+export enum Permissions {
+  ReadConfig = "read:config",
+  WriteConfig = "write:config",
+}
+
 class Auth {
   private tokenRenewalTimeout: any;
 
