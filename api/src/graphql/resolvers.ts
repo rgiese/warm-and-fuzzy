@@ -31,7 +31,7 @@ const resolvers: GraphQL.Resolvers = {
       // Build new object with provided values
       let thermostatConfiguration = Object.assign(new ThermostatConfiguration(), {
         tenant: context.authorizations.AuthorizedTenant,
-        deviceId: args.deviceId,
+        deviceId: args.thermostatConfiguration.deviceId,
       });
 
       ThermostatConfigurationMapper.privateFromPublic(
@@ -49,7 +49,7 @@ const resolvers: GraphQL.Resolvers = {
       const thermostatConfiguration = await DbMapper.get(
         Object.assign(new ThermostatConfiguration(), {
           tenant: context.authorizations.AuthorizedTenant,
-          deviceId: args.deviceId,
+          deviceId: args.thermostatConfiguration.deviceId,
         })
       );
 
