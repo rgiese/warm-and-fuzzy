@@ -111,6 +111,10 @@ img {
   height: 0.75rem;
 }
 
+.dtr {
+  display: table-row;
+}
+
 // An improvement over Tachyons' hide-child (which opens submenus on hover over the invisible submenu)
 // courtesy of https://css-tricks.com/solved-with-css-dropdown-menus/
 .nav-hide-child .nav-child {

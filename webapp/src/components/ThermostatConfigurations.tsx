@@ -81,7 +81,16 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
           );
 
         return (
-          <>
+          <div className="dt tl sans center mw-8 pt3">
+            <div className="dtr b ba b--black">
+              <div className="dtc pa2">Name</div>
+              <div className="dtc pa2">Allowed actions</div>
+              <div className="dtc pa2">Cool to</div>
+              <div className="dtc pa2">Heat to</div>
+              <div className="dtc pa2">Threshold</div>
+              <div className="dtc pa2">Cadence</div>
+              <div className="dtc pa2"></div> {/* Submit button */}
+            </div>
             {data.getThermostatConfigurations.map(
               (thermostatConfiguration): React.ReactElement => {
                 return (
@@ -105,78 +114,100 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                             }}
                           >
                             {({ values, isSubmitting }) => (
-                              <Form>
-                                <Field type="text" name="name" />
-                                <ErrorMessage name="name" component="div" />
+                              <Form className="dtr">
+                                <div className="dtc pa2">
+                                  <Field type="text" name="name" />
+                                  <ErrorMessage name="name" component="div" />
+                                </div>
 
-                                <FieldArray
-                                  name="allowedActions"
-                                  render={arrayHelpers => (
-                                    <>
-                                      {thermostatActions.map(action => (
-                                        <label key={action}>
-                                          <input
-                                            name="allowedActions"
-                                            type="checkbox"
-                                            value={action}
-                                            checked={values.allowedActions.includes(action)}
-                                            onChange={e => {
-                                              if (e.target.checked) {
-                                                arrayHelpers.push(action);
-                                              } else {
-                                                const idxItem = values.allowedActions.indexOf(
-                                                  action
-                                                );
-                                                arrayHelpers.remove(idxItem);
-                                              }
-                                            }}
-                                          />
-                                          {action}
-                                        </label>
-                                      ))}
-                                    </>
-                                  )}
-                                />
+                                <div className="dtc">
+                                  <FieldArray
+                                    name="allowedActions"
+                                    render={arrayHelpers => (
+                                      <>
+                                        {thermostatActions.map(action => (
+                                          <label className="pa2" key={action}>
+                                            <input
+                                              name="allowedActions"
+                                              type="checkbox"
+                                              value={action}
+                                              checked={values.allowedActions.includes(action)}
+                                              onChange={e => {
+                                                if (e.target.checked) {
+                                                  arrayHelpers.push(action);
+                                                } else {
+                                                  const idxItem = values.allowedActions.indexOf(
+                                                    action
+                                                  );
+                                                  arrayHelpers.remove(idxItem);
+                                                }
+                                              }}
+                                            />
+                                            {action}
+                                          </label>
+                                        ))}
+                                      </>
+                                    )}
+                                  />
+                                </div>
 
-                                <Field
-                                  type="number"
-                                  name="setPointCool"
-                                  min={setPointRange.min}
-                                  max={setPointRange.max}
-                                  step={0.5}
-                                />
-                                <ErrorMessage name="setPointCool" component="div" />
+                                <div className="dtc pa2">
+                                  <Field
+                                    className="w3 tr"
+                                    type="number"
+                                    name="setPointCool"
+                                    min={setPointRange.min}
+                                    max={setPointRange.max}
+                                    step={0.5}
+                                  />{" "}
+                                  &deg;C
+                                  <ErrorMessage name="setPointCool" component="div" />
+                                </div>
 
-                                <Field
-                                  type="number"
-                                  name="setPointHeat"
-                                  min={setPointRange.min}
-                                  max={setPointRange.max}
-                                  step={0.5}
-                                />
-                                <ErrorMessage name="setPointHeat" component="div" />
+                                <div className="dtc pa2">
+                                  <Field
+                                    className="w3 tr"
+                                    type="number"
+                                    name="setPointHeat"
+                                    min={setPointRange.min}
+                                    max={setPointRange.max}
+                                    step={0.5}
+                                  />{" "}
+                                  &deg;C
+                                  <ErrorMessage name="setPointHeat" component="div" />
+                                </div>
 
-                                <Field
-                                  type="number"
-                                  name="threshold"
-                                  min={thresholdRange.min}
-                                  max={thresholdRange.max}
-                                  step={0.5}
-                                />
-                                <ErrorMessage name="threshold" component="div" />
+                                <div className="dtc pa2">
+                                  <Field
+                                    className="w3 tr"
+                                    type="number"
+                                    name="threshold"
+                                    min={thresholdRange.min}
+                                    max={thresholdRange.max}
+                                    step={0.5}
+                                  />{" "}
+                                  &Delta;&deg;C
+                                  <ErrorMessage name="threshold" component="div" />
+                                </div>
 
-                                <Field
-                                  type="number"
-                                  name="cadence"
-                                  min={cadenceRange.min}
-                                  max={cadenceRange.max}
-                                  step={10}
-                                />
-                                <ErrorMessage name="cadence" component="div" />
+                                <div className="dtc pa2">
+                                  <Field
+                                    className="w3 tr"
+                                    type="number"
+                                    name="cadence"
+                                    min={cadenceRange.min}
+                                    max={cadenceRange.max}
+                                    step={10}
+                                  />{" "}
+                                  sec
+                                  <ErrorMessage name="cadence" component="div" />
+                                </div>
 
-                                <button type="submit" disabled={isSubmitting}>
-                                  Update
-                                </button>
+                                <div className="dtc pa2">
+                                  <button type="submit" disabled={isSubmitting}>
+                                    Update
+                                  </button>
+                                </div>
                               </Form>
                             )}
                           </Formik>
@@ -192,7 +223,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                 );
               }
             )}
-          </>
+          </div>
         );
       }}
     </ThermostatConfigurationsComponent>
