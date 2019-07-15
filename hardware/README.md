@@ -8,5 +8,6 @@
 ### Design files
 - `thermostat/**`: Altium CircuitMaker files and PDF/PNG exports of latest revision
     - [Publicly accessible link to CircuitMaker project](https://workspace.circuitmaker.com/Projects/Details/Robin-Giese/WarmAndFuzzy-Thermostat)
+    - `Thermostat cover.*`: 3D-printable one-gang Decora cover to mount thermostat in electrical box. Based on [a design by Martin Masson](https://www.thingiverse.com/thing:2794581).
 - `GrumpyCorpLogo.ttf`: Used to place logo glyph on PCB
     - GrumpyCorp SVG -> minus color via Illustrator -> to TTF via [icomoon](https://icomoon.io/app/) -> glyph cleaned and metadata added via [FontForge](https://fontforge.github.io/en-US/)
