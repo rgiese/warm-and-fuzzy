@@ -10,7 +10,8 @@ import {
   LatestValue,
   ThermostatConfiguration,
 } from "../../../shared/db";
-import { StatusEvent } from "./statusEvent";
+
+import { StatusEvent, StatusEventSchema } from "./statusEvent";
 
 var deviceTenancyCache = new Map();
 
@@ -27,9 +28,9 @@ export const post: APIGatewayProxyHandler = async event => {
   let statusEvent: StatusEvent;
 
   try {
-    statusEvent = new StatusEvent(parsedRequestBody);
+    statusEvent = await StatusEventSchema.validate(parsedRequestBody, { stripUnknown: true });
   } catch (e) {
-    return Responses.badRequest({ badRequestItem: e.message, body: parsedRequestBody });
+    return Responses.badRequest({ error: e.errors, body: parsedRequestBody });
   }
 
   // Locate tenant name for device
