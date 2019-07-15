@@ -1,0 +1,20 @@
+{
+  "short_name": "WarmAndFuzzy",
+  "name": "Warm and Fuzzy",
+  "icons": [
+    {
+      "src": "/assets/android-chrome-192x192.png?v=alQxRaoaN6",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/android-chrome-512x512.png?v=alQxRaoaN6",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f26739",
+  "background_color": "#ffffff"
+}

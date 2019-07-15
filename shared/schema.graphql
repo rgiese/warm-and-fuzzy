@@ -10,11 +10,9 @@ type Query {
 
 type Mutation {
   createThermostatConfiguration(
-    deviceId: ID!
     thermostatConfiguration: ThermostatConfigurationCreateInput!
   ): ThermostatConfiguration!
   updateThermostatConfiguration(
-    deviceId: ID!
     thermostatConfiguration: ThermostatConfigurationUpdateInput!
   ): ThermostatConfiguration!
 }
@@ -24,6 +22,7 @@ type Mutation {
 #
 
 input ThermostatConfigurationCreateInput {
+  deviceId: ID!
   name: String!
 
   allowedActions: [ThermostatAction!]!
@@ -35,6 +34,7 @@ input ThermostatConfigurationCreateInput {
 }
 
 input ThermostatConfigurationUpdateInput {
+  deviceId: ID!
   name: String
 
   allowedActions: [ThermostatAction!]

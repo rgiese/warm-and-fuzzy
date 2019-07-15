@@ -1,0 +1,132 @@
+//
+// Typefaces
+//
+
+@import url("https://fonts.googleapis.com/css?family=Noto+Sans|Noto+Serif&display=swap");
+
+html {
+  font-family: "Noto Serif", "serif";
+}
+
+h1,
+h2,
+h3,
+.sans {
+  font-family: "Noto Sans", "sans-serif";
+}
+
+.serif {
+  font-family: "Noto Serif";
+}
+
+//
+// Global
+//
+
+:root {
+  --accent: #f26739;
+  --accent-mono: #999;
+  --accent-mono-light: #ddd;
+}
+
+html,
+body {
+  // Without this, browser enters quirk mode and top-level flexbox layout doesn't scale to full height
+  // unless you remove the top-level DOCTYPE - oy.
+  // See https://stackoverflow.com/questions/32214152/why-does-my-div-height-100-work-only-when-doctype-is-removed/32215263#32215263.
+  height: 100%;
+}
+
+img {
+  // Don't let images scale up past their built-in size (but they'll still scale down)
+  max-width: 100%;
+}
+
+.content {
+  a:link {
+    color: var(--accent);
+  }
+
+  a:hover,
+  a:visited {
+    color: var(--accent-mono);
+  }
+}
+
+//
+// SVG madness
+//
+
+.svg-fill-current-color {
+  // Assign to an SVG element to inherit fill color
+  fill: currentColor;
+}
+
+.svg-h-mirror {
+  transform: scale(-1, 1);
+}
+
+//
+// Tachyons extensions
+//
+
+.accent {
+  color: var(--accent);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.b--accent {
+  border-color: var(--accent);
+}
+
+.accent-mono {
+  color: var(--accent-mono);
+}
+
+.bg-accent-mono {
+  background-color: var(--accent-mono);
+}
+
+.b--accent-mono {
+  border-color: var(--accent-mono);
+}
+
+.accent-mono-light {
+  color: var(--accent-mono-light);
+}
+
+.bg-accent-mono-light {
+  background-color: var(--accent-mono-light);
+}
+
+.b--accent-mono-light {
+  border-color: var(--accent-mono-light);
+}
+
+.h075 {
+  // as a complement to http://tachyons.io/docs/layout/heights/
+  height: 0.75rem;
+}
+
+.dtr {
+  display: table-row;
+}
+
+// An improvement over Tachyons' hide-child (which opens submenus on hover over the invisible submenu)
+// courtesy of https://css-tricks.com/solved-with-css-dropdown-menus/
+.nav-hide-child .nav-child {
+  visibility: hidden;
+  opacity: 0;
+  display: none;
+}
+
+.nav-hide-child:hover .nav-child,
+.nav-hide-child .nav-child:hover {
+  visibility: visible;
+  opacity: 1;
+  display: block;
+  z-index: 5;
+}
