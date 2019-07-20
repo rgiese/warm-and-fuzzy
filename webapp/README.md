@@ -1,7 +1,3 @@
-# Dev setup
-
-- `npm install`
-
 # Running locally
 
 - `npm start`, or `npm run start-local` if running the API locally as well

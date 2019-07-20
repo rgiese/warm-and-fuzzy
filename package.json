@@ -1,0 +1,46 @@
+{
+  "name": "@grumpycorp/warm-and-fuzzy",
+  "description": "WarmAndFuzzy root project",
+  "author": "robin@grumpycorp.com",
+  "license": "CC-BY-NC-SA-4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "private": true,
+  "scripts": {},
+  "devDependencies": {
+    "@graphql-codegen/add": "^1.3.1",
+    "@graphql-codegen/cli": "^1.3.1",
+    "@graphql-codegen/typescript": "^1.3.1",
+    "@graphql-codegen/typescript-operations": "^1.3.1",
+    "@graphql-codegen/typescript-react-apollo": "^1.3.1",
+    "@types/auth0-js": "^9.10.2",
+    "@types/graphql": "^14.2.2",
+    "@types/history": "^4.7.2",
+    "@types/jest": "24.0.15",
+    "@types/jwt-decode": "^2.2.1",
+    "@types/node": "12.0.8",
+    "@types/react": "16.8.21",
+    "@types/react-dom": "16.8.4",
+    "@types/react-router-dom": "^4.3.4",
+    "@types/yup": "^0.26.21",
+    "cross-env": "^5.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^5.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "graphql": "^14.4.2",
+    "lerna": "^3.16.1",
+    "node-sass": "^4.12.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.18.2",
+    "react-scripts": "3.0.1",
+    "typescript": "3.5.2",
+    "yup": "^0.27.0"
+  },
+  "dependencies": {
+    "@grumpycorp/warm-and-fuzzy-shared": "file:shared",
+    "@grumpycorp/warm-and-fuzzy-webapp": "file:webapp"
+  }
+}

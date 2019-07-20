@@ -1,13 +1,13 @@
 import React from "react";
 import gql from "graphql-tag";
 import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
-import * as yup from "yup";
 
 import {
-  ThermostatAction,
   ThermostatConfigurationsComponent,
   UpdateThermostatConfigurationComponent,
 } from "../generated/graphqlClient";
+
+import * as ThermostatConfigurationSchema from "@grumpycorp/warm-and-fuzzy-shared";
 
 gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
@@ -34,39 +34,6 @@ gql`
     }
   }
 `;
-
-const thermostatActions = [
-  ThermostatAction.Heat,
-  ThermostatAction.Cool,
-  ThermostatAction.Circulate,
-];
-
-const setPointRange = { min: 16, max: 40 };
-const thresholdRange = { min: 0.5, max: 5 };
-const cadenceRange = { min: 30, max: 3600 };
-
-const thermostatConfigurationSchema = yup.object().shape({
-  deviceId: yup.string().required(),
-  name: yup.string().required(),
-  allowedActions: yup.array().of(yup.string().oneOf(thermostatActions)),
-  setPointHeat: yup
-    .number()
-    .min(setPointRange.min)
-    .max(setPointRange.max),
-  setPointCool: yup
-    .number()
-    .min(setPointRange.min)
-    .max(setPointRange.max),
-  threshold: yup
-    .number()
-    .min(thresholdRange.min)
-    .max(thresholdRange.max),
-  cadence: yup
-    .number()
-    .integer()
-    .min(cadenceRange.min)
-    .max(cadenceRange.max),
-});
 
 const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
   return (
@@ -100,7 +67,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                         <>
                           <Formik
                             initialValues={thermostatConfiguration}
-                            validationSchema={thermostatConfigurationSchema}
+                            validationSchema={ThermostatConfigurationSchema.Schema}
                             onSubmit={async (values, { setSubmitting }) => {
                               // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
                               delete values.__typename;
@@ -125,7 +92,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                                     name="allowedActions"
                                     render={arrayHelpers => (
                                       <>
-                                        {thermostatActions.map(action => (
+                                        {ThermostatConfigurationSchema.Actions.map(action => (
                                           <label className="pa2" key={action}>
                                             <input
                                               name="allowedActions"
@@ -156,8 +123,8 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                                     className="w3 tr"
                                     type="number"
                                     name="setPointCool"
-                                    min={setPointRange.min}
-                                    max={setPointRange.max}
+                                    min={ThermostatConfigurationSchema.SetPointRange.min}
+                                    max={ThermostatConfigurationSchema.SetPointRange.max}
                                     step={0.5}
                                   />{" "}
                                   &deg;C
@@ -169,8 +136,8 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                                     className="w3 tr"
                                     type="number"
                                     name="setPointHeat"
-                                    min={setPointRange.min}
-                                    max={setPointRange.max}
+                                    min={ThermostatConfigurationSchema.SetPointRange.min}
+                                    max={ThermostatConfigurationSchema.SetPointRange.max}
                                     step={0.5}
                                   />{" "}
                                   &deg;C
@@ -182,8 +149,8 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                                     className="w3 tr"
                                     type="number"
                                     name="threshold"
-                                    min={thresholdRange.min}
-                                    max={thresholdRange.max}
+                                    min={ThermostatConfigurationSchema.ThresholdRange.min}
+                                    max={ThermostatConfigurationSchema.ThresholdRange.max}
                                     step={0.5}
                                   />{" "}
                                   &Delta;&deg;C
@@ -195,8 +162,8 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                                     className="w3 tr"
                                     type="number"
                                     name="cadence"
-                                    min={cadenceRange.min}
-                                    max={cadenceRange.max}
+                                    min={ThermostatConfigurationSchema.CadenceRange.min}
+                                    max={ThermostatConfigurationSchema.CadenceRange.max}
                                     step={10}
                                   />{" "}
                                   sec

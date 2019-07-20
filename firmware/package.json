@@ -8,6 +8,7 @@
     "url": "https://github.com/rgiese/warm-and-fuzzy.git"
   },
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "build": "node firmware-build-tool/run.js build -p thermostat",
     "flash": "node firmware-build-tool/run.js flash -p thermostat",

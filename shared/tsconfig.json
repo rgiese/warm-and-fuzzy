@@ -5,6 +5,7 @@
     "lib": ["es2017"],
 
     "outDir": "./build",
+    "declaration": true,
     "sourceMap": true,
 
     "moduleResolution": "node",

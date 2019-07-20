@@ -13,3 +13,8 @@ as well as [all related posts](https://www.grumpycorp.com/tags/posts/warm-and-fu
 # License
 
 Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
+
+# Dev setup
+
+- `lerna bootstrap`
+- `lerna run build`
