@@ -1,14 +1,19 @@
 {
   "name": "@grumpycorp/warm-and-fuzzy-shared",
+  "version": "1.0.0",
+  "private": true,
   "description": "WarmAndFuzzy shared types",
-  "author": "robin@grumpycorp.com",
-  "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/rgiese/warm-and-fuzzy.git"
   },
-  "version": "1.0.0",
-  "private": true,
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
+  "files": [
+    "build"
+  ],
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "prebuild": "npm-run-all codegen:*",
     "build": "tsc",
@@ -17,11 +22,6 @@
     "lint": "eslint {.,./**}/*.{ts,tsx}",
     "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
-  "files": [
-    "build"
-  ],
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
   "dependencies": {
     "graphql": "^14.4.2",
     "yup": "^0.27.0"

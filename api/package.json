@@ -1,28 +1,28 @@
 {
   "name": "@grumpycorp/warm-and-fuzzy-api",
+  "version": "1.0.0",
+  "private": true,
   "description": "WarmAndFuzzy API",
-  "author": "robin@grumpycorp.com",
-  "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/rgiese/warm-and-fuzzy.git"
   },
-  "version": "1.0.0",
-  "private": true,
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
   "scripts": {
-    "prestart": "npm-run-all codegen:*",
-    "start": "sls offline start",
     "prebuild": "npm-run-all codegen:*",
     "build": "sls package -v",
+    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
     "predeploy:dev": "npm-run-all codegen:*",
     "deploy:dev": "sls deploy -v",
     "predeploy:prod": "npm-run-all codegen:*",
     "deploy:prod": "sls deploy -v --stage prod",
-    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
     "dev:tsc": "tsc",
     "format:fix": "prettier --write {.,..,../shared/**,./resources/**,./src/**}/*.{graphql,js,json,md,ts,yml}",
     "lint": "eslint ./src/**/*.{ts,tsx}",
-    "lint:fix": "eslint --fix ./src/**/*.{ts,tsx}"
+    "lint:fix": "eslint --fix ./src/**/*.{ts,tsx}",
+    "prestart": "npm-run-all codegen:*",
+    "start": "sls offline start"
   },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",

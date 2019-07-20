@@ -1,29 +1,26 @@
 {
   "name": "@grumpycorp/warm-and-fuzzy-webapp",
+  "version": "1.0.0",
+  "private": true,
   "description": "WarmAndFuzzy web app",
-  "author": "robin@grumpycorp.com",
-  "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/rgiese/warm-and-fuzzy.git"
   },
-  "version": "1.0.0",
-  "private": true,
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
   "scripts": {
+    "prebuild": "npm-run-all codegen:*",
+    "build": "react-scripts build",
+    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
+    "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
+    "lint": "eslint {.,./**}/*.{ts,tsx}",
+    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}",
     "prestart": "npm-run-all codegen:*",
     "start": "react-scripts start",
     "prestart-local": "npm-run-all codegen:*",
     "start-local": "cross-env REACT_APP_API_STAGE=local react-scripts start",
-    "prebuild": "npm-run-all codegen:*",
-    "build": "react-scripts build",
-    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
-    "test": "react-scripts test",
-    "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
-    "lint": "eslint {.,./**}/*.{ts,tsx}",
-    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "test": "react-scripts test"
   },
   "browserslist": {
     "production": [
@@ -36,6 +33,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   },
   "dependencies": {
     "apollo-cache-inmemory": "^1.6.2",
