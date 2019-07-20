@@ -1,8 +1,4 @@
 {
   "version": "1.0.0",
-  "packages": [
-    "shared",
-    "api",
-    "webapp"
-  ]
+  "packages": ["shared", "api", "webapp"]
 }
