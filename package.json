@@ -9,7 +9,7 @@
   "license": "CC-BY-NC-SA-4.0",
   "author": "robin@grumpycorp.com",
   "scripts": {
-    "ci": "lerna bootstrap && lerna run build",
+    "frontend-ci": "lerna bootstrap --hoist && lerna run build --ignore api",
     "start": "lerna run start --stream",
     "start-dev": "lerna run start-dev --stream"
   },
