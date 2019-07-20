@@ -21,7 +21,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 - Dev tooling
   - `npm install -g lerna serverless`
 - Getting started
-  - `lerna bootstrap`
+  - `lerna bootstrap --hoist`
   - `lerna run build`
 - Pre-commit
   - `npm run format:fix`
