@@ -24,7 +24,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
   - `lerna bootstrap`
   - `lerna run build`
 - Pre-commit
-  - `lerna run format:fix`
+  - `npm run format:fix`
   - `lerna run lint:fix`
 - Deploy (API only)
   - `lerna run deploy:dev --stream` or ...`deploy:prod`

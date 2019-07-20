@@ -11,7 +11,8 @@
   "scripts": {
     "frontend-ci": "lerna bootstrap --hoist && lerna run build --ignore api",
     "start": "lerna run start --stream",
-    "start-dev": "lerna run start-dev --stream"
+    "start-dev": "lerna run start-dev --stream",
+    "format:fix": "lerna run format:fix --parallel"
   },
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-api": "file:api",
