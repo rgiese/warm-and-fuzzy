@@ -19,8 +19,7 @@
     "test": "react-scripts test",
     "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
     "lint": "eslint {.,./**}/*.{ts,tsx}",
-    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}",
-    "dev:tsc": "tsc --outDir dev-out --noEmit false"
+    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
   },
   "eslintConfig": {
     "extends": "react-app"
