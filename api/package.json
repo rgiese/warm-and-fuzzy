@@ -11,6 +11,8 @@
   "scripts": {
     "prestart": "npm-run-all codegen:*",
     "start": "sls offline start",
+    "prebuild": "npm-run-all codegen:*",
+    "build": "sls package -v",
     "predeploy:dev": "npm-run-all codegen:*",
     "deploy:dev": "sls deploy -v",
     "predeploy:prod": "npm-run-all codegen:*",
