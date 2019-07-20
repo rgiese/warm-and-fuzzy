@@ -18,8 +18,21 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 
 # Dev setup
 
-- `lerna bootstrap`
-- `lerna run build`
+- Dev tooling
+  - `npm install -g lerna serverless`
+- Getting started
+  - `lerna bootstrap`
+  - `lerna run build`
+- Pre-commit
+  - `lerna run format:fix`
+  - `lerna run lint:fix`
+- Deploy (API only)
+  - `lerna run deploy:dev --stream` or ...`deploy:prod`
+
+# Running locally
+
+- `npm run start` (from root) for local API and web app
+- `npm run start-dev` (from root) for remote dev stage API and local web app
 
 ## Dev tooling tricks
 

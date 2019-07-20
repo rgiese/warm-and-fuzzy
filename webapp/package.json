@@ -17,9 +17,9 @@
     "lint": "eslint {.,./**}/*.{ts,tsx}",
     "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}",
     "prestart": "npm-run-all codegen:*",
-    "start": "react-scripts start",
-    "prestart-local": "npm-run-all codegen:*",
-    "start-local": "cross-env REACT_APP_API_STAGE=local react-scripts start",
+    "start": "cross-env REACT_APP_API_STAGE=local react-scripts start",
+    "prestart-dev": "npm-run-all codegen:*",
+    "start-dev": "react-scripts start",
     "test": "react-scripts test"
   },
   "browserslist": {

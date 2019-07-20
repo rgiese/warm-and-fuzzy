@@ -1,7 +1,3 @@
-# Running locally
-
-- `npm start`, or `npm run start-local` if running the API locally as well
-
 # Deploy
 
 - Auto-deployed from Netlify

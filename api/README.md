@@ -1,16 +1,3 @@
-# Dev setup
-
-- `npm install -g serverless`
-- `npm install`
-
-# Running locally
-
-- `npm start`
-
-# Deploy
-
-- Manual deploy from CLI: `npm run deploy:dev` or ...`deploy:prod`
-
 # Cloud configuration
 
 ## Auth0 configuration
