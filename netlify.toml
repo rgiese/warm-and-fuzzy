@@ -1,11 +1,11 @@
 # Hosting for web app
 [build]
   base = "/"
-  command = "REACT_APP_API_STAGE=dev npm run frontend-ci"
+  command = "REACT_APP_API_STAGE=dev npm run ci:frontend"
   publish = "webapp/build/"
 
 [context.production]
-  command = "REACT_APP_API_STAGE=prod npm run frontend-ci"
+  command = "REACT_APP_API_STAGE=prod npm run ci:frontend"
 
 # Always redirect any request to our index.html and return the status code 200.
 [[redirects]]
