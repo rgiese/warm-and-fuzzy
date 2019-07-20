@@ -2,6 +2,8 @@ import * as GraphQL from "../../generated/graphqlTypes";
 import { DbMapper, ThermostatConfiguration } from "../shared/db";
 import ThermostatConfigurationMapper from "./mappers/ThermostatConfigurationMapper";
 
+import * as ThermostatConfigurationSchema from "@grumpycorp/warm-and-fuzzy-shared";
+
 const resolvers: GraphQL.Resolvers = {
   Query: {
     getThermostatConfigurations: async (_parent, _args, context) => {
@@ -28,6 +30,9 @@ const resolvers: GraphQL.Resolvers = {
   },
   Mutation: {
     createThermostatConfiguration: async (_parent, args, context) => {
+      // Verify provided values
+      await ThermostatConfigurationSchema.Schema.validate(args.thermostatConfiguration);
+
       // Build new object with provided values
       let thermostatConfiguration = Object.assign(new ThermostatConfiguration(), {
         tenant: context.authorizations.AuthorizedTenant,
