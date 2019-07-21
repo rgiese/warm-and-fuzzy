@@ -18,7 +18,7 @@
     "predeploy:prod": "npm-run-all codegen:*",
     "deploy:prod": "sls deploy --stage prod --verbose --conceal",
     "dev:tsc": "tsc",
-    "format:fix": "prettier --write {.,..,../..,./resources/**,./src/**}/*.{graphql,js,json,md,ts,yml}",
+    "format:fix": "prettier --write {.,./resources/**,./src/**}/*.{graphql,js,json,md,ts,yml}",
     "lint": "eslint './src/**/*.{ts,tsx}'",
     "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'",
     "prestart": "npm-run-all codegen:*",

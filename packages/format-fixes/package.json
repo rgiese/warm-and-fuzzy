@@ -1,0 +1,15 @@
+{
+  "name": "@grumpycorp/warm-and-fuzzy-formatfixes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WarmAndFuzzy root-level format fixing services",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
+  "scripts": {
+    "format:fix": "prettier --write {.,..,../..}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest}"
+  }
+}
