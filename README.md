@@ -39,3 +39,4 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 
 - `lerna clean` to wipe all `node_modules` from packages (though not the root)
 - `npx sort-package-json` to clean up `package.json` files
+- For troubleshooting CircleCI YML indentation madness, get the [CircleCI CLI](https://circleci.com/docs/2.0/local-cli/) and run `circleci config validate`
