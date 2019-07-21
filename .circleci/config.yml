@@ -79,10 +79,14 @@ workflows:
   build-deploy:
     jobs:
       - build
+      - hold-to-deploy:
+          type: approval
+          requires:
+            - build
       - deploy-to-prod:
           context: warm-and-fuzzy-aws
           requires:
-            - build
+            - hold-to-deploy
           filters:
             branches:
               only: master
