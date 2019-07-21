@@ -1,0 +1,33 @@
+# c.f. https://circleci.com/docs/2.0/language-javascript/
+version: 2
+jobs:
+  build:
+    docker:
+      # c.f. https://github.com/CircleCI-Public/circleci-dockerfiles/tree/master/node/images
+      - image: circleci/node:12.6.0-stretch
+
+    working_directory: ~/warm-and-fuzzy
+
+    steps:
+      # Check out source
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      # Install dependencies
+      - run: npm install
+      - run: npm run bootstrap
+
+      # Save cache
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # Run builds
+      - run: npm run build
