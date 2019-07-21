@@ -29,6 +29,7 @@
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
     "apollo-server-lambda": "^2.6.8",
+    "aws-sdk": "^2.496.0",
     "bufferutil": "^4.0.1",
     "graphql": "^14.4.2",
     "jsonwebtoken": "^8.5.1",
