@@ -20,10 +20,10 @@ jobs:
 
       # Download and cache dependencies
       - restore_cache:
-        keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       # Install dependencies
       - run: npm install
@@ -31,18 +31,18 @@ jobs:
 
       # Save cache
       - save_cache:
-        paths:
-          - node_modules
-        key: v1-dependencies-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
 
       # Run builds
       - run: npm run build
 
       # Persist workspace for deployment
       - persist_to_workspace:
-        root: .
-        paths:
-          - packages
+          root: .
+          paths:
+            - packages
 
   deploy-to-prod:
     executor: node-executor
@@ -52,10 +52,10 @@ jobs:
 
       # Download and cache dependencies
       - restore_cache:
-        keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       # Install dependencies
       - run: npm install
@@ -68,8 +68,8 @@ jobs:
       - aws-cli/configure
 
       # Attach to `build` workspace (provides built packages/)
-      - attach_to_workspace:
-        at: .
+      - attach_workspace:
+          at: .
 
       # Deploy
       - run: npm run deploy:prod
@@ -80,9 +80,9 @@ workflows:
     jobs:
       - build
       - deploy-to-prod:
-        context: warm-and-fuzzy-aws
-        requires:
-          - build
-        filters:
-          branches:
-            only: master
+          context: warm-and-fuzzy-aws
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
