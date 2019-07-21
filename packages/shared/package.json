@@ -19,8 +19,8 @@
     "build": "tsc",
     "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
     "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
-    "lint": "eslint {.,./**}/*.{ts,tsx}",
-    "lint:fix": "eslint --fix {.,./**}/*.{ts,tsx}"
+    "lint": "eslint './src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'"
   },
   "dependencies": {
     "graphql": "^14.4.2",
