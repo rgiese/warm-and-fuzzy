@@ -2,7 +2,7 @@ import * as GraphQL from "../../generated/graphqlTypes";
 import { DbMapper, ThermostatConfiguration } from "../shared/db";
 import ThermostatConfigurationMapper from "./mappers/ThermostatConfigurationMapper";
 
-import * as ThermostatConfigurationSchema from "@grumpycorp/warm-and-fuzzy-shared";
+import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 const resolvers: GraphQL.Resolvers = {
   Query: {

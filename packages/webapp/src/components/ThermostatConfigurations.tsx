@@ -7,7 +7,7 @@ import {
   UpdateThermostatConfigurationComponent,
 } from "../generated/graphqlClient";
 
-import * as ThermostatConfigurationSchema from "@grumpycorp/warm-and-fuzzy-shared";
+import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
