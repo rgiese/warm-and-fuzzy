@@ -1,0 +1,7 @@
+schema: ./src/schema/schema.graphql
+
+generates:
+  ./src/generated/graphqlTypes.ts:
+    plugins:
+      - add: "/* eslint-disable */"
+      - typescript

@@ -1,0 +1,41 @@
+{
+  "name": "@grumpycorp/warm-and-fuzzy-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WarmAndFuzzy API",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
+  "scripts": {
+    "prebuild": "npm-run-all codegen:*",
+    "build": "sls package -v",
+    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
+    "predeploy:dev": "npm-run-all codegen:*",
+    "deploy:dev": "sls deploy -v",
+    "predeploy:prod": "npm-run-all codegen:*",
+    "deploy:prod": "sls deploy -v --stage prod",
+    "dev:tsc": "tsc",
+    "format:fix": "prettier --write {.,..,../..,./resources/**,./src/**}/*.{graphql,js,json,md,ts,yml}",
+    "lint": "eslint './src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'",
+    "prestart": "npm-run-all codegen:*",
+    "start": "sls offline start"
+  },
+  "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
+    "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
+    "apollo-server-lambda": "^2.6.8",
+    "aws-sdk": "^2.496.0",
+    "bufferutil": "^4.0.1",
+    "graphql": "^14.4.2",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^1.6.0",
+    "source-map-support": "^0.5.10",
+    "utf-8-validate": "^5.0.2",
+    "yup": "^0.27.0"
+  }
+}

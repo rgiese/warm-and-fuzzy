@@ -1,0 +1,14 @@
+schema: ../shared/src/schema/schema.graphql
+
+generates:
+  ./generated/graphqlTypes.ts:
+    config:
+      # c.f. https://github.com/dotansimha/graphql-code-generator/issues/1133
+      useIndexSignature: true
+      showUnusedMappers: true
+      contextType: ../src/graphql/context#Context
+      constEnums: true
+    plugins:
+      - add: "/* eslint-disable */"
+      - typescript
+      - typescript-resolvers

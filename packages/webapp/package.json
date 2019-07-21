@@ -1,0 +1,61 @@
+{
+  "name": "@grumpycorp/warm-and-fuzzy-webapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WarmAndFuzzy web app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
+  "scripts": {
+    "prebuild": "npm-run-all codegen:*",
+    "build": "react-scripts build",
+    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
+    "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
+    "lint": "eslint './src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint --fix './src/**/*.{ts,tsx}'",
+    "prestart": "npm-run-all codegen:*",
+    "start": "cross-env REACT_APP_API_STAGE=local react-scripts start",
+    "prestart-dev": "npm-run-all codegen:*",
+    "start-dev": "react-scripts start",
+    "test": "react-scripts test"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "dependencies": {
+    "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
+    "apollo-cache-inmemory": "^1.6.2",
+    "apollo-client": "^2.6.3",
+    "apollo-link-context": "^1.0.18",
+    "apollo-link-http": "^1.5.15",
+    "auth0-js": "^9.11.1",
+    "axios": "^0.19.0",
+    "formik": "^1.5.8",
+    "graphql": "^14.4.2",
+    "graphql-tag": "^2.10.1",
+    "history": "^4.9.0",
+    "jwt-decode": "^2.2.0",
+    "react": "^16.8.6",
+    "react-apollo": "^2.5.8",
+    "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.1",
+    "reflect-metadata": "^0.1.13",
+    "tachyons": "^4.11.1",
+    "yup": "^0.27.0"
+  }
+}

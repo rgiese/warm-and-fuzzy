@@ -1,13 +1,18 @@
 {
-  "name": "warm-and-fuzzy-firmware",
+  "name": "@grumpycorp/warm-and-fuzzy-firmware",
+  "version": "1.0.0",
+  "private": true,
   "description": "WarmAndFuzzy firmware",
-  "author": "robin@grumpycorp.com",
-  "license": "CC-BY-NC-SA-4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/rgiese/warm-and-fuzzy.git"
   },
-  "version": "1.0.0",
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
+  "files": [
+    "./firmware-build-tool",
+    "./thermostat"
+  ],
   "scripts": {
     "build": "node firmware-build-tool/run.js build -p thermostat",
     "flash": "node firmware-build-tool/run.js flash -p thermostat",
@@ -25,10 +30,6 @@
     "path": "^0.12.7",
     "prettier": "^1.16.4"
   },
-  "files": [
-    "./firmware-build-tool",
-    "./thermostat"
-  ],
   "oclif": {
     "commands": "./firmware-build-tool/commands"
   }
