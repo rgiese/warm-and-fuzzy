@@ -1,6 +1,6 @@
 module.exports = {
+  root: true,
   parser: "@typescript-eslint/parser", // Specifies the ESLint parser
-  parserOptions: [{ project: "./tsconfig.json" }],
   extends: [
     "plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
     "plugin:promise/recommended",
