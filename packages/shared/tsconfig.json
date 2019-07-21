@@ -1,24 +1,7 @@
 {
+  "extends": "../tsconfig.common.json",
   "compilerOptions": {
-    "strict": true,
-    "target": "es2017",
-    "lib": ["es2017"],
-
-    "outDir": "./build",
-    "declaration": true,
-    "sourceMap": true,
-
-    "moduleResolution": "node",
-
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-
-    "skipLibCheck": true,
-
-    "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitAny": true
+    "declaration": true
   },
   "include": ["./src"],
   "exclude": ["node_modules"]
