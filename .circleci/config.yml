@@ -44,7 +44,7 @@ jobs:
           paths:
             - packages
 
-  deploy-to-prod:
+  deploy:
     executor: node-executor
     steps:
       # Check out source
@@ -72,7 +72,13 @@ jobs:
           at: .
 
       # Deploy
-      - run: npm run deploy:prod
+      - run:
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              npm run deploy:prod
+            else
+              npm run deploy:dev
+            fi
 
 workflows:
   version: 2
@@ -83,10 +89,7 @@ workflows:
           type: approval
           requires:
             - build
-      - deploy-to-prod:
+      - deploy:
           context: warm-and-fuzzy-aws
           requires:
             - hold-to-deploy
-          filters:
-            branches:
-              only: master
