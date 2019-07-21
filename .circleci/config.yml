@@ -73,6 +73,7 @@ jobs:
 
       # Deploy
       - run:
+          name: Deploy
           command: |
             if [ "$CIRCLE_BRANCH" == "master" ]; then
               npm run deploy:prod
