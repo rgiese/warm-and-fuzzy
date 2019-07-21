@@ -1,13 +1,19 @@
 # c.f. https://circleci.com/docs/2.0/language-javascript/
-version: 2
-jobs:
-  build:
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.13
+
+executors:
+  node-executor:
     docker:
       # c.f. https://github.com/CircleCI-Public/circleci-dockerfiles/tree/master/node/images
       - image: circleci/node:12.6.0-stretch
-
     working_directory: ~/warm-and-fuzzy
 
+jobs:
+  build:
+    executor: node-executor
     steps:
       # Check out source
       - checkout
@@ -31,3 +37,35 @@ jobs:
 
       # Run builds
       - run: npm run build
+
+      # Persist workspace for deployment
+      - persist_to_workspace:
+        root: .
+        paths: .
+
+  deploy-to-prod:
+    executor: node-executor
+    steps:
+      # Attach to build workspace
+      - attach_to_workspace:
+        at: .
+
+      # Configure AWS toolchain
+      - aws-cli/install
+      - aws-cli/configure
+
+      # Deploy
+      - run: npm run deploy:prod
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - deploy-to-prod:
+        context: warm-and-fuzzy-aws
+        requires:
+          -build
+        filters:
+          branches:
+            only: master
