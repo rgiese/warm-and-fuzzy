@@ -81,8 +81,44 @@ jobs:
               npm run deploy:dev
             fi
 
+  firmware-build-deploy:
+    executor: node-executor
+    steps:
+      # Check out source
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-firmware-dependencies
+
+      # Install dependencies
+      - run:
+          name: Install firmware dependencies
+          command: npm install
+          working_directory: ./firmware
+
+      # Save cache
+      - save_cache:
+          paths:
+            - firmware/node_modules
+          key: v1-firmware-dependencies
+
+      # Run build
+      - run:
+          name: Build firmware
+          command: npm run build
+          working_directory: ./firmware
+
+      # Deploy
+      - run:
+          name: Deploy firmware
+          command: npm run deploy
+          working_directory: ./firmware
+
 workflows:
   version: 2
+
   build-deploy:
     jobs:
       - build
@@ -94,3 +130,18 @@ workflows:
           context: warm-and-fuzzy-aws
           requires:
             - hold-to-deploy
+
+  firmware:
+    jobs:
+      - hold-to-deploy:
+          type: approval
+          filters:
+            branches:
+              only: master
+      - firmware-build-deploy:
+          context: warm-and-fuzzy-particle
+          requires:
+            - hold-to-deploy
+          filters:
+            branches:
+              only: master
