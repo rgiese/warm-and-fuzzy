@@ -34,6 +34,9 @@ public:
                 // Stop trying to empty queue (might have lost connectivity or got rate-limited)
                 break;
             }
+
+            // Wait a second before publishing again (otherwise Particle will throttle us)
+            delay(1000);
         }
 
         // If there's still a queue, just enqueue the latest data
