@@ -174,7 +174,8 @@ workflows:
 
   firmware:
     jobs:
-      - firmware-build
+      - firmware-build:
+          context: warm-and-fuzzy-particle
       - hold-to-upload:
           type: approval
           requires:
