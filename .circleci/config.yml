@@ -160,7 +160,7 @@ jobs:
 workflows:
   version: 2
 
-  build-deploy:
+  cloud:
     jobs:
       - build
       - hold-to-deploy:
