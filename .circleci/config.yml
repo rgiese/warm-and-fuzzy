@@ -110,10 +110,10 @@ jobs:
           command: npm run build
           working_directory: ./firmware
 
-      # Deploy
+      # Upload firmware to Particle cloud
       - run:
-          name: Deploy firmware
-          command: npm run deploy
+          name: Upload firmware to Particle
+          command: npm run upload
           working_directory: ./firmware
 
 workflows:
