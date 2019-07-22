@@ -59,6 +59,13 @@ class BuildCommand extends Command {
       return;
     }
 
+    // Make sure output directory exists
+    const builtImagePath = path.dirname(builtImage);
+
+    if (!fs.existsSync(builtImagePath)) {
+      fs.mkdirSync(builtImagePath);
+    }
+
     // Retrieve compiled binary
     this.log(`Downloading compiled firmware...`);
 
