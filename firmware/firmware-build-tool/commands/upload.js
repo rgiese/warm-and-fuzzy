@@ -82,7 +82,7 @@ class UploadCommand extends Command {
       }
     ).toString();
 
-    if (!JSON.parse(uploadResult).ok) {
+    if (!JSON.parse(uploadResult).updated_at) {
       this.error(`Upload failed:\n${uploadResult}`);
     } else {
       console.log(`Upload completed:\n${uploadResult}`);
