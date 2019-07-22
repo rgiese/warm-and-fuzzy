@@ -12,6 +12,10 @@ executors:
     working_directory: ~/warm-and-fuzzy
 
 jobs:
+  #
+  # Cloud jobs
+  #
+
   build:
     executor: node-executor
     steps:
@@ -81,7 +85,11 @@ jobs:
               npm run deploy:dev
             fi
 
-  firmware-build-deploy:
+  #
+  # Firmware jobs
+  #
+
+  firmware-build:
     executor: node-executor
     steps:
       # Check out source
@@ -110,11 +118,44 @@ jobs:
           command: npm run build
           working_directory: ./firmware
 
+      # Persist workspace for deployment
+      - persist_to_workspace:
+          root: .
+          paths:
+            - firmware/thermostat/build
+
+  firmware-upload:
+    executor: node-executor
+    steps:
+      # Check out source
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-firmware-dependencies
+
+      # Install dependencies
+      - run:
+          name: Install firmware dependencies
+          command: npm install
+          working_directory: ./firmware
+
+      # (Don't save cache again, we'll just let `firmware-build` deal with it)
+
+      # Attach to `build` workspace (provides built firmware)
+      - attach_workspace:
+          at: .
+
       # Upload firmware to Particle cloud
       - run:
           name: Upload firmware to Particle
           command: npm run upload
           working_directory: ./firmware
+
+#
+# Workflows
+#
 
 workflows:
   version: 2
@@ -133,15 +174,18 @@ workflows:
 
   firmware:
     jobs:
-      - hold-to-deploy:
+      - firmware-build
+      - hold-to-upload:
           type: approval
+          requires:
+            - firmware-build
           filters:
             branches:
               only: master
-      - firmware-build-deploy:
+      - firmware-upload:
           context: warm-and-fuzzy-particle
           requires:
-            - hold-to-deploy
+            - hold-to-upload
           filters:
             branches:
               only: master
