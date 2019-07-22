@@ -98,22 +98,12 @@ jobs:
           command: npm install
           working_directory: ./firmware
 
-      - run:
-          name: Install Particle CLI
-          command: npm install -g particle-cli
-
       # Save cache
       - save_cache:
           paths:
             - firmware/node_modules
           key: v1-firmware-dependencies
 
-      # Log in Particle CI account
-      - run:
-          name: Log in Particle CI account
-          command: npm run particle-ci-login
-          working_directory: ./firmware
-          
       # Run build
       - run:
           name: Build firmware

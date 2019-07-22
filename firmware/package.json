@@ -19,8 +19,7 @@
     "upload": "node firmware-build-tool/run.js upload -p thermostat -m Main.cpp",
     "format:check": "cross-var prettier --check $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h}",
     "format:fix": "cross-var prettier --write $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h} -i",
-    "monitor": "node firmware-build-tool/run.js monitor",
-    "particle-ci-login": "particle login --token ${PARTICLE_ACCESS_TOKEN}"
+    "monitor": "node firmware-build-tool/run.js monitor"
   },
   "config": {
     "prettierglob": "{.,./**}/*.{js,json,md}"
