@@ -28,9 +28,12 @@
   "devDependencies": {
     "clang-format": "^1.2.4",
     "cross-var": "^1.1.0",
+    "glob": "^7.1.4",
     "oclif": "^1.13.1",
+    "particle-api-js": "^7.4.1",
     "path": "^0.12.7",
-    "prettier": "^1.16.4"
+    "prettier": "^1.16.4",
+    "superagent": "^5.1.0"
   },
   "oclif": {
     "commands": "./firmware-build-tool/commands"
