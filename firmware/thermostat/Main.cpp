@@ -1,6 +1,6 @@
 #include <Particle.h>
 
-#include <Adafruit_DHT.h>
+#include "PietteTech_DHT.h"
 
 #define ARDUINOJSON_ENABLE_PROGMEM 0
 #include <ArduinoJson.h>
@@ -37,7 +37,7 @@ PRODUCT_VERSION(6);  // Increment for each release
 pin_t constexpr c_dht22Pin = D2;
 pin_t constexpr c_LedPin = D7;
 
-DHT g_OnboardSensor(c_dht22Pin, DHT22);
+PietteTech_DHT g_OnboardSensor(c_dht22Pin, DHT22);
 
 //
 uint8_t constexpr c_cOneWireDevices_Max = 16;
@@ -128,8 +128,8 @@ void loop()
     // Acquire data
     //
 
-    float onboardTemperature;
-    float onboardHumidity;
+    float onboardTemperature = NAN;
+    float onboardHumidity = NAN;
 
     OneWireAddress rgAddresses[c_cOneWireDevices_Max];
     size_t cAddressesFound = 0;
@@ -140,8 +140,17 @@ void loop()
         Activity acquireDataActivity("AcquireData");
 
         // Onboard devices
-        onboardTemperature = g_OnboardSensor.getTempCelcius();
-        onboardHumidity = g_OnboardSensor.getHumidity();
+        int const sensorStatus = g_OnboardSensor.acquireAndWait(5000);  // 5 sec timeout should suffice
+
+        if (sensorStatus == DHTLIB_OK)
+        {
+            onboardTemperature = g_OnboardSensor.getCelsius();
+            onboardHumidity = g_OnboardSensor.getHumidity();
+        }
+        else
+        {
+            Serial.printlnf("Error '%d' acquiring DHT22 data. Skipping internal sensor.\n", sensorStatus);
+        }
 
         // Enumerate external devices
         g_OneWireGateway.EnumerateDevices([&](OneWireAddress const& Address) {
