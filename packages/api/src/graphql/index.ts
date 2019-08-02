@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { ApolloServer, makeExecutableSchema } from "apollo-server-lambda";
 
-import Authorizations from "../auth/Authorizations";
+import Authorizations, { PermissionsSeparator } from "../auth/Authorizations";
 import { Context } from "./context";
 
 import resolvers from "./resolvers";
@@ -13,7 +13,10 @@ const schema = makeExecutableSchema({ typeDefs, resolvers, logger }); // also co
 
 const context = ({ event }: { event: APIGatewayProxyEvent }): Context => {
   const authorizations = event.requestContext.authorizer as Authorizations;
-  return { authorizations };
+  return {
+    AuthorizedTenant: authorizations.AuthorizedTenant,
+    AuthorizedPermissions: authorizations.AuthorizedPermissions.split(PermissionsSeparator),
+  };
 };
 
 const server = new ApolloServer({ schema, context });
