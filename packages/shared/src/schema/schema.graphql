@@ -19,14 +19,18 @@ schema {
 }
 
 type Query {
-  getThermostatConfigurations: [ThermostatConfiguration!]! @requiresPermission(permission: READ_CONFIG)
-  getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration! @requiresPermission(permission: READ_CONFIG)
+  getThermostatConfigurations: [ThermostatConfiguration!]!
+    @requiresPermission(permission: READ_CONFIG)
+
+  getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration!
+    @requiresPermission(permission: READ_CONFIG)
 }
 
 type Mutation {
   createThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationCreateInput!
   ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+
   updateThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationUpdateInput!
   ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
