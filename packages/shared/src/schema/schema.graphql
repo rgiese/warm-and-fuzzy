@@ -1,3 +1,18 @@
+#
+# Directives
+#
+
+directive @requiresPermission(permission: RequiredPermission) on FIELD_DEFINITION
+
+enum RequiredPermission {
+  READ_CONFIG
+  WRITE_CONFIG
+}
+
+#
+# Root
+#
+
 schema {
   query: Query
   mutation: Mutation
@@ -5,16 +20,20 @@ schema {
 
 type Query {
   getThermostatConfigurations: [ThermostatConfiguration!]!
+    @requiresPermission(permission: READ_CONFIG)
+
   getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration!
+    @requiresPermission(permission: READ_CONFIG)
 }
 
 type Mutation {
   createThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationCreateInput!
-  ): ThermostatConfiguration!
+  ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+
   updateThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationUpdateInput!
-  ): ThermostatConfiguration!
+  ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
 }
 
 #

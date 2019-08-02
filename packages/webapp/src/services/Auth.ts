@@ -3,25 +3,22 @@ import JwtDecode from "jwt-decode";
 
 import Config from "../config";
 
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
+
 const localStorageKeys = {
   expiresAt: "auth.expiresAt",
   accessToken: "auth.accessToken",
   idToken: "auth.idToken",
 };
 
-export enum Permissions {
-  ReadConfig = "read:config",
-  WriteConfig = "write:config",
-}
-
 class Auth {
   private tokenRenewalTimeout: any;
 
   private auth0 = new Auth0.WebAuth({
-    domain: Config.auth0.domain,
+    domain: AuthenticationConfiguration.Domain,
     clientID: Config.auth0.clientID,
     redirectUri: window.location.origin + Config.auth0.callbackRoute,
-    audience: Config.auth0.audience,
+    audience: AuthenticationConfiguration.Audience,
     responseType: "token id_token",
     scope: "openid",
   });
@@ -90,7 +87,7 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[Config.auth0.customClaimsNamespace + "user_name"];
+    return decodedIdToken[AuthenticationConfiguration.CustomClaimsNamespace + "user_name"];
   }
 
   public get UserEmail(): string | undefined {
@@ -101,7 +98,7 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[Config.auth0.customClaimsNamespace + "user_email"];
+    return decodedIdToken[AuthenticationConfiguration.CustomClaimsNamespace + "user_email"];
   }
 
   public get Tenant(): string | undefined {
@@ -112,7 +109,7 @@ class Auth {
     }
 
     const decodedAccessToken = JwtDecode(accessToken) as any;
-    return decodedAccessToken[Config.auth0.customClaimsNamespace + "tenant"];
+    return decodedAccessToken[AuthenticationConfiguration.CustomClaimsNamespace + "tenant"];
   }
 
   public get Permissions(): string[] {

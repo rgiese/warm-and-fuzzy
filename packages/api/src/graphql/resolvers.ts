@@ -1,8 +1,9 @@
+import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+
 import * as GraphQL from "../../generated/graphqlTypes";
+
 import { DbMapper, ThermostatConfiguration } from "../shared/db";
 import ThermostatConfigurationMapper from "./mappers/ThermostatConfigurationMapper";
-
-import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 const resolvers: GraphQL.Resolvers = {
   Query: {
@@ -10,7 +11,7 @@ const resolvers: GraphQL.Resolvers = {
       let configs: GraphQL.ThermostatConfiguration[] = [];
 
       for await (const config of DbMapper.query(ThermostatConfiguration, {
-        tenant: context.authorizations.AuthorizedTenant,
+        tenant: context.AuthorizedTenant,
       })) {
         configs.push(ThermostatConfigurationMapper.publicFromPrivate(config));
       }
@@ -20,7 +21,7 @@ const resolvers: GraphQL.Resolvers = {
     getThermostatConfiguration: async (_parents, args, context) => {
       const thermostatConfiguration = await DbMapper.get(
         Object.assign(new ThermostatConfiguration(), {
-          tenant: context.authorizations.AuthorizedTenant,
+          tenant: context.AuthorizedTenant,
           deviceId: args.deviceId,
         })
       );
@@ -35,7 +36,7 @@ const resolvers: GraphQL.Resolvers = {
 
       // Build new object with provided values
       let thermostatConfiguration = Object.assign(new ThermostatConfiguration(), {
-        tenant: context.authorizations.AuthorizedTenant,
+        tenant: context.AuthorizedTenant,
         deviceId: args.thermostatConfiguration.deviceId,
       });
 
@@ -53,7 +54,7 @@ const resolvers: GraphQL.Resolvers = {
       // Retrieve existing item
       const thermostatConfiguration = await DbMapper.get(
         Object.assign(new ThermostatConfiguration(), {
-          tenant: context.authorizations.AuthorizedTenant,
+          tenant: context.AuthorizedTenant,
           deviceId: args.thermostatConfiguration.deviceId,
         })
       );

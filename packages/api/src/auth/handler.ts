@@ -1,13 +1,15 @@
 import { CustomAuthorizerHandler } from "aws-lambda";
 
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
+
 import * as JsonWebToken from "jsonwebtoken";
 import * as JsonWebKeySet from "jwks-rsa";
 
-import Authorizations from "./Authorizations";
+import Authorizations, { PermissionsSeparator } from "./Authorizations";
 
 class Jwks {
   private static jsonWebKeyClient = JsonWebKeySet({
-    jwksUri: process.env.AUTH_JWKS_URI as string,
+    jwksUri: `https://${AuthenticationConfiguration.Domain}/.well-known/jwks.json`,
     strictSsl: true,
     cache: true,
   });
@@ -47,19 +49,19 @@ export const authorize: CustomAuthorizerHandler = async event => {
 
     // Verify access token
     const verifiedToken = (await JsonWebToken.verify(bearerToken, signingKey, {
-      audience: process.env.AUTH_AUDIENCE,
-      issuer: process.env.AUTH_TOKEN_ISSUER,
+      audience: AuthenticationConfiguration.Audience,
+      issuer: `https://${AuthenticationConfiguration.Domain}/`,
       algorithms: ["RS256"],
     })) as any;
 
     // Extract custom information from token
     const customClaimIds = {
-      Tenant: process.env.AUTH_CUSTOM_CLAIMS_NAMESPACE + "tenant",
+      Tenant: AuthenticationConfiguration.CustomClaimsNamespace + "tenant",
     };
 
     const authorizations: Authorizations = {
       AuthorizedTenant: verifiedToken[customClaimIds.Tenant],
-      AuthorizedPermissions: (verifiedToken.permissions as string[]).join(","),
+      AuthorizedPermissions: (verifiedToken.permissions as string[]).join(PermissionsSeparator),
     };
 
     if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
