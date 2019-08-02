@@ -30,10 +30,6 @@ provider:
   apiKeys:
     - Webhooks.Particle.${self:custom.stage}
   environment:
-    AUTH_TOKEN_ISSUER: "https://grumpycorp.auth0.com/"
-    AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
-    AUTH_AUDIENCE: "https://api.warmandfuzzy.house"
-    AUTH_CUSTOM_CLAIMS_NAMESPACE: "https://warmandfuzzy.house/"
     DYNAMODB_REGION: "${self:provider.region}"
     DYNAMODB_TABLE_NAME_PREFIX: "${self:custom.dynamoDbTablePrefix}"
   iamRoleStatements:

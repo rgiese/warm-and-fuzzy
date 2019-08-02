@@ -1,10 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
+
 import Config, { ConfigStageName } from "../config";
 
 import AuthStateProps from "../common/AuthStateProps";
-import { GlobalAuth, Permissions } from "../services/Auth";
+import { GlobalAuth } from "../services/Auth";
 
 import { ReactComponent as GrumpyBird } from "../assets/grumpy-robin.svg";
 
@@ -45,7 +47,7 @@ class Header extends React.Component<Props, State> {
           </div>
 
           {/*** Config ***/}
-          {permissions.includes(Permissions.WriteConfig) && (
+          {permissions.includes(Authorization.Permissions.WriteConfig) && (
             <div className="dib ph1 ph2-ns">
               <Link className="link dim black-80" to="/configuration">
                 Configuration

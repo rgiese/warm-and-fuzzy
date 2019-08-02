@@ -1,9 +1,6 @@
 interface Auth0Config {
-  domain: string;
   clientID: string;
   callbackRoute: string;
-  audience: string;
-  customClaimsNamespace: string;
 }
 
 export interface Config {
@@ -16,11 +13,8 @@ export interface Config {
 }
 
 const CommonAuth0Config: Auth0Config = {
-  domain: "grumpycorp.auth0.com",
   clientID: "d2iox6iU52feMZVugq4GIiu0A4wKe70J",
   callbackRoute: "/callback",
-  audience: "https://api.warmandfuzzy.house",
-  customClaimsNamespace: "https://warmandfuzzy.house/",
 };
 
 const configByStage: { [key: string]: Config } = {
