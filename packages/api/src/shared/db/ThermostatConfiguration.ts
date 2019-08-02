@@ -1,5 +1,7 @@
 import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
 
+import * as GraphQL from "../../../generated/graphqlTypes";
+
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
 @table("ThermostatConfig")
@@ -13,7 +15,7 @@ export default class ThermostatConfiguration {
     this.setPointCool = NaN;
     this.threshold = NaN;
     this.cadence = NaN;
-    this.allowedActions = "";
+    this.allowedActions = undefined;
   }
 
   /**
@@ -79,15 +81,14 @@ export default class ThermostatConfiguration {
   /**
    * @name ThermostatConfiguration#allowedActions
    *
-   * Allowed actions:
-   * - heating ("H")
-   * - cooling ("C")
-   * - circulation ("R")
+   * Allowed actions: GraphQL.ThermostatAction
    *
-   * For example: "HCR"
+   * - heating
+   * - cooling
+   * - circulation
    *
-   * May be left empty if no actions are permitted.
+   * May be `undefined` if no actions are permitted.
    */
-  @attribute()
-  public allowedActions: string;
+  @attribute({ memberType: "String" })
+  public allowedActions?: Set<GraphQL.ThermostatAction>;
 }

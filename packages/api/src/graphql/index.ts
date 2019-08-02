@@ -8,7 +8,7 @@ import resolvers from "./resolvers";
 import typeDefs from "../../../shared/src/schema/schema.graphql";
 import requiresPermissionDirective from "./requiresPermissionDirective";
 
-const logger = { log: (e: any) => console.log(e) };
+const logger = { log: (e: any): void => console.log(e) };
 
 const schema = makeExecutableSchema({
   typeDefs,

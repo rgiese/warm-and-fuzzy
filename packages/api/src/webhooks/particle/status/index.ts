@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import "source-map-support/register";
 
 import Responses from "../../../shared/Responses";
@@ -12,10 +12,11 @@ import {
 } from "../../../shared/db";
 
 import { StatusEvent, StatusEventSchema } from "./statusEvent";
+import * as ActionsAdapter from "./actionsAdapter";
 
 var deviceTenancyCache = new Map();
 
-export const post: APIGatewayProxyHandler = async event => {
+export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   // Parse incoming status data
   const requestBody = event.body;
 
@@ -78,7 +79,7 @@ export const post: APIGatewayProxyHandler = async event => {
       publishedTime: statusEvent.publishedAt,
       deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
       deviceLocalSerial: statusEvent.data.ser,
-      currentActions: statusEvent.data.ca,
+      currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
     });
 
     await DbMapper.put(latestAction);
@@ -94,6 +95,6 @@ export const post: APIGatewayProxyHandler = async event => {
     sc: thermostatConfiguration.setPointCool,
     th: thermostatConfiguration.threshold,
     ca: thermostatConfiguration.cadence,
-    aa: thermostatConfiguration.allowedActions,
+    aa: ActionsAdapter.firmwareFromModel(thermostatConfiguration.allowedActions),
   });
 };

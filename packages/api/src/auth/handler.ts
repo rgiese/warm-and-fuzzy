@@ -1,4 +1,4 @@
-import { CustomAuthorizerHandler } from "aws-lambda";
+import { CustomAuthorizerHandler, CustomAuthorizerResult } from "aws-lambda";
 
 import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
@@ -15,8 +15,8 @@ class Jwks {
   });
 
   public static getSigningKey(kid: any): Promise<string> {
-    return new Promise((resolve, reject) => {
-      Jwks.jsonWebKeyClient.getSigningKey(kid, (err: any, key: any) => {
+    return new Promise((resolve, reject): void => {
+      Jwks.jsonWebKeyClient.getSigningKey(kid, (err: any, key: any): void => {
         if (err) {
           reject(err);
         }
@@ -27,7 +27,9 @@ class Jwks {
   }
 }
 
-export const authorize: CustomAuthorizerHandler = async event => {
+export const authorize: CustomAuthorizerHandler = async (
+  event
+): Promise<CustomAuthorizerResult> => {
   try {
     // Retrieve access token from request headers
     if (!event.authorizationToken) {

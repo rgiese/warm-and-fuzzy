@@ -29,14 +29,14 @@ interface RequiresPermissionArgs {
 }
 
 class RequiresPermissionDirective extends SchemaDirectiveVisitor {
-  public visitFieldDefinition(field: GraphQLField<any, Context>) {
+  public visitFieldDefinition(field: GraphQLField<any, Context>): void {
     const { permission } = this.args as RequiresPermissionArgs;
     const { resolve = defaultFieldResolver } = field;
 
     const requiredPermission =
       mapGraphQLPermissionToUserPermission.get(permission) || throwUndefinedPermission(permission);
 
-    field.resolve = async function(...args) {
+    field.resolve = async function(...args): Promise<any> {
       const context = args[2];
 
       if (!context.AuthorizedPermissions.includes(requiredPermission)) {
