@@ -1,8 +1,6 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import "source-map-support/register";
 
-import * as GraphQL from "../../../../generated/graphqlTypes";
-
 import Responses from "../../../shared/Responses";
 
 import {
@@ -14,18 +12,9 @@ import {
 } from "../../../shared/db";
 
 import { StatusEvent, StatusEventSchema } from "./statusEvent";
+import * as ActionsAdapter from "./actionsAdapter";
 
 var deviceTenancyCache = new Map();
-
-const mapThermostatActionsToCharacters = new Map<GraphQL.ThermostatAction, string>([
-  [GraphQL.ThermostatAction.Heat, "H"],
-  [GraphQL.ThermostatAction.Cool, "C"],
-  [GraphQL.ThermostatAction.Circulate, "R"],
-]);
-
-const throwUndefinedAction = (a: GraphQL.ThermostatAction): string => {
-  throw new Error(`Unrecognized action '${a}'`);
-};
 
 export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   // Parse incoming status data
@@ -90,7 +79,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
       publishedTime: statusEvent.publishedAt,
       deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
       deviceLocalSerial: statusEvent.data.ser,
-      currentActions: statusEvent.data.ca,
+      currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
     });
 
     await DbMapper.put(latestAction);
@@ -106,10 +95,6 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     sc: thermostatConfiguration.setPointCool,
     th: thermostatConfiguration.threshold,
     ca: thermostatConfiguration.cadence,
-    aa: thermostatConfiguration.allowedActions
-      ? Array.from(thermostatConfiguration.allowedActions)
-          .map((a): string => mapThermostatActionsToCharacters.get(a) || throwUndefinedAction(a))
-          .join("")
-      : "",
+    aa: ActionsAdapter.firmwareFromModel(thermostatConfiguration.allowedActions),
   });
 };

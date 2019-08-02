@@ -1,5 +1,7 @@
 import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
 
+import * as GraphQL from "../../../generated/graphqlTypes";
+
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
 @table("LatestActions")
@@ -11,7 +13,7 @@ export default class LatestAction {
     this.publishedTime = new Date();
     this.deviceTime = new Date();
     this.deviceLocalSerial = 0;
-    this.currentActions = "";
+    this.currentActions = undefined;
   }
 
   /**
@@ -57,9 +59,8 @@ export default class LatestAction {
   /**
    * @name LatestAction#currentActions
    *
-   * c.f. DeviceConfiguration#allowedActions
-   * e.g. "CR"
+   * c.f. ThermostatConfiguration#allowedActions
    */
-  @attribute()
-  public currentActions: string;
+  @attribute({ memberType: "String" })
+  public currentActions?: Set<GraphQL.ThermostatAction>;
 }
