@@ -1,20 +1,22 @@
+directive @requiresPermission(permission: String) on FIELD_DEFINITION
+
 schema {
   query: Query
   mutation: Mutation
 }
 
 type Query {
-  getThermostatConfigurations: [ThermostatConfiguration!]!
-  getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration!
+  getThermostatConfigurations: [ThermostatConfiguration!]! @requiresPermission(permission: "read:config")
+  getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration! @requiresPermission(permission: "read:config")
 }
 
 type Mutation {
   createThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationCreateInput!
-  ): ThermostatConfiguration!
+  ): ThermostatConfiguration! @requiresPermission(permission: "write:config")
   updateThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationUpdateInput!
-  ): ThermostatConfiguration!
+  ): ThermostatConfiguration! @requiresPermission(permission: "write:config")
 }
 
 #
