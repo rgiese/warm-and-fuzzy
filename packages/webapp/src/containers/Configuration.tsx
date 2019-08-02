@@ -2,6 +2,7 @@ import React from "react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
+import SensorConfigurations from "../components/SensorConfigurations";
 import ThermostatConfigurations from "../components/ThermostatConfigurations";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -16,7 +17,15 @@ class Configuration extends React.Component<Props, State> {
   }
 
   public render(): React.ReactElement {
-    return <ThermostatConfigurations />;
+    return (
+      <>
+        <h1>Thermostats</h1>
+        <ThermostatConfigurations />
+
+        <h1>Sensors</h1>
+        <SensorConfigurations />
+      </>
+    );
   }
 }
 

@@ -19,14 +19,22 @@ schema {
 }
 
 type Query {
+  # ThermostatConfiguration
   getThermostatConfigurations: [ThermostatConfiguration!]!
     @requiresPermission(permission: READ_CONFIG)
 
   getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration!
     @requiresPermission(permission: READ_CONFIG)
+
+  # SensorConfiguration
+  getSensorConfigurations: [SensorConfiguration!]! @requiresPermission(permission: READ_CONFIG)
+
+  getSensorConfiguration(deviceId: ID!): SensorConfiguration!
+    @requiresPermission(permission: READ_CONFIG)
 }
 
 type Mutation {
+  # ThermostatConfiguration
   createThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationCreateInput!
   ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
@@ -34,6 +42,15 @@ type Mutation {
   updateThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationUpdateInput!
   ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+
+  # SensorConfiguration
+  createSensorConfiguration(
+    sensorConfiguration: SensorConfigurationCreateInput!
+  ): SensorConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+
+  updateSensorConfiguration(
+    sensorConfiguration: SensorConfigurationUpdateInput!
+  ): SensorConfiguration! @requiresPermission(permission: WRITE_CONFIG)
 }
 
 #
@@ -82,4 +99,25 @@ enum ThermostatAction {
   Heat
   Cool
   Circulate
+}
+
+#
+# SensorConfiguration
+#
+
+input SensorConfigurationCreateInput {
+  sensorId: ID!
+  name: String!
+}
+
+input SensorConfigurationUpdateInput {
+  sensorId: ID!
+  name: String
+}
+
+type SensorConfiguration {
+  sensorId: ID!
+  tenant: String!
+
+  name: String!
 }
