@@ -9,6 +9,7 @@ import shallowUpdate from "./shallowUpdate";
 
 const resolvers: GraphQL.Resolvers = {
   Query: {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     getThermostatConfigurations: async (_parent, _args, context) => {
       let configs: GraphQL.ThermostatConfiguration[] = [];
 
@@ -20,6 +21,7 @@ const resolvers: GraphQL.Resolvers = {
 
       return configs;
     },
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     getThermostatConfiguration: async (_parents, args, context) => {
       const configModel = await DbMapper.get(
         Object.assign(new ThermostatConfiguration(), {
@@ -32,6 +34,7 @@ const resolvers: GraphQL.Resolvers = {
     },
   },
   Mutation: {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     createThermostatConfiguration: async (_parent, args, context) => {
       // Verify provided values
       await ThermostatConfigurationSchema.Schema.validate(args.thermostatConfiguration);
@@ -47,6 +50,7 @@ const resolvers: GraphQL.Resolvers = {
 
       return ThermostatConfigurationMapper.graphqlFromModel(thermostatConfiguration);
     },
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     updateThermostatConfiguration: async (_parent, args, context) => {
       // Retrieve existing item
       const initialModel = await DbMapper.get(

@@ -13,7 +13,7 @@ class ThermostatConfigurationMapper {
 
     return {
       ...remainder,
-      allowedActions: rhs.allowedActions ? Array.from(rhs.allowedActions) : [],
+      allowedActions: allowedActions ? Array.from(allowedActions) : [],
     };
   }
 

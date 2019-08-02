@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import "source-map-support/register";
 
 import * as GraphQL from "../../../../generated/graphqlTypes";
@@ -27,7 +27,7 @@ const throwUndefinedAction = (a: GraphQL.ThermostatAction): string => {
   throw new Error(`Unrecognized action '${a}'`);
 };
 
-export const post: APIGatewayProxyHandler = async event => {
+export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   // Parse incoming status data
   const requestBody = event.body;
 
@@ -108,7 +108,7 @@ export const post: APIGatewayProxyHandler = async event => {
     ca: thermostatConfiguration.cadence,
     aa: thermostatConfiguration.allowedActions
       ? Array.from(thermostatConfiguration.allowedActions)
-          .map(a => mapThermostatActionsToCharacters.get(a) || throwUndefinedAction(a))
+          .map((a): string => mapThermostatActionsToCharacters.get(a) || throwUndefinedAction(a))
           .join("")
       : "",
   });

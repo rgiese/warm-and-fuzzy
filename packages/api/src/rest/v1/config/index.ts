@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import "source-map-support/register";
 
 import Authorizations from "../../../auth/Authorizations";
@@ -6,7 +6,7 @@ import Authorizations from "../../../auth/Authorizations";
 import Responses from "../../../shared/Responses";
 import { DbMapper, ThermostatConfiguration } from "../../../shared/db";
 
-export const list: APIGatewayProxyHandler = async event => {
+export const list: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   const authorizations = event.requestContext.authorizer as Authorizations;
 
   if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
