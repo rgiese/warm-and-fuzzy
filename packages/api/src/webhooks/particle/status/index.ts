@@ -1,6 +1,8 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 
+import * as GraphQL from "../../../../generated/graphqlTypes";
+
 import Responses from "../../../shared/Responses";
 
 import {
@@ -14,6 +16,16 @@ import {
 import { StatusEvent, StatusEventSchema } from "./statusEvent";
 
 var deviceTenancyCache = new Map();
+
+const mapThermostatActionsToCharacters = new Map<GraphQL.ThermostatAction, string>([
+  [GraphQL.ThermostatAction.Heat, "H"],
+  [GraphQL.ThermostatAction.Cool, "C"],
+  [GraphQL.ThermostatAction.Circulate, "R"],
+]);
+
+const throwUndefinedAction = (a: GraphQL.ThermostatAction): string => {
+  throw new Error(`Unrecognized action '${a}'`);
+};
 
 export const post: APIGatewayProxyHandler = async event => {
   // Parse incoming status data
@@ -94,6 +106,10 @@ export const post: APIGatewayProxyHandler = async event => {
     sc: thermostatConfiguration.setPointCool,
     th: thermostatConfiguration.threshold,
     ca: thermostatConfiguration.cadence,
-    aa: thermostatConfiguration.allowedActions,
+    aa: thermostatConfiguration.allowedActions
+      ? Array.from(thermostatConfiguration.allowedActions)
+          .map(a => mapThermostatActionsToCharacters.get(a) || throwUndefinedAction(a))
+          .join("")
+      : "",
   });
 };
