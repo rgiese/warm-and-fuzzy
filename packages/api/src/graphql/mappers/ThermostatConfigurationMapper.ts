@@ -1,14 +1,22 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
 import { ThermostatConfiguration } from "../../shared/db";
 
+import GraphQLModelMapper from "./GraphQLModelMapper";
+
 //
 // Adapt GraphQL <-> Model (DB) conventions:
 // - allowedActions is a non-nullable array in GraphQL but a nullable Set in DynamoDB
 //   and needs to be set to `undefined` for empty sets
 //
 
-class ThermostatConfigurationMapper {
-  public static graphqlFromModel(rhs: ThermostatConfiguration): GraphQL.ThermostatConfiguration {
+class ThermostatConfigurationMapper
+  implements
+    GraphQLModelMapper<
+      GraphQL.ThermostatConfiguration,
+      GraphQL.ThermostatConfigurationCreateInput,
+      ThermostatConfiguration
+    > {
+  public graphqlFromModel(rhs: ThermostatConfiguration): GraphQL.ThermostatConfiguration {
     const { allowedActions, ...remainder } = rhs;
 
     return {
@@ -17,7 +25,7 @@ class ThermostatConfigurationMapper {
     };
   }
 
-  public static modelFromGraphql(
+  public modelFromGraphql(
     tenant: string,
     rhs: GraphQL.ThermostatConfigurationCreateInput
   ): ThermostatConfiguration {

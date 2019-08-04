@@ -29,7 +29,7 @@ type Query {
   # SensorConfiguration
   getSensorConfigurations: [SensorConfiguration!]! @requiresPermission(permission: READ_CONFIG)
 
-  getSensorConfiguration(deviceId: ID!): SensorConfiguration!
+  getSensorConfiguration(sensorId: ID!): SensorConfiguration!
     @requiresPermission(permission: READ_CONFIG)
 }
 
