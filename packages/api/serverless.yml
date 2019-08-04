@@ -49,6 +49,7 @@ provider:
         - !GetAtt DeviceTenancyTable.Arn
         - !GetAtt LatestActionsTable.Arn
         - !GetAtt LatestValuesTable.Arn
+        - !GetAtt SensorConfigTable.Arn
         - !GetAtt ThermostatConfigTable.Arn
 
 resources:
@@ -56,6 +57,7 @@ resources:
   - ${file(resources/dynamodb-device-tenancy.yml)}
   - ${file(resources/dynamodb-latest-action.yml)}
   - ${file(resources/dynamodb-latest-value.yml)}
+  - ${file(resources/dynamodb-sensor-config.yml)}
   - ${file(resources/dynamodb-thermostat-config.yml)}
 
 functions:
