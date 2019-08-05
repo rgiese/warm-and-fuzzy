@@ -16,11 +16,14 @@
     "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
-    "prestart": "npm-run-all codegen:*",
-    "start": "cross-env REACT_APP_API_STAGE=local react-scripts start",
-    "prestart-dev": "npm-run-all codegen:*",
-    "start-dev": "react-scripts start",
-    "test": "react-scripts test"
+    "prestart:local:dev": "npm-run-all codegen:*",
+    "start:local:dev": "cross-env REACT_APP_API_STAGE=local react-scripts start",
+    "prestart:local:prod": "npm-run-all codegen:*",
+    "start:local:prod": "cross-env REACT_APP_API_STAGE=local react-scripts start",
+    "prestart:remote:dev": "npm-run-all codegen:*",
+    "start:remote:dev": "cross-env REACT_APP_API_STAGE=dev react-scripts start",
+    "prestart:remote:prod": "npm-run-all codegen:*",
+    "start:remote:prod": "cross-env REACT_APP_API_STAGE=prod react-scripts start"
   },
   "browserslist": {
     "production": [

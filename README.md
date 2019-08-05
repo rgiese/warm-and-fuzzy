@@ -32,8 +32,14 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 
 # Running locally
 
-- `npm run start` (from root) for local API and web app
-- `npm run start-dev` (from root) for remote dev stage API and local web app
+All commands below start the web app locally, varying which API it calls:
+
+| Command                     | API          | Cloud DB |
+| --------------------------- | ------------ | -------- |
+| `npm run start:local:dev`   | Local        | Dev      |
+| `npm run start:local:prod`  | Local        | Prod     |
+| `npm run start:remote:dev`  | Cloud (Dev)  | Dev      |
+| `npm run start:remote:prod` | Cloud (Prod) | Prod     |
 
 ## Dev tooling tricks
 
