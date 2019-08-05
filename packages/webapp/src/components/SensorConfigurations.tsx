@@ -32,13 +32,17 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
   return (
     <SensorConfigurationsComponent>
       {({ loading, error, data }): React.ReactElement => {
-        if (loading) return <p>Loading...</p>;
-        if (error || !data || !data.getSensorConfigurations)
+        if (loading) {
+          return <p>Loading...</p>;
+        }
+
+        if (error || !data || !data.getSensorConfigurations) {
           return (
             <p>
               Error: <pre>{JSON.stringify(error)}</pre>
             </p>
           );
+        }
 
         return (
           <div className="dt tl sans center mw-8 pt3">
