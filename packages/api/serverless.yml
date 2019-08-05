@@ -83,14 +83,6 @@ functions:
           path: api/v1/config
           cors: true
           authorizer: auth0Authorizer
-  apiLatest_List:
-    handler: src/rest/v1/latest/index.list
-    events:
-      - http:
-          method: get
-          path: api/v1/latest
-          cors: true
-          authorizer: auth0Authorizer
   # GraphQL
   graphql:
     handler: src/graphql/index.graphqlHandler
