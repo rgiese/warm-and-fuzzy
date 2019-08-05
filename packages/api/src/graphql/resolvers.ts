@@ -18,8 +18,8 @@ const resolvers: GraphQL.Resolvers = {
     parseValue(value: any): Date {
       return new Date(value);
     },
-    serialize(value: Date): number {
-      return value.getTime();
+    serialize(value: Date): string {
+      return value.toISOString();
     },
     parseLiteral(ast): Date | null {
       if (ast.kind === Kind.INT) {
