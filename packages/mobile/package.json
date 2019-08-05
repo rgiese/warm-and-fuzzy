@@ -17,7 +17,7 @@
     "start-mobile:remote:dev": "expo start",
     "start-mobile:remote:prod": "expo start"
   },
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "src/App.tsx",
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
     "expo": "^34.0.1",
