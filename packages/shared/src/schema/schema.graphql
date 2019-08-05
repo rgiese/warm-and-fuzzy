@@ -5,10 +5,17 @@
 directive @requiresPermission(permission: RequiredPermission) on FIELD_DEFINITION
 
 enum RequiredPermission {
+  READ_DATA
   READ_CONFIG
   WRITE_CONFIG
   CROSS_TENANT_ADMIN
 }
+
+#
+# Base types
+#
+
+scalar DateTime
 
 #
 # Root
@@ -32,6 +39,16 @@ type Query {
 
   getSensorConfiguration(sensorId: ID!): SensorConfiguration!
     @requiresPermission(permission: READ_CONFIG)
+
+  # LatestActions
+  getLatestActions: [DeviceAction!]! @requiresPermission(permission: READ_DATA)
+
+  getLatestAction(deviceId: ID!): DeviceAction! @requiresPermission(permission: READ_DATA)
+
+  # LatestValues
+  getLatestValues: [SensorValue!]! @requiresPermission(permission: READ_DATA)
+
+  getLatestValue(sensorId: ID!): SensorValue! @requiresPermission(permission: READ_DATA)
 }
 
 type Mutation {
@@ -121,4 +138,31 @@ type SensorConfiguration {
   tenant: String!
 
   name: String!
+}
+
+#
+# Latest[Values,Actions]
+#
+
+type DeviceAction {
+  deviceId: ID!
+  tenant: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  currentActions: [ThermostatAction!]!
+}
+
+type SensorValue {
+  sensorId: ID!
+  tenant: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
+  humidity: Float
 }

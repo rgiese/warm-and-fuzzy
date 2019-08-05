@@ -11,12 +11,15 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna run build --stream",
+    "format:fix": "lerna run format:fix --parallel",
+    "lint": "lerna run lint",
     "ci:frontend": "lerna bootstrap --hoist && lerna run build --ignore @grumpycorp/warm-and-fuzzy-api --stream",
     "deploy:dev": "lerna run deploy:dev --stream",
     "deploy:prod": "lerna run deploy:prod --stream",
-    "start": "lerna run start --stream",
-    "start-dev": "lerna run start-dev --stream",
-    "format:fix": "lerna run format:fix --parallel"
+    "start:local:dev": "lerna run start:local:dev --stream",
+    "start:local:prod": "lerna run start:local:prod --stream",
+    "start:remote:dev": "lerna run start:remote:dev --stream",
+    "start:remote:prod": "lerna run start:remote:prod --stream"
   },
   "devDependencies": {
     "@graphql-codegen/add": "^1.3.1",

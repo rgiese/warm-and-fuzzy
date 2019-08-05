@@ -39,13 +39,17 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
   return (
     <ThermostatConfigurationsComponent>
       {({ loading, error, data }): React.ReactElement => {
-        if (loading) return <p>Loading...</p>;
-        if (error || !data || !data.getThermostatConfigurations)
+        if (loading) {
+          return <p>Loading...</p>;
+        }
+
+        if (error || !data || !data.getThermostatConfigurations) {
           return (
             <p>
               Error: <pre>{JSON.stringify(error)}</pre>
             </p>
           );
+        }
 
         return (
           <div className="dt tl sans center mw-8 pt3">

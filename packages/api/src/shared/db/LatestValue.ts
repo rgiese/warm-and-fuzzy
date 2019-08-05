@@ -6,7 +6,7 @@ import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-a
 export default class LatestValue {
   public constructor() {
     this.tenant = "";
-    this.deviceId = "";
+    this.sensorId = "";
 
     this.publishedTime = new Date();
     this.deviceTime = new Date();
@@ -24,12 +24,12 @@ export default class LatestValue {
   public tenant: string;
 
   /**
-   * @name LatestValue#deviceId
+   * @name LatestValue#sensorId
    *
-   * Device ID (assigned by Particle)
+   * Sensor ID (assigned by Particle/OneWire)
    */
   @rangeKey()
-  public deviceId: string;
+  public sensorId: string;
 
   /**
    * @name LatestValue#publishedTime
