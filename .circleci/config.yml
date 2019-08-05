@@ -105,7 +105,7 @@ jobs:
       # (Don't save cache again, we'll just let `build` deal with it)
 
       # Configure Expo toolchain
-      - run: expo login -u $EXPO_CLI_USERNAME --non-interactive
+      - run: npx expo login -u $EXPO_CLI_USERNAME --non-interactive
 
       # Attach to `build` workspace (provides built packages/)
       - attach_workspace:
