@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Warm and Fuzzy",
+    "description": "A custom home HVAC automation system - https://warmandfuzzy.house",
     "slug": "warm-and-fuzzy",
     "privacy": "unlisted",
     "owner": "rgiese",
