@@ -7,6 +7,7 @@ directive @requiresPermission(permission: RequiredPermission) on FIELD_DEFINITIO
 enum RequiredPermission {
   READ_CONFIG
   WRITE_CONFIG
+  CROSS_TENANT_ADMIN
 }
 
 #

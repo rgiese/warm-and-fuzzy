@@ -2,6 +2,7 @@ export namespace Authorization {
   export enum Permissions {
     ReadConfig = "read:config",
     WriteConfig = "write:config",
+    CrossTenantAdmin = "xtenant",
   }
 }
 
