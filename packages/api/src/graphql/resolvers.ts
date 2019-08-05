@@ -1,9 +1,38 @@
+import { GraphQLScalarType, Kind } from "graphql";
+
 import * as GraphQL from "../../generated/graphqlTypes";
 
 import thermostatConfigurationResolver from "./resolvers/ThermostatConfigurationResolver";
 import sensorConfigurationResolver from "./resolvers/SensorConfigurationResolver";
 
+import latestActionResolver from "./resolvers/LatestActionResolver";
+import latestValueResolver from "./resolvers/LatestValueResolver";
+
 const resolvers: GraphQL.Resolvers = {
+  //
+  // Custom types
+  //
+
+  DateTime: new GraphQLScalarType({
+    name: "DateTime",
+    parseValue(value: any): Date {
+      return new Date(value);
+    },
+    serialize(value: Date): number {
+      return value.getTime();
+    },
+    parseLiteral(ast): Date | null {
+      if (ast.kind === Kind.INT) {
+        return new Date(ast.value); // AST value is always a string
+      }
+      return null;
+    },
+  }),
+
+  //
+  // Query
+  //
+
   Query: {
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     getThermostatConfigurations: async (_parent, _args, context) => {
@@ -25,7 +54,32 @@ const resolvers: GraphQL.Resolvers = {
         sensorId: args.sensorId,
       });
     },
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    getLatestActions: async (_parent, _args, context) => {
+      return latestActionResolver.getAll(context.AuthorizedTenant);
+    },
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    getLatestAction: async (_parents, args, context) => {
+      return latestActionResolver.getOne(context.AuthorizedTenant, {
+        deviceId: args.deviceId,
+      });
+    },
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    getLatestValues: async (_parent, _args, context) => {
+      return latestValueResolver.getAll(context.AuthorizedTenant);
+    },
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    getLatestValue: async (_parents, args, context) => {
+      return latestValueResolver.getOne(context.AuthorizedTenant, {
+        deviceId: args.sensorId,
+      });
+    },
   },
+
+  //
+  // Mutation
+  //
+
   Mutation: {
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     createThermostatConfiguration: async (_parent, args, context) => {

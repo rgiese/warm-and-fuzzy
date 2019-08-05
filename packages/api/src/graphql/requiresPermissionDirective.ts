@@ -16,8 +16,10 @@ const mapGraphQLPermissionToUserPermission = new Map<
   GraphQL.RequiredPermission,
   Authorization.Permissions
 >([
+  [GraphQL.RequiredPermission.ReadData, Authorization.Permissions.ReadData],
   [GraphQL.RequiredPermission.ReadConfig, Authorization.Permissions.ReadConfig],
   [GraphQL.RequiredPermission.WriteConfig, Authorization.Permissions.WriteConfig],
+  [GraphQL.RequiredPermission.CrossTenantAdmin, Authorization.Permissions.CrossTenantAdmin],
 ]);
 
 const throwUndefinedPermission = (permission: GraphQL.RequiredPermission): string => {

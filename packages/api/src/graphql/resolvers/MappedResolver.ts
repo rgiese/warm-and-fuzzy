@@ -20,7 +20,7 @@ export default class MappedResolver<
   public constructor(
     modelConstructor: TModelConstructor,
     mapper: TMapper,
-    schema: yup.ObjectSchema
+    schema?: yup.ObjectSchema
   ) {
     this._modelConstructor = modelConstructor;
     this._mapper = mapper;
@@ -53,6 +53,10 @@ export default class MappedResolver<
 
   public async create(tenant: string, input: TGraphQLCreateInput): Promise<TGraphQL> {
     // Verify provided values
+    if (!this._schema) {
+      throw new Error("Schema required to create.");
+    }
+
     await this._schema.validate(input);
 
     // Build new object with provided values
@@ -87,6 +91,10 @@ export default class MappedResolver<
     const updatedGraphql = shallowUpdate(initialGraphql, input);
 
     // Verify combined values
+    if (!this._schema) {
+      throw new Error("Schema required to update.");
+    }
+
     await this._schema.validate(updatedGraphql);
 
     // Persist changes
@@ -99,5 +107,5 @@ export default class MappedResolver<
 
   private _modelConstructor: TModelConstructor;
   private _mapper: TMapper;
-  private _schema: yup.ObjectSchema;
+  private _schema?: yup.ObjectSchema;
 }

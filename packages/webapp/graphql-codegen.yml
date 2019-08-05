@@ -3,6 +3,9 @@ schema: ../shared/src/schema/schema.graphql
 generates:
   ./src/generated/graphqlClient.tsx:
     documents: ./src/**/*.tsx
+    config:
+      scalars:
+        DateTime: Date
     plugins:
       - add: "/* eslint-disable */"
       - typescript
