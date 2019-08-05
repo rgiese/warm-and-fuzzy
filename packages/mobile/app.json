@@ -3,26 +3,31 @@
     "name": "Warm and Fuzzy",
     "slug": "warm-and-fuzzy",
     "privacy": "unlisted",
+    "owner": "rgiese",
+    "githubUrl": "https://github.com/rgiese/warm-and-fuzzy",
+    "version": "1.0.0",
     "sdkVersion": "34.0.0",
     "platforms": [
       "ios",
       "android"
     ],
-    "githubUrl": "https://github.com/rgiese/warm-and-fuzzy",
-    "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
-      "**/*"
+      "assets/**/*"
     ],
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#000"
+    },
     "ios": {
       "supportsTablet": true
     }
