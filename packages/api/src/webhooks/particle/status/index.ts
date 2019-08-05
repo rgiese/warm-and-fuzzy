@@ -55,15 +55,17 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   {
     const latestValues = statusEvent.data.v.map(
       (value): LatestValue => {
-        return Object.assign(new LatestValue(), {
-          tenant: tenant,
-          deviceId: value.id || statusEvent.deviceId,
-          publishedTime: statusEvent.publishedAt,
-          deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
-          deviceLocalSerial: statusEvent.data.ser,
-          temperature: value.t,
-          humidity: value.h || 0,
-        });
+        let v = new LatestValue();
+
+        v.tenant = tenant;
+        v.sensorId = value.id || statusEvent.deviceId;
+        v.publishedTime = statusEvent.publishedAt;
+        v.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
+        v.deviceLocalSerial = statusEvent.data.ser;
+        v.temperature = value.t;
+        v.humidity = value.h || 0;
+
+        return v;
       }
     );
 
@@ -73,14 +75,14 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
   // Store latest actions
   {
-    const latestAction = Object.assign(new LatestAction(), {
-      tenant: tenant,
-      deviceId: statusEvent.deviceId,
-      publishedTime: statusEvent.publishedAt,
-      deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
-      deviceLocalSerial: statusEvent.data.ser,
-      currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
-    });
+    let latestAction = new LatestAction();
+
+    latestAction.tenant = tenant;
+    latestAction.deviceId = statusEvent.deviceId;
+    latestAction.publishedTime = statusEvent.publishedAt;
+    latestAction.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
+    latestAction.deviceLocalSerial = statusEvent.data.ser;
+    latestAction.currentActions = ActionsAdapter.modelFromFirmware(statusEvent.data.ca);
 
     await DbMapper.put(latestAction);
   }

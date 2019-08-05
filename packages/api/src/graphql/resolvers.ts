@@ -71,7 +71,7 @@ const resolvers: GraphQL.Resolvers = {
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     getLatestValue: async (_parents, args, context) => {
       return latestValueResolver.getOne(context.AuthorizedTenant, {
-        deviceId: args.sensorId,
+        sensorId: args.sensorId,
       });
     },
   },

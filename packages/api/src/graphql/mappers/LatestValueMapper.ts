@@ -5,17 +5,16 @@ import GraphQLModelMapper from "./GraphQLModelMapper";
 
 //
 // Adapt GraphQL <-> Model (DB) conventions:
-// - Fix up deviceId / sensorId mismatch (temporary)
+// - no current adjustments
 //
 
 class LatestValueMapper
   implements GraphQLModelMapper<GraphQL.SensorValue, GraphQL.SensorValue, LatestValue> {
   public graphqlFromModel(rhs: LatestValue): GraphQL.SensorValue {
-    const { deviceId, ...remainder } = rhs;
+    const { ...remainder } = rhs;
 
     return {
       ...remainder,
-      sensorId: deviceId,
     };
   }
 
