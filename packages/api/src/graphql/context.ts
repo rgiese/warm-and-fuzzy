@@ -1,4 +1,3 @@
-export interface Context {
-  AuthorizedTenant: string;
-  AuthorizedPermissions: string[];
-}
+import Authorizations from "../auth/Authorizations";
+
+export class Context extends Authorizations {}

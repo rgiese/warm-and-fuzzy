@@ -39,7 +39,7 @@ class RequiresPermissionDirective extends SchemaDirectiveVisitor {
     field.resolve = async function(...args): Promise<any> {
       const context = args[2];
 
-      if (!context.AuthorizedPermissions.includes(requiredPermission)) {
+      if (!context.HasPermission(requiredPermission)) {
         throw new AuthenticationError("Not authorized");
       }
 

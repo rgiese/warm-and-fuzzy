@@ -8,7 +8,7 @@ import { DbMapper, LatestAction, LatestValue } from "../../../shared/db";
 
 export const list: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   // Authorize
-  const authorizations = event.requestContext.authorizer as Authorizations;
+  const authorizations = new Authorizations(event);
 
   if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
     return Responses.noTenantOrPermissions();

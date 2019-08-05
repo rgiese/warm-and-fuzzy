@@ -5,7 +5,7 @@ import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 import * as JsonWebToken from "jsonwebtoken";
 import * as JsonWebKeySet from "jwks-rsa";
 
-import Authorizations, { PermissionsSeparator } from "./Authorizations";
+import { PackedAuthorizations, PackPermissions } from "./PackedAuthorizations";
 
 class Jwks {
   private static jsonWebKeyClient = JsonWebKeySet({
@@ -61,9 +61,9 @@ export const authorize: CustomAuthorizerHandler = async (
       Tenant: AuthenticationConfiguration.CustomClaimsNamespace + "tenant",
     };
 
-    const authorizations: Authorizations = {
+    const authorizations: PackedAuthorizations = {
       AuthorizedTenant: verifiedToken[customClaimIds.Tenant],
-      AuthorizedPermissions: (verifiedToken.permissions as string[]).join(PermissionsSeparator),
+      AuthorizedPermissions: PackPermissions(verifiedToken.permissions as string[]),
     };
 
     if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {

@@ -1,8 +1,8 @@
-import { APIGatewayProxyHandler, APIGatewayProxyResult, APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import * as yup from "yup";
 import "source-map-support/register";
 
-import Authorizations, { PermissionsSeparator } from "../../../auth/Authorizations";
+import Authorizations from "../../../auth/Authorizations";
 
 import Responses from "../../../shared/Responses";
 
@@ -51,24 +51,18 @@ class SystemConfiguration {
   }
 }
 
-function isCrossTenantAuthorized(
-  event: APIGatewayProxyEvent,
-  permission: Authorization.Permissions
-): boolean {
-  const authorizations = event.requestContext.authorizer as Authorizations;
-  const authorizedPermissions = authorizations.AuthorizedPermissions.split(PermissionsSeparator);
-
-  return (
-    authorizedPermissions.includes(Authorization.Permissions.CrossTenantAdmin) &&
-    authorizedPermissions.includes(permission)
-  );
-}
-
 export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-  if (!isCrossTenantAuthorized(event, Authorization.Permissions.ReadConfig)) {
+  // Authorize
+  const authorizations = new Authorizations(event);
+
+  if (
+    !authorizations.HasPermission(Authorization.Permissions.CrossTenantAdmin) ||
+    !authorizations.HasPermission(Authorization.Permissions.ReadConfig)
+  ) {
     return Responses.noTenantOrPermissions();
   }
 
+  // Get data
   let systemConfiguration = new SystemConfiguration();
   {
     for await (const item of DbMapper.scan(DeviceTenancy)) {
@@ -88,15 +82,21 @@ export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
 };
 
 export const put: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-  if (!isCrossTenantAuthorized(event, Authorization.Permissions.WriteConfig)) {
+  // Authorize
+  const authorizations = new Authorizations(event);
+
+  if (
+    !authorizations.HasPermission(Authorization.Permissions.CrossTenantAdmin) ||
+    !authorizations.HasPermission(Authorization.Permissions.WriteConfig)
+  ) {
     return Responses.noTenantOrPermissions();
   }
 
+  // Validate
   if (!event.body) {
     return Responses.badRequest("Missing body.");
   }
 
-  // Validate
   let systemConfiguration = JSON.parse(event.body) as SystemConfiguration;
   {
     if (

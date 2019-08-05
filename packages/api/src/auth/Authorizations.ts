@@ -1,10 +1,27 @@
-import { AuthResponseContext } from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
 
-export default interface Authorizations extends AuthResponseContext {
-  // AWS won't let us use anything except numbers and strings here
-  // so AuthorizedPermissions is a {PermissionsSeparator}-delimited string, sadly.
-  AuthorizedTenant: string;
-  AuthorizedPermissions: string;
+import { PackedAuthorizations, UnpackPermissions } from "./PackedAuthorizations";
+
+export default class Authorizations {
+  public constructor(event: APIGatewayProxyEvent) {
+    const authorizations = event.requestContext.authorizer as PackedAuthorizations;
+
+    this._authorizedTenant = authorizations.AuthorizedTenant;
+    this._authorizedPermissions = UnpackPermissions(authorizations.AuthorizedPermissions);
+  }
+
+  public get AuthorizedTenant(): string {
+    return this._authorizedTenant;
+  }
+
+  public get AuthorizedPermissions(): string[] {
+    return this._authorizedPermissions;
+  }
+
+  public HasPermission(permission: string): boolean {
+    return this._authorizedPermissions.includes(permission);
+  }
+
+  private _authorizedTenant: string;
+  private _authorizedPermissions: string[];
 }
-
-export const PermissionsSeparator = ",";
