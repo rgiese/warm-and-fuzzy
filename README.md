@@ -45,8 +45,8 @@ All commands below start the web app locally, varying which API it calls:
 
 All commands below start the mobile app server locally, varying which API it calls:
 
-| Command                     | API          | Cloud DB |
-| --------------------------- | ------------ | -------- |
+| Command                            | API          | Cloud DB |
+| ---------------------------------- | ------------ | -------- |
 | `npm run start-mobile:local:dev`   | Local        | Dev      |
 | `npm run start-mobile:local:prod`  | Local        | Prod     |
 | `npm run start-mobile:remote:dev`  | Cloud (Dev)  | Dev      |

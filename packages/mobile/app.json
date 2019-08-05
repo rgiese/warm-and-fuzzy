@@ -8,10 +8,7 @@
     "githubUrl": "https://github.com/rgiese/warm-and-fuzzy",
     "version": "1.0.0",
     "sdkVersion": "34.0.0",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
@@ -22,9 +19,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "assets/**/*"
-    ],
+    "assetBundlePatterns": ["assets/**/*"],
     "androidStatusBar": {
       "barStyle": "dark-content",
       "backgroundColor": "#000"

@@ -9,7 +9,7 @@
 
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-        
+
     "jsx": "preserve",
 
     "noEmit": true
