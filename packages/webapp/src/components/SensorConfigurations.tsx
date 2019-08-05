@@ -61,7 +61,7 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
                           <Formik
                             initialValues={sensorConfiguration}
                             validationSchema={SensorConfigurationSchema.Schema}
-                            onSubmit={async (values, { setSubmitting }) => {
+                            onSubmit={async (values, { resetForm }) => {
                               // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
                               delete values.__typename;
 
@@ -70,10 +70,11 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
                                   sensorConfiguration: values,
                                 },
                               });
-                              setSubmitting(false);
+
+                              resetForm(values);
                             }}
                           >
-                            {({ values, isSubmitting }) => (
+                            {({ values, dirty, isSubmitting }) => (
                               <Form className="dtr">
                                 <div className="dtc pa2">
                                   <pre>{values.sensorId}</pre>
@@ -85,9 +86,11 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
                                 </div>
 
                                 <div className="dtc pa2">
-                                  <button type="submit" disabled={isSubmitting}>
-                                    Update
-                                  </button>
+                                  {dirty && (
+                                    <button type="submit" disabled={isSubmitting}>
+                                      {isSubmitting ? "Saving..." : "Save"}
+                                    </button>
+                                  )}
                                 </div>
                               </Form>
                             )}
