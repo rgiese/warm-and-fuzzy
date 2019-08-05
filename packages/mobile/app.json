@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "Warm and Fuzzy",
-    "slug": "mobile",
+    "slug": "warm-and-fuzzy",
     "privacy": "public",
     "sdkVersion": "34.0.0",
     "platforms": [
       "ios",
-      "android",
-      "web"
+      "android"
     ],
+    "githubUrl": "https://github.com/rgiese/warm-and-fuzzy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
