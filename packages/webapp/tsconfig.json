@@ -7,9 +7,6 @@
     "isolatedModules": true,
     "esModuleInterop": true,
 
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-
     "jsx": "preserve",
 
     "noEmit": true
