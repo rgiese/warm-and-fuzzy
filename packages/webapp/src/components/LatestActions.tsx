@@ -63,7 +63,7 @@ const LatestActions: React.FunctionComponent<{}> = (): React.ReactElement => {
                       {thermostatNames.get(latestAction.deviceId) || latestAction.deviceId}
                     </div>
                     <div className="dtc pa2">{latestAction.deviceTime.toLocaleString()}</div>
-                    <div className="dtc pa2">{latestAction.currentActions}</div>
+                    <div className="dtc pa2">{latestAction.currentActions.join(", ")}</div>
                   </div>
                 );
               }
