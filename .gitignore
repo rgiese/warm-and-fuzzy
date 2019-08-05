@@ -6,12 +6,23 @@ node_modules
 # build intermediates
 generated
 
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
 # build output
 build
+.expo
+.expo-shared
 .serverless
 .webpack
 *.obj
 *.exe
+web-build
+web-report
 
 # testing
 coverage
