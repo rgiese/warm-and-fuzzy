@@ -44,5 +44,6 @@ All commands below start the web app locally, varying which API it calls:
 ## Dev tooling tricks
 
 - `lerna clean` to wipe all `node_modules` from packages (though not the root)
+- `lerna link convert` to move a new package's dev dependencies up to the root `package.json`
 - `npx sort-package-json` to clean up `package.json` files
 - For troubleshooting CircleCI YML indentation madness, get the [CircleCI CLI](https://circleci.com/docs/2.0/local-cli/) and run `circleci config validate`
