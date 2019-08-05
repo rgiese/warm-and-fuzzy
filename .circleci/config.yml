@@ -61,6 +61,10 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
+      # Attach to `build` workspace (provides built packages/)
+      - attach_workspace:
+          at: .
+
       # Install dependencies
       - run: npm install
       - run: npm run bootstrap
@@ -70,10 +74,6 @@ jobs:
       # Configure AWS toolchain
       - aws-cli/install
       - aws-cli/configure
-
-      # Attach to `build` workspace (provides built packages/)
-      - attach_workspace:
-          at: .
 
       # Deploy
       - run:
@@ -98,6 +98,10 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
+      # Attach to `build` workspace (provides built packages/)
+      - attach_workspace:
+          at: .
+
       # Install dependencies
       - run: npm install
       - run: npm run bootstrap
@@ -106,10 +110,6 @@ jobs:
 
       # Configure Expo toolchain
       - run: npx expo login -u $EXPO_CLI_USERNAME --non-interactive
-
-      # Attach to `build` workspace (provides built packages/)
-      - attach_workspace:
-          at: .
 
       # Deploy
       - run:
