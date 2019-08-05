@@ -10,8 +10,8 @@
   "license": "CC-BY-NC-SA-4.0",
   "author": "robin@grumpycorp.com",
   "scripts": {
-    "deploy-mobile:dev": "expo publish --non-interactive",
-    "deploy-mobile:prod": "expo publish --non-interactive",
+    "deploy-mobile:dev": "expo publish --release-channel dev --non-interactive",
+    "deploy-mobile:prod": "expo publish --release-channel prod --non-interactive",
     "start-mobile:local:dev": "expo start",
     "start-mobile:local:prod": "expo start",
     "start-mobile:remote:dev": "expo start",
