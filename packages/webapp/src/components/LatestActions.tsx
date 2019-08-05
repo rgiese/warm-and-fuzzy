@@ -4,15 +4,15 @@ import gql from "graphql-tag";
 import { LatestActionsComponent } from "../generated/graphqlClient";
 
 gql`
-  fragment DeviceActionFields on DeviceAction {
-    deviceId
-    deviceTime
-    currentActions
-  }
-
   query LatestActions {
     getLatestActions {
-      ...DeviceActionFields
+      deviceId
+      deviceTime
+      currentActions
+    }
+    getThermostatConfigurations {
+      deviceId
+      name
     }
   }
 `;
@@ -38,6 +38,11 @@ const LatestActions: React.FunctionComponent<{}> = (): React.ReactElement => {
           a.deviceTime = new Date(a.deviceTime);
         });
 
+        // Build maps
+        const thermostatNames = new Map(
+          data.getThermostatConfigurations.map((c): [string, string] => [c.deviceId, c.name])
+        );
+
         // Sort by date, descending
         const sortedActions = data.getLatestActions.sort(
           (lhs, rhs): number => rhs.deviceTime.getTime() - lhs.deviceTime.getTime()
@@ -55,7 +60,7 @@ const LatestActions: React.FunctionComponent<{}> = (): React.ReactElement => {
                 return (
                   <div className="dtr">
                     <div className="dtc pa2">
-                      <pre>{latestAction.deviceId}</pre>
+                      {thermostatNames.get(latestAction.deviceId) || latestAction.deviceId}
                     </div>
                     <div className="dtc pa2">{latestAction.deviceTime.toLocaleString()}</div>
                     <div className="dtc pa2">{latestAction.currentActions}</div>
