@@ -4,14 +4,13 @@
     "lib": ["dom", "dom.iterable", "esnext"],
 
     "module": "esnext",
-    "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
 
     "allowJs": true,
-    "jsx": "preserve",
-
     "allowSyntheticDefaultImports": true,
+        
+    "jsx": "preserve",
 
     "noEmit": true
   },
