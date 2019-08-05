@@ -22,7 +22,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 - Dev tooling
   - `npm install -g lerna serverless`
 - Getting started
-  - `lerna bootstrap --hoist`
+  - `lerna bootstrap`
   - `lerna run build`
 - Pre-commit
   - `npm run format:fix`
@@ -30,7 +30,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 - Deploy (API only)
   - `lerna run deploy:dev --stream` or ...`deploy:prod`
 
-# Running locally
+# Running the web app locally
 
 All commands below start the web app locally, varying which API it calls:
 
@@ -40,6 +40,17 @@ All commands below start the web app locally, varying which API it calls:
 | `npm run start:local:prod`  | Local        | Prod     |
 | `npm run start:remote:dev`  | Cloud (Dev)  | Dev      |
 | `npm run start:remote:prod` | Cloud (Prod) | Prod     |
+
+# Serving the mobile app locally (via Expo)
+
+All commands below start the mobile app server locally, varying which API it calls:
+
+| Command                     | API          | Cloud DB |
+| --------------------------- | ------------ | -------- |
+| `npm run start-mobile:local:dev`   | Local        | Dev      |
+| `npm run start-mobile:local:prod`  | Local        | Prod     |
+| `npm run start-mobile:remote:dev`  | Cloud (Dev)  | Dev      |
+| `npm run start-mobile:remote:prod` | Cloud (Prod) | Prod     |
 
 ## Dev tooling tricks
 
