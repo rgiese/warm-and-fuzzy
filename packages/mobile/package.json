@@ -10,6 +10,7 @@
   "license": "CC-BY-NC-SA-4.0",
   "author": "robin@grumpycorp.com",
   "scripts": {
+    "build-mobile": "expo build:android",
     "format:fix": "prettier --write {.,./src/**}/*.{css,js,jsx,json,md,scss,ts,tsx}",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
