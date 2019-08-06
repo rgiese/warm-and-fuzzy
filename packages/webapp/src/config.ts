@@ -1,5 +1,4 @@
 interface Auth0Config {
-  clientID: string;
   callbackRoute: string;
 }
 
@@ -13,7 +12,6 @@ export interface Config {
 }
 
 const CommonAuth0Config: Auth0Config = {
-  clientID: "d2iox6iU52feMZVugq4GIiu0A4wKe70J",
   callbackRoute: "/callback",
 };
 

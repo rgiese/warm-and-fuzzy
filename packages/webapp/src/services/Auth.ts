@@ -16,7 +16,7 @@ class Auth {
 
   private auth0 = new Auth0.WebAuth({
     domain: AuthenticationConfiguration.Domain,
-    clientID: Config.auth0.clientID,
+    clientID: AuthenticationConfiguration.ClientId,
     redirectUri: window.location.origin + Config.auth0.callbackRoute,
     audience: AuthenticationConfiguration.Audience,
     responseType: "token id_token",
@@ -87,7 +87,10 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[AuthenticationConfiguration.CustomClaimsNamespace + "user_name"];
+    return decodedIdToken[
+      AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.UserName
+    ];
   }
 
   public get UserEmail(): string | undefined {
@@ -98,7 +101,10 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[AuthenticationConfiguration.CustomClaimsNamespace + "user_email"];
+    return decodedIdToken[
+      AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.UserEmail
+    ];
   }
 
   public get Tenant(): string | undefined {
@@ -109,7 +115,10 @@ class Auth {
     }
 
     const decodedAccessToken = JwtDecode(accessToken) as any;
-    return decodedAccessToken[AuthenticationConfiguration.CustomClaimsNamespace + "tenant"];
+    return decodedAccessToken[
+      AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.Tenant
+    ];
   }
 
   public get Permissions(): string[] {
