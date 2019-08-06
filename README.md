@@ -8,8 +8,8 @@ as well as [all related posts](https://www.grumpycorp.com/tags/posts/warm-and-fu
 
 # Components
 
-- [API](api/README.md)
-- [React-based web app](webapp/README.md)
+- [API](packages/api/README.md)
+- [React-based web app](packages/webapp/README.md)
 - [Hardware](hardware/README.md)
 - [Firmware](firmware/README.md)
 
