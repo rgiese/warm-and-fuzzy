@@ -78,33 +78,40 @@ class App extends React.Component<Props, State> {
     // Call Auth0 via built-in browser
     const authResponse = await AuthSession.startAsync({ authUrl });
 
+    //console.log(authResponse);
+
     // Process response
-    if (authResponse.type === "success") {
-      if (authResponse.params.error) {
-        Alert.alert(
-          "Authentication error",
-          authResponse.params.error_description || "Unknown error"
-        );
-        return;
-      }
-
-      const accessToken = authResponse.params.access_token as string;
-      const idToken = authResponse.params.id_token as string;
-
-      const decodedIdToken = JwtDecode(idToken) as any;
-
-      if (decodedIdToken.nonce !== queryParams.nonce) {
-        Alert.alert("Authentication error", "Auth nonce did not match.");
-        return;
-      }
-
-      this.setState({
-        isAuthenticated: true,
-        accessToken,
-        idToken,
-        decodedIdToken,
-      });
+    if (authResponse.type !== "success") {
+      return;
     }
+
+    if (authResponse.params.error) {
+      console.log(
+        `Authentication error: ${authResponse.params.error}: ${authResponse.params.error_description}`
+      );
+
+      Alert.alert("Authentication error", authResponse.params.error_description || "Unknown error");
+      return;
+    }
+
+    console.log(authResponse);
+
+    const accessToken = authResponse.params.access_token as string;
+    const idToken = authResponse.params.id_token as string;
+
+    const decodedIdToken = JwtDecode(idToken) as any;
+
+    if (decodedIdToken.nonce !== queryParams.nonce) {
+      Alert.alert("Authentication error", "Auth nonce did not match.");
+      return;
+    }
+
+    this.setState({
+      isAuthenticated: true,
+      accessToken,
+      idToken,
+      decodedIdToken,
+    });
   };
 
   public render(): React.ReactElement {
