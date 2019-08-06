@@ -23,7 +23,11 @@
   "main": "src/App.tsx",
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
+    "@types/nanoid": "^2.0.0",
     "expo": "^34.0.1",
+    "expo-random": "^6.0.0",
+    "jwt-decode": "^2.2.0",
+    "nanoid": "^2.0.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-native": "https://github.com/expo/react-native/archive/sdk-34.0.0.tar.gz",
