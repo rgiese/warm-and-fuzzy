@@ -58,4 +58,5 @@ All commands below start the mobile app server locally, varying which API it cal
 - `lerna link convert` to move a new package's dev dependencies up to the root `package.json`
 - `npx sort-package-json` to clean up `package.json` files
 - `npx jetify` in `packages/mobile-rn` to update Java code brought in under `node_modules` to AndroidX (required after any new native-containing npm module is installed)
+- `adb -s emulator-5554 logcat -s "ReactNativeJS"` for listening to ReactNative `console.log` output (substitute appropriate emulator device name from `adb devices -l`)
 - For troubleshooting CircleCI YML indentation madness, get the [CircleCI CLI](https://circleci.com/docs/2.0/local-cli/) and run `circleci config validate`
