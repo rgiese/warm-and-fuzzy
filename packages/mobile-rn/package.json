@@ -16,7 +16,10 @@
     "start-mobile:local:dev": "react-native run-android",
     "start-mobile:local:prod": "react-native run-android",
     "start-mobile:remote:dev": "react-native run-android",
-    "start-mobile:remote:prod": "react-native run-android"
+    "start-mobile:remote:prod": "react-native run-android",
+    "bundle-mobile": "run-script-os",
+    "bundle-mobile:win32": "cd .\\android && gradlew.bat bundleRelease",
+    "bundle-mobile:default": "cd ./android && gradlew bundleRelease"
   },
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
