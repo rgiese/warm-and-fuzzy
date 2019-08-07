@@ -8,15 +8,8 @@
  * @format
  */
 
-import React, {Fragment} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+import React, { Fragment } from "react";
+import { SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar } from "react-native";
 
 import {
   Header,
@@ -24,16 +17,14 @@ import {
   Colors,
   DebugInstructions,
   ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+} from "react-native/Libraries/NewAppScreen";
 
 const App = () => {
   return (
     <Fragment>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
+        <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scrollView}>
           <Header />
           {global.HermesInternal == null ? null : (
             <View style={styles.engine}>
@@ -44,8 +35,8 @@ const App = () => {
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Step One</Text>
               <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-                screen and then come back to see your edits.
+                Edit <Text style={styles.highlight}>App.tsx</Text> to change this screen and then
+                come back to see your edits.
               </Text>
             </View>
             <View style={styles.sectionContainer}>
@@ -79,7 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.lighter,
   },
   engine: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
   },
   body: {
@@ -91,25 +82,25 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.black,
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: "400",
     color: Colors.dark,
   },
   highlight: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
   footer: {
     color: Colors.dark,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     padding: 4,
     paddingRight: 12,
-    textAlign: 'right',
+    textAlign: "right",
   },
 });
 
