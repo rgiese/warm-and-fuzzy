@@ -1,11 +1,19 @@
 {
-  "name": "WarmAndFuzzy",
-  "version": "0.0.1",
+  "name": "@grumpycorp/warm-and-fuzzy-mobile",
+  "version": "1.0.0",
   "private": true,
+  "description": "WarmAndFuzzy mobile app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
   "scripts": {
-    "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint ."
+    "start-mobile:local:dev": "react-native run-android",
+    "start-mobile:local:prod": "react-native run-android",
+    "start-mobile:remote:dev": "react-native run-android",
+    "start-mobile:remote:prod": "react-native run-android"
   },
   "dependencies": {
     "react": "16.8.6",
@@ -21,7 +29,6 @@
     "@types/react-test-renderer": "16.8.3",
     "babel-jest": "24.8.0",
     "eslint": "6.1.0",
-    "jest": "24.8.0",
     "metro-react-native-babel-preset": "0.54.1",
     "react-test-renderer": "16.8.6",
     "typescript": "3.5.3"
