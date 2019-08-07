@@ -10,6 +10,9 @@
   "license": "CC-BY-NC-SA-4.0",
   "author": "robin@grumpycorp.com",
   "scripts": {
+    "format:fix": "prettier --write {.,./src/**}/*.{css,js,jsx,json,md,scss,ts,tsx}",
+    "lint": "eslint \"./src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "start-mobile:local:dev": "react-native run-android",
     "start-mobile:local:prod": "react-native run-android",
     "start-mobile:remote:dev": "react-native run-android",
