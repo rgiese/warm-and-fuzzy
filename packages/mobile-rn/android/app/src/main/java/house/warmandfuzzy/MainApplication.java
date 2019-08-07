@@ -1,4 +1,4 @@
-package com.warmandfuzzy;
+package house.warmandfuzzy;
 
 import android.app.Application;
 import android.util.Log;

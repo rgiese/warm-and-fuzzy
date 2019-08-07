@@ -128,7 +128,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.warmandfuzzy"
+        applicationId "house.warmandfuzzy"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -1,4 +1,4 @@
-package com.warmandfuzzy;
+package house.warmandfuzzy;
 
 import com.facebook.react.ReactActivity;
 
