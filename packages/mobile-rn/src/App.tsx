@@ -69,6 +69,11 @@ class App extends React.Component<Props, State> {
     this.setState({ isAuthenticated: await GlobalAuth.login() });
   };
 
+  private handleLogout = async (): Promise<void> => {
+    await GlobalAuth.logout();
+    this.setState({ isAuthenticated: false });
+  };
+
   public render(): React.ReactElement {
     return (
       <Fragment>
@@ -89,7 +94,13 @@ class App extends React.Component<Props, State> {
                     then come back to see your edits.
                   </Text>
                   {this.state.isAuthenticated ? (
-                    <Text>You are logged in, {GlobalAuth.UserName}. Your permissions: [{GlobalAuth.Permissions.join(", ")}]</Text>
+                    <>
+                      <Text>
+                        You are logged in, {GlobalAuth.UserName}. Your permissions: [
+                        {GlobalAuth.Permissions.join(", ")}]
+                      </Text>
+                      <Button title="Log out" onPress={this.handleLogout} />
+                    </>
                   ) : (
                     <Button title="Log in" onPress={this.handleLogin} />
                   )}

@@ -1,6 +1,6 @@
 import Auth0 from "react-native-auth0";
 import JwtDecode from "jwt-decode";
-//import Keychain from "react-native-keychain";
+import * as Keychain from "react-native-keychain";
 
 //import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
@@ -18,6 +18,21 @@ const AuthenticationConfiguration = {
   ClientId: "d2iox6iU52feMZVugq4GIiu0A4wKe70J",
 };
 
+interface AuthResult {
+  accessToken: string;
+  idToken: string;
+  expiresIn: number;
+}
+
+//
+// We use (abuse?) Keychain.setGenericPassword by storing our tokens concatenated as [accessToken,idToken,expiresIn]
+// under a single user name (KeychainUserName) and service (i.e. the default one).
+// This feels more transactional than storing the tokens as separate Keychain services, for better or worse.
+// See Auth#initialize and Auth#setSession.
+//
+const KeychainUserName = "waf";
+const KeychainTokenSeparator = ",";
+
 class Auth {
   private auth0 = new Auth0({
     domain: AuthenticationConfiguration.Domain,
@@ -25,42 +40,45 @@ class Auth {
   });
 
   private accessToken?: string;
-  private decodedAccessToken?: any;
-
   private idToken?: string;
-  private decodedIdToken?: any;
+  private expiresAt?: number;
 
   public constructor() {
     this.accessToken = undefined;
-    this.decodedAccessToken = undefined;
-
     this.idToken = undefined;
-    this.decodedIdToken = undefined;
+    this.expiresAt = undefined;
   }
 
-  public async initialize(): Promise<void> {}
+  public async initialize(): Promise<void> {
+    const savedTokens = await Keychain.getGenericPassword();
+
+    if (!savedTokens || savedTokens.username !== KeychainUserName) {
+      return;
+    }
+
+    const [accessToken, idToken, expiresAt] = savedTokens.password.split(KeychainTokenSeparator);
+
+    this.accessToken = accessToken;
+    this.idToken = idToken;
+    this.expiresAt = Number.parseInt(expiresAt);
+  }
 
   //
   // Login
   //
 
   public async login(): Promise<boolean> {
-    const credentials = await this.auth0.webAuth.authorize({
+    const authResult = await this.auth0.webAuth.authorize({
       scope: "openid",
       audience: AuthenticationConfiguration.Audience,
     });
 
-    if (credentials.accessToken && credentials.idToken) {
-      this.accessToken = credentials.accessToken;
-      this.decodedAccessToken = JwtDecode(credentials.accessToken);
-
-      this.idToken = credentials.idToken;
-      this.decodedIdToken = JwtDecode(credentials.idToken);
-
+    if (authResult.expiresIn && authResult.accessToken && authResult.idToken) {
+      await this.setSession(authResult);
       return true;
     } else {
-        console.log('Authentication failure:');
-        console.log(credentials);
+      console.log("Authentication failure:");
+      console.log(authResult);
     }
 
     return false;
@@ -71,7 +89,7 @@ class Auth {
   //
 
   public get IsAuthenticated(): boolean {
-    return this.idToken !== undefined;
+    return this.expiresAt !== undefined && new Date().getTime() < this.expiresAt;
   }
 
   public get AccessToken(): string | undefined {
@@ -83,44 +101,52 @@ class Auth {
   }
 
   public get UserName(): string | undefined {
-    if (!this.decodedIdToken) {
+    if (!this.idToken) {
       return undefined;
     }
 
-    return this.decodedIdToken[
+    const decodedIdToken = JwtDecode(this.idToken) as any;
+
+    return decodedIdToken[
       AuthenticationConfiguration.CustomClaimsNamespace +
         AuthenticationConfiguration.CustomClaims.UserName
     ];
   }
 
   public get UserEmail(): string | undefined {
-    if (!this.decodedIdToken) {
+    if (!this.idToken) {
       return undefined;
     }
 
-    return this.decodedIdToken[
+    const decodedIdToken = JwtDecode(this.idToken) as any;
+
+    return decodedIdToken[
       AuthenticationConfiguration.CustomClaimsNamespace +
         AuthenticationConfiguration.CustomClaims.UserEmail
     ];
   }
 
   public get Tenant(): string | undefined {
-    if (!this.decodedAccessToken) {
+    if (!this.accessToken) {
       return undefined;
     }
 
-    return this.decodedAccessToken[
+    const decodedAccessToken = JwtDecode(this.accessToken) as any;
+
+    return decodedAccessToken[
       AuthenticationConfiguration.CustomClaimsNamespace +
         AuthenticationConfiguration.CustomClaims.Tenant
     ];
   }
 
   public get Permissions(): string[] {
-    if (!this.decodedAccessToken) {
+    if (!this.accessToken) {
       return [];
     }
 
-    return this.decodedAccessToken["permissions"];
+    const decodedAccessToken = JwtDecode(this.accessToken) as any;
+
+    return decodedAccessToken["permissions"];
   }
 
   //
@@ -128,7 +154,44 @@ class Auth {
   //
 
   public async logout(): Promise<void> {
-    // TODO: log out
+    // Clear token renewal
+    //clearTimeout(this.tokenRenewalTimeout);
+
+    // Remove tokens and expiry time
+    this.accessToken = undefined;
+    this.idToken = undefined;
+    this.expiresAt = undefined;
+
+    await Keychain.resetGenericPassword();
+
+    try {
+      await this.auth0.webAuth.clearSession();
+    } catch (e) {
+      if (e.error === "a0.session.user_cancelled") {
+        // Successfully logged out (expected exception)
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  //
+  // Internals
+  //
+
+  private async setSession(authResult: AuthResult): Promise<void> {
+    // Set the time that the access token will expire at
+    this.accessToken = authResult.accessToken;
+    this.idToken = authResult.idToken;
+    this.expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+
+    await Keychain.setGenericPassword(
+      KeychainUserName,
+      [this.accessToken, this.idToken, this.expiresAt.toString()].join(KeychainTokenSeparator)
+    );
+
+    // Schedule token renewal
+    //this.scheduleRenewal();
   }
 }
 
