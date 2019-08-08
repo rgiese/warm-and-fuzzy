@@ -3,6 +3,7 @@ import { Button, SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar } f
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
 import Auth0 from "react-native-auth0";
+import JwtDecode from "jwt-decode";
 
 //import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
@@ -83,6 +84,15 @@ class App extends React.Component<Props, State> {
       scope: "openid",
       audience: AuthenticationConfiguration.Audience,
     });
+
+    if (credentials.accessToken && credentials.idToken) {
+      this.setState({
+        isAuthenticated: true,
+        accessToken: credentials.accessToken,
+        idToken: credentials.idToken,
+        decodedIdToken: JwtDecode(credentials.idToken) as any,
+      });
+    }
 
     console.log(credentials);
   };
