@@ -28,6 +28,10 @@ class Auth {
     this.scheduleRenewal();
   }
 
+  //
+  // Login
+  //
+
   public login(): void {
     this.auth0.authorize();
   }
@@ -54,6 +58,10 @@ class Auth {
       });
     });
   }
+
+  //
+  // Accessors
+  //
 
   public get ExpiresAt(): number {
     const storedValue = localStorage.getItem(localStorageKeys.expiresAt);
@@ -132,17 +140,9 @@ class Auth {
     return decodedAccessToken["permissions"];
   }
 
-  private setSession(authResult: any): void {
-    // Set the time that the access token will expire at
-    const expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
-
-    localStorage.setItem(localStorageKeys.accessToken, authResult.accessToken);
-    localStorage.setItem(localStorageKeys.idToken, authResult.idToken);
-    localStorage.setItem(localStorageKeys.expiresAt, expiresAt.toString());
-
-    // Schedule token renewal
-    this.scheduleRenewal();
-  }
+  //
+  // Logout
+  //
 
   public logout(): void {
     // Clear token renewal
@@ -156,6 +156,22 @@ class Auth {
     this.auth0.logout({
       returnTo: window.location.origin,
     });
+  }
+
+  //
+  // Internals
+  //
+
+  private setSession(authResult: any): void {
+    // Set the time that the access token will expire at
+    const expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+
+    localStorage.setItem(localStorageKeys.accessToken, authResult.accessToken);
+    localStorage.setItem(localStorageKeys.idToken, authResult.idToken);
+    localStorage.setItem(localStorageKeys.expiresAt, expiresAt.toString());
+
+    // Schedule token renewal
+    this.scheduleRenewal();
   }
 
   private scheduleRenewal(): void {

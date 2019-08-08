@@ -1,25 +1,17 @@
 import React, { Fragment } from "react";
-import { Button, SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar } from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  SafeAreaView,
+  StyleSheet,
+  ScrollView,
+  View,
+  Text,
+  StatusBar,
+} from "react-native";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
-import Auth0 from "react-native-auth0";
-import JwtDecode from "jwt-decode";
-
-//import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
-
-const AuthenticationConfiguration = {
-  Domain: "grumpycorp.auth0.com",
-  Audience: "https://api.warmandfuzzy.house",
-  CustomClaimsNamespace: "https://warmandfuzzy.house/",
-  CustomClaims: {
-    // Id token
-    UserName: "user_name",
-    UserEmail: "user_email",
-    // Access token
-    Tenant: "tenant",
-  },
-  ClientId: "d2iox6iU52feMZVugq4GIiu0A4wKe70J",
-};
+import { GlobalAuth } from "./services/Auth";
 
 const styles = StyleSheet.create({
   body: {
@@ -52,25 +44,14 @@ const styles = StyleSheet.create({
 interface Props {}
 
 class State {
+  public hasInitialized: boolean;
   public isAuthenticated: boolean;
 
-  public accessToken?: string;
-  public idToken?: string;
-  public decodedIdToken?: any;
-
   public constructor() {
+    this.hasInitialized = false;
     this.isAuthenticated = false;
-
-    this.accessToken = undefined;
-    this.idToken = undefined;
-    this.decodedIdToken = undefined;
   }
 }
-
-const auth0 = new Auth0({
-  domain: AuthenticationConfiguration.Domain,
-  clientId: AuthenticationConfiguration.ClientId,
-});
 
 class App extends React.Component<Props, State> {
   public constructor(props: Props) {
@@ -79,22 +60,13 @@ class App extends React.Component<Props, State> {
     this.state = new State();
   }
 
+  public async componentDidMount(): Promise<void> {
+    await GlobalAuth.initialize();
+    this.setState({ hasInitialized: true, isAuthenticated: await GlobalAuth.IsAuthenticated });
+  }
+
   private handleLogin = async (): Promise<void> => {
-    const credentials = await auth0.webAuth.authorize({
-      scope: "openid",
-      audience: AuthenticationConfiguration.Audience,
-    });
-
-    if (credentials.accessToken && credentials.idToken) {
-      this.setState({
-        isAuthenticated: true,
-        accessToken: credentials.accessToken,
-        idToken: credentials.idToken,
-        decodedIdToken: JwtDecode(credentials.idToken) as any,
-      });
-    }
-
-    console.log(credentials);
+    this.setState({ isAuthenticated: await GlobalAuth.login() });
   };
 
   public render(): React.ReactElement {
@@ -104,26 +76,25 @@ class App extends React.Component<Props, State> {
         <SafeAreaView>
           <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scrollView}>
             <View style={styles.body}>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Step One</Text>
-                <Text style={styles.sectionDescription}>
-                  Edit <Text style={styles.highlight}>App.tsx</Text> to change this screen and then
-                  come back to see your edits.
-                </Text>
-                {this.state.isAuthenticated ? (
-                  <Text>
-                    You are logged in,{" "}
-                    {
-                      this.state.decodedIdToken[
-                        AuthenticationConfiguration.CustomClaimsNamespace + "user_name"
-                      ]
-                    }
-                    .
+              <ActivityIndicator
+                size="large"
+                color="#05a5d1"
+                animating={!this.state.hasInitialized}
+              />
+              {this.state.hasInitialized && (
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.sectionTitle}>Step One</Text>
+                  <Text style={styles.sectionDescription}>
+                    Edit <Text style={styles.highlight}>App.tsx</Text> to change this screen and
+                    then come back to see your edits.
                   </Text>
-                ) : (
-                  <Button title="Log in" onPress={this.handleLogin} />
-                )}
-              </View>
+                  {this.state.isAuthenticated ? (
+                    <Text>You are logged in, {GlobalAuth.UserName}. Your permissions: [{GlobalAuth.Permissions.join(", ")}]</Text>
+                  ) : (
+                    <Button title="Log in" onPress={this.handleLogin} />
+                  )}
+                </View>
+              )}
             </View>
           </ScrollView>
         </SafeAreaView>
