@@ -16,10 +16,10 @@
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "deploy-mobile:dev": "expo publish --release-channel dev --non-interactive",
     "deploy-mobile:prod": "expo publish --release-channel prod --non-interactive",
-    "start-mobile:local:dev": "expo start",
-    "start-mobile:local:prod": "expo start",
-    "start-mobile:remote:dev": "expo start",
-    "start-mobile:remote:prod": "expo start"
+    "start-mobile-expo:local:dev": "expo start",
+    "start-mobile-expo:local:prod": "expo start",
+    "start-mobile-expo:remote:dev": "expo start",
+    "start-mobile-expo:remote:prod": "expo start"
   },
   "main": "src/App.tsx",
   "dependencies": {

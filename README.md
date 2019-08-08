@@ -54,7 +54,18 @@ All commands below start the mobile app server locally, varying which API it cal
 
 ## Dev tooling tricks
 
+### Lerna
+
 - `lerna clean` to wipe all `node_modules` from packages (though not the root)
 - `lerna link convert` to move a new package's dev dependencies up to the root `package.json`
 - `npx sort-package-json` to clean up `package.json` files
+
+### Android
+
+- `npx jetify` in `packages/mobile-rn` to update Java code brought in under `node_modules` to AndroidX (required after any new native-containing npm module is installed)
+- `lerna run android:logcat` == `adb -s (deviceName) logcat -s "ReactNativeJS"` for listening to ReactNative `console.log` output
+  - `adb devices -l` to find active device name
+
+### CI
+
 - For troubleshooting CircleCI YML indentation madness, get the [CircleCI CLI](https://circleci.com/docs/2.0/local-cli/) and run `circleci config validate`
