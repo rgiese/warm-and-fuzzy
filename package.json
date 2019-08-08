@@ -59,6 +59,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react-native": "^3.7.0",
     "expo-cli": "^3.0.8",
+    "get-dev-paths": "^0.1.1",
     "graphql": "^14.4.2",
     "lerna": "^3.16.1",
     "metro-react-native-babel-preset": "0.54.1",

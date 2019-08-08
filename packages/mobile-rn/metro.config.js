@@ -5,6 +5,11 @@
  * @format
  */
 
+// Completely bananas work-around for  https://github.com/facebook/metro/issues/1
+// courtesy of https://github.com/facebook/metro/issues/1#issuecomment-421628147
+const fs = require("fs");
+const getDevPaths = require("get-dev-paths");
+
 module.exports = {
   transformer: {
     getTransformOptions: async () => ({
@@ -14,4 +19,5 @@ module.exports = {
       },
     }),
   },
+  watchFolders: Array.from(new Set(getDevPaths(__dirname).map($ => fs.realpathSync($)))),
 };

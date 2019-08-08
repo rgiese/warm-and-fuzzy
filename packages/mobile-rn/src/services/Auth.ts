@@ -2,21 +2,7 @@ import Auth0 from "react-native-auth0";
 import JwtDecode from "jwt-decode";
 import * as Keychain from "react-native-keychain";
 
-//import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
-
-const AuthenticationConfiguration = {
-  Domain: "grumpycorp.auth0.com",
-  Audience: "https://api.warmandfuzzy.house",
-  CustomClaimsNamespace: "https://warmandfuzzy.house/",
-  CustomClaims: {
-    // Id token
-    UserName: "user_name",
-    UserEmail: "user_email",
-    // Access token
-    Tenant: "tenant",
-  },
-  ClientId: "d2iox6iU52feMZVugq4GIiu0A4wKe70J",
-};
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
 interface AuthResult {
   accessToken: string;
