@@ -118,7 +118,8 @@ jobs:
           key: v1-mobile-dependencies-{{ checksum "package.json" }}
 
       # Run builds
-      - run: npm run bundle-mobile
+      - run: npm run build:shared
+      - run: npm run bundle:mobile
 
   #
   # Firmware jobs

@@ -11,6 +11,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build --stream",
+    "build:shared": "lerna run build --scope \"@grumpycorp/warm-and-fuzzy-shared*\" --stream",
     "format:fix": "lerna run format:fix --parallel",
     "lint": "lerna run lint",
     "ci:frontend": "lerna bootstrap && lerna run build --ignore @grumpycorp/warm-and-fuzzy-api --stream",
@@ -26,7 +27,7 @@
     "start-mobile:local:prod": "lerna run start-mobile:local:prod --stream",
     "start-mobile:remote:dev": "lerna run start-mobile:remote:dev --stream",
     "start-mobile:remote:prod": "lerna run start-mobile:remote:prod --stream",
-    "bundle-mobile": "lerna run bundle-mobile --stream"
+    "bundle:mobile": "lerna run bundle-mobile --stream"
   },
   "devDependencies": {
     "@babel/core": "7.5.5",
