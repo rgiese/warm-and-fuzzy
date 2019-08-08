@@ -1,7 +1,7 @@
 import React from "react";
 import gql from "graphql-tag";
 
-import { LatestActionsComponent } from "../generated/graphqlClient";
+import { LatestActionsComponent } from "../../generated/graphqlClient";
 
 gql`
   query LatestActions {
