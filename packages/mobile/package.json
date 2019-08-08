@@ -1,0 +1,52 @@
+{
+  "name": "@grumpycorp/warm-and-fuzzy-mobile-reactnative",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WarmAndFuzzy mobile app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
+  "scripts": {
+    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
+    "format:fix": "prettier --write {.,./src/**}/*.{css,js,jsx,json,md,scss,ts,tsx}",
+    "lint": "eslint \"./src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
+    "prestart-mobile:local:dev": "npm-run-all codegen:*",
+    "start-mobile:local:dev": "cross-env EMVFILE=.env.local react-native run-android",
+    "prestart-mobile:local:prod": "npm-run-all codegen:*",
+    "start-mobile:local:prod": "cross-env ENVFILE=.env.local react-native run-android",
+    "prestart-mobile:remote:dev": "npm-run-all codegen:*",
+    "start-mobile:remote:dev": "cross-env ENVFILE=.env.dev react-native run-android",
+    "prestart-mobile:remote:prod": "npm-run-all codegen:*",
+    "start-mobile:remote:prod": "cross-env ENVFILE=.env.prod react-native run-android",
+    "prebundle-mobile": "npm-run-all codegen:*",
+    "bundle-mobile": "cross-env ENVFILE=.env.prod run-script-os",
+    "bundle-mobile:win32": "jetify && cd .\\android && gradlew.bat clean && ./gradlew.bat bundleRelease",
+    "bundle-mobile:default": "jetify && cd ./android && ./gradlew clean && ./gradlew bundleRelease",
+    "clean-mobile": "cross-env ENVFILE=.env.prod run-script-os",
+    "clean-mobile:win32": "cd .\\android && gradlew.bat clean",
+    "clean-mobile:default": "cd ./android && ./gradlew clean",
+    "android:logcat": "adb -s emulator-5554 logcat -s \"ReactNativeJS\""
+  },
+  "dependencies": {
+    "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
+    "@types/react-native-auth0": "^1.3.0",
+    "apollo-cache-inmemory": "^1.6.2",
+    "apollo-client": "^2.6.3",
+    "apollo-link-context": "^1.0.18",
+    "apollo-link-http": "^1.5.15",
+    "graphql": "^14.4.2",
+    "graphql-tag": "^2.10.1",
+    "jwt-decode": "^2.2.0",
+    "react": "^16.8.6",
+    "react-apollo": "^3.0.0",
+    "react-dom": "^16.8.6",
+    "react-native": "^0.60.4",
+    "react-native-auth0": "^1.5.0",
+    "react-native-config": "^0.11.7",
+    "react-native-keychain": "^3.1.3"
+  }
+}

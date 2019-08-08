@@ -2,7 +2,7 @@ schema: ../shared/src/schema/schema.graphql
 
 generates:
   ./src/generated/graphqlClient.tsx:
-    documents: ./src/**/*.tsx
+    documents: ./src/**/!(graphqlClient).tsx
     config:
       scalars:
         DateTime: Date

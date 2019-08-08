@@ -58,7 +58,9 @@ export const authorize: CustomAuthorizerHandler = async (
 
     // Extract custom information from token
     const customClaimIds = {
-      Tenant: AuthenticationConfiguration.CustomClaimsNamespace + "tenant",
+      Tenant:
+        AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.Tenant,
     };
 
     const authorizations: PackedAuthorizations = {
