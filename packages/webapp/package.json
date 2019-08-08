@@ -46,7 +46,7 @@
     "apollo-client": "^2.6.3",
     "apollo-link-context": "^1.0.18",
     "apollo-link-http": "^1.5.15",
-    "auth0-js": "^9.11.1",
+    "auth0-js": "^9.11.3",
     "axios": "^0.19.0",
     "formik": "^1.5.8",
     "graphql": "^14.4.2",
