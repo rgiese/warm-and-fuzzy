@@ -7,6 +7,6 @@
 
     "noEmit": true
   },
-  "include": ["./src", "./index.ts"],
+  "include": ["./src", "./generated", "./index.ts"],
   "exclude": ["node_modules"]
 }

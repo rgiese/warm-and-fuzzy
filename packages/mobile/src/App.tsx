@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   Button,
@@ -11,7 +11,12 @@ import {
 } from "react-native";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 
+import { ApolloProvider } from "react-apollo";
+
 import { GlobalAuth } from "./services/Auth";
+import ApolloClient from "./services/ApolloClient";
+
+import LatestValues from "./components/LatestValues";
 
 const styles = StyleSheet.create({
   body: {
@@ -71,12 +76,13 @@ class App extends React.Component<Props, State> {
 
   private handleLogout = async (): Promise<void> => {
     await GlobalAuth.logout();
+    ApolloClient.resetStore();
     this.setState({ isAuthenticated: false });
   };
 
   public render(): React.ReactElement {
     return (
-      <Fragment>
+      <ApolloProvider client={ApolloClient}>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView>
           <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.scrollView}>
@@ -98,6 +104,7 @@ class App extends React.Component<Props, State> {
                       <Text>
                         You are logged in, {GlobalAuth.UserName}. Your permissions: [
                         {GlobalAuth.Permissions.join(", ")}]
+                        <LatestValues />
                       </Text>
                       <Button title="Log out" onPress={this.handleLogout} />
                     </>
@@ -109,7 +116,7 @@ class App extends React.Component<Props, State> {
             </View>
           </ScrollView>
         </SafeAreaView>
-      </Fragment>
+      </ApolloProvider>
     );
   }
 }
