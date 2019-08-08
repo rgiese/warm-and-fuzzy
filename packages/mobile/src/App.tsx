@@ -1,22 +1,16 @@
 import React from "react";
-import {
-  ActivityIndicator,
-  Button,
-  SafeAreaView,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from "react-native";
-import { Provider as PaperProvider ,DarkTheme } from "react-native-paper";
+import { createAppContainer, createStackNavigator } from "react-navigation";
+import { Provider as PaperProvider, DarkTheme } from "react-native-paper";
+
 import { ApolloProvider } from "react-apollo";
-
-import { ConfigStageName } from "./config";
-
-import { GlobalAuth } from "./services/Auth";
 import ApolloClient from "./services/ApolloClient";
 
-import LatestValues from "./components/LatestValues";
+import { GlobalAuth } from "./services/Auth";
+
+//import { ConfigStageName } from "./config";
+
+import HomeScreen from "./screens/HomeScreen";
+import LatestValuesScreen from "./screens/LatestValuesScreen";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}
@@ -31,6 +25,18 @@ class State {
   }
 }
 
+const RootStack = createStackNavigator(
+  {
+    Home: { screen: HomeScreen },
+    LatestValues: { screen: LatestValuesScreen },
+  },
+  {
+    initialRouteName: "Home",
+  }
+);
+
+const NavigationAppContainer = createAppContainer(RootStack);
+
 class App extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
@@ -42,7 +48,7 @@ class App extends React.Component<Props, State> {
     await GlobalAuth.initialize();
     this.setState({ hasInitialized: true, isAuthenticated: await GlobalAuth.IsAuthenticated });
   }
-
+  /*
   private handleLogin = async (): Promise<void> => {
     this.setState({ isAuthenticated: await GlobalAuth.login() });
   };
@@ -52,40 +58,12 @@ class App extends React.Component<Props, State> {
     ApolloClient.resetStore();
     this.setState({ isAuthenticated: false });
   };
-
+*/
   public render(): React.ReactElement {
     return (
       <PaperProvider theme={DarkTheme}>
         <ApolloProvider client={ApolloClient}>
-          <StatusBar barStyle="dark-content" />
-          <SafeAreaView>
-            <ScrollView contentInsetAdjustmentBehavior="automatic">
-              <View>
-                <ActivityIndicator
-                  size="large"
-                  color="#05a5d1"
-                  animating={!this.state.hasInitialized}
-                />
-                {this.state.hasInitialized && (
-                  <View>
-                    <Text>Stage: {ConfigStageName}</Text>
-                    {this.state.isAuthenticated ? (
-                      <>
-                        <Text>
-                          You are logged in, {GlobalAuth.UserName}. Your permissions: [
-                          {GlobalAuth.Permissions.join(", ")}]
-                          <LatestValues />
-                        </Text>
-                        <Button title="Log out" onPress={this.handleLogout} />
-                      </>
-                    ) : (
-                      <Button title="Log in" onPress={this.handleLogin} />
-                    )}
-                  </View>
-                )}
-              </View>
-            </ScrollView>
-          </SafeAreaView>
+          <NavigationAppContainer />
         </ApolloProvider>
       </PaperProvider>
     );
