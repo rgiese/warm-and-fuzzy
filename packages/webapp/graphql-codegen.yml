@@ -1,8 +1,8 @@
 schema: ../shared/src/schema/schema.graphql
 
 generates:
-  ./generated/graphqlClient.tsx:
-    documents: ./src/**/*.tsx
+  ./src/generated/graphqlClient.tsx:
+    documents: ./src/**/!(graphqlClient).tsx
     config:
       scalars:
         DateTime: Date

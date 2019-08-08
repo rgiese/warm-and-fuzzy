@@ -5,7 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import {
   SensorConfigurationsComponent,
   UpdateSensorConfigurationComponent,
-} from "../../generated/graphqlClient";
+} from "../generated/graphqlClient";
 
 import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 

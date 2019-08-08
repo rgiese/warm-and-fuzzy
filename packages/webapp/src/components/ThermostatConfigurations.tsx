@@ -5,7 +5,7 @@ import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import {
   ThermostatConfigurationsComponent,
   UpdateThermostatConfigurationComponent,
-} from "../../generated/graphqlClient";
+} from "../generated/graphqlClient";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 

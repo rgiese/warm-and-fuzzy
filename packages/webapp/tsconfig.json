@@ -11,6 +11,6 @@
 
     "noEmit": true
   },
-  "include": ["./src", "./generated"],
+  "include": ["./src"],
   "exclude": ["node_modules"]
 }
