@@ -100,7 +100,7 @@ class Auth {
   }
 
   public get IsExpired(): boolean {
-    return new Date().getTime() < this.ExpiresAt;
+    return new Date().getTime() > this.ExpiresAt;
   }
 
   public get IsAuthenticated(): boolean {
