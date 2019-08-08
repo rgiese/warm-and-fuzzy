@@ -18,7 +18,7 @@ executors:
 
 jobs:
   #
-  # API and mobile jobs
+  # API jobs
   #
 
   build:
@@ -52,32 +52,6 @@ jobs:
           root: .
           paths:
             - packages
-
-  mobile-build:
-    executor: android-executor
-    steps:
-      # Check out source
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-mobile-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-mobile-dependencies-
-
-      # Install dependencies
-      - run: npm install
-      - run: npm run bootstrap
-
-      # Save cache
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-mobile-dependencies-{{ checksum "package.json" }}
-
-      # Run builds
-      - run: npm run bundle-mobile
 
   api-deploy:
     executor: node-executor
@@ -116,8 +90,12 @@ jobs:
               npm run deploy:dev
             fi
 
-  mobile-deploy:
-    executor: node-executor
+  #
+  # Mobile jobs
+  #
+
+  mobile-build:
+    executor: android-executor
     steps:
       # Check out source
       - checkout
@@ -125,32 +103,22 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-mobile-dependencies-{{ checksum "package.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      # Attach to `build` workspace (provides built packages/)
-      - attach_workspace:
-          at: .
+            - v1-mobile-dependencies-
 
       # Install dependencies
       - run: npm install
       - run: npm run bootstrap
 
-      # (Don't save cache again, we'll just let `build` deal with it)
+      # Save cache
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-mobile-dependencies-{{ checksum "package.json" }}
 
-      # Configure Expo toolchain
-      - run: npx expo login -u $EXPO_CLI_USERNAME --non-interactive
-
-      # Deploy
-      - run:
-          name: Deploy
-          command: |
-            if [ "$CIRCLE_BRANCH" == "master" ]; then
-              npm run deploy-mobile:prod
-            else
-              npm run deploy-mobile:dev
-            fi
+      # Run builds
+      - run: npm run bundle-mobile
 
   #
   # Firmware jobs
@@ -227,10 +195,9 @@ jobs:
 workflows:
   version: 2
 
-  api-and-mobile:
+  api:
     jobs:
       - build
-      - mobile-build
       - hold-to-deploy-api:
           type: approval
           requires:
@@ -239,14 +206,10 @@ workflows:
           context: warm-and-fuzzy-aws
           requires:
             - hold-to-deploy-api
-      - hold-to-deploy-mobile:
-          type: approval
-          requires:
-            - build
-      - mobile-deploy:
-          context: warm-and-fuzzy-expo
-          requires:
-            - hold-to-deploy-mobile
+
+  mobile:
+    jobs:
+      - mobile-build
 
   firmware:
     jobs:
