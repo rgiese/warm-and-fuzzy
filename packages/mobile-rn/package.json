@@ -19,7 +19,8 @@
     "start-mobile:remote:prod": "react-native run-android",
     "bundle-mobile": "run-script-os",
     "bundle-mobile:win32": "jetify && cd .\\android && ./gradlew.bat clean && ./gradlew.bat bundleRelease",
-    "bundle-mobile:default": "jetify && cd ./android && ./gradlew clean && ./gradlew bundleRelease"
+    "bundle-mobile:default": "jetify && cd ./android && ./gradlew clean && ./gradlew bundleRelease",
+    "android:logcat": "adb -s emulator-5554 logcat -s \"ReactNativeJS\""
   },
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
