@@ -1,6 +1,10 @@
 import React from "react";
 import { Button, Text, View } from "react-native";
-import { NavigationScreenProp, NavigationState } from "react-navigation";
+import {
+  NavigationScreenProp,
+  NavigationState,
+  NavigationStackScreenOptions,
+} from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
 
@@ -20,6 +24,10 @@ class LatestValuesScreen extends React.Component<Props, State> {
 
     this.state = new State();
   }
+
+  static navigationOptions: NavigationStackScreenOptions = {
+    title: "Latest values",
+  };
 
   public render(): React.ReactElement {
     return (

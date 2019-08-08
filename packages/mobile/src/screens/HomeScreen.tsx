@@ -1,6 +1,10 @@
 import React from "react";
 import { Button, Text, View } from "react-native";
-import { NavigationScreenProp, NavigationState } from "react-navigation";
+import {
+  NavigationScreenProp,
+  NavigationState,
+  NavigationStackScreenOptions,
+} from "react-navigation";
 
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
@@ -16,6 +20,10 @@ class HomeScreen extends React.Component<Props, State> {
 
     this.state = new State();
   }
+
+  static navigationOptions: NavigationStackScreenOptions = {
+    title: "Home",
+  };
 
   public render(): React.ReactElement {
     return (
