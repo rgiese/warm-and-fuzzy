@@ -41,7 +41,7 @@ All commands below start the web app locally, varying which API it calls:
 | `npm run start:remote:dev`  | Cloud (Dev)  | Dev      |
 | `npm run start:remote:prod` | Cloud (Prod) | Prod     |
 
-# Serving the mobile app locally (via Expo)
+# Serving the mobile app locally in Android emulator
 
 All commands below start the mobile app server locally, varying which API it calls:
 
