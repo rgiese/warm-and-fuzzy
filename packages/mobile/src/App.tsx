@@ -13,6 +13,8 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 
 import { ApolloProvider } from "react-apollo";
 
+import { ConfigStageName } from "./config";
+
 import { GlobalAuth } from "./services/Auth";
 import ApolloClient from "./services/ApolloClient";
 
@@ -94,6 +96,7 @@ class App extends React.Component<Props, State> {
               />
               {this.state.hasInitialized && (
                 <View style={styles.sectionContainer}>
+                  <Text>Stage: {ConfigStageName}</Text>
                   <Text style={styles.sectionTitle}>Step One</Text>
                   <Text style={styles.sectionDescription}>
                     Edit <Text style={styles.highlight}>App.tsx</Text> to change this screen and

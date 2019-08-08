@@ -1,9 +1,7 @@
+import Config from "react-native-config";
 import { ClientConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
-// TODO:
-// - dispatch based on stage
-
 // Default to dev stage
-export const ConfigStageName = process.env.REACT_APP_API_STAGE || "prod"; // TODO: fix me
+export const ConfigStageName = Config.REACT_NATIVE_API_STAGE || "dev";
 
 export default ClientConfiguration.ByStage[ConfigStageName];
