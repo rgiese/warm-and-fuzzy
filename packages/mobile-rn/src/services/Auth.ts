@@ -43,6 +43,12 @@ class Auth {
   private idToken?: string;
   private expiresAt?: number;
 
+  //
+  // Note: refresh logic (timers) won't work in React Native since long-running timers
+  //       aren't really a thing in React Native/Android/etc.
+  //       Compared to webapp/services/Auth, rely on callers to use EnsureLoggedIn().
+  //
+
   public constructor() {
     this.accessToken = undefined;
     this.idToken = undefined;
@@ -61,6 +67,8 @@ class Auth {
     this.accessToken = accessToken;
     this.idToken = idToken;
     this.expiresAt = Number.parseInt(expiresAt);
+
+    await this.EnsureLoggedIn();
   }
 
   //
@@ -84,12 +92,33 @@ class Auth {
     return false;
   }
 
+  public async EnsureLoggedIn(): Promise<boolean> {
+    if (!this.IsAuthenticated) {
+      return false;
+    }
+
+    if (!this.IsExpired) {
+      return true;
+    }
+
+    // Try refreshing tokens
+    return await this.login();
+  }
+
   //
   // Accessors
   //
 
+  public get ExpiresAt(): number {
+    return this.expiresAt || 0;
+  }
+
+  public get IsExpired(): boolean {
+    return new Date().getTime() < this.ExpiresAt;
+  }
+
   public get IsAuthenticated(): boolean {
-    return this.expiresAt !== undefined && new Date().getTime() < this.expiresAt;
+    return this.AccessToken != undefined;
   }
 
   public get AccessToken(): string | undefined {
@@ -154,9 +183,6 @@ class Auth {
   //
 
   public async logout(): Promise<void> {
-    // Clear token renewal
-    //clearTimeout(this.tokenRenewalTimeout);
-
     // Remove tokens and expiry time
     this.accessToken = undefined;
     this.idToken = undefined;
@@ -189,9 +215,6 @@ class Auth {
       KeychainUserName,
       [this.accessToken, this.idToken, this.expiresAt.toString()].join(KeychainTokenSeparator)
     );
-
-    // Schedule token renewal
-    //this.scheduleRenewal();
   }
 }
 
