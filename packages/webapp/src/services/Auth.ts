@@ -1,8 +1,6 @@
 import Auth0 from "auth0-js";
 import JwtDecode from "jwt-decode";
 
-import Config from "../config";
-
 import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
 const localStorageKeys = {
@@ -17,7 +15,7 @@ class Auth {
   private auth0 = new Auth0.WebAuth({
     domain: AuthenticationConfiguration.Domain,
     clientID: AuthenticationConfiguration.ClientId,
-    redirectUri: window.location.origin + Config.auth0.callbackRoute,
+    redirectUri: window.location.origin + "/callback",
     audience: AuthenticationConfiguration.Audience,
     responseType: "token id_token",
     scope: "openid",
