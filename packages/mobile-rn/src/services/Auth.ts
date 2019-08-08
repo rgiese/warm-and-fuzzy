@@ -104,7 +104,7 @@ class Auth {
   }
 
   public get IsAuthenticated(): boolean {
-    return this.AccessToken != undefined;
+    return this.AccessToken !== undefined;
   }
 
   public get AccessToken(): string | undefined {
