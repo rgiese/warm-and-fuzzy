@@ -1,5 +1,6 @@
 import React from "react";
-import { createAppContainer, createStackNavigator } from "react-navigation";
+import { YellowBox } from "react-native";
+import { createAppContainer, createDrawerNavigator } from "react-navigation";
 import { Provider as PaperProvider, DarkTheme } from "react-native-paper";
 
 import { ApolloProvider } from "react-apollo";
@@ -9,6 +10,7 @@ import { GlobalAuth } from "./services/Auth";
 
 //import { ConfigStageName } from "./config";
 
+import Drawer from "./components/Drawer";
 import HomeScreen from "./screens/HomeScreen";
 import LatestValuesScreen from "./screens/LatestValuesScreen";
 
@@ -25,15 +27,24 @@ class State {
   }
 }
 
-const RootStack = createStackNavigator(
+const RootStack = createDrawerNavigator(
   {
     Home: { screen: HomeScreen },
     LatestValues: { screen: LatestValuesScreen },
   },
   {
+    // Routing settings
     initialRouteName: "Home",
+
+    // Drawer settings
+    contentComponent: Drawer,
   }
 );
+
+// Temporary silencing of warnings until react-native-gesture-handler updates past 1.1.3
+// https://github.com/react-navigation/react-navigation/issues/6143
+// https://github.com/kmagiera/react-native-gesture-handler/issues/683
+YellowBox.ignoreWarnings(["Warning: componentWillUpdate is deprecated"]);
 
 const NavigationAppContainer = createAppContainer(RootStack);
 
