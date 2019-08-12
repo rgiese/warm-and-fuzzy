@@ -1,14 +1,10 @@
 import React from "react";
-import { Button, Text, View } from "react-native";
+import { View } from "react-native";
 import {
   NavigationScreenProp,
   NavigationState,
   NavigationStackScreenOptions,
 } from "react-navigation";
-
-import { GlobalAuth } from "../services/Auth";
-
-import HomeScreen from "./HomeScreen";
 
 import LatestValues from "../components/LatestValues";
 
@@ -34,17 +30,7 @@ class LatestValuesScreen extends React.Component<Props, State> {
   public render(): React.ReactElement {
     return (
       <View>
-        <Text>
-          You are logged in, {GlobalAuth.UserName}. Your permissions: [
-          {GlobalAuth.Permissions.join(", ")}]
-        </Text>
         <LatestValues />
-        <Button
-          title="Go home"
-          onPress={(): void => {
-            this.props.navigation.navigate(HomeScreen.routeName);
-          }}
-        />
       </View>
     );
   }
