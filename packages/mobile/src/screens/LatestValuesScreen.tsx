@@ -8,6 +8,7 @@ import {
 
 import { GlobalAuth } from "../services/Auth";
 
+import Header from "../components/Header";
 import LatestValues from "../components/LatestValues";
 
 interface Props {
@@ -32,6 +33,7 @@ class LatestValuesScreen extends React.Component<Props, State> {
   public render(): React.ReactElement {
     return (
       <View>
+        <Header {...this.props} title={LatestValuesScreen.navigationOptions.title} />
         <Text>
           You are logged in, {GlobalAuth.UserName}. Your permissions: [
           {GlobalAuth.Permissions.join(", ")}]

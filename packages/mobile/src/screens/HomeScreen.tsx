@@ -6,6 +6,8 @@ import {
   NavigationStackScreenOptions,
 } from "react-navigation";
 
+import Header from "../components/Header";
+
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
 }
@@ -21,14 +23,15 @@ class HomeScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  static navigationOptions: NavigationStackScreenOptions = {
-    title: "Home",
+  public static navigationOptions: NavigationStackScreenOptions = {
+    title: "Home SSO Title",
   };
 
   public render(): React.ReactElement {
     return (
       <View>
-        <Text>Hello</Text>
+        <Header {...this.props} title={HomeScreen.navigationOptions.title} />
+        <Text>Hello, you're logged in.</Text>
         <Button
           title="Go to latest values"
           onPress={(): void => {
