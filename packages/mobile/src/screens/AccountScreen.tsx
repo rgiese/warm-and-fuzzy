@@ -17,7 +17,7 @@ interface Props {
 
 class State {}
 
-class SettingsScreen extends React.Component<Props, State> {
+class AccountScreen extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
 
@@ -25,7 +25,7 @@ class SettingsScreen extends React.Component<Props, State> {
   }
 
   static navigationOptions: NavigationStackScreenOptions = {
-    title: "Settings",
+    title: "Account",
   };
 
   private handleLogout = async (): Promise<void> => {
@@ -49,4 +49,4 @@ class SettingsScreen extends React.Component<Props, State> {
   }
 }
 
-export default SettingsScreen;
+export default AccountScreen;

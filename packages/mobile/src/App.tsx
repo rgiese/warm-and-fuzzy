@@ -8,9 +8,9 @@ import ApolloClient from "./services/ApolloClient";
 
 import AuthLoadingScreen from "./screens/AuthLoadingScreen";
 import AuthScreen from "./screens/AuthScreen";
+import AccountScreen from "./screens/AccountScreen";
 import HomeScreen from "./screens/HomeScreen";
 import LatestValuesScreen from "./screens/LatestValuesScreen";
-import SettingsScreen from "./screens/SettingsScreen";
 
 //
 // Set up navigation
@@ -20,7 +20,7 @@ const AppNavigator = createStackNavigator(
   {
     Home: { screen: HomeScreen },
     LatestValues: { screen: LatestValuesScreen },
-    Settings: { screen: SettingsScreen },
+    Account: { screen: AccountScreen },
   },
   {
     initialRouteName: "Home",

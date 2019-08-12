@@ -31,9 +31,9 @@ class HomeScreen extends React.Component<Props, State> {
     title: "Home",
     headerRight: (
       <IconButton
-        onPress={() => navigation.navigate("Settings")}
+        onPress={() => navigation.navigate("Account")}
         color={Colors.grey700}
-        icon="settings"
+        icon="person"
       />
     ),
   });
