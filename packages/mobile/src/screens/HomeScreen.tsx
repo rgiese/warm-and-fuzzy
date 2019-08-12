@@ -9,7 +9,7 @@ import {
 } from "react-navigation";
 
 import AccountScreen from "./AccountScreen";
-import LatestValuesScreen from "./LatestValuesScreen"
+import LatestValuesScreen from "./LatestValuesScreen";
 
 interface Params {}
 

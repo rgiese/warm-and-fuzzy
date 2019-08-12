@@ -8,7 +8,7 @@ import {
 
 import { GlobalAuth } from "../services/Auth";
 
-import AuthScreen from "./AuthScreen"
+import AuthScreen from "./AuthScreen";
 import HomeScreen from "./HomeScreen";
 
 interface Props {
@@ -41,7 +41,9 @@ class AuthLoadingScreen extends React.Component<Props, State> {
       await GlobalAuth.EnsureLoggedIn();
     }
 
-    this.props.navigation.navigate(GlobalAuth.IsAuthenticated ? HomeScreen.routeName : AuthScreen.routeName);
+    this.props.navigation.navigate(
+      GlobalAuth.IsAuthenticated ? HomeScreen.routeName : AuthScreen.routeName
+    );
   }
 
   public render(): React.ReactElement {
