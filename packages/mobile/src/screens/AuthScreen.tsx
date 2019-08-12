@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Button, Caption, Text, Title } from "react-native-paper";
+import { ActivityIndicator, Button, Caption, Surface, Text, Title } from "react-native-paper";
 import { NavigationScreenProp, NavigationState } from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
@@ -7,6 +7,7 @@ import { GlobalAuth } from "../services/Auth";
 import HomeScreen from "./HomeScreen";
 
 import BaseView from "../components/BaseView";
+import GrumpyRobin from "../assets/grumpy-robin.svg";
 
 import { ConfigStageName } from "../config";
 
@@ -49,6 +50,17 @@ class AuthScreen extends React.Component<Props, State> {
           <ActivityIndicator animating={true} />
         ) : (
           <>
+            <Surface
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+                height: 80,
+                marginBottom: 20,
+              }}
+            >
+              <GrumpyRobin width={60} height={60} />
+            </Surface>
             <Title style={{ marginBottom: 20 }}>Warm and Fuzzy</Title>
             <Button mode="contained" onPress={this.handleLogin}>
               Sign in
