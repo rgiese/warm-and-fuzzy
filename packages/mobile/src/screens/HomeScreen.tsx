@@ -1,6 +1,5 @@
 import React from "react";
-import { Button, Text, View } from "react-native";
-import { IconButton, Colors } from "react-native-paper";
+import { Button, IconButton, Paragraph } from "react-native-paper";
 import {
   NavigationScreenProp,
   NavigationState,
@@ -8,8 +7,12 @@ import {
   NavigationRoute,
 } from "react-navigation";
 
+import ScreenProps from "./ScreenProps";
+
 import AccountScreen from "./AccountScreen";
 import LatestValuesScreen from "./LatestValuesScreen";
+
+import BaseView from "../components/BaseView";
 
 interface Params {}
 
@@ -30,14 +33,16 @@ class HomeScreen extends React.Component<Props, State> {
 
   public static navigationOptions = ({
     navigation,
+    screenProps,
   }: {
     navigation: NavigationScreenProp<NavigationRoute<Params>, Params>;
+    screenProps: ScreenProps;
   }): NavigationStackScreenOptions => ({
     title: "Home",
     headerRight: (
       <IconButton
         onPress={() => navigation.navigate(AccountScreen.routeName)}
-        color={Colors.grey700}
+        color={screenProps.theme.colors.text}
         icon="person"
       />
     ),
@@ -45,15 +50,16 @@ class HomeScreen extends React.Component<Props, State> {
 
   public render(): React.ReactElement {
     return (
-      <View>
-        <Text>Hello, you're logged in.</Text>
+      <BaseView>
+        <Paragraph>Hello, you're logged in.</Paragraph>
         <Button
-          title="Go to latest values"
           onPress={(): void => {
             this.props.navigation.navigate(LatestValuesScreen.routeName);
           }}
-        />
-      </View>
+        >
+          Go to latest values
+        </Button>
+      </BaseView>
     );
   }
 }

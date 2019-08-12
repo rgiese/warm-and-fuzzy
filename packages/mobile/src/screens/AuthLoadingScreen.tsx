@@ -1,15 +1,13 @@
 import React from "react";
-import { Text, View } from "react-native";
-import {
-  NavigationScreenProp,
-  NavigationState,
-  NavigationStackScreenOptions,
-} from "react-navigation";
+import { ActivityIndicator, Text } from "react-native-paper";
+import { NavigationScreenProp, NavigationState } from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
 
 import AuthScreen from "./AuthScreen";
 import HomeScreen from "./HomeScreen";
+
+import BaseView from "../components/BaseView";
 
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
@@ -28,10 +26,6 @@ class AuthLoadingScreen extends React.Component<Props, State> {
 
   public static routeName = "AuthLoading";
 
-  static navigationOptions: NavigationStackScreenOptions = {
-    title: "Loading...",
-  };
-
   private async bootstrapAsync(): Promise<void> {
     await GlobalAuth.initialize();
 
@@ -48,9 +42,10 @@ class AuthLoadingScreen extends React.Component<Props, State> {
 
   public render(): React.ReactElement {
     return (
-      <View>
-        <Text>Loading auth...</Text>
-      </View>
+      <BaseView>
+        <ActivityIndicator animating={true} />
+        <Text>Loading...</Text>
+      </BaseView>
     );
   }
 }
