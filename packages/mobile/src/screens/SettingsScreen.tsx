@@ -9,6 +9,8 @@ import {
 import { GlobalAuth } from "../services/Auth";
 import ApolloClient from "../services/ApolloClient";
 
+import { ConfigStageName } from "../config";
+
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
 }
@@ -41,6 +43,7 @@ class SettingsScreen extends React.Component<Props, State> {
           {GlobalAuth.Permissions.join(", ")}]
         </Text>
         <Button title="Sign out" onPress={this.handleLogout} />
+        <Text>API target: {ConfigStageName}</Text>
       </View>
     );
   }

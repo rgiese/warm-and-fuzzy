@@ -6,8 +6,6 @@ import { Provider as PaperProvider, DarkTheme } from "react-native-paper";
 import { ApolloProvider } from "react-apollo";
 import ApolloClient from "./services/ApolloClient";
 
-//import { ConfigStageName } from "./config";
-
 import AuthLoadingScreen from "./screens/AuthLoadingScreen";
 import AuthScreen from "./screens/AuthScreen";
 import HomeScreen from "./screens/HomeScreen";
