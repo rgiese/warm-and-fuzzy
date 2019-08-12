@@ -73,6 +73,8 @@ class Auth {
     } else {
       console.log("Authentication failure:");
       console.log(authResult);
+
+      await this.logout();
     }
 
     return false;
