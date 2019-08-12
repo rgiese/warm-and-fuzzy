@@ -1,10 +1,13 @@
 import React from "react";
-import { Provider as PaperProvider, DarkTheme } from "react-native-paper";
+import { Provider as PaperProvider } from "react-native-paper";
 
 import { ApolloProvider } from "react-apollo";
 import ApolloClient from "./services/ApolloClient";
 
+import ScreenProps from "./screens/ScreenProps";
 import Screens from "./screens";
+
+import AppTheme from "./Theme";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}
@@ -19,10 +22,14 @@ class App extends React.Component<Props, State> {
   }
 
   public render(): React.ReactElement {
+    const screenProps: ScreenProps = {
+      theme: AppTheme,
+    };
+
     return (
-      <PaperProvider theme={DarkTheme}>
+      <PaperProvider theme={screenProps.theme}>
         <ApolloProvider client={ApolloClient}>
-          <Screens />
+          <Screens screenProps={screenProps} />
         </ApolloProvider>
       </PaperProvider>
     );

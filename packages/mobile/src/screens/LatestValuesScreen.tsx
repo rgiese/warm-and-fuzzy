@@ -1,11 +1,11 @@
 import React from "react";
-import { View } from "react-native";
 import {
   NavigationScreenProp,
   NavigationState,
   NavigationStackScreenOptions,
 } from "react-navigation";
 
+import BaseView from "../components/BaseView";
 import LatestValues from "../components/LatestValues";
 
 interface Props {
@@ -29,9 +29,9 @@ class LatestValuesScreen extends React.Component<Props, State> {
 
   public render(): React.ReactElement {
     return (
-      <View>
+      <BaseView>
         <LatestValues />
-      </View>
+      </BaseView>
     );
   }
 }

@@ -1,4 +1,12 @@
-import { createAppContainer, createStackNavigator, createSwitchNavigator } from "react-navigation";
+import {
+  createAppContainer,
+  createStackNavigator,
+  createSwitchNavigator,
+  NavigationScreenConfigProps,
+  NavigationScreenOptions,
+} from "react-navigation";
+
+import ScreenProps from "./ScreenProps";
 
 import AuthLoadingScreen from "./AuthLoadingScreen";
 import AuthScreen from "./AuthScreen";
@@ -15,13 +23,33 @@ const AppNavigator = createStackNavigator(
   },
   {
     initialRouteName: HomeScreen.routeName,
+    defaultNavigationOptions: (
+      navigationOptionsContainer: NavigationScreenConfigProps
+    ): NavigationScreenOptions => {
+      const screenProps = navigationOptionsContainer.screenProps as ScreenProps;
+      const colors = screenProps.theme.colors;
+
+      return {
+        headerStyle: {
+          backgroundColor: colors.background,
+        },
+        headerTintColor: colors.primary,
+      };
+    },
   }
 );
 
 // Auth flow screens
-const AuthNavigator = createStackNavigator({
-  [AuthScreen.routeName]: AuthScreen,
-});
+const AuthNavigator = createStackNavigator(
+  {
+    [AuthScreen.routeName]: AuthScreen,
+  },
+  {
+    defaultNavigationOptions: {
+      header: null,
+    },
+  }
+);
 
 // Stitch together app and auth flow
 const RootNavigator = createSwitchNavigator(
