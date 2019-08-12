@@ -9,6 +9,8 @@ import {
 import { GlobalAuth } from "../services/Auth";
 import ApolloClient from "../services/ApolloClient";
 
+import AuthScreen from "./AuthScreen";
+
 import { ConfigStageName } from "../config";
 
 interface Props {
@@ -24,6 +26,8 @@ class AccountScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
+  public static routeName = "Account";
+
   static navigationOptions: NavigationStackScreenOptions = {
     title: "Account",
   };
@@ -32,7 +36,7 @@ class AccountScreen extends React.Component<Props, State> {
     await GlobalAuth.logout();
     ApolloClient.resetStore();
 
-    this.props.navigation.navigate("Auth");
+    this.props.navigation.navigate(AuthScreen.routeName);
   };
 
   public render(): React.ReactElement {

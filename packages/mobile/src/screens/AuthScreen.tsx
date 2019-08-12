@@ -8,6 +8,8 @@ import {
 
 import { GlobalAuth } from "../services/Auth";
 
+import HomeScreen from "./HomeScreen";
+
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
 }
@@ -21,6 +23,8 @@ class AuthScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
+  public static routeName = "Auth";
+
   static navigationOptions: NavigationStackScreenOptions = {
     title: "Sign in",
   };
@@ -29,7 +33,7 @@ class AuthScreen extends React.Component<Props, State> {
     const isAuthenticated = await GlobalAuth.login();
 
     if (isAuthenticated) {
-      this.props.navigation.navigate("Home");
+      this.props.navigation.navigate(HomeScreen.routeName);
     }
   };
 

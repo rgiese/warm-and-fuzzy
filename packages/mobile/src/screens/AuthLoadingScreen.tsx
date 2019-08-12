@@ -8,6 +8,9 @@ import {
 
 import { GlobalAuth } from "../services/Auth";
 
+import AuthScreen from "./AuthScreen"
+import HomeScreen from "./HomeScreen";
+
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
 }
@@ -23,6 +26,8 @@ class AuthLoadingScreen extends React.Component<Props, State> {
     this.bootstrapAsync();
   }
 
+  public static routeName = "AuthLoading";
+
   static navigationOptions: NavigationStackScreenOptions = {
     title: "Loading...",
   };
@@ -36,7 +41,7 @@ class AuthLoadingScreen extends React.Component<Props, State> {
       await GlobalAuth.EnsureLoggedIn();
     }
 
-    this.props.navigation.navigate(GlobalAuth.IsAuthenticated ? "Home" : "Auth");
+    this.props.navigation.navigate(GlobalAuth.IsAuthenticated ? HomeScreen.routeName : AuthScreen.routeName);
   }
 
   public render(): React.ReactElement {

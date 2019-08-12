@@ -8,6 +8,9 @@ import {
   NavigationRoute,
 } from "react-navigation";
 
+import AccountScreen from "./AccountScreen";
+import LatestValuesScreen from "./LatestValuesScreen"
+
 interface Params {}
 
 interface Props {
@@ -23,6 +26,8 @@ class HomeScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
+  public static routeName = "Home";
+
   public static navigationOptions = ({
     navigation,
   }: {
@@ -31,7 +36,7 @@ class HomeScreen extends React.Component<Props, State> {
     title: "Home",
     headerRight: (
       <IconButton
-        onPress={() => navigation.navigate("Account")}
+        onPress={() => navigation.navigate(AccountScreen.routeName)}
         color={Colors.grey700}
         icon="person"
       />
@@ -45,7 +50,7 @@ class HomeScreen extends React.Component<Props, State> {
         <Button
           title="Go to latest values"
           onPress={(): void => {
-            this.props.navigation.navigate("LatestValues");
+            this.props.navigation.navigate(LatestValuesScreen.routeName);
           }}
         />
       </View>

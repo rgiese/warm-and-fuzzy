@@ -18,27 +18,27 @@ import LatestValuesScreen from "./screens/LatestValuesScreen";
 
 const AppNavigator = createStackNavigator(
   {
-    Home: { screen: HomeScreen },
-    LatestValues: { screen: LatestValuesScreen },
-    Account: { screen: AccountScreen },
+    [HomeScreen.routeName]: { screen: HomeScreen },
+    [LatestValuesScreen.routeName]: { screen: LatestValuesScreen },
+    [AccountScreen.routeName]: { screen: AccountScreen },
   },
   {
-    initialRouteName: "Home",
+    initialRouteName: HomeScreen.routeName,
   }
 );
 
 const AuthNavigator = createStackNavigator({
-  Auth: AuthScreen,
+  [AuthScreen.routeName]: AuthScreen,
 });
 
 const RootNavigator = createSwitchNavigator(
   {
-    AuthLoading: AuthLoadingScreen,
+    [AuthLoadingScreen.routeName]: AuthLoadingScreen,
     App: AppNavigator,
     Auth: AuthNavigator,
   },
   {
-    initialRouteName: "AuthLoading",
+    initialRouteName: AuthLoadingScreen.routeName,
   }
 );
 

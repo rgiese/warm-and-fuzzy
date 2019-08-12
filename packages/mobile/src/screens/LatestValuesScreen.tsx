@@ -8,6 +8,8 @@ import {
 
 import { GlobalAuth } from "../services/Auth";
 
+import HomeScreen from "./HomeScreen";
+
 import LatestValues from "../components/LatestValues";
 
 interface Props {
@@ -22,6 +24,8 @@ class LatestValuesScreen extends React.Component<Props, State> {
 
     this.state = new State();
   }
+
+  public static routeName = "LatestValues";
 
   static navigationOptions: NavigationStackScreenOptions = {
     title: "Latest values",
@@ -38,7 +42,7 @@ class LatestValuesScreen extends React.Component<Props, State> {
         <Button
           title="Go home"
           onPress={(): void => {
-            this.props.navigation.navigate("Home");
+            this.props.navigation.navigate(HomeScreen.routeName);
           }}
         />
       </View>
