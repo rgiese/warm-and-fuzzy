@@ -12,9 +12,7 @@ interface Props {
   navigation: NavigationScreenProp<NavigationState>;
 }
 
-class State {
-  public constructor() {}
-}
+class State {}
 
 class AuthLoadingScreen extends React.Component<Props, State> {
   public constructor(props: Props) {
