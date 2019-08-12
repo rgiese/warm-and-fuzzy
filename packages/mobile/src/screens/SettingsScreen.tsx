@@ -7,8 +7,7 @@ import {
 } from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
-
-import LatestValues from "../components/LatestValues";
+import ApolloClient from "../services/ApolloClient";
 
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
@@ -18,7 +17,7 @@ class State {
   public constructor() {}
 }
 
-class LatestValuesScreen extends React.Component<Props, State> {
+class SettingsScreen extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
 
@@ -26,7 +25,14 @@ class LatestValuesScreen extends React.Component<Props, State> {
   }
 
   static navigationOptions: NavigationStackScreenOptions = {
-    title: "Latest values",
+    title: "Settings",
+  };
+
+  private handleLogout = async (): Promise<void> => {
+    await GlobalAuth.logout();
+    ApolloClient.resetStore();
+
+    this.props.navigation.navigate("Auth");
   };
 
   public render(): React.ReactElement {
@@ -36,16 +42,10 @@ class LatestValuesScreen extends React.Component<Props, State> {
           You are logged in, {GlobalAuth.UserName}. Your permissions: [
           {GlobalAuth.Permissions.join(", ")}]
         </Text>
-        <LatestValues />
-        <Button
-          title="Go home"
-          onPress={(): void => {
-            this.props.navigation.navigate("Home");
-          }}
-        />
+        <Button title="Sign out" onPress={this.handleLogout} />
       </View>
     );
   }
 }
 
-export default LatestValuesScreen;
+export default SettingsScreen;

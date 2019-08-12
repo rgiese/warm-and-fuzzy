@@ -1,12 +1,14 @@
 import React from "react";
 import { Button, Text, View } from "react-native";
+import { IconButton, Colors } from "react-native-paper";
 import {
   NavigationScreenProp,
   NavigationState,
   NavigationStackScreenOptions,
+  NavigationRoute,
 } from "react-navigation";
 
-import Header from "../components/Header";
+interface Params {}
 
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
@@ -23,14 +25,24 @@ class HomeScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  public static navigationOptions: NavigationStackScreenOptions = {
-    title: "Home SSO Title",
-  };
+  public static navigationOptions = ({
+    navigation,
+  }: {
+    navigation: NavigationScreenProp<NavigationRoute<Params>, Params>;
+  }): NavigationStackScreenOptions => ({
+    title: "Home",
+    headerRight: (
+      <IconButton
+        onPress={() => navigation.navigate("Settings")}
+        color={Colors.grey700}
+        icon="settings"
+      />
+    ),
+  });
 
   public render(): React.ReactElement {
     return (
       <View>
-        <Header {...this.props} title={HomeScreen.navigationOptions.title} />
         <Text>Hello, you're logged in.</Text>
         <Button
           title="Go to latest values"

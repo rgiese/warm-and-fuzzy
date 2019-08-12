@@ -1,11 +1,6 @@
 import React from "react";
 import { YellowBox } from "react-native";
-import {
-  createAppContainer,
-  createDrawerNavigator,
-  createStackNavigator,
-  createSwitchNavigator,
-} from "react-navigation";
+import { createAppContainer, createStackNavigator, createSwitchNavigator } from "react-navigation";
 import { Provider as PaperProvider, DarkTheme } from "react-native-paper";
 
 import { ApolloProvider } from "react-apollo";
@@ -13,25 +8,24 @@ import ApolloClient from "./services/ApolloClient";
 
 //import { ConfigStageName } from "./config";
 
-import Drawer from "./components/Drawer";
-
 import AuthLoadingScreen from "./screens/AuthLoadingScreen";
 import AuthScreen from "./screens/AuthScreen";
 import HomeScreen from "./screens/HomeScreen";
 import LatestValuesScreen from "./screens/LatestValuesScreen";
+import SettingsScreen from "./screens/SettingsScreen";
 
 //
 // Set up navigation
 //
 
-const AppNavigator = createDrawerNavigator(
+const AppNavigator = createStackNavigator(
   {
     Home: { screen: HomeScreen },
     LatestValues: { screen: LatestValuesScreen },
+    Settings: { screen: SettingsScreen },
   },
   {
     initialRouteName: "Home",
-    contentComponent: Drawer,
   }
 );
 
