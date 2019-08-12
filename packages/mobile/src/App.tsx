@@ -1,5 +1,4 @@
 import React from "react";
-import { YellowBox } from "react-native";
 import { createAppContainer, createStackNavigator, createSwitchNavigator } from "react-navigation";
 import { Provider as PaperProvider, DarkTheme } from "react-native-paper";
 
@@ -41,11 +40,6 @@ const RootNavigator = createSwitchNavigator(
     initialRouteName: AuthLoadingScreen.routeName,
   }
 );
-
-// Temporary silencing of warnings until react-native-gesture-handler updates past 1.1.3
-// https://github.com/react-navigation/react-navigation/issues/6143
-// https://github.com/kmagiera/react-native-gesture-handler/issues/683
-YellowBox.ignoreWarnings(["Warning: componentWillUpdate is deprecated"]);
 
 const NavigationAppContainer = createAppContainer(RootNavigator);
 
