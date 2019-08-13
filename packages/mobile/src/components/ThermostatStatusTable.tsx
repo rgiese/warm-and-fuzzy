@@ -123,52 +123,60 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                               : latestAction.deviceId}{" "}
                           </Text>
 
-                          {latestAction.currentActions && (
-                            <Text style={{ fontSize: 14 }}>
-                              <ThemedText.Accent>is</ThemedText.Accent>
-
-                              {latestAction.currentActions.includes(ThermostatAction.Heat) && (
-                                <>
-                                  <ThemedText.Heat> heating</ThemedText.Heat>
-                                  {thermostatConfiguration && (
-                                    <ThemedText.Accent>
+                          <Text style={{ fontSize: 14 }}>
+                            {latestValue && (
+                              <ThemedText.Accent>
+                                &#x1f321; {latestValue.temperature}&deg;C
+                              </ThemedText.Accent>
+                            )}
+                            {latestAction.currentActions && (
+                              <>
+                                {latestAction.currentActions.includes(ThermostatAction.Heat) && (
+                                  <ThemedText.Heat>
+                                    <ThemedText.Heat style={{ fontWeight: "bold", fontSize: 18 }}>
                                       {" "}
-                                      to {thermostatConfiguration.setPointCool} &deg;C
-                                    </ThemedText.Accent>
-                                  )}
-                                </>
-                              )}
-
-                              {latestAction.currentActions.includes(ThermostatAction.Cool) && (
-                                <>
-                                  <ThemedText.Cool> cooling</ThemedText.Cool>
-                                  {thermostatConfiguration && (
-                                    <ThemedText.Accent>
+                                      &#8599;
+                                    </ThemedText.Heat>
+                                    {thermostatConfiguration && (
+                                      <>{thermostatConfiguration.setPointHeat} &deg;C</>
+                                    )}
+                                  </ThemedText.Heat>
+                                )}
+                                {latestAction.currentActions.includes(ThermostatAction.Cool) && (
+                                  <ThemedText.Cool>
+                                    <ThemedText.Cool style={{ fontWeight: "bold", fontSize: 18 }}>
                                       {" "}
-                                      to {thermostatConfiguration.setPointCool} &deg;C
-                                    </ThemedText.Accent>
-                                  )}
-                                </>
-                              )}
-
-                              {latestAction.currentActions.includes(ThermostatAction.Circulate) && (
-                                <>
-                                  {latestAction.currentActions.length > 1 && (
-                                    <ThemedText.Accent> and</ThemedText.Accent>
-                                  )}
-                                  <ThemedText.Circulate> circulating</ThemedText.Circulate>
-                                </>
-                              )}
-                            </Text>
-                          )}
+                                      &#8600;
+                                    </ThemedText.Cool>
+                                    {thermostatConfiguration && (
+                                      <>{thermostatConfiguration.setPointCool} &deg;C</>
+                                    )}
+                                  </ThemedText.Cool>
+                                )}
+                                {latestAction.currentActions.includes(
+                                  ThermostatAction.Circulate
+                                ) && (
+                                  <ThemedText.Circulate
+                                    style={{ fontWeight: "bold", fontSize: 18 }}
+                                  >
+                                    {" "}
+                                    &#x267A;
+                                  </ThemedText.Circulate>
+                                )}
+                              </>
+                            )}
+                            {latestValue && latestValue.humidity && (
+                              <ThemedText.Accent>
+                                {"  "}&#x1F4A7; {latestValue.humidity} RH
+                              </ThemedText.Accent>
+                            )}
+                          </Text>
                         </>
                       }
                       description={
                         latestValue ? (
                           <ThemedText.Accent>
-                            Reported {latestValue.temperature}&deg;C
-                            {latestValue.humidity && <> ({latestValue.humidity}% humidity)</>}{" "}
-                            {moment(latestValue.deviceTime).fromNow()}
+                            Last updated {moment(latestValue.deviceTime).fromNow()}
                           </ThemedText.Accent>
                         ) : null
                       }
