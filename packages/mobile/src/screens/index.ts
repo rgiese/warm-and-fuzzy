@@ -12,13 +12,11 @@ import AuthLoadingScreen from "./AuthLoadingScreen";
 import AuthScreen from "./AuthScreen";
 import AccountScreen from "./AccountScreen";
 import HomeScreen from "./HomeScreen";
-import LatestValuesScreen from "./LatestValuesScreen";
 
 // App screens
 const AppNavigator = createStackNavigator(
   {
     [HomeScreen.routeName]: { screen: HomeScreen },
-    [LatestValuesScreen.routeName]: { screen: LatestValuesScreen },
     [AccountScreen.routeName]: { screen: AccountScreen },
   },
   {
