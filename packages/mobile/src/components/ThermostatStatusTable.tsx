@@ -13,6 +13,8 @@ import {
   ThermostatConfiguration,
 } from "../../generated/graphqlClient";
 
+import * as ThemedText from "./ThemedText";
+
 import { ColorCodes } from "../Theme";
 
 gql`
@@ -122,34 +124,28 @@ class ThermostatStatusTable extends React.Component<Props, State> {
 
                           {latestAction.currentActions && (
                             <Text style={{ fontSize: 14 }}>
-                              <Text style={{ color: this.props.theme.colors.accent }}>is</Text>
+                              <ThemedText.Accent>is</ThemedText.Accent>
 
                               {latestAction.currentActions.includes(ThermostatAction.Heat) && (
                                 <>
-                                  <Text style={{ color: ColorCodes[ThermostatAction.Heat] }}>
-                                    {" "}
-                                    heating
-                                  </Text>
+                                  <ThemedText.Heat> heating</ThemedText.Heat>
                                   {thermostatConfiguration && (
-                                    <Text style={{ color: this.props.theme.colors.accent }}>
+                                    <ThemedText.Accent>
                                       {" "}
                                       to {thermostatConfiguration.setPointCool} &deg;C
-                                    </Text>
+                                    </ThemedText.Accent>
                                   )}
                                 </>
                               )}
 
                               {latestAction.currentActions.includes(ThermostatAction.Cool) && (
                                 <>
-                                  <Text style={{ color: ColorCodes[ThermostatAction.Cool] }}>
-                                    {" "}
-                                    cooling
-                                  </Text>
+                                  <ThemedText.Cool> cooling</ThemedText.Cool>
                                   {thermostatConfiguration && (
-                                    <Text style={{ color: this.props.theme.colors.accent }}>
+                                    <ThemedText.Accent>
                                       {" "}
                                       to {thermostatConfiguration.setPointCool} &deg;C
-                                    </Text>
+                                    </ThemedText.Accent>
                                   )}
                                 </>
                               )}
@@ -157,15 +153,9 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                               {latestAction.currentActions.includes(ThermostatAction.Circulate) && (
                                 <>
                                   {latestAction.currentActions.length > 1 && (
-                                    <Text style={{ color: this.props.theme.colors.accent }}>
-                                      {" "}
-                                      and
-                                    </Text>
+                                    <ThemedText.Accent> and</ThemedText.Accent>
                                   )}
-                                  <Text style={{ color: ColorCodes[ThermostatAction.Circulate] }}>
-                                    {" "}
-                                    circulating
-                                  </Text>
+                                  <ThemedText.Circulate> circulating</ThemedText.Circulate>
                                 </>
                               )}
                             </Text>
@@ -174,13 +164,13 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       }
                       description={
                         latestValue ? (
-                          <Text style={{ color: this.props.theme.colors.accent }}>
+                          <ThemedText.Accent>
                             Reports <Text>{latestValue.temperature} &deg;C</Text>{" "}
                             {latestValue.humidity && (
                               <Text>({latestValue.humidity}% humidity)</Text>
                             )}
                             {/*as of five minutes ago*/}
-                          </Text>
+                          </ThemedText.Accent>
                         ) : null
                       }
                     >
