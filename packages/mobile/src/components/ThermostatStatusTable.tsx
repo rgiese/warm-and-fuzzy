@@ -3,6 +3,7 @@ import { ActivityIndicator, List, Switch, Text, Title, Theme, withTheme } from "
 import Slider from "@react-native-community/slider";
 
 import gql from "graphql-tag";
+import moment from "moment";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
@@ -165,11 +166,9 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       description={
                         latestValue ? (
                           <ThemedText.Accent>
-                            Reports <Text>{latestValue.temperature} &deg;C</Text>{" "}
-                            {latestValue.humidity && (
-                              <Text>({latestValue.humidity}% humidity)</Text>
-                            )}
-                            {/*as of five minutes ago*/}
+                            Reported {latestValue.temperature}&deg;C
+                            {latestValue.humidity && <> ({latestValue.humidity}% humidity)</>}{" "}
+                            {moment(latestValue.deviceTime).fromNow()}
                           </ThemedText.Accent>
                         ) : null
                       }
