@@ -16,7 +16,7 @@ const appTheme: Theme = {
 export const ColorCodes = {
   [ThermostatAction.Heat]: "#ff7070",
   [ThermostatAction.Cool]: "#7070ff",
-  [ThermostatAction.Circulate]: "#70ff70",
+  [ThermostatAction.Circulate]: "#aa70ff",
 };
 
 export default appTheme;

@@ -1,6 +1,10 @@
 import React from "react";
-import { ActivityIndicator, DataTable, Text, Title, Theme, withTheme } from "react-native-paper";
+import { ActivityIndicator, List, Switch, Text, Title, Theme, withTheme } from "react-native-paper";
+import Slider from "@react-native-community/slider";
+
 import gql from "graphql-tag";
+
+import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import {
   SensorValue,
@@ -53,41 +57,6 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  private renderSetPoints = (
-    thermostatConfiguration: LatestThermostatConfiguration
-  ): React.ReactElement => {
-    const allowedActions = thermostatConfiguration.allowedActions;
-
-    if (allowedActions.includes(ThermostatAction.Cool)) {
-      return (
-        <Text style={{ color: ColorCodes[ThermostatAction.Cool] }}>
-          {thermostatConfiguration.setPointCool}&deg;C
-        </Text>
-      );
-    } else if (allowedActions.includes(ThermostatAction.Heat)) {
-      return (
-        <Text style={{ color: ColorCodes[ThermostatAction.Heat] }}>
-          {thermostatConfiguration.setPointHeat}&deg;C
-        </Text>
-      );
-    }
-
-    return <></>;
-  };
-  private renderCurrentActions = (actions: ThermostatAction[]): React.ReactElement => {
-    if (actions.includes(ThermostatAction.Cool) && actions.includes(ThermostatAction.Heat)) {
-      return <Text>Error</Text>;
-    }
-
-    if (actions.includes(ThermostatAction.Cool)) {
-      return <Text style={{ color: ColorCodes[ThermostatAction.Cool] }}>Cool</Text>;
-    } else if (actions.includes(ThermostatAction.Heat)) {
-      return <Text style={{ color: ColorCodes[ThermostatAction.Heat] }}>Heat</Text>;
-    }
-
-    return <></>;
-  };
-
   public render(): React.ReactElement {
     return (
       <LatestValuesComponent>
@@ -132,16 +101,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
           );
 
           return (
-            <DataTable>
-              <DataTable.Header>
-                {/* eslint-disable react-native/no-raw-text */}
-                <DataTable.Title>Thermostat</DataTable.Title>
-                <DataTable.Title>Setpoint</DataTable.Title>
-                <DataTable.Title>Action</DataTable.Title>
-                <DataTable.Title numeric>Temperature</DataTable.Title>
-                <DataTable.Title numeric>Humidity</DataTable.Title>
-                {/* eslint-enable react-native/no-raw-text */}
-              </DataTable.Header>
+            <List.Section>
               {sortedActions.map(
                 (latestAction): React.ReactElement => {
                   const thermostatConfiguration = thermostatConfigurations.get(
@@ -150,39 +110,153 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   const latestValue = latestValues.get(latestAction.deviceId);
 
                   return (
-                    <DataTable.Row key={latestAction.deviceId}>
-                      <DataTable.Cell>
-                        {thermostatConfiguration
-                          ? thermostatConfiguration.name
-                          : latestAction.deviceId}
-                      </DataTable.Cell>
-                      <DataTable.Cell>
-                        {thermostatConfiguration && this.renderSetPoints(thermostatConfiguration)}
-                      </DataTable.Cell>
-                      <DataTable.Cell>
-                        {this.renderCurrentActions(latestAction.currentActions)}
-                      </DataTable.Cell>
-                      <DataTable.Cell numeric>
-                        {latestValue && (
-                          <>
-                            {latestValue.temperature}
-                            <Text style={{ color: this.props.theme.colors.accent }}>&deg;C</Text>
-                          </>
-                        )}
-                      </DataTable.Cell>
-                      <DataTable.Cell numeric>
-                        {latestValue && latestValue.humidity && (
-                          <>
-                            {latestValue.humidity}
-                            <Text style={{ color: this.props.theme.colors.accent }}>%</Text>
-                          </>
-                        )}
-                      </DataTable.Cell>
-                    </DataTable.Row>
+                    <List.Accordion
+                      key={latestAction.deviceId}
+                      title={
+                        <>
+                          <Text>
+                            {thermostatConfiguration
+                              ? thermostatConfiguration.name
+                              : latestAction.deviceId}{" "}
+                          </Text>
+
+                          {latestAction.currentActions && (
+                            <Text style={{ fontSize: 14 }}>
+                              <Text style={{ color: this.props.theme.colors.accent }}>is</Text>
+
+                              {latestAction.currentActions.includes(ThermostatAction.Heat) && (
+                                <>
+                                  <Text style={{ color: ColorCodes[ThermostatAction.Heat] }}>
+                                    {" "}
+                                    heating
+                                  </Text>
+                                  {thermostatConfiguration && (
+                                    <Text style={{ color: this.props.theme.colors.accent }}>
+                                      {" "}
+                                      to {thermostatConfiguration.setPointCool} &deg;C
+                                    </Text>
+                                  )}
+                                </>
+                              )}
+
+                              {latestAction.currentActions.includes(ThermostatAction.Cool) && (
+                                <>
+                                  <Text style={{ color: ColorCodes[ThermostatAction.Cool] }}>
+                                    {" "}
+                                    cooling
+                                  </Text>
+                                  {thermostatConfiguration && (
+                                    <Text style={{ color: this.props.theme.colors.accent }}>
+                                      {" "}
+                                      to {thermostatConfiguration.setPointCool} &deg;C
+                                    </Text>
+                                  )}
+                                </>
+                              )}
+
+                              {latestAction.currentActions.includes(ThermostatAction.Circulate) && (
+                                <>
+                                  {latestAction.currentActions.length > 1 && (
+                                    <Text style={{ color: this.props.theme.colors.accent }}>
+                                      {" "}
+                                      and
+                                    </Text>
+                                  )}
+                                  <Text style={{ color: ColorCodes[ThermostatAction.Circulate] }}>
+                                    {" "}
+                                    circulating
+                                  </Text>
+                                </>
+                              )}
+                            </Text>
+                          )}
+                        </>
+                      }
+                      description={
+                        latestValue ? (
+                          <Text style={{ color: this.props.theme.colors.accent }}>
+                            Reports <Text>{latestValue.temperature} &deg;C</Text>{" "}
+                            {latestValue.humidity && (
+                              <Text>({latestValue.humidity}% humidity)</Text>
+                            )}
+                            {/*as of five minutes ago*/}
+                          </Text>
+                        ) : null
+                      }
+                    >
+                      {thermostatConfiguration && (
+                        <>
+                          <List.Item
+                            description="Heat set point"
+                            left={(_props): React.ReactElement => (
+                              <Switch
+                                value={thermostatConfiguration.allowedActions.includes(
+                                  ThermostatAction.Heat
+                                )}
+                                color={ColorCodes[ThermostatAction.Heat]}
+                              />
+                            )}
+                            title={
+                              <>
+                                <Text>{thermostatConfiguration.setPointHeat} &deg;C</Text>
+                                <Slider
+                                  value={thermostatConfiguration.setPointHeat}
+                                  minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
+                                  maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+                                  step={0.5}
+                                  minimumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
+                                  thumbTintColor={ColorCodes[ThermostatAction.Heat]}
+                                  style={{ width: 200, height: 12 }}
+                                />
+                              </>
+                            }
+                          />
+
+                          <List.Item
+                            description="Cool set point"
+                            left={(_props): React.ReactElement => (
+                              <Switch
+                                value={thermostatConfiguration.allowedActions.includes(
+                                  ThermostatAction.Cool
+                                )}
+                                color={ColorCodes[ThermostatAction.Cool]}
+                              />
+                            )}
+                            title={
+                              <>
+                                <Text>{thermostatConfiguration.setPointCool} &deg;C</Text>
+                                <Slider
+                                  value={thermostatConfiguration.setPointCool}
+                                  minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
+                                  maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+                                  step={0.5}
+                                  minimumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
+                                  thumbTintColor={ColorCodes[ThermostatAction.Cool]}
+                                  style={{ width: 200, height: 12 }}
+                                />
+                              </>
+                            }
+                          />
+
+                          <List.Item
+                            description="Force circulation"
+                            left={(_props): React.ReactElement => (
+                              <Switch
+                                value={thermostatConfiguration.allowedActions.includes(
+                                  ThermostatAction.Circulate
+                                )}
+                                color={ColorCodes[ThermostatAction.Circulate]}
+                              />
+                            )}
+                            title="Circulate"
+                          />
+                        </>
+                      )}
+                    </List.Accordion>
                   );
                 }
               )}
-            </DataTable>
+            </List.Section>
           );
         }}
       </LatestValuesComponent>
