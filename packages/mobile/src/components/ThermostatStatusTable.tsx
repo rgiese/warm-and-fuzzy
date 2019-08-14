@@ -8,15 +8,14 @@ import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
 import gql from "graphql-tag";
 import moment from "moment";
 
+import { ArrayElementType, PropType } from "../TypeTools";
+
 //import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import {
-  DeviceAction,
-  SensorValue,
   LatestValuesComponent,
   LatestValuesQuery,
   ThermostatAction,
-  ThermostatConfiguration,
 } from "../../generated/graphqlClient";
 
 import * as ThemedText from "./ThemedText";
@@ -45,16 +44,16 @@ gql`
   }
 `;
 
-type LatestSensorValue = Pick<SensorValue, "temperature" | "humidity">;
-type LatestThermostatConfiguration = Pick<
-  ThermostatConfiguration,
-  "name" | "setPointCool" | "setPointHeat" | "allowedActions"
+type LatestAction = ArrayElementType<PropType<LatestValuesQuery, "getLatestActions">>;
+type LatestValue = ArrayElementType<PropType<LatestValuesQuery, "getLatestValues">>;
+type LatestConfiguration = ArrayElementType<
+  PropType<LatestValuesQuery, "getThermostatConfigurations">
 >;
 
 type ThermostatStatus = {
-  action: Pick<DeviceAction, "deviceId" | "deviceTime" | "currentActions">;
-  value?: LatestSensorValue;
-  configuration?: LatestThermostatConfiguration;
+  action: LatestAction;
+  value?: LatestValue;
+  configuration?: LatestConfiguration;
 };
 
 const styles = StyleSheet.create({
@@ -136,14 +135,11 @@ class ThermostatStatusTable extends React.Component<Props, State> {
 
     // Build maps
     const thermostatConfigurations = new Map(
-      data.getThermostatConfigurations.map((c): [string, LatestThermostatConfiguration] => [
-        c.deviceId,
-        c,
-      ])
+      data.getThermostatConfigurations.map((c): [string, LatestConfiguration] => [c.deviceId, c])
     );
 
     const latestValues = new Map(
-      data.getLatestValues.map((v): [string, LatestSensorValue] => [v.sensorId, v])
+      data.getLatestValues.map((v): [string, LatestValue] => [v.sensorId, v])
     );
 
     // Assemble and sort data
