@@ -13,14 +13,16 @@ import AuthScreen from "./AuthScreen";
 import AccountScreen from "./AccountScreen";
 import HomeScreen from "./HomeScreen";
 
+import ScreenRoutes from "./ScreenRoutes";
+
 // App screens
 const AppNavigator = createStackNavigator(
   {
-    [HomeScreen.routeName]: { screen: HomeScreen },
-    [AccountScreen.routeName]: { screen: AccountScreen },
+    [ScreenRoutes.Home]: { screen: HomeScreen },
+    [ScreenRoutes.Account]: { screen: AccountScreen },
   },
   {
-    initialRouteName: HomeScreen.routeName,
+    initialRouteName: ScreenRoutes.Home,
     defaultNavigationOptions: (
       navigationOptionsContainer: NavigationScreenConfigProps
     ): NavigationScreenOptions => {
@@ -40,7 +42,7 @@ const AppNavigator = createStackNavigator(
 // Auth flow screens
 const AuthNavigator = createStackNavigator(
   {
-    [AuthScreen.routeName]: AuthScreen,
+    [ScreenRoutes.Auth]: AuthScreen,
   },
   {
     defaultNavigationOptions: {
@@ -52,12 +54,12 @@ const AuthNavigator = createStackNavigator(
 // Stitch together app and auth flow
 const RootNavigator = createSwitchNavigator(
   {
-    [AuthLoadingScreen.routeName]: AuthLoadingScreen,
+    [ScreenRoutes.AuthLoading]: AuthLoadingScreen,
     App: AppNavigator,
     Auth: AuthNavigator,
   },
   {
-    initialRouteName: AuthLoadingScreen.routeName,
+    initialRouteName: ScreenRoutes.AuthLoading,
   }
 );
 
