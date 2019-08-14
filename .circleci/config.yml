@@ -212,7 +212,7 @@ workflows:
   mobile:
     jobs:
       - mobile-build:
-        context: warm-and-fuzzy-git-secrets
+          context: warm-and-fuzzy-git-secrets
 
   firmware:
     jobs:
