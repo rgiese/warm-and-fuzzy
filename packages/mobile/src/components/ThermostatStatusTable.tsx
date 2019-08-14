@@ -164,7 +164,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
 
   public render(): React.ReactElement {
     return (
-      <LatestValuesComponent>
+      <LatestValuesComponent pollInterval={60 * 1000}>
         {({ loading, error, data, refetch }): React.ReactElement => {
           if (error) {
             return (
