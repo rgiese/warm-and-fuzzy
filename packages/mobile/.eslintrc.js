@@ -3,6 +3,7 @@ module.exports = {
   extends: ["react-app", "plugin:react-native/all"],
   rules: {
     "react-native/no-inline-styles": "off",
-    "react-native/no-raw-text": ["error", { skip: ["Button", "Caption", "Paragraph", "Title"] }],
+    "react-native/no-raw-text": "off",
+    "react-native/sort-styles": ["error", "asc", { ignoreClassNames: true }],
   },
 };

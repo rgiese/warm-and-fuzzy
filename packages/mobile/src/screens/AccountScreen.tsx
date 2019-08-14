@@ -9,11 +9,11 @@ import {
 import { GlobalAuth } from "../services/Auth";
 import ApolloClient from "../services/ApolloClient";
 
-import AuthScreen from "./AuthScreen";
-
 import BaseView from "../components/BaseView";
 
 import { ConfigStageName } from "../config";
+
+import ScreenRoutes from "./ScreenRoutes";
 
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
@@ -28,8 +28,6 @@ class AccountScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  public static routeName = "Account";
-
   static navigationOptions: NavigationStackScreenOptions = {
     title: "Account",
   };
@@ -38,7 +36,7 @@ class AccountScreen extends React.Component<Props, State> {
     await GlobalAuth.logout();
     ApolloClient.resetStore();
 
-    this.props.navigation.navigate(AuthScreen.routeName);
+    this.props.navigation.navigate(ScreenRoutes.Auth);
   };
 
   public render(): React.ReactElement {

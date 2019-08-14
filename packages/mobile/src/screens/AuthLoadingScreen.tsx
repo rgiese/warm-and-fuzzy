@@ -4,10 +4,9 @@ import { NavigationScreenProp, NavigationState } from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
 
-import AuthScreen from "./AuthScreen";
-import HomeScreen from "./HomeScreen";
-
 import BaseView from "../components/BaseView";
+
+import ScreenRoutes from "./ScreenRoutes";
 
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
@@ -24,8 +23,6 @@ class AuthLoadingScreen extends React.Component<Props, State> {
     this.bootstrapAsync();
   }
 
-  public static routeName = "AuthLoading";
-
   private async bootstrapAsync(): Promise<void> {
     await GlobalAuth.initialize();
 
@@ -36,7 +33,7 @@ class AuthLoadingScreen extends React.Component<Props, State> {
     }
 
     this.props.navigation.navigate(
-      GlobalAuth.IsAuthenticated ? HomeScreen.routeName : AuthScreen.routeName
+      GlobalAuth.IsAuthenticated ? ScreenRoutes.Home : ScreenRoutes.Auth
     );
   }
 

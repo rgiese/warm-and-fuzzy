@@ -4,12 +4,12 @@ import { NavigationScreenProp, NavigationState } from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
 
-import HomeScreen from "./HomeScreen";
-
 import BaseView from "../components/BaseView";
 import GrumpyRobin from "../assets/grumpy-robin.svg";
 
 import { ConfigStageName } from "../config";
+
+import ScreenRoutes from "./ScreenRoutes";
 
 interface Props {
   navigation: NavigationScreenProp<NavigationState>;
@@ -30,8 +30,6 @@ class AuthScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  public static routeName = "Auth";
-
   private handleLogin = async (): Promise<void> => {
     this.setState({ signingIn: true });
 
@@ -39,7 +37,7 @@ class AuthScreen extends React.Component<Props, State> {
 
     if (isAuthenticated) {
       this.setState({ signingIn: false });
-      this.props.navigation.navigate(HomeScreen.routeName);
+      this.props.navigation.navigate(ScreenRoutes.Home);
     }
   };
 

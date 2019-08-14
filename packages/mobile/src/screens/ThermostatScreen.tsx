@@ -6,34 +6,36 @@ import {
 } from "react-navigation";
 
 import BaseView from "../components/BaseView";
-import LatestValues from "../components/LatestValues";
+import ThermostatConfiguration from "../components/ThermostatConfiguration";
+
+export interface ThermostatNavigationParams {
+  deviceId: string;
+}
 
 interface Props {
-  navigation: NavigationScreenProp<NavigationState>;
+  navigation: NavigationScreenProp<NavigationState, ThermostatNavigationParams>;
 }
 
 class State {}
 
-class LatestValuesScreen extends React.Component<Props, State> {
+class ThermostatScreen extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
 
     this.state = new State();
   }
 
-  public static routeName = "LatestValues";
-
   static navigationOptions: NavigationStackScreenOptions = {
-    title: "Latest values",
+    title: "Thermostat settings",
   };
 
   public render(): React.ReactElement {
     return (
       <BaseView>
-        <LatestValues />
+        <ThermostatConfiguration deviceId={this.props.navigation.state.params.deviceId} />
       </BaseView>
     );
   }
 }
 
-export default LatestValuesScreen;
+export default ThermostatScreen;
