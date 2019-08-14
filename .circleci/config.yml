@@ -118,6 +118,7 @@ jobs:
           key: v1-mobile-dependencies-{{ checksum "package.json" }}
 
       # Run builds
+      - run: npm run decrypt-secrets
       - run: npm run build:shared
       - run: npm run bundle:mobile
 
@@ -210,7 +211,8 @@ workflows:
 
   mobile:
     jobs:
-      - mobile-build
+      - mobile-build:
+        context: warm-and-fuzzy-git-secrets
 
   firmware:
     jobs:
