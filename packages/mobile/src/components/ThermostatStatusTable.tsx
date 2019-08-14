@@ -1,16 +1,14 @@
 import React from "react";
 import { FlatList, View, StyleSheet } from "react-native";
 import { ActivityIndicator, Text, Title, Theme, withTheme } from "react-native-paper";
-//import Slider from "@react-native-community/slider";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
+import { withNavigation, NavigationInjectedProps } from "react-navigation";
 
 import gql from "graphql-tag";
 import moment from "moment";
 
 import { ArrayElementType, PropType } from "../TypeTools";
-
-//import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import {
   LatestValuesComponent,
@@ -18,9 +16,11 @@ import {
   ThermostatAction,
 } from "../../generated/graphqlClient";
 
+import { ColorCodes } from "../Theme";
 import * as ThemedText from "./ThemedText";
 
-import { ColorCodes } from "../Theme";
+import ScreenRoutes from "../screens/ScreenRoutes";
+import { ThermostatNavigationParams } from "../screens/ThermostatScreen";
 
 gql`
   query LatestValues {
@@ -85,7 +85,7 @@ const iconSizes = {
   arrows: 14,
 };
 
-interface Props {
+interface Props extends NavigationInjectedProps {
   theme: Theme;
 }
 
@@ -127,10 +127,6 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     // Rehydrate custom types
     data.getLatestActions.forEach((a): void => {
       a.deviceTime = new Date(a.deviceTime);
-    });
-
-    data.getLatestValues.forEach((v): void => {
-      v.deviceTime = new Date(v.deviceTime);
     });
 
     // Build maps
@@ -193,6 +189,10 @@ class ThermostatStatusTable extends React.Component<Props, State> {
               onRefresh={() => refetch()}
               renderItem={({ item }): React.ReactElement => (
                 <TouchableOpacity
+                  onPress={() => {
+                    const params: ThermostatNavigationParams = { deviceId: item.action.deviceId };
+                    this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
+                  }}
                   style={{
                     ...styles.flexColumn,
                     paddingLeft: 20,
@@ -301,72 +301,4 @@ class ThermostatStatusTable extends React.Component<Props, State> {
   }
 }
 
-export default withTheme(ThermostatStatusTable);
-
-/*
-                            <List.Item
-                              description="Heat set point"
-                              left={(_props): React.ReactElement => (
-                                <Switch
-                                  value={thermostatConfiguration.allowedActions.includes(
-                                    ThermostatAction.Heat
-                                  )}
-                                  color={ColorCodes[ThermostatAction.Heat]}
-                                />
-                              )}
-                              title={
-                                <>
-                                  <Text>{thermostatConfiguration.setPointHeat} &deg;C</Text>
-                                  <Slider
-                                    value={thermostatConfiguration.setPointHeat}
-                                    minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-                                    maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                                    step={0.5}
-                                    minimumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
-                                    thumbTintColor={ColorCodes[ThermostatAction.Heat]}
-                                    style={{ width: 200, height: 12 }}
-                                  />
-                                </>
-                              }
-                            />
-
-                            <List.Item
-                              description="Cool set point"
-                              left={(_props): React.ReactElement => (
-                                <Switch
-                                  value={thermostatConfiguration.allowedActions.includes(
-                                    ThermostatAction.Cool
-                                  )}
-                                  color={ColorCodes[ThermostatAction.Cool]}
-                                />
-                              )}
-                              title={
-                                <>
-                                  <Text>{thermostatConfiguration.setPointCool} &deg;C</Text>
-                                  <Slider
-                                    value={thermostatConfiguration.setPointCool}
-                                    minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-                                    maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                                    step={0.5}
-                                    minimumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
-                                    thumbTintColor={ColorCodes[ThermostatAction.Cool]}
-                                    style={{ width: 200, height: 12 }}
-                                  />
-                                </>
-                              }
-                            />
-
-                            <List.Item
-                              description="Force circulation"
-                              left={(_props): React.ReactElement => (
-                                <Switch
-                                  value={thermostatConfiguration.allowedActions.includes(
-                                    ThermostatAction.Circulate
-                                  )}
-                                  color={ColorCodes[ThermostatAction.Circulate]}
-                                />
-                              )}
-                              title="Circulate"
-                            />
-
-*/
+export default withTheme(withNavigation(ThermostatStatusTable));

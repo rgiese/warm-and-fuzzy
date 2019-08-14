@@ -12,6 +12,7 @@ import AuthLoadingScreen from "./AuthLoadingScreen";
 import AuthScreen from "./AuthScreen";
 import AccountScreen from "./AccountScreen";
 import HomeScreen from "./HomeScreen";
+import ThermostatScreen from "./ThermostatScreen";
 
 import ScreenRoutes from "./ScreenRoutes";
 
@@ -20,6 +21,7 @@ const AppNavigator = createStackNavigator(
   {
     [ScreenRoutes.Home]: { screen: HomeScreen },
     [ScreenRoutes.Account]: { screen: AccountScreen },
+    [ScreenRoutes.Thermostat]: { screen: ThermostatScreen },
   },
   {
     initialRouteName: ScreenRoutes.Home,
