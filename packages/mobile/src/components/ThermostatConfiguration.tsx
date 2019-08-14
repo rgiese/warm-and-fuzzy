@@ -134,6 +134,7 @@ class ThermostatConfiguration extends React.Component<Props, State> {
       >({
         query: ThermostatConfigurationDocument,
         variables: { deviceId: this.props.deviceId },
+        fetchPolicy: "network-only",
       });
 
       if (queryResult.errors) {
