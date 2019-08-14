@@ -24,7 +24,7 @@
     "start-mobile:remote:prod": "cross-env ENVFILE=.env.prod react-native run-android",
     "prebundle-mobile": "npm-run-all codegen:*",
     "bundle-mobile": "cross-env ENVFILE=.env.prod run-script-os",
-    "bundle-mobile:win32": "jetify && cd .\\android && gradlew.bat clean && ./gradlew.bat bundleRelease",
+    "bundle-mobile:win32": "jetify && cd .\\android && gradlew.bat clean && gradlew.bat bundleRelease",
     "bundle-mobile:default": "jetify && cd ./android && ./gradlew clean && ./gradlew bundleRelease",
     "clean-mobile": "cross-env ENVFILE=.env.prod run-script-os",
     "clean-mobile:win32": "cd .\\android && gradlew.bat clean",
