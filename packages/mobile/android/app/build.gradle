@@ -121,6 +121,17 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
+/**
+ * Load keystore secrets, if available
+ */
+def keystorePropsFile = file('waf-upload-key.password.decrypted')
+
+Properties keystoreProps = new Properties()
+
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+}
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -154,8 +165,8 @@ android {
         release {
             storeFile file('waf-upload-key.keystore.decrypted')
             keyAlias 'waf'
-            storePassword file('waf-upload-key.password.decrypted')
-            keyPassword file('waf-upload-key.password.decrypted')
+            storePassword keystoreProps['keystore.password']
+            keyPassword keystoreProps['keystore.password']
         }
     }
     buildTypes {
