@@ -1,6 +1,13 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { ActivityIndicator, Checkbox, Text, Title, Theme, withTheme } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Switch,
+  Text,
+  Title,
+  Theme,
+  withTheme,
+} from "react-native-paper";
 import Slider from "@react-native-community/slider";
 
 import gql from "graphql-tag";
@@ -46,13 +53,18 @@ gql`
 `;
 
 const styles = StyleSheet.create({
-  flexColumn: {
+  // Top-level view
+  componentView: {
     flex: 1,
     flexDirection: "column",
+    paddingLeft: 20,
+    paddingRight: 20,
   },
-  nameText: {
+  // Thermostat label
+  thermostatLabel: {
     fontSize: 20,
   },
+  // One row per set point
   setPointRow: {
     flex: 1,
     flexDirection: "row",
@@ -60,12 +72,20 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 8,
   },
+  // Left column: text
   setPointText: {
+    flex: 2,
     fontSize: 16,
   },
-  slider: {
+  // Center column: slider
+  setPointSlider: {
+    flex: 3,
     height: 12,
-    width: 200,
+    width: 100,
+  },
+  // Right column: switch
+  setPointSwitch: {
+    flex: 1,
   },
 });
 
@@ -108,16 +128,14 @@ class ThermostatConfiguration extends React.Component<Props, State> {
     }
   }
 
-  private toggleAllowedAction(action: ThermostatAction): void {
+  private updateAllowedAction(action: ThermostatAction, allowed: boolean): void {
     if (!this.state.thermostatConfiguration) {
       return;
     }
 
-    let actions = this.state.thermostatConfiguration.allowedActions;
+    let actions = this.state.thermostatConfiguration.allowedActions.filter(a => a != action);
 
-    if (actions.includes(action)) {
-      actions = actions.filter(a => a != action);
-    } else {
+    if (allowed) {
       actions.push(action);
     }
 
@@ -154,26 +172,18 @@ class ThermostatConfiguration extends React.Component<Props, State> {
       <UpdateThermostatConfigurationComponent>
         {(_mutateFn): React.ReactElement => {
           return (
-            <View style={{ ...styles.flexColumn, paddingLeft: 20 }}>
+            <View style={styles.componentView}>
               {/* Name */}
-              <Text style={styles.nameText}>{thermostatConfiguration.name}</Text>
+              <Text style={styles.thermostatLabel}>{thermostatConfiguration.name}</Text>
 
               {/* Set point: Heat */}
               <View style={styles.setPointRow}>
-                <Checkbox
-                  status={
-                    thermostatConfiguration.allowedActions.includes(ThermostatAction.Heat)
-                      ? "checked"
-                      : "unchecked"
-                  }
-                  onPress={_event => this.toggleAllowedAction(ThermostatAction.Heat)}
-                  color={ColorCodes[ThermostatAction.Heat]}
-                />
                 <Text style={styles.setPointText}>
                   <ThemedText.Heat>Heat</ThemedText.Heat> to {thermostatConfiguration.setPointHeat}{" "}
                   &deg;C
                 </Text>
                 <Slider
+                  style={styles.setPointSlider}
                   value={thermostatConfiguration.setPointHeat}
                   onValueChange={(value): void =>
                     this.setState({
@@ -185,29 +195,27 @@ class ThermostatConfiguration extends React.Component<Props, State> {
                   }
                   minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
                   maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                  step={0.5}
+                  step={1}
                   minimumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
+                  maximumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
                   thumbTintColor={ColorCodes[ThermostatAction.Heat]}
-                  style={styles.slider}
+                />
+                <Switch
+                  style={styles.setPointSwitch}
+                  value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Heat)}
+                  onValueChange={value => this.updateAllowedAction(ThermostatAction.Heat, value)}
+                  color={ColorCodes[ThermostatAction.Heat]}
                 />
               </View>
 
               {/* Set point: Cool */}
               <View style={styles.setPointRow}>
-                <Checkbox
-                  status={
-                    thermostatConfiguration.allowedActions.includes(ThermostatAction.Cool)
-                      ? "checked"
-                      : "unchecked"
-                  }
-                  onPress={_event => this.toggleAllowedAction(ThermostatAction.Cool)}
-                  color={ColorCodes[ThermostatAction.Cool]}
-                />
                 <Text style={styles.setPointText}>
                   <ThemedText.Cool>Cool</ThemedText.Cool> to {thermostatConfiguration.setPointCool}{" "}
                   &deg;C
                 </Text>
                 <Slider
+                  style={styles.setPointSlider}
                   value={thermostatConfiguration.setPointCool}
                   onValueChange={(value): void =>
                     this.setState({
@@ -219,25 +227,33 @@ class ThermostatConfiguration extends React.Component<Props, State> {
                   }
                   minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
                   maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                  step={0.5}
+                  step={1}
                   minimumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
+                  maximumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
                   thumbTintColor={ColorCodes[ThermostatAction.Cool]}
-                  style={styles.slider}
+                />
+                <Switch
+                  style={styles.setPointSwitch}
+                  value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Cool)}
+                  onValueChange={value => this.updateAllowedAction(ThermostatAction.Cool, value)}
+                  color={ColorCodes[ThermostatAction.Cool]}
                 />
               </View>
 
               {/* Set point: Circulate */}
               <View style={styles.setPointRow}>
-                <Checkbox
-                  status={
-                    thermostatConfiguration.allowedActions.includes(ThermostatAction.Circulate)
-                      ? "checked"
-                      : "unchecked"
+                <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
+                <View style={styles.setPointSlider}>{/* Empty */}</View>
+                <Switch
+                  style={styles.setPointSwitch}
+                  value={thermostatConfiguration.allowedActions.includes(
+                    ThermostatAction.Circulate
+                  )}
+                  onValueChange={value =>
+                    this.updateAllowedAction(ThermostatAction.Circulate, value)
                   }
-                  onPress={_event => this.toggleAllowedAction(ThermostatAction.Circulate)}
                   color={ColorCodes[ThermostatAction.Circulate]}
                 />
-                <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
               </View>
             </View>
           );
