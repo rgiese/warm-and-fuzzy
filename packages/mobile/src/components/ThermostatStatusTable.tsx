@@ -89,13 +89,36 @@ interface Props {
   theme: Theme;
 }
 
-class State {}
+class State {
+  latestRenderTime: Date;
+
+  constructor() {
+    this.latestRenderTime = new Date();
+  }
+}
 
 class ThermostatStatusTable extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
 
     this.state = new State();
+  }
+
+  private intervalRefreshTimeSince: any;
+
+  componentDidMount(): void {
+    //
+    // Use this.state.latestRenderTime to force a list re-render
+    // every so often in order to update the "Last update a few seconds ago" strings
+    // relative to actual/current time.
+    //
+    this.intervalRefreshTimeSince = setInterval(() => {
+      this.setState({ latestRenderTime: new Date() });
+    }, 10 * 1000);
+  }
+
+  componentWillUnmount(): void {
+    clearInterval(this.intervalRefreshTimeSince);
   }
 
   public render(): React.ReactElement {
@@ -153,6 +176,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
           return (
             <FlatList<ThermostatStatus>
               data={thermostatStatusData}
+              extraData={this.state.latestRenderTime}
               keyExtractor={(item): string => item.action.deviceId}
               renderItem={({ item }): React.ReactElement => (
                 <TouchableOpacity
@@ -250,7 +274,9 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {/* Bottom row: last updated time */}
                   <View style={{ ...styles.flexRow, height: 10 }}>
                     <ThemedText.Accent style={styles.lastUpdatedText}>
-                      Last updated {moment(item.action.deviceTime).fromNow()}
+                      Last updated{" "}
+                      {moment(item.action.deviceTime).from(this.state.latestRenderTime)}{" "}
+                      {this.state.latestRenderTime.toISOString()}
                     </ThemedText.Accent>
                   </View>
                 </TouchableOpacity>
