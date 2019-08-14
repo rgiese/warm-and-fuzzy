@@ -14,6 +14,7 @@ import {
   DeviceAction,
   SensorValue,
   LatestValuesComponent,
+  LatestValuesQuery,
   ThermostatAction,
   ThermostatConfiguration,
 } from "../../generated/graphqlClient";
@@ -98,13 +99,15 @@ class State {
 }
 
 class ThermostatStatusTable extends React.Component<Props, State> {
+  private intervalRefreshTimeSince: any;
+  private isFirstFetch: boolean;
+
   public constructor(props: Props) {
     super(props);
 
     this.state = new State();
+    this.isFirstFetch = true;
   }
-
-  private intervalRefreshTimeSince: any;
 
   componentDidMount(): void {
     //
@@ -121,15 +124,49 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     clearInterval(this.intervalRefreshTimeSince);
   }
 
+  private prepareData(data: LatestValuesQuery): ThermostatStatus[] {
+    // Rehydrate custom types
+    data.getLatestActions.forEach((a): void => {
+      a.deviceTime = new Date(a.deviceTime);
+    });
+
+    data.getLatestValues.forEach((v): void => {
+      v.deviceTime = new Date(v.deviceTime);
+    });
+
+    // Build maps
+    const thermostatConfigurations = new Map(
+      data.getThermostatConfigurations.map((c): [string, LatestThermostatConfiguration] => [
+        c.deviceId,
+        c,
+      ])
+    );
+
+    const latestValues = new Map(
+      data.getLatestValues.map((v): [string, LatestSensorValue] => [v.sensorId, v])
+    );
+
+    // Assemble and sort data
+    const thermostatStatusData = data.getLatestActions
+      .map(
+        (a): ThermostatStatus => ({
+          action: a,
+          value: latestValues.get(a.deviceId),
+          configuration: thermostatConfigurations.get(a.deviceId),
+        })
+      )
+      .sort(
+        (lhs, rhs): number => rhs.action.deviceTime.getTime() - lhs.action.deviceTime.getTime()
+      );
+
+    return thermostatStatusData;
+  }
+
   public render(): React.ReactElement {
     return (
       <LatestValuesComponent>
-        {({ loading, error, data }): React.ReactElement => {
-          if (loading) {
-            return <ActivityIndicator animating={true} />;
-          }
-
-          if (error || !data || !data.getLatestValues) {
+        {({ loading, error, data, refetch }): React.ReactElement => {
+          if (error) {
             return (
               <>
                 <Title>Error</Title>
@@ -138,46 +175,26 @@ class ThermostatStatusTable extends React.Component<Props, State> {
             );
           }
 
-          // Rehydrate custom types
-          data.getLatestActions.forEach((a): void => {
-            a.deviceTime = new Date(a.deviceTime);
-          });
+          if (loading) {
+            if (this.isFirstFetch) {
+              return <ActivityIndicator animating={true} />;
+            }
+          } else {
+            // We've succeeded at (at least) our first fetch so don't show the ActivityIndicator again
+            this.isFirstFetch = false;
+          }
 
-          data.getLatestValues.forEach((v): void => {
-            v.deviceTime = new Date(v.deviceTime);
-          });
-
-          // Build maps
-          const thermostatConfigurations = new Map(
-            data.getThermostatConfigurations.map((c): [string, LatestThermostatConfiguration] => [
-              c.deviceId,
-              c,
-            ])
-          );
-
-          const latestValues = new Map(
-            data.getLatestValues.map((v): [string, LatestSensorValue] => [v.sensorId, v])
-          );
-
-          // Assemble and sort data
-          const thermostatStatusData = data.getLatestActions
-            .map(
-              (a): ThermostatStatus => ({
-                action: a,
-                value: latestValues.get(a.deviceId),
-                configuration: thermostatConfigurations.get(a.deviceId),
-              })
-            )
-            .sort(
-              (lhs, rhs): number =>
-                rhs.action.deviceTime.getTime() - lhs.action.deviceTime.getTime()
-            );
+          const thermostatStatusData = data
+            ? this.prepareData(data)
+            : new Array<ThermostatStatus>();
 
           return (
             <FlatList<ThermostatStatus>
               data={thermostatStatusData}
               extraData={this.state.latestRenderTime}
               keyExtractor={(item): string => item.action.deviceId}
+              refreshing={loading}
+              onRefresh={() => refetch()}
               renderItem={({ item }): React.ReactElement => (
                 <TouchableOpacity
                   style={{
@@ -275,8 +292,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   <View style={{ ...styles.flexRow, height: 10 }}>
                     <ThemedText.Accent style={styles.lastUpdatedText}>
                       Last updated{" "}
-                      {moment(item.action.deviceTime).from(this.state.latestRenderTime)}{" "}
-                      {this.state.latestRenderTime.toISOString()}
+                      {moment(item.action.deviceTime).from(this.state.latestRenderTime)}
                     </ThemedText.Accent>
                   </View>
                 </TouchableOpacity>
