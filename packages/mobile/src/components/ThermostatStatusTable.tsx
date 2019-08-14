@@ -57,26 +57,37 @@ type ThermostatStatus = {
 };
 
 const styles = StyleSheet.create({
-  detailsPadding: {
+  containingListItem: {
+    flex: 1,
+    flexDirection: "column",
+    paddingLeft: 20,
+    paddingBottom: 20,
+  },
+  // Primary row (e.g. "Sensor [temp] [hum]")
+  primaryRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    height: 30,
+  },
+  thermostatName: {
+    fontSize: 18,
+  },
+  detailsIconPadding: {
     paddingLeft: 5,
   },
   detailsText: {
     fontSize: 14,
   },
-  flexColumn: {
-    flex: 1,
-    flexDirection: "column",
-  },
-  flexRow: {
+  // Secondary row (e.g. "Last updated...")
+  secondaryRow: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    height: 10,
   },
   lastUpdatedText: {
     fontSize: 12,
-  },
-  nameText: {
-    fontSize: 18,
   },
 });
 
@@ -193,16 +204,12 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                     const params: ThermostatNavigationParams = { deviceId: item.action.deviceId };
                     this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
                   }}
-                  style={{
-                    ...styles.flexColumn,
-                    paddingLeft: 20,
-                    paddingBottom: 20,
-                  }}
+                  style={styles.containingListItem}
                 >
                   {/* Top row */}
-                  <View style={{ ...styles.flexRow, height: 30 }}>
+                  <View style={styles.primaryRow}>
                     {/* Device name */}
-                    <Text style={styles.nameText}>
+                    <Text style={styles.thermostatName}>
                       {item.configuration ? item.configuration.name : item.action.deviceId}
                     </Text>
 
@@ -213,7 +220,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                         name="thermometer"
                         size={iconSizes.default}
                         color={this.props.theme.colors.accent}
-                        style={{ paddingLeft: 5 }}
+                        style={styles.detailsIconPadding}
                       />
 
                       {/* Reported temperature */}
@@ -230,7 +237,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                             name="arrow-collapse-up"
                             size={iconSizes.arrows}
                             color={ColorCodes[ThermostatAction.Heat]}
-                            style={styles.detailsPadding}
+                            style={styles.detailsIconPadding}
                           />
                           {item.configuration && (
                             <ThemedText.Heat style={styles.detailsText}>
@@ -247,7 +254,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                             name="arrow-collapse-down"
                             size={iconSizes.arrows}
                             color={ColorCodes[ThermostatAction.Cool]}
-                            style={styles.detailsPadding}
+                            style={styles.detailsIconPadding}
                           />
                           {item.configuration && (
                             <ThemedText.Cool style={styles.detailsText}>
@@ -263,7 +270,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                           name="autorenew"
                           size={iconSizes.default}
                           color={ColorCodes[ThermostatAction.Circulate]}
-                          style={styles.detailsPadding}
+                          style={styles.detailsIconPadding}
                         />
                       )}
 
@@ -274,7 +281,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                             name="water-percent"
                             size={iconSizes.default}
                             color={this.props.theme.colors.accent}
-                            style={styles.detailsPadding}
+                            style={styles.detailsIconPadding}
                           />
                           <ThemedText.Accent style={styles.detailsText}>
                             {item.value.humidity}
@@ -285,7 +292,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   </View>
 
                   {/* Bottom row: last updated time */}
-                  <View style={{ ...styles.flexRow, height: 10 }}>
+                  <View style={styles.secondaryRow}>
                     <ThemedText.Accent style={styles.lastUpdatedText}>
                       Last updated{" "}
                       {moment(item.action.deviceTime).from(this.state.latestRenderTime)}

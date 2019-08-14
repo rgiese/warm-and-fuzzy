@@ -54,7 +54,6 @@ gql`
   }
 `;
 
-/* eslint-disable react-native/sort-styles */
 const styles = StyleSheet.create({
   // Top-level view
   componentView: {
@@ -100,7 +99,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
 });
-/* eslint-enable react-native/sort-styles */
 
 interface Props {
   deviceId: string;
