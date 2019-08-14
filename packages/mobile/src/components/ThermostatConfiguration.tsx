@@ -1,7 +1,8 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { Alert, View, StyleSheet } from "react-native";
 import {
   ActivityIndicator,
+  Button,
   Switch,
   Text,
   Title,
@@ -12,6 +13,7 @@ import Slider from "@react-native-community/slider";
 
 import gql from "graphql-tag";
 import ApolloClient from "../services/ApolloClient";
+import fastCompare from "react-fast-compare";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
@@ -52,6 +54,7 @@ gql`
   }
 `;
 
+/* eslint-disable react-native/sort-styles */
 const styles = StyleSheet.create({
   // Top-level view
   componentView: {
@@ -63,6 +66,8 @@ const styles = StyleSheet.create({
   // Thermostat label
   thermostatLabel: {
     fontSize: 20,
+    paddingBottom: 4,
+    paddingTop: 4,
   },
   // One row per set point
   setPointRow: {
@@ -87,7 +92,15 @@ const styles = StyleSheet.create({
   setPointSwitch: {
     flex: 1,
   },
+  // Final row
+  saveButtonRow: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingTop: 16,
+  },
 });
+/* eslint-enable react-native/sort-styles */
 
 interface Props {
   deviceId: string;
@@ -97,6 +110,17 @@ interface Props {
 class State {
   errors?: string;
   thermostatConfiguration?: PropType<ThermostatConfigurationQuery, "getThermostatConfiguration">;
+
+  savedThermostatConfiguration?: PropType<
+    ThermostatConfigurationQuery,
+    "getThermostatConfiguration"
+  >;
+
+  isSaving: boolean;
+
+  constructor() {
+    this.isSaving = false;
+  }
 }
 
 class ThermostatConfiguration extends React.Component<Props, State> {
@@ -122,7 +146,15 @@ class ThermostatConfiguration extends React.Component<Props, State> {
         this.setState({ errors: "No data returned" });
       }
 
-      this.setState({ thermostatConfiguration: queryResult.data.getThermostatConfiguration });
+      let thermostatConfiguration = queryResult.data.getThermostatConfiguration;
+
+      // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
+      delete thermostatConfiguration.__typename;
+
+      this.setState({
+        thermostatConfiguration,
+        savedThermostatConfiguration: thermostatConfiguration,
+      });
     } catch (error) {
       this.setState({ errors: JSON.stringify(error) });
     }
@@ -133,7 +165,7 @@ class ThermostatConfiguration extends React.Component<Props, State> {
       return;
     }
 
-    let actions = this.state.thermostatConfiguration.allowedActions.filter(a => a != action);
+    let actions = this.state.thermostatConfiguration.allowedActions.filter(a => a !== action);
 
     if (allowed) {
       actions.push(action);
@@ -170,7 +202,7 @@ class ThermostatConfiguration extends React.Component<Props, State> {
 
     return (
       <UpdateThermostatConfigurationComponent>
-        {(_mutateFn): React.ReactElement => {
+        {(mutateFn): React.ReactElement => {
           return (
             <View style={styles.componentView}>
               {/* Name */}
@@ -254,6 +286,44 @@ class ThermostatConfiguration extends React.Component<Props, State> {
                   }
                   color={ColorCodes[ThermostatAction.Circulate]}
                 />
+              </View>
+
+              {/* Save button */}
+              <View style={styles.saveButtonRow}>
+                <Button
+                  mode="outlined"
+                  disabled={fastCompare(
+                    this.state.thermostatConfiguration,
+                    this.state.savedThermostatConfiguration
+                  )}
+                  loading={this.state.isSaving}
+                  color={this.props.theme.colors.text}
+                  onPress={async (): Promise<void> => {
+                    // Null check for TypeScript happiness
+                    if (this.state.thermostatConfiguration) {
+                      this.setState({ isSaving: true });
+
+                      try {
+                        await mutateFn({
+                          variables: {
+                            thermostatConfiguration: this.state.thermostatConfiguration,
+                          },
+                        });
+                      } catch (error) {
+                        Alert.alert("Couldn't update", JSON.stringify(error), [
+                          { text: "Well then", style: "cancel" },
+                        ]);
+                      }
+
+                      this.setState({
+                        isSaving: false,
+                        savedThermostatConfiguration: this.state.thermostatConfiguration,
+                      });
+                    }
+                  }}
+                >
+                  {this.state.isSaving ? "Saving" : "Save"}
+                </Button>
               </View>
             </View>
           );
