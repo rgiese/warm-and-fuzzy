@@ -278,13 +278,13 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       {item.value && item.value.humidity && (
                         <>
                           <IconMDC
-                            name="water-percent"
+                            name="water"
                             size={iconSizes.default}
                             color={this.props.theme.colors.accent}
                             style={styles.detailsIconPadding}
                           />
                           <ThemedText.Accent style={styles.detailsText}>
-                            {item.value.humidity}
+                            {item.value.humidity}%
                           </ThemedText.Accent>
                         </>
                       )}
