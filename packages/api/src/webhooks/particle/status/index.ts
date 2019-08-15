@@ -74,26 +74,27 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   }
 
   {
-    let latestThermostatValue = new ThermostatValue();
+    const thermostatData: ThermostatValue = {
+      tenant: tenant,
+      id: statusEvent.deviceId,
 
-    latestThermostatValue.tenant = tenant;
-    latestThermostatValue.id = statusEvent.deviceId;
+      publishedTime: statusEvent.publishedAt,
+      deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
+      deviceLocalSerial: statusEvent.data.ser,
 
-    latestThermostatValue.publishedTime = statusEvent.publishedAt;
-    latestThermostatValue.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
-    latestThermostatValue.deviceLocalSerial = statusEvent.data.ser;
+      currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
 
-    latestThermostatValue.currentActions = ActionsAdapter.modelFromFirmware(statusEvent.data.ca);
+      temperature: reportedThermostatValues[0].t,
+      humidity: reportedThermostatValues[0].h || 0,
 
-    latestThermostatValue.temperature = reportedThermostatValues[0].t;
-    latestThermostatValue.humidity = reportedThermostatValues[0].h || 0;
+      // TEMPORARY: See Issue #53, this should have been reported from the device.
+      setPointHeat: thermostatConfiguration.setPointHeat,
+      setPointCool: thermostatConfiguration.setPointCool,
+      threshold: thermostatConfiguration.threshold,
+    };
 
-    // TEMPORARY: See Issue #53; this should have been reported from the device.
-    latestThermostatValue.setPointHeat = thermostatConfiguration.setPointHeat;
-    latestThermostatValue.setPointCool = thermostatConfiguration.setPointCool;
-    latestThermostatValue.threshold = thermostatConfiguration.threshold;
-
-    await DbMapper.put(latestThermostatValue);
+    const thermostatModel = Object.assign(new ThermostatValue(), thermostatData);
+    await DbMapper.put(thermostatModel);
   }
 
   // Store latest sensor values (ignoring out-of-order delivery)
@@ -106,18 +107,18 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
           throw new Error("Internal error: sensor values not filtered correctly");
         }
 
-        let v = new SensorValue();
+        const sensorData: SensorValue = {
+          tenant: tenant,
+          id: value.id,
 
-        v.tenant = tenant;
-        v.id = value.id;
+          publishedTime: statusEvent.publishedAt,
+          deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
+          deviceLocalSerial: statusEvent.data.ser,
 
-        v.publishedTime = statusEvent.publishedAt;
-        v.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
-        v.deviceLocalSerial = statusEvent.data.ser;
+          temperature: value.t,
+        };
 
-        v.temperature = value.t;
-
-        return v;
+        return Object.assign(new SensorValue(), sensorData);
       }
     );
 
