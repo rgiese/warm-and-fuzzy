@@ -19,16 +19,17 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 
 # Dev setup
 
-- Dev tooling
-  - `npm install -g lerna serverless`
 - Getting started
+  - `npm install`
   - `lerna bootstrap`
+  - `lerna run decrypt-secrets` (make sure `WAF_GIT_SECRETS_KEY` is present in the environment)
+    - Can skip this step if not creating Android release bundles (i.e. `lerna run bundle:mobile`)
   - `lerna run build`
 - Pre-commit
   - `npm run format:fix`
   - `lerna run lint:fix`
-- Deploy (API only)
-  - `lerna run deploy:dev --stream` or ...`deploy:prod`
+- Deploy (dev API only, if needed - everything should run through CI)
+  - `lerna run deploy:dev --stream`
 
 # Running the web app locally
 
