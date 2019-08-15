@@ -12,11 +12,12 @@ import GraphQLModelMapper from "./GraphQLModelMapper";
 class LatestThermostatValueMapper
   implements GraphQLModelMapper<GraphQL.ThermostatValue, GraphQL.ThermostatValue, ThermostatValue> {
   public graphqlFromModel(rhs: ThermostatValue): GraphQL.ThermostatValue {
-    const { currentActions, ...remainder } = rhs;
+    const { currentActions, allowedActions, ...remainder } = rhs;
 
     return {
       ...remainder,
       currentActions: currentActions ? Array.from(currentActions) : [],
+      allowedActions: allowedActions ? Array.from(allowedActions) : [],
     };
   }
 

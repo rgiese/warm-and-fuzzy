@@ -153,11 +153,12 @@ type ThermostatValue {
 
   temperature: Float!
   humidity: Float!
-
   currentActions: [ThermostatAction!]!
+
   setPointHeat: Float!
   setPointCool: Float!
   threshold: Float!
+  allowedActions: [ThermostatAction!]!
 }
 
 type SensorValue {

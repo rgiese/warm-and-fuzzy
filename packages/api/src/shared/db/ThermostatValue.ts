@@ -19,6 +19,7 @@ export default class ThermostatValue {
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
     this.threshold = NaN;
+    this.allowedActions = undefined;
   }
 
   // Tenant (assigned by WarmAndFuzzy)
@@ -64,4 +65,8 @@ export default class ThermostatValue {
   // Hysteresis threshold around targets [Celsius]
   @attribute()
   public threshold: number;
+
+  // @see ThermostatConfiguration#allowedActions
+  @attribute({ memberType: "String" })
+  public allowedActions?: Set<GraphQL.ThermostatAction>;
 }

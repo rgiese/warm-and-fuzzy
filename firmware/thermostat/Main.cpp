@@ -188,7 +188,8 @@ void loop()
 
     {
         Activity publishActivity("PublishStatus");
-        g_StatusPublisher.Publish(g_Thermostat.CurrentActions(),
+        g_StatusPublisher.Publish(g_Configuration,
+                                  g_Thermostat.CurrentActions(),
                                   onboardTemperature,
                                   onboardHumidity,
                                   rgAddresses,
@@ -254,7 +255,7 @@ void onStatusResponse(char const* szEvent, char const* szData)
                                       + countof("sc")      // string copy of "sc" (setPointCool)
                                       + countof("th")      // string copy of "th" (threshold)
                                       + countof("ca")      // string copy of "ca" (cadence)
-                                      + countof("aa")      // string copy of "am" (allowedActions)
+                                      + countof("aa")      // string copy of "aa" (allowedActions)
                                       + countof("HCR")     // string copy of potential values for aa (allowedActions)
         ;
 

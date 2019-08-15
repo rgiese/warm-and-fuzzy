@@ -53,26 +53,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     }
   }
 
-  // Retrieve thermostat configuration data
-  const thermostatConfigurationCondition: Pick<ThermostatConfiguration, "tenant" | "id"> = {
-    tenant: tenant,
-    id: statusEvent.deviceId,
-  };
-
-  const thermostatConfiguration = await DbMapper.get(
-    Object.assign(new ThermostatConfiguration(), thermostatConfigurationCondition)
-  );
-
   // Store latest thermostat value (ignoring out-of-order delivery)
-  const reportedThermostatValues = statusEvent.data.v.filter((value): boolean => !value.id);
-
-  if (!reportedThermostatValues) {
-    return Responses.badRequest({
-      error: "Missing onboard sensor values",
-      body: parsedRequestBody,
-    });
-  }
-
   {
     const thermostatData: ThermostatValue = {
       tenant: tenant,
@@ -84,13 +65,13 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
       currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
 
-      temperature: reportedThermostatValues[0].t,
-      humidity: reportedThermostatValues[0].h || 0,
+      temperature: statusEvent.data.t,
+      humidity: statusEvent.data.h,
 
-      // TEMPORARY: See Issue #53, this should have been reported from the device.
-      setPointHeat: thermostatConfiguration.setPointHeat,
-      setPointCool: thermostatConfiguration.setPointCool,
-      threshold: thermostatConfiguration.threshold,
+      setPointHeat: statusEvent.data.cc.sh,
+      setPointCool: statusEvent.data.cc.sc,
+      threshold: statusEvent.data.cc.t,
+      allowedActions: ActionsAdapter.modelFromFirmware(statusEvent.data.cc.aa),
     };
 
     const thermostatModel = Object.assign(new ThermostatValue(), thermostatData);
@@ -98,10 +79,8 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   }
 
   // Store latest sensor values (ignoring out-of-order delivery)
-  const reportedSensorValues = statusEvent.data.v.filter((value): boolean => !!value.id);
-
-  if (reportedSensorValues) {
-    const sensorValueModels = reportedSensorValues.map(
+  if (statusEvent.data.v && statusEvent.data.v.length) {
+    const sensorValueModels = statusEvent.data.v.map(
       (value): SensorValue => {
         if (!value.id) {
           throw new Error("Internal error: sensor values not filtered correctly");
@@ -125,6 +104,16 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     for await (const {} of DbMapper.batchPut(sensorValueModels)) {
     }
   }
+
+  // Retrieve thermostat configuration data
+  const thermostatConfigurationCondition: Pick<ThermostatConfiguration, "tenant" | "id"> = {
+    tenant: tenant,
+    id: statusEvent.deviceId,
+  };
+
+  const thermostatConfiguration = await DbMapper.get(
+    Object.assign(new ThermostatConfiguration(), thermostatConfigurationCondition)
+  );
 
   return Responses.success({
     sh: thermostatConfiguration.setPointHeat,

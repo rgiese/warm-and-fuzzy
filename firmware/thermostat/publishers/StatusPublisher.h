@@ -19,7 +19,8 @@ public:
     }
 
 public:
-    void Publish(Thermostat::Actions const& currentActions,
+    void Publish(Configuration const& configuration,
+                 Thermostat::Actions const& currentActions,
                  float const onboardTemperature,
                  float const onboardHumidity,
                  OneWireAddress const* const rgAddresses,
@@ -32,37 +33,29 @@ public:
         sb.AppendFormat("{\"ts\":%u,\"ser\":%u", Time.now(), m_SerialNumber);
         ++m_SerialNumber;
 
-        // Current actions
+        // Status
+        sb.AppendFormat(",\"t\":%.1f,\"h\":%.1f",
+                        !isnan(onboardTemperature) ? onboardTemperature : 0.0f,
+                        !isnan(onboardHumidity) ? onboardHumidity : 0.0f);
+
         sb.Append(",\"ca\":\"");
-
-        if (currentActions.Heat)
-        {
-            sb.Append("H");
-        }
-
-        if (currentActions.Cool)
-        {
-            sb.Append("C");
-        }
-
-        if (currentActions.Circulate)
-        {
-            sb.Append("R");
-        }
-
+        currentActions.AppendToStringBuilder(sb);
         sb.Append("\"");
+
+        // Configuration
+        sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"t\":%.2f",
+                        configuration.SetPointHeat(),
+                        configuration.SetPointCool(),
+                        configuration.Threshold());
+
+        sb.Append(",\"aa\":\"");
+        configuration.AllowedActions().AppendToStringBuilder(sb);
+        sb.Append("\"}");
 
         // Measurements
         sb.Append(",\"v\":[");
         {
             bool isCommaNeeded = false;
-
-            if (!isnan(onboardTemperature) && !isnan(onboardHumidity))
-            {
-                sb.AppendFormat("{\"t\":%.1f,\"h\":%.1f}", onboardTemperature, onboardHumidity);
-
-                isCommaNeeded = true;
-            }
 
             for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
             {
@@ -91,11 +84,13 @@ public:
 
 private:
     static size_t constexpr cchEventData =
-        static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬,'ca':'HCR','v':[]}")  // Top-level elements
-        + static_strlen("{'t':-100.0,'h':100.0},")  // Values from on-board sensors
+        static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬")     // Header
+        + static_strlen(",'t':-100.0,'h':100.0,'ca':'HCR'")                // Status
+        + static_strlen(",cc:{'sh':10.0,'sc':10.0,'t':10.00,'aa':'HCR'}")  // Configuration
+        + static_strlen(",'v':[]}")                                        // Measurements
         + c_cOneWireDevices_Max *
               static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
-        + 4;
+        + 4;                                                                      // Safety margin
 
 private:
     QueuedPublisher<cchEventData, 8> m_QueuedPublisher;
