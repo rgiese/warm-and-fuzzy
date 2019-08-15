@@ -12,7 +12,6 @@ export default class SensorValue {
     this.deviceTime = new Date();
     this.deviceLocalSerial = 0;
     this.temperature = 0.0;
-    this.humidity = 0.0;
   }
 
   // Tenant (assigned by WarmAndFuzzy)
@@ -38,8 +37,4 @@ export default class SensorValue {
   // Units: Celsius
   @attribute()
   public temperature: number;
-
-  // Units: %RH [0-100]
-  @attribute()
-  public humidity: number;
 }

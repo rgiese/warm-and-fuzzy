@@ -9,7 +9,6 @@ gql`
       id
       deviceTime
       temperature
-      humidity
     }
     getSensorConfigurations {
       id
@@ -55,7 +54,6 @@ const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement =
               <div className="dtc pa2">ID</div>
               <div className="dtc pa2">Time</div>
               <div className="dtc pa2">Temperature</div>
-              <div className="dtc pa2">Humidity</div>
             </div>
             {sortedValues.map(
               (value): React.ReactElement => {
@@ -64,7 +62,6 @@ const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement =
                     <div className="dtc pa2">{sensorNames.get(value.id) || value.id}</div>
                     <div className="dtc pa2">{value.deviceTime.toLocaleString()}</div>
                     <div className="dtc pa2">{value.temperature}</div>
-                    <div className="dtc pa2">{value.humidity || ""}</div>
                   </div>
                 );
               }

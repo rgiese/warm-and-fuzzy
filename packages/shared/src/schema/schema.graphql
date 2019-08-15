@@ -152,7 +152,7 @@ type ThermostatValue {
   deviceLocalSerial: Int!
 
   temperature: Float!
-  humidity: Float
+  humidity: Float!
 
   currentActions: [ThermostatAction!]!
   setPointHeat: Float!
@@ -169,5 +169,4 @@ type SensorValue {
   deviceLocalSerial: Int!
 
   temperature: Float!
-  humidity: Float
 }

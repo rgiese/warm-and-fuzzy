@@ -63,6 +63,39 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     Object.assign(new ThermostatConfiguration(), thermostatConfigurationCondition)
   );
 
+  // Store latest thermostat value (ignoring out-of-order delivery)
+  const reportedThermostatValues = statusEvent.data.v.filter((value): boolean => !value.id);
+
+  if (!reportedThermostatValues) {
+    return Responses.badRequest({
+      error: "Missing onboard sensor values",
+      body: parsedRequestBody,
+    });
+  }
+
+  {
+    let latestThermostatValue = new ThermostatValue();
+
+    latestThermostatValue.tenant = tenant;
+    latestThermostatValue.id = statusEvent.deviceId;
+
+    latestThermostatValue.publishedTime = statusEvent.publishedAt;
+    latestThermostatValue.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
+    latestThermostatValue.deviceLocalSerial = statusEvent.data.ser;
+
+    latestThermostatValue.currentActions = ActionsAdapter.modelFromFirmware(statusEvent.data.ca);
+
+    latestThermostatValue.temperature = reportedThermostatValues[0].t;
+    latestThermostatValue.humidity = reportedThermostatValues[0].h || 0;
+
+    // TEMPORARY: See Issue #53; this should have been reported from the device.
+    latestThermostatValue.setPointHeat = thermostatConfiguration.setPointHeat;
+    latestThermostatValue.setPointCool = thermostatConfiguration.setPointCool;
+    latestThermostatValue.threshold = thermostatConfiguration.threshold;
+
+    await DbMapper.put(latestThermostatValue);
+  }
+
   // Store latest sensor values (ignoring out-of-order delivery)
   const reportedSensorValues = statusEvent.data.v.filter((value): boolean => !!value.id);
 
@@ -83,7 +116,6 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
         v.deviceLocalSerial = statusEvent.data.ser;
 
         v.temperature = value.t;
-        v.humidity = value.h || 0;
 
         return v;
       }
@@ -91,34 +123,6 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
     for await (const {} of DbMapper.batchPut(sensorValueModels)) {
     }
-  }
-
-  // Store latest thermostat value
-  const reportedThermostatValues = statusEvent.data.v.filter((value): boolean => !value.id);
-
-  if (reportedThermostatValues) {
-    const reportedThermostatValue = reportedThermostatValues[0];
-
-    let latestThermostatValue = new ThermostatValue();
-
-    latestThermostatValue.tenant = tenant;
-    latestThermostatValue.id = statusEvent.deviceId;
-
-    latestThermostatValue.publishedTime = statusEvent.publishedAt;
-    latestThermostatValue.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
-    latestThermostatValue.deviceLocalSerial = statusEvent.data.ser;
-
-    latestThermostatValue.currentActions = ActionsAdapter.modelFromFirmware(statusEvent.data.ca);
-
-    latestThermostatValue.temperature = reportedThermostatValue.t;
-    latestThermostatValue.humidity = reportedThermostatValue.h || 0;
-
-    // TEMPORARY: See Issue #53; this should have been reported from the device.
-    latestThermostatValue.setPointHeat = thermostatConfiguration.setPointHeat;
-    latestThermostatValue.setPointCool = thermostatConfiguration.setPointCool;
-    latestThermostatValue.threshold = thermostatConfiguration.threshold;
-
-    await DbMapper.put(latestThermostatValue);
   }
 
   return Responses.success({
