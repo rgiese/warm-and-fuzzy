@@ -55,7 +55,7 @@
 
 - Provide status event webhook
   - Event: `status`
-  - To: `https://dev.api.warmandfuzzy.house/webhooks/particle/status` as POST
+  - To: `https://prod.api.warmandfuzzy.house/webhooks/particle/status` as POST
   - Request body (JSON) - _note_ presence/absence of quotes and field names different from the defaults:
     ```
     {
