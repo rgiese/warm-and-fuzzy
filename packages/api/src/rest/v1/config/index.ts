@@ -32,7 +32,7 @@ import SensorConfigurationMapper from "../../../graphql/mappers/SensorConfigurat
 import ThermostatConfigurationMapper from "../../../graphql/mappers/ThermostatConfigurationMapper";
 
 const deviceTenancySchema = yup.object().shape({
-  deviceId: yup.string().required(),
+  id: yup.string().required(),
   tenant: yup.string().required(),
 });
 

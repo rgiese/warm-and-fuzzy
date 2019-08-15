@@ -11,7 +11,7 @@ import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 gql`
   fragment SensorConfigurationFields on SensorConfiguration {
-    sensorId
+    id
     name
   }
 
@@ -54,7 +54,7 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
             {data.getSensorConfigurations.map(
               (sensorConfiguration): React.ReactElement => {
                 return (
-                  <UpdateSensorConfigurationComponent key={sensorConfiguration.sensorId}>
+                  <UpdateSensorConfigurationComponent key={sensorConfiguration.id}>
                     {(mutateFn, { error }): React.ReactElement => {
                       return (
                         <>
@@ -77,7 +77,7 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
                             {({ values, dirty, isSubmitting }) => (
                               <Form className="dtr">
                                 <div className="dtc pa2">
-                                  <pre>{values.sensorId}</pre>
+                                  <pre>{values.id}</pre>
                                 </div>
 
                                 <div className="dtc pa2">

@@ -4,17 +4,21 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
-@table("ThermostatConfiguration")
-export default class ThermostatConfiguration {
+@table("LatestThermostatValues")
+export default class ThermostatValue {
   public constructor() {
     this.tenant = "";
     this.id = "";
 
-    this.name = "";
+    this.publishedTime = new Date();
+    this.deviceTime = new Date();
+    this.deviceLocalSerial = 0;
+    this.currentActions = undefined;
+    this.temperature = 0.0;
+    this.humidity = 0.0;
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
     this.threshold = NaN;
-    this.cadence = NaN;
     this.allowedActions = undefined;
   }
 
@@ -26,9 +30,29 @@ export default class ThermostatConfiguration {
   @rangeKey()
   public id: string;
 
-  // User-facing name
+  // Timestamp attached by Particle OS when event was published
   @attribute()
-  public name: string;
+  public publishedTime: Date;
+
+  // Timestamp attached by firmware when event was created
+  @attribute()
+  public deviceTime: Date;
+
+  // Serial number (scoped to power cycle) attached by firmware when event was created
+  @attribute()
+  public deviceLocalSerial: number;
+
+  // @see ThermostatConfiguration#allowedActions
+  @attribute({ memberType: "String" })
+  public currentActions?: Set<GraphQL.ThermostatAction>;
+
+  // Units: Celsius
+  @attribute()
+  public temperature: number;
+
+  // Units: %RH [0-100]
+  @attribute()
+  public humidity: number;
 
   // Target temperature for heating [Celsius]
   @attribute()
@@ -42,11 +66,7 @@ export default class ThermostatConfiguration {
   @attribute()
   public threshold: number;
 
-  // Operational cadence [sec]
-  @attribute()
-  public cadence: number;
-
-  // Allowed actions: GraphQL.ThermostatAction (may be `undefined` if no actions are permitted)
+  // @see ThermostatConfiguration#allowedActions
   @attribute({ memberType: "String" })
   public allowedActions?: Set<GraphQL.ThermostatAction>;
 }

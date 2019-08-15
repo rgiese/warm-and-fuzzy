@@ -1,20 +1,20 @@
 Resources:
-  LatestActionsTable:
+  LatestThermostatValuesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: ${self:custom.dynamoDbTablePrefix}LatestActions
+      TableName: ${self:custom.dynamoDbTablePrefix}LatestThermostatValues
       KeySchema:
         # Partition key
         - AttributeName: tenant
           KeyType: HASH
         # Sort key
-        - AttributeName: deviceId
+        - AttributeName: id
           KeyType: RANGE
       AttributeDefinitions:
         # Partition key
         - AttributeName: tenant
           AttributeType: S
         # Sort key
-        - AttributeName: deviceId
+        - AttributeName: id
           AttributeType: S
       BillingMode: PAY_PER_REQUEST

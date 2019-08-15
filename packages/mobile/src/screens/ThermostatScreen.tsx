@@ -9,7 +9,7 @@ import BaseView from "../components/BaseView";
 import ThermostatConfiguration from "../components/ThermostatConfiguration";
 
 export interface ThermostatNavigationParams {
-  deviceId: string;
+  thermostatId: string;
 }
 
 interface Props {
@@ -32,7 +32,7 @@ class ThermostatScreen extends React.Component<Props, State> {
   public render(): React.ReactElement {
     return (
       <BaseView>
-        <ThermostatConfiguration deviceId={this.props.navigation.state.params.deviceId} />
+        <ThermostatConfiguration thermostatId={this.props.navigation.state.params.thermostatId} />
       </BaseView>
     );
   }

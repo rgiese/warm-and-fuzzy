@@ -45,11 +45,23 @@ class BuildCommand extends Command {
     });
 
     // Compile
-    const compileResult = await particleService.compileCode({
-      files: projectFilesObject,
-      platformId: 6 /* Photon */,
-      auth: particleAccessToken,
-    });
+    let compileResult;
+
+    try {
+      compileResult = await particleService.compileCode({
+        files: projectFilesObject,
+        platformId: 6 /* Photon */,
+        auth: particleAccessToken,
+      });
+    } catch (error) {
+      if (error.statusCode && error.statusCode === 406) {
+        console.log("\nCompilation error:\n");
+        console.log(error.body.errors[0]);
+      } else {
+        console.log(error);
+      }
+      return;
+    }
 
     console.log(compileResult);
     console.log();

@@ -32,15 +32,15 @@ import * as ThemedText from "./ThemedText";
 
 gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
-    deviceId
+    id
     name
     allowedActions
     setPointHeat
     setPointCool
   }
 
-  query ThermostatConfiguration($deviceId: ID!) {
-    getThermostatConfiguration(deviceId: $deviceId) {
+  query ThermostatConfiguration($id: ID!) {
+    getThermostatConfiguration(id: $id) {
       ...ThermostatConfigurationFields
     }
   }
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
 });
 
 interface Props {
-  deviceId: string;
+  thermostatId: string;
   theme: Theme;
 }
 
@@ -133,7 +133,7 @@ class ThermostatConfiguration extends React.Component<Props, State> {
         ThermostatConfigurationQueryVariables
       >({
         query: ThermostatConfigurationDocument,
-        variables: { deviceId: this.props.deviceId },
+        variables: { id: this.props.thermostatId },
         fetchPolicy: "network-only",
       });
 

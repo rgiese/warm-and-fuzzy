@@ -31,24 +31,23 @@ type Query {
   getThermostatConfigurations: [ThermostatConfiguration!]!
     @requiresPermission(permission: READ_CONFIG)
 
-  getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration!
+  getThermostatConfiguration(id: ID!): ThermostatConfiguration!
     @requiresPermission(permission: READ_CONFIG)
 
   # SensorConfiguration
   getSensorConfigurations: [SensorConfiguration!]! @requiresPermission(permission: READ_CONFIG)
 
-  getSensorConfiguration(sensorId: ID!): SensorConfiguration!
-    @requiresPermission(permission: READ_CONFIG)
+  getSensorConfiguration(id: ID!): SensorConfiguration! @requiresPermission(permission: READ_CONFIG)
 
-  # LatestActions
-  getLatestActions: [DeviceAction!]! @requiresPermission(permission: READ_DATA)
+  # LatestThermostatValues
+  getLatestThermostatValues: [ThermostatValue!]! @requiresPermission(permission: READ_DATA)
 
-  getLatestAction(deviceId: ID!): DeviceAction! @requiresPermission(permission: READ_DATA)
+  getLatestThermostatValue(id: ID!): ThermostatValue! @requiresPermission(permission: READ_DATA)
 
-  # LatestValues
-  getLatestValues: [SensorValue!]! @requiresPermission(permission: READ_DATA)
+  # LatestSensorValues
+  getLatestSensorValues: [SensorValue!]! @requiresPermission(permission: READ_DATA)
 
-  getLatestValue(sensorId: ID!): SensorValue! @requiresPermission(permission: READ_DATA)
+  getLatestSensorValue(id: ID!): SensorValue! @requiresPermission(permission: READ_DATA)
 }
 
 type Mutation {
@@ -76,7 +75,7 @@ type Mutation {
 #
 
 input ThermostatConfigurationCreateInput {
-  deviceId: ID!
+  id: ID!
   name: String!
 
   allowedActions: [ThermostatAction!]!
@@ -88,7 +87,7 @@ input ThermostatConfigurationCreateInput {
 }
 
 input ThermostatConfigurationUpdateInput {
-  deviceId: ID!
+  id: ID!
   name: String
 
   allowedActions: [ThermostatAction!]
@@ -100,7 +99,7 @@ input ThermostatConfigurationUpdateInput {
 }
 
 type ThermostatConfiguration {
-  deviceId: ID!
+  id: ID!
   tenant: String!
 
   name: String!
@@ -124,39 +123,28 @@ enum ThermostatAction {
 #
 
 input SensorConfigurationCreateInput {
-  sensorId: ID!
+  id: ID!
   name: String!
 }
 
 input SensorConfigurationUpdateInput {
-  sensorId: ID!
+  id: ID!
   name: String
 }
 
 type SensorConfiguration {
-  sensorId: ID!
+  id: ID!
   tenant: String!
 
   name: String!
 }
 
 #
-# Latest[Values,Actions]
+# [Thermostat,Sensor]Values
 #
 
-type DeviceAction {
-  deviceId: ID!
-  tenant: String!
-
-  publishedTime: DateTime!
-  deviceTime: DateTime!
-  deviceLocalSerial: Int!
-
-  currentActions: [ThermostatAction!]!
-}
-
-type SensorValue {
-  sensorId: ID!
+type ThermostatValue {
+  id: ID!
   tenant: String!
 
   publishedTime: DateTime!
@@ -164,5 +152,22 @@ type SensorValue {
   deviceLocalSerial: Int!
 
   temperature: Float!
-  humidity: Float
+  humidity: Float!
+  currentActions: [ThermostatAction!]!
+
+  setPointHeat: Float!
+  setPointCool: Float!
+  threshold: Float!
+  allowedActions: [ThermostatAction!]!
+}
+
+type SensorValue {
+  id: ID!
+  tenant: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
 }

@@ -11,7 +11,7 @@ import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared
 
 gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
-    deviceId
+    id
     name
     allowedActions
     setPointHeat
@@ -54,6 +54,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
         return (
           <div className="dt tl sans center mw-8 pt3">
             <div className="dtr b ba b--black">
+              <div className="dtc pa2">Id</div>
               <div className="dtc pa2">Name</div>
               <div className="dtc pa2">Allowed actions</div>
               <div className="dtc pa2">Cool to</div>
@@ -65,7 +66,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
             {data.getThermostatConfigurations.map(
               (thermostatConfiguration): React.ReactElement => {
                 return (
-                  <UpdateThermostatConfigurationComponent key={thermostatConfiguration.deviceId}>
+                  <UpdateThermostatConfigurationComponent key={thermostatConfiguration.id}>
                     {(mutateFn, { error }): React.ReactElement => {
                       return (
                         <>
@@ -87,6 +88,8 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                           >
                             {({ values, dirty, isSubmitting }) => (
                               <Form className="dtr">
+                                <div className="dtc pa2">{values.id}</div>
+
                                 <div className="dtc pa2">
                                   <Field type="text" name="name" />
                                   <ErrorMessage name="name" component="div" />

@@ -1,16 +1,16 @@
 import DbMapper from "./DbMapper";
 
 import DeviceTenancy from "./DeviceTenancy";
-import LatestAction from "./LatestAction";
-import LatestValue from "./LatestValue";
 import SensorConfiguration from "./SensorConfiguration";
+import SensorValue from "./SensorValue";
 import ThermostatConfiguration from "./ThermostatConfiguration";
+import ThermostatValue from "./ThermostatValue";
 
 export {
   DbMapper,
   DeviceTenancy,
-  LatestAction,
-  LatestValue,
   SensorConfiguration,
+  SensorValue,
   ThermostatConfiguration,
+  ThermostatValue,
 };

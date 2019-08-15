@@ -2,8 +2,8 @@ import React from "react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
-import LatestActions from "../components/LatestActions";
-import LatestValues from "../components/LatestValues";
+import LatestThermostatValues from "../components/LatestThermostatValues";
+import LatestSensorValues from "../components/LatestSensorValues";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends AuthStateProps {}
@@ -23,10 +23,10 @@ class Home extends React.Component<Props, State> {
   private renderContent(): React.ReactElement {
     return (
       <>
-        <h1>Latest actions</h1>
-        <LatestActions />
-        <h1>Latest values</h1>
-        <LatestValues />
+        <h1>Latest thermostat values</h1>
+        <LatestThermostatValues />
+        <h1>Latest sensor values</h1>
+        <LatestSensorValues />
       </>
     );
   }

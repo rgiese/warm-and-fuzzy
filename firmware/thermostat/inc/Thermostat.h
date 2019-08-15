@@ -55,6 +55,25 @@ public:
             return true;
         }
 
+        template <typename T>
+        void AppendToStringBuilder(T& stringBuilder) const
+        {
+            if (Heat)
+            {
+                stringBuilder.Append("H");
+            }
+
+            if (Cool)
+            {
+                stringBuilder.Append("C");
+            }
+
+            if (Circulate)
+            {
+                stringBuilder.Append("R");
+            }
+        }
+
         Actions Clamp() const
         {
             Actions clamped = *this;
