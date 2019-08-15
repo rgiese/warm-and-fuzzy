@@ -47,18 +47,18 @@ provider:
       # Restrict our IAM role permissions to the given tables
       Resource:
         - !GetAtt DeviceTenancyTable.Arn
-        - !GetAtt LatestActionsTable.Arn
-        - !GetAtt LatestValuesTable.Arn
-        - !GetAtt SensorConfigTable.Arn
-        - !GetAtt ThermostatConfigTable.Arn
+        - !GetAtt LatestSensorValuesTable.Arn
+        - !GetAtt LatestThermostatValuesTable.Arn
+        - !GetAtt SensorConfigurationTable.Arn
+        - !GetAtt ThermostatConfigurationTable.Arn
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
   - ${file(resources/dynamodb-device-tenancy.yml)}
-  - ${file(resources/dynamodb-latest-action.yml)}
-  - ${file(resources/dynamodb-latest-value.yml)}
-  - ${file(resources/dynamodb-sensor-config.yml)}
-  - ${file(resources/dynamodb-thermostat-config.yml)}
+  - ${file(resources/dynamodb-latest-sensor-values.yml)}
+  - ${file(resources/dynamodb-latest-thermostat-values.yml)}
+  - ${file(resources/dynamodb-sensor-configuration.yml)}
+  - ${file(resources/dynamodb-thermostat-configuration.yml)}
 
 functions:
   # Authorizers

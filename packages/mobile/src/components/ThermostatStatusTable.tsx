@@ -11,8 +11,8 @@ import moment from "moment";
 import { ArrayElementType, PropType } from "../TypeTools";
 
 import {
-  LatestValuesComponent,
-  LatestValuesQuery,
+  LatestThermostatValuesComponent,
+  LatestThermostatValuesQuery,
   ThermostatAction,
 } from "../../generated/graphqlClient";
 
@@ -23,19 +23,16 @@ import ScreenRoutes from "../screens/ScreenRoutes";
 import { ThermostatNavigationParams } from "../screens/ThermostatScreen";
 
 gql`
-  query LatestValues {
-    getLatestActions {
-      deviceId
+  query LatestThermostatValues {
+    getLatestThermostatValues {
+      id
       deviceTime
       currentActions
-    }
-    getLatestValues {
-      sensorId
       temperature
       humidity
     }
     getThermostatConfigurations {
-      deviceId
+      id
       name
       setPointCool
       setPointHeat
@@ -44,16 +41,15 @@ gql`
   }
 `;
 
-type LatestAction = ArrayElementType<PropType<LatestValuesQuery, "getLatestActions">>;
-type LatestValue = ArrayElementType<PropType<LatestValuesQuery, "getLatestValues">>;
-type LatestConfiguration = ArrayElementType<
-  PropType<LatestValuesQuery, "getThermostatConfigurations">
+type LatestThermostatValue = ArrayElementType<
+  PropType<LatestThermostatValuesQuery, "getLatestThermostatValues">
+>;
+type CurrentThermostatConfiguration = ArrayElementType<
+  PropType<LatestThermostatValuesQuery, "getThermostatConfigurations">
 >;
 
-type ThermostatStatus = {
-  action: LatestAction;
-  value?: LatestValue;
-  configuration?: LatestConfiguration;
+type ThermostatStatus = LatestThermostatValue & {
+  configuration?: CurrentThermostatConfiguration;
 };
 
 const styles = StyleSheet.create({
@@ -134,40 +130,36 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     clearInterval(this.intervalRefreshTimeSince);
   }
 
-  private prepareData(data: LatestValuesQuery): ThermostatStatus[] {
+  private prepareData(data: LatestThermostatValuesQuery): ThermostatStatus[] {
     // Rehydrate custom types
-    data.getLatestActions.forEach((a): void => {
+    data.getLatestThermostatValues.forEach((a): void => {
       a.deviceTime = new Date(a.deviceTime);
     });
 
     // Build maps
     const thermostatConfigurations = new Map(
-      data.getThermostatConfigurations.map((c): [string, LatestConfiguration] => [c.deviceId, c])
-    );
-
-    const latestValues = new Map(
-      data.getLatestValues.map((v): [string, LatestValue] => [v.sensorId, v])
+      data.getThermostatConfigurations.map((c): [string, CurrentThermostatConfiguration] => [
+        c.id,
+        c,
+      ])
     );
 
     // Assemble and sort data
-    const thermostatStatusData = data.getLatestActions
+    const thermostatStatusData = data.getLatestThermostatValues
       .map(
-        (a): ThermostatStatus => ({
-          action: a,
-          value: latestValues.get(a.deviceId),
-          configuration: thermostatConfigurations.get(a.deviceId),
-        })
+        (v): ThermostatStatus =>
+          Object.assign({}, v, {
+            configuration: thermostatConfigurations.get(v.id),
+          })
       )
-      .sort(
-        (lhs, rhs): number => rhs.action.deviceTime.getTime() - lhs.action.deviceTime.getTime()
-      );
+      .sort((lhs, rhs): number => rhs.deviceTime.getTime() - lhs.deviceTime.getTime());
 
     return thermostatStatusData;
   }
 
   public render(): React.ReactElement {
     return (
-      <LatestValuesComponent pollInterval={60 * 1000}>
+      <LatestThermostatValuesComponent pollInterval={60 * 1000}>
         {({ loading, error, data, refetch }): React.ReactElement => {
           if (error) {
             return (
@@ -195,13 +187,13 @@ class ThermostatStatusTable extends React.Component<Props, State> {
             <FlatList<ThermostatStatus>
               data={thermostatStatusData}
               extraData={this.state.latestRenderTime}
-              keyExtractor={(item): string => item.action.deviceId}
+              keyExtractor={(item): string => item.id}
               refreshing={loading}
               onRefresh={() => refetch()}
               renderItem={({ item }): React.ReactElement => (
                 <TouchableOpacity
                   onPress={() => {
-                    const params: ThermostatNavigationParams = { deviceId: item.action.deviceId };
+                    const params: ThermostatNavigationParams = { thermostatId: item.id };
                     this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
                   }}
                   style={styles.containingListItem}
@@ -210,7 +202,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   <View style={styles.primaryRow}>
                     {/* Device name */}
                     <Text style={styles.thermostatName}>
-                      {item.configuration ? item.configuration.name : item.action.deviceId}
+                      {item.configuration ? item.configuration.name : item.id}
                     </Text>
 
                     {/* Details */}
@@ -224,14 +216,12 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       />
 
                       {/* Reported temperature */}
-                      {item.value && (
-                        <ThemedText.Accent style={styles.detailsText}>
-                          {item.value.temperature}&deg;C
-                        </ThemedText.Accent>
-                      )}
+                      <ThemedText.Accent style={styles.detailsText}>
+                        {item.temperature}&deg;C
+                      </ThemedText.Accent>
 
                       {/* Actions: heat */}
-                      {item.action.currentActions.includes(ThermostatAction.Heat) && (
+                      {item.currentActions.includes(ThermostatAction.Heat) && (
                         <>
                           <IconMDC
                             name="arrow-collapse-up"
@@ -248,7 +238,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       )}
 
                       {/* Actions: cool */}
-                      {item.action.currentActions.includes(ThermostatAction.Cool) && (
+                      {item.currentActions.includes(ThermostatAction.Cool) && (
                         <>
                           <IconMDC
                             name="arrow-collapse-down"
@@ -265,7 +255,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       )}
 
                       {/* Actions: circulate */}
-                      {item.action.currentActions.includes(ThermostatAction.Circulate) && (
+                      {item.currentActions.includes(ThermostatAction.Circulate) && (
                         <IconMDC
                           name="autorenew"
                           size={iconSizes.default}
@@ -275,7 +265,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       )}
 
                       {/* Reported humidity */}
-                      {item.value && item.value.humidity && (
+                      {item.humidity && (
                         <>
                           <IconMDC
                             name="water"
@@ -284,7 +274,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                             style={styles.detailsIconPadding}
                           />
                           <ThemedText.Accent style={styles.detailsText}>
-                            {item.value.humidity}%
+                            {item.humidity}%
                           </ThemedText.Accent>
                         </>
                       )}
@@ -294,8 +284,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {/* Bottom row: last updated time */}
                   <View style={styles.secondaryRow}>
                     <ThemedText.Accent style={styles.lastUpdatedText}>
-                      Last updated{" "}
-                      {moment(item.action.deviceTime).from(this.state.latestRenderTime)}
+                      Last updated {moment(item.deviceTime).from(this.state.latestRenderTime)}
                     </ThemedText.Accent>
                   </View>
                 </TouchableOpacity>
@@ -303,7 +292,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
             />
           );
         }}
-      </LatestValuesComponent>
+      </LatestThermostatValuesComponent>
     );
   }
 }

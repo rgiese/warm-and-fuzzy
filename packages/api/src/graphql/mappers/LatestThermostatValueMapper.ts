@@ -1,5 +1,5 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import { LatestAction } from "../../shared/db";
+import { ThermostatValue } from "../../shared/db";
 
 import GraphQLModelMapper from "./GraphQLModelMapper";
 
@@ -9,9 +9,9 @@ import GraphQLModelMapper from "./GraphQLModelMapper";
 //   and needs to be set to `undefined` for empty sets
 //
 
-class LatestActionMapper
-  implements GraphQLModelMapper<GraphQL.DeviceAction, GraphQL.DeviceAction, LatestAction> {
-  public graphqlFromModel(rhs: LatestAction): GraphQL.DeviceAction {
+class LatestThermostatValueMapper
+  implements GraphQLModelMapper<GraphQL.ThermostatValue, GraphQL.ThermostatValue, ThermostatValue> {
+  public graphqlFromModel(rhs: ThermostatValue): GraphQL.ThermostatValue {
     const { currentActions, ...remainder } = rhs;
 
     return {
@@ -20,9 +20,9 @@ class LatestActionMapper
     };
   }
 
-  public modelFromGraphql(_tenant: string, _rhs: GraphQL.DeviceAction): LatestAction {
+  public modelFromGraphql(_tenant: string, _rhs: GraphQL.ThermostatValue): ThermostatValue {
     throw new Error("Not supported");
   }
 }
 
-export default LatestActionMapper;
+export default LatestThermostatValueMapper;

@@ -10,7 +10,7 @@ export namespace ThermostatConfigurationSchema {
   export const CadenceRange = { min: 30, max: 3600 };
 
   export const Schema = yup.object().shape({
-    deviceId: yup.string().required(),
+    id: yup.string().required(),
     name: yup.string().required(),
     allowedActions: yup.array().of(yup.string().oneOf(Actions)),
     setPointHeat: yup

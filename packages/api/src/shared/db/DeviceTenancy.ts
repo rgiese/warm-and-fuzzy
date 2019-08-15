@@ -5,23 +5,15 @@ import { hashKey, attribute, table } from "@aws/dynamodb-data-mapper-annotations
 @table("DeviceTenancy")
 export default class DeviceTenancy {
   public constructor() {
-    this.deviceId = "";
+    this.id = "";
     this.tenant = "";
   }
 
-  /**
-   * @name DeviceTenancy#deviceId
-   *
-   * Device ID (assigned by Particle)
-   */
+  // Device ID (assigned by Particle)
   @hashKey()
-  public deviceId: string;
+  public id: string;
 
-  /**
-   * @name DeviceTenancy#tenant
-   *
-   * Tenant (assigned by WarmAndFuzzy)
-   */
+  // Tenant (assigned by WarmAndFuzzy)
   @attribute()
   public tenant: string;
 }

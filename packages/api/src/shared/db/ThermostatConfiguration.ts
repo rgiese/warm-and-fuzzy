@@ -4,11 +4,11 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
-@table("ThermostatConfig")
+@table("ThermostatConfiguration")
 export default class ThermostatConfiguration {
   public constructor() {
     this.tenant = "";
-    this.deviceId = "";
+    this.id = "";
 
     this.name = "";
     this.setPointHeat = NaN;
@@ -18,77 +18,35 @@ export default class ThermostatConfiguration {
     this.allowedActions = undefined;
   }
 
-  /**
-   * @name ThermostatConfiguration#deviceId
-   *
-   * Tenant (assigned by WarmAndFuzzy)
-   */
+  // Tenant (assigned by WarmAndFuzzy)
   @hashKey()
   public tenant: string;
 
-  /**
-   * @name ThermostatConfiguration#deviceId
-   *
-   * Device ID (assigned by Particle)
-   */
+  // Device ID (assigned by Particle)
   @rangeKey()
-  public deviceId: string;
+  public id: string;
 
-  /**
-   * @name ThermostatConfiguration#name
-   *
-   * User-facing name
-   */
+  // User-facing name
   @attribute()
   public name: string;
 
-  /**
-   * @name ThermostatConfiguration#setPointHeat
-   *
-   * Target temperature for heating
-   * Units: Celsius
-   */
+  // Target temperature for heating [Celsius]
   @attribute()
   public setPointHeat: number;
 
-  /**
-   * @name ThermostatConfiguration#setPointCool
-   *
-   * Target temperature for cooling
-   * Units: Celsius
-   */
+  // Target temperature for cooling [Celsius]
   @attribute()
   public setPointCool: number;
 
-  /**
-   * @name ThermostatConfiguration#threshold
-   *
-   * Hysteresis threshold around targets
-   * Units: Celsius
-   */
+  // Hysteresis threshold around targets [Celsius]
   @attribute()
   public threshold: number;
 
-  /**
-   * @name ThermostatConfiguration#cadence
-   *
-   * Operational cadence
-   * Units: seconds
-   */
+  // Operational cadence [sec]
   @attribute()
   public cadence: number;
 
-  /**
-   * @name ThermostatConfiguration#allowedActions
-   *
-   * Allowed actions: GraphQL.ThermostatAction
-   *
-   * - heating
-   * - cooling
-   * - circulation
-   *
-   * May be `undefined` if no actions are permitted.
-   */
+  // Allowed actions: GraphQL.ThermostatAction (may be `undefined` if no actions are permitted)
   @attribute({ memberType: "String" })
   public allowedActions?: Set<GraphQL.ThermostatAction>;
 }

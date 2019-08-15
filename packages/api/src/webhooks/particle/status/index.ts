@@ -6,8 +6,8 @@ import Responses from "../../../shared/Responses";
 import {
   DbMapper,
   DeviceTenancy,
-  LatestAction,
-  LatestValue,
+  SensorValue,
+  ThermostatValue,
   ThermostatConfiguration,
 } from "../../../shared/db";
 
@@ -40,8 +40,10 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
   if (!tenant) {
     try {
+      const deviceTenancyCondition: Pick<DeviceTenancy, "id"> = { id: statusEvent.deviceId };
+
       const deviceTenancy = await DbMapper.get(
-        Object.assign(new DeviceTenancy(), { deviceId: statusEvent.deviceId })
+        Object.assign(new DeviceTenancy(), deviceTenancyCondition)
       );
 
       tenant = deviceTenancy.tenant;
@@ -51,17 +53,35 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     }
   }
 
-  // Store latest values (ignoring out-of-order delivery)
-  {
-    const latestValues = statusEvent.data.v.map(
-      (value): LatestValue => {
-        let v = new LatestValue();
+  // Retrieve thermostat configuration data
+  const thermostatConfigurationCondition: Pick<ThermostatConfiguration, "tenant" | "id"> = {
+    tenant: tenant,
+    id: statusEvent.deviceId,
+  };
+
+  const thermostatConfiguration = await DbMapper.get(
+    Object.assign(new ThermostatConfiguration(), thermostatConfigurationCondition)
+  );
+
+  // Store latest sensor values (ignoring out-of-order delivery)
+  const reportedSensorValues = statusEvent.data.v.filter((value): boolean => !!value.id);
+
+  if (reportedSensorValues) {
+    const sensorValueModels = reportedSensorValues.map(
+      (value): SensorValue => {
+        if (!value.id) {
+          throw new Error("Internal error: sensor values not filtered correctly");
+        }
+
+        let v = new SensorValue();
 
         v.tenant = tenant;
-        v.sensorId = value.id || statusEvent.deviceId;
+        v.id = value.id;
+
         v.publishedTime = statusEvent.publishedAt;
         v.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
         v.deviceLocalSerial = statusEvent.data.ser;
+
         v.temperature = value.t;
         v.humidity = value.h || 0;
 
@@ -69,28 +89,37 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
       }
     );
 
-    for await (const {} of DbMapper.batchPut(latestValues)) {
+    for await (const {} of DbMapper.batchPut(sensorValueModels)) {
     }
   }
 
-  // Store latest actions
-  {
-    let latestAction = new LatestAction();
+  // Store latest thermostat value
+  const reportedThermostatValues = statusEvent.data.v.filter((value): boolean => !value.id);
 
-    latestAction.tenant = tenant;
-    latestAction.deviceId = statusEvent.deviceId;
-    latestAction.publishedTime = statusEvent.publishedAt;
-    latestAction.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
-    latestAction.deviceLocalSerial = statusEvent.data.ser;
-    latestAction.currentActions = ActionsAdapter.modelFromFirmware(statusEvent.data.ca);
+  if (reportedThermostatValues) {
+    const reportedThermostatValue = reportedThermostatValues[0];
 
-    await DbMapper.put(latestAction);
+    let latestThermostatValue = new ThermostatValue();
+
+    latestThermostatValue.tenant = tenant;
+    latestThermostatValue.id = statusEvent.deviceId;
+
+    latestThermostatValue.publishedTime = statusEvent.publishedAt;
+    latestThermostatValue.deviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
+    latestThermostatValue.deviceLocalSerial = statusEvent.data.ser;
+
+    latestThermostatValue.currentActions = ActionsAdapter.modelFromFirmware(statusEvent.data.ca);
+
+    latestThermostatValue.temperature = reportedThermostatValue.t;
+    latestThermostatValue.humidity = reportedThermostatValue.h || 0;
+
+    // TEMPORARY: See Issue #53; this should have been reported from the device.
+    latestThermostatValue.setPointHeat = thermostatConfiguration.setPointHeat;
+    latestThermostatValue.setPointCool = thermostatConfiguration.setPointCool;
+    latestThermostatValue.threshold = thermostatConfiguration.threshold;
+
+    await DbMapper.put(latestThermostatValue);
   }
-
-  // Retrieve thermostat configuration data
-  const thermostatConfiguration = await DbMapper.get(
-    Object.assign(new ThermostatConfiguration(), { tenant: tenant, deviceId: statusEvent.deviceId })
-  );
 
   return Responses.success({
     sh: thermostatConfiguration.setPointHeat,

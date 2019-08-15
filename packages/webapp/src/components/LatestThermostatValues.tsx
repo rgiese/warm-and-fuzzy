@@ -1,36 +1,33 @@
 import React from "react";
 import gql from "graphql-tag";
 
-import { LatestValuesComponent } from "../generated/graphqlClient";
+import { LatestThermostatValuesComponent } from "../generated/graphqlClient";
 
 gql`
-  query LatestValues {
-    getLatestValues {
-      sensorId
+  query LatestThermostatValues {
+    getLatestThermostatValues {
+      id
       deviceTime
+      currentActions
       temperature
       humidity
     }
     getThermostatConfigurations {
-      deviceId
-      name
-    }
-    getSensorConfigurations {
-      sensorId
+      id
       name
     }
   }
 `;
 
-const LatestValues: React.FunctionComponent<{}> = (): React.ReactElement => {
+const LatestThermostatValues: React.FunctionComponent<{}> = (): React.ReactElement => {
   return (
-    <LatestValuesComponent>
+    <LatestThermostatValuesComponent>
       {({ loading, error, data }): React.ReactElement => {
         if (loading) {
           return <p>Loading...</p>;
         }
 
-        if (error || !data || !data.getLatestValues) {
+        if (error || !data || !data.getLatestThermostatValues) {
           return (
             <p>
               Error: <pre>{JSON.stringify(error)}</pre>
@@ -39,19 +36,17 @@ const LatestValues: React.FunctionComponent<{}> = (): React.ReactElement => {
         }
 
         // Rehydrate custom types
-        data.getLatestValues.forEach((v): void => {
+        data.getLatestThermostatValues.forEach((v): void => {
           v.deviceTime = new Date(v.deviceTime);
         });
 
         // Build maps
-        const sensorNames = new Map(
-          data.getThermostatConfigurations
-            .map((c): [string, string] => [c.deviceId, c.name])
-            .concat(data.getSensorConfigurations.map((c): [string, string] => [c.sensorId, c.name]))
+        const thermostatNames = new Map(
+          data.getThermostatConfigurations.map((c): [string, string] => [c.id, c.name])
         );
 
         // Sort by date, descending
-        const sortedValues = data.getLatestValues.sort(
+        const sortedValues = data.getLatestThermostatValues.sort(
           (lhs, rhs): number => rhs.deviceTime.getTime() - lhs.deviceTime.getTime()
         );
 
@@ -62,17 +57,17 @@ const LatestValues: React.FunctionComponent<{}> = (): React.ReactElement => {
               <div className="dtc pa2">Time</div>
               <div className="dtc pa2">Temperature</div>
               <div className="dtc pa2">Humidity</div>
+              <div className="dtc pa2">Actions</div>
             </div>
             {sortedValues.map(
-              (latestValue): React.ReactElement => {
+              (value): React.ReactElement => {
                 return (
                   <div className="dtr">
-                    <div className="dtc pa2">
-                      {sensorNames.get(latestValue.sensorId) || latestValue.sensorId}
-                    </div>
-                    <div className="dtc pa2">{latestValue.deviceTime.toLocaleString()}</div>
-                    <div className="dtc pa2">{latestValue.temperature}</div>
-                    <div className="dtc pa2">{latestValue.humidity || ""}</div>
+                    <div className="dtc pa2">{thermostatNames.get(value.id) || value.id}</div>
+                    <div className="dtc pa2">{value.deviceTime.toLocaleString()}</div>
+                    <div className="dtc pa2">{value.temperature}</div>
+                    <div className="dtc pa2">{value.humidity || ""}</div>
+                    <div className="dtc pa2">{value.currentActions.join(", ")}</div>
                   </div>
                 );
               }
@@ -80,8 +75,8 @@ const LatestValues: React.FunctionComponent<{}> = (): React.ReactElement => {
           </div>
         );
       }}
-    </LatestValuesComponent>
+    </LatestThermostatValuesComponent>
   );
 };
 
-export default LatestValues;
+export default LatestThermostatValues;

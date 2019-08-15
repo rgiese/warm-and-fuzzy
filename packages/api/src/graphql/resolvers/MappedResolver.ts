@@ -5,6 +5,15 @@ import GraphQLModelMapper from "../mappers/GraphQLModelMapper";
 
 import shallowUpdate from "./shallowUpdate";
 
+interface ObjectWithId {
+  id: string;
+}
+
+interface ObjectWithIdAndTenant {
+  tenant: string;
+  id: string;
+}
+
 export interface ZeroArgumentsConstructor<T> {
   new (): T;
 }
@@ -12,8 +21,8 @@ export interface ZeroArgumentsConstructor<T> {
 export default class MappedResolver<
   TGraphQL extends TGraphQLCreateInput,
   TGraphQLCreateInput extends object,
-  TGraphQLUpdateInput extends object,
-  TModel extends object,
+  TGraphQLUpdateInput extends ObjectWithId,
+  TModel extends ObjectWithIdAndTenant,
   TModelConstructor extends ZeroArgumentsConstructor<TModel>,
   TMapper extends GraphQLModelMapper<TGraphQL, TGraphQLCreateInput, TModel>
 > {
@@ -37,16 +46,10 @@ export default class MappedResolver<
     return items;
   }
 
-  public async getOne(tenant: string, selector: Partial<TModel>): Promise<TGraphQL> {
-    const item = await DbMapper.get(
-      Object.assign(
-        new this._modelConstructor(),
-        {
-          tenant: tenant,
-        },
-        selector
-      )
-    );
+  public async getOne<TArgs extends ObjectWithId>(tenant: string, args: TArgs): Promise<TGraphQL> {
+    const itemCondition: Pick<TModel, "tenant" | "id"> = { tenant, id: args.id };
+
+    const item = await DbMapper.get(Object.assign(new this._modelConstructor(), itemCondition));
 
     return this._mapper.graphqlFromModel(item);
   }
@@ -68,20 +71,12 @@ export default class MappedResolver<
     return this._mapper.graphqlFromModel(item);
   }
 
-  public async update(
-    tenant: string,
-    selector: Partial<TModel>,
-    input: TGraphQLUpdateInput
-  ): Promise<TGraphQL> {
+  public async update(tenant: string, input: TGraphQLUpdateInput): Promise<TGraphQL> {
     // Retrieve existing item
+    const initialModelCondition: Pick<TModel, "tenant" | "id"> = { tenant, id: input.id };
+
     const initialModel = await DbMapper.get(
-      Object.assign(
-        new this._modelConstructor(),
-        {
-          tenant: tenant,
-        },
-        selector
-      )
+      Object.assign(new this._modelConstructor(), initialModelCondition)
     );
 
     // Build GraphQL representation

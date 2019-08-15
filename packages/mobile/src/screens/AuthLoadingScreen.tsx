@@ -40,7 +40,7 @@ class AuthLoadingScreen extends React.Component<Props, State> {
   public render(): React.ReactElement {
     return (
       <BaseView contentContainerStyle={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator animating={true} size="large"/>
+        <ActivityIndicator animating={true} size="large" />
         <Title>Loading...</Title>
       </BaseView>
     );
