@@ -1,6 +1,10 @@
 #pragma once
 
 #include <Particle.h>
+#include <mutex>
+
+#define ARDUINOJSON_ENABLE_PROGMEM 0
+#include <ArduinoJson.h>
 
 //
 // A note on EEPROM emulation on Particle devices:
@@ -32,6 +36,7 @@ public:
     Configuration()
         : m_Data()
         , m_fIsDirty()
+        , m_Mutex()
     {
     }
 
@@ -70,11 +75,15 @@ public:
 
     bool IsDirty() const
     {
+        LockGuard autoLock(m_Mutex);
+
         return m_fIsDirty;
     }
 
     void Flush()
     {
+        LockGuard autoLock(m_Mutex);
+
         if (!m_fIsDirty)
         {
             return;
@@ -87,11 +96,111 @@ public:
         m_fIsDirty = false;
     }
 
+    enum class ConfigUpdateResult
+    {
+        Retained,
+        Updated,
+        Invalid
+    };
+
+    ConfigUpdateResult UpdateFromString(char const* const szData)
+    {
+        // Set up document
+        size_t constexpr cbJsonDocument =
+            JSON_OBJECT_SIZE(5)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR"}
+            + countof("sh")      // string copy of "sh" (setPointHeat)
+            + countof("sc")      // string copy of "sc" (setPointCool)
+            + countof("th")      // string copy of "th" (threshold)
+            + countof("ca")      // string copy of "ca" (cadence)
+            + countof("aa")      // string copy of "aa" (allowedActions)
+            + countof("HCR")     // string copy of potential values for aa (allowedActions)
+            ;
+
+        StaticJsonDocument<cbJsonDocument> jsonDocument;
+        {
+            DeserializationError const jsonError = deserializeJson(jsonDocument, szData);
+
+            if (jsonError)
+            {
+                return onInvalidConfig("Failed to deserialize", szData);
+            }
+        }
+
+        // Extract values from document
+        // (goofy macro because ArduinoJson's variant.is<> can't be used inside a template with gcc)
+
+#define GET_JSON_VALUE(MemberName, Target)                                     \
+    JsonVariant variant = jsonDocument.getMember(MemberName);                  \
+                                                                               \
+    if (variant.isNull() || !variant.is<decltype(Target)>())                   \
+    {                                                                          \
+        return onInvalidConfig("'" MemberName "' missing or invalid", szData); \
+    }                                                                          \
+                                                                               \
+    Target = variant.as<decltype(Target)>();
+
+        float setPointHeat;
+        {
+            GET_JSON_VALUE("sh", setPointHeat);
+        }
+
+        float setPointCool;
+        {
+            GET_JSON_VALUE("sc", setPointCool);
+        }
+
+        float threshold;
+        {
+            GET_JSON_VALUE("th", threshold);
+        }
+
+        uint16_t cadence;
+        {
+            GET_JSON_VALUE("ca", cadence);
+        }
+
+        Thermostat::Actions allowedActions;
+        {
+            char const* szAllowedActions;
+            {
+                GET_JSON_VALUE("aa", szAllowedActions);
+            }
+
+            if (!allowedActions.UpdateFromString(szAllowedActions))
+            {
+                return onInvalidConfig("'aa' contains invalid token", szData);
+            }
+        }
+
+#undef GET_JSON_VALUE
+
+        // Commit values
+        {
+            // Provide a transaction-level lock for all updates;
+            // we're using a recursive mutex so the accessors can do their own locks as well.
+            LockGuard autoLock(m_Mutex);
+
+            SetPointHeat(setPointHeat);
+            SetPointCool(setPointCool);
+            Threshold(threshold);
+            Cadence(cadence);
+            AllowedActions(allowedActions);
+
+            bool const fIsDirty = IsDirty();
+
+            Flush();
+
+            return fIsDirty ? ConfigUpdateResult::Updated : ConfigUpdateResult::Retained;
+        }
+    }
+
     //
     // Debugging
     //
     void PrintConfiguration() const
     {
+        LockGuard autoLock(m_Mutex);
+
         Serial.printlnf(
             "SetPoints = %.1f C (heat) / %.1f C (cool), Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = "
             "[%c%c%c]",
@@ -177,12 +286,14 @@ private:
 #define WAF_GENERATE_CONFIGURATION_ACCESSOR(FieldName)                      \
     decltype(Configuration::ConfigurationData::FieldName) FieldName() const \
     {                                                                       \
+        LockGuard autoLock(m_Mutex);                                        \
         return m_Data.FieldName;                                            \
     }                                                                       \
                                                                             \
     decltype(Configuration::ConfigurationData::FieldName) FieldName(        \
         decltype(Configuration::ConfigurationData::FieldName) value)        \
     {                                                                       \
+        LockGuard autoLock(m_Mutex);                                        \
         auto const acceptedValue = clamp##FieldName(value);                 \
         if (acceptedValue != m_Data.FieldName)                              \
         {                                                                   \
@@ -207,8 +318,13 @@ private:
 #undef WAF_GENERATE_CONFIGURATION_ACCESSOR
 
 private:
+    typedef std::recursive_mutex Mutex;
+    typedef std::lock_guard<Mutex> LockGuard;
+
+private:
     ConfigurationData m_Data;
     bool m_fIsDirty;
+    mutable Mutex m_Mutex;
 
     static constexpr int sc_EEPROMAddress = 0;
 
@@ -251,5 +367,12 @@ private:
     Thermostat::Actions clampAllowedActions(Thermostat::Actions const& value) const
     {
         return value.Clamp();
+    }
+
+private:
+    ConfigUpdateResult onInvalidConfig(char const* szReason, char const* szData)
+    {
+        Serial.printlnf("Invalid config (%s): %s", szReason, szData);
+        return ConfigUpdateResult::Invalid;
     }
 };

@@ -2,9 +2,6 @@
 
 #include "PietteTech_DHT.h"
 
-#define ARDUINOJSON_ENABLE_PROGMEM 0
-#include <ArduinoJson.h>
-
 #include <math.h>
 
 #include "inc/CoreDefs.h"
@@ -58,6 +55,7 @@ StatusPublisher g_StatusPublisher;
 //
 
 void onStatusResponse(char const* szEvent, char const* szData);
+int onConfigPush(String configString);
 
 //
 // Setup
@@ -97,6 +95,7 @@ void setup()
     // Configure cloud interactions
     // (async since we're not yet connected to the cloud, courtesy of SYSTEM_MODE = SEMI_AUTOMATIC)
     Particle.subscribe(System.deviceID() + "/hook-response/status", onStatusResponse, MY_DEVICES);
+    Particle.function("configPush", onConfigPush);
 
     // Request connection to cloud (not blocking)
     {
@@ -234,102 +233,40 @@ void loop()
 // Subscriptions
 //
 
-void onInvalidStatusResponse(char const* szReason, char const* szEvent, char const* szData)
-{
-    Serial.printlnf("onStatusResponse: %s for %s = %s", szReason, szEvent, szData);
-}
-
 void onStatusResponse(char const* szEvent, char const* szData)
 {
     Activity statusResponseActivity("StatusResponse");
 
     if (strstr(szEvent, "/hook-response/status/0") == nullptr)  // [deviceID]/hook-response/status/0
     {
-        onInvalidStatusResponse("Unexpected event", szEvent, szData);
+        Serial.printlnf("Unexpected event %s with data %s", szEvent, szData);
         return;
     }
 
-    // Set up document
-    size_t constexpr cbJsonDocument = JSON_OBJECT_SIZE(5)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR"}
-                                      + countof("sh")      // string copy of "sh" (setPointHeat)
-                                      + countof("sc")      // string copy of "sc" (setPointCool)
-                                      + countof("th")      // string copy of "th" (threshold)
-                                      + countof("ca")      // string copy of "ca" (cadence)
-                                      + countof("aa")      // string copy of "aa" (allowedActions)
-                                      + countof("HCR")     // string copy of potential values for aa (allowedActions)
-        ;
+    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(szData);
 
-    StaticJsonDocument<cbJsonDocument> jsonDocument;
+    if (configUpdateResult == Configuration::ConfigUpdateResult::Invalid)
     {
-        DeserializationError const jsonError = deserializeJson(jsonDocument, szData);
-
-        if (jsonError)
-        {
-            onInvalidStatusResponse("Failed to deserialize", szEvent, szData);
-            return;
-        }
+        return;
     }
 
-    // Extract values from document
-    // (goofy macro because ArduinoJson's variant.is<> can't be used inside a template with gcc)
-
-#define GET_JSON_VALUE(MemberName, Target)                                               \
-    JsonVariant variant = jsonDocument.getMember(MemberName);                            \
-                                                                                         \
-    if (variant.isNull() || !variant.is<decltype(Target)>())                             \
-    {                                                                                    \
-        onInvalidStatusResponse("'" MemberName "' missing or invalid", szEvent, szData); \
-        return;                                                                          \
-    }                                                                                    \
-                                                                                         \
-    Target = variant.as<decltype(Target)>();
-
-    float setPointHeat;
-    {
-        GET_JSON_VALUE("sh", setPointHeat);
-    }
-
-    float setPointCool;
-    {
-        GET_JSON_VALUE("sc", setPointCool);
-    }
-
-    float threshold;
-    {
-        GET_JSON_VALUE("th", threshold);
-    }
-
-    uint16_t cadence;
-    {
-        GET_JSON_VALUE("ca", cadence);
-    }
-
-    Thermostat::Actions allowedActions;
-    {
-        char const* szAllowedActions;
-        {
-            GET_JSON_VALUE("aa", szAllowedActions);
-        }
-
-        if (!allowedActions.UpdateFromString(szAllowedActions))
-        {
-            onInvalidStatusResponse("'aa' contains invalid token", szEvent, szData);
-            return;
-        }
-    }
-
-#undef GET_JSON_VALUE
-
-    // Commit values
-    g_Configuration.SetPointHeat(setPointHeat);
-    g_Configuration.SetPointCool(setPointCool);
-    g_Configuration.Threshold(threshold);
-    g_Configuration.Cadence(cadence);
-    g_Configuration.AllowedActions(allowedActions);
-
-    Serial.print(g_Configuration.IsDirty() ? "Updated" : "Retained");
+    Serial.print((configUpdateResult == Configuration::ConfigUpdateResult::Updated) ? "Updated" : "Retained");
     Serial.print(" configuration: ");
     g_Configuration.PrintConfiguration();
+}
 
-    g_Configuration.Flush();
+int onConfigPush(String configString)
+{
+    Activity configPushActivity("ConfigPush");
+
+    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(configString.c_str());
+
+    if (configUpdateResult != Configuration::ConfigUpdateResult::Invalid)
+    {
+        Serial.print((configUpdateResult == Configuration::ConfigUpdateResult::Updated) ? "Updated" : "Retained");
+        Serial.print(" configuration via push: ");
+        g_Configuration.PrintConfiguration();
+    }
+
+    return static_cast<int>(configUpdateResult);
 }
