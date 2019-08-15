@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Text } from "react-native-paper";
+import { ActivityIndicator, Title } from "react-native-paper";
 import { NavigationScreenProp, NavigationState } from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
@@ -39,9 +39,9 @@ class AuthLoadingScreen extends React.Component<Props, State> {
 
   public render(): React.ReactElement {
     return (
-      <BaseView>
-        <ActivityIndicator animating={true} />
-        <Text>Loading...</Text>
+      <BaseView contentContainerStyle={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator animating={true} size="large"/>
+        <Title>Loading...</Title>
       </BaseView>
     );
   }
