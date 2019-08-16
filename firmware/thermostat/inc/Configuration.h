@@ -36,6 +36,7 @@ public:
     Configuration()
         : m_Data()
         , m_fIsDirty()
+        , m_fIsReadOnly()
         , m_Mutex()
     {
     }
@@ -43,6 +44,25 @@ public:
     ~Configuration()
     {
     }
+
+public:
+    //
+    // Snap (read-only clone) support
+    // - clones shouldn't be able to take updates or persist to EEPROM
+    //
+
+    Configuration(Configuration const& rhs)
+        : Configuration()
+    {
+        // Provide a transaction-level lock while copying;
+        // we're using a recursive mutex so the accessors can do their own locks as well.
+        LockGuard autoLock(rhs.m_Mutex);
+
+        m_Data = rhs.m_Data;
+        m_fIsReadOnly = true;
+    }
+
+    Configuration& operator=(Configuration const&) = delete;
 
 public:
     //
@@ -100,11 +120,19 @@ public:
     {
         Retained,
         Updated,
-        Invalid
+        Invalid,
+        NotAllowed,
     };
 
     ConfigUpdateResult UpdateFromString(char const* const szData)
     {
+        if (m_fIsReadOnly)
+        {
+            // The property accessors wouldn't take updates anyhow
+            // but this provides a more succinct error.
+            return ConfigUpdateResult::NotAllowed;
+        }
+
         // Set up document
         size_t constexpr cbJsonDocument =
             JSON_OBJECT_SIZE(5)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR"}
@@ -293,12 +321,15 @@ private:
     decltype(Configuration::ConfigurationData::FieldName) FieldName(        \
         decltype(Configuration::ConfigurationData::FieldName) value)        \
     {                                                                       \
-        LockGuard autoLock(m_Mutex);                                        \
-        auto const acceptedValue = clamp##FieldName(value);                 \
-        if (acceptedValue != m_Data.FieldName)                              \
+        if (!m_fIsReadOnly)                                                 \
         {                                                                   \
-            m_Data.FieldName = acceptedValue;                               \
-            m_fIsDirty = true;                                              \
+            LockGuard autoLock(m_Mutex);                                    \
+            auto const acceptedValue = clamp##FieldName(value);             \
+            if (acceptedValue != m_Data.FieldName)                          \
+            {                                                               \
+                m_Data.FieldName = acceptedValue;                           \
+                m_fIsDirty = true;                                          \
+            }                                                               \
         }                                                                   \
         return m_Data.FieldName;                                            \
     }
@@ -324,6 +355,7 @@ private:
 private:
     ConfigurationData m_Data;
     bool m_fIsDirty;
+    bool m_fIsReadOnly;
     mutable Mutex m_Mutex;
 
     static constexpr int sc_EEPROMAddress = 0;

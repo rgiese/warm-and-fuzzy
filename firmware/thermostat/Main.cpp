@@ -19,7 +19,7 @@
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(8);  // Increment for each release
+PRODUCT_VERSION(9);  // Increment for each release
 
 
 //
@@ -42,6 +42,7 @@ OneWireGateway2484 g_OneWireGateway;
 
 // Configuration
 Configuration g_Configuration;
+bool g_fReceivedConfigurationUpdate;
 
 // Services
 Thermostat g_Thermostat;
@@ -79,6 +80,7 @@ void setup()
 
     // Set up configuration
     g_Configuration.Initialize();
+    g_fReceivedConfigurationUpdate = false;
 
     Serial.print("Current configuration: ");
     g_Configuration.PrintConfiguration();
@@ -176,10 +178,18 @@ void loop()
     }
 
     //
+    // Snap a copy of the configuration so we don't get tearing
+    // if there's a config update on another thread.
+    //
+
+    g_fReceivedConfigurationUpdate = false;
+    Configuration const snappedConfiguration(g_Configuration);
+
+    //
     // Apply data
     //
 
-    g_Thermostat.Apply(g_Configuration, onboardTemperature);
+    g_Thermostat.Apply(snappedConfiguration, onboardTemperature);
 
     //
     // Publish data
@@ -187,7 +197,7 @@ void loop()
 
     {
         Activity publishActivity("PublishStatus");
-        g_StatusPublisher.Publish(g_Configuration,
+        g_StatusPublisher.Publish(snappedConfiguration,
                                   g_Thermostat.CurrentActions(),
                                   onboardTemperature,
                                   onboardHumidity,
@@ -211,19 +221,30 @@ void loop()
     {
         Activity loopDelayActivity("LoopDelay");
 
-        unsigned long const loopEndTime_msec = millis();
-        unsigned long const loopDuration_msec = loopEndTime_msec - loopStartTime_msec;
-
-        unsigned long const loopDesiredCadence_msec = g_Configuration.Cadence() * 1000;
-
-        if (loopDuration_msec > loopDesiredCadence_msec)
+        while (true)
         {
-            // No further delay required
-        }
-        else
-        {
-            // Delay for remainder of desired cadence
-            delay(loopDesiredCadence_msec - loopDuration_msec);
+            // (Carefully phrased to deal with rollovers)
+            unsigned long const currentTime_msec = millis();
+            unsigned long const timeSinceLastLoopStart_msec = currentTime_msec - loopStartTime_msec;
+
+            unsigned long const loopDesiredCadence_msec = snappedConfiguration.Cadence() * 1000;
+
+            if (timeSinceLastLoopStart_msec > loopDesiredCadence_msec)
+            {
+                // No further delay required
+                break;
+            }
+
+            if (g_fReceivedConfigurationUpdate)
+            {
+                // Skip remaining delay so we can act on the latest configuration changes right away
+                break;
+            }
+
+            unsigned long const remainingTotalDelay_msec = loopDesiredCadence_msec - timeSinceLastLoopStart_msec;
+            unsigned long const maxPollingDelay_msec = 2 * 1000;  // maximum time between config update checks
+
+            delay(std::min(remainingTotalDelay_msec, maxPollingDelay_msec));
         }
     }
 }
@@ -232,6 +253,26 @@ void loop()
 //
 // Subscriptions
 //
+
+Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, char const* const szSource)
+{
+    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(szData);
+
+    if (configUpdateResult != Configuration::ConfigUpdateResult::Invalid)
+    {
+        bool const fUpdatedConfig = (configUpdateResult == Configuration::ConfigUpdateResult::Updated);
+
+        if (fUpdatedConfig)
+        {
+            g_fReceivedConfigurationUpdate = true;
+        }
+
+        Serial.printf("%s configuration from %s: ", fUpdatedConfig ? "Updated" : "Retained", szSource);
+        g_Configuration.PrintConfiguration();
+    }
+
+    return configUpdateResult;
+}
 
 void onStatusResponse(char const* szEvent, char const* szData)
 {
@@ -243,30 +284,11 @@ void onStatusResponse(char const* szEvent, char const* szData)
         return;
     }
 
-    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(szData);
-
-    if (configUpdateResult == Configuration::ConfigUpdateResult::Invalid)
-    {
-        return;
-    }
-
-    Serial.print((configUpdateResult == Configuration::ConfigUpdateResult::Updated) ? "Updated" : "Retained");
-    Serial.print(" configuration: ");
-    g_Configuration.PrintConfiguration();
+    (void)handleUpdatedConfig(szData, "statusResponse");
 }
 
 int onConfigPush(String configString)
 {
     Activity configPushActivity("ConfigPush");
-
-    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(configString.c_str());
-
-    if (configUpdateResult != Configuration::ConfigUpdateResult::Invalid)
-    {
-        Serial.print((configUpdateResult == Configuration::ConfigUpdateResult::Updated) ? "Updated" : "Retained");
-        Serial.print(" configuration via push: ");
-        g_Configuration.PrintConfiguration();
-    }
-
-    return static_cast<int>(configUpdateResult);
+    return static_cast<int>(handleUpdatedConfig(configString.c_str(), "push"));
 }

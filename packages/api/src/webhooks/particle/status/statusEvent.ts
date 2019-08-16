@@ -46,7 +46,7 @@ export const StatusEventSchema = yup.object().shape({
         .shape({
           sh: yup.number().required(),
           sc: yup.number().required(),
-          t: yup.number().required(),
+          th: yup.number().required(),
           aa: yup
             .string()
             .nullable()
