@@ -4,6 +4,7 @@ plugins:
   - serverless-webpack
   - serverless-offline
   - serverless-domain-manager
+  - serverless-pseudo-parameters
 
 custom:
   # Distinguish WarmAndFuzzy resource names from other resources in same AWS account
@@ -21,6 +22,8 @@ custom:
   # Dev environment
   serverless-offline:
     port: 3001
+  # Secrets management
+  secretNameParticleAPIKey: "particleAPIKey"
 
 provider:
   name: aws
@@ -33,6 +36,7 @@ provider:
     DYNAMODB_REGION: "${self:provider.region}"
     DYNAMODB_TABLE_NAME_PREFIX: "${self:custom.dynamoDbTablePrefix}"
   iamRoleStatements:
+    # Give selective access to the given tables
     - Effect: Allow
       Action:
         - dynamodb:DescribeTable
@@ -44,13 +48,20 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:BatchGetItem
         - dynamodb:BatchWriteItem
-      # Restrict our IAM role permissions to the given tables
       Resource:
         - !GetAtt DeviceTenancyTable.Arn
         - !GetAtt LatestSensorValuesTable.Arn
         - !GetAtt LatestThermostatValuesTable.Arn
         - !GetAtt SensorConfigurationTable.Arn
         - !GetAtt ThermostatConfigurationTable.Arn
+    # Give selective access to the given encrypted SSM keys
+    - Effect: Allow
+      Action: ssm:GetParameter
+      Resource:
+        - "arn:aws:ssm:#{AWS::Region}:#{AWS::AccountId}:parameter/${self:custom.secretNameParticleAPIKey}"
+    - Effect: Allow
+      Action: kms:Decrypt
+      Resource: "arn:aws:kms:#{AWS::Region}:#{AWS::AccountId}:alias/aws/ssm"
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
@@ -95,6 +106,17 @@ functions:
       - http:
           path: graphql
           method: post
+          cors: true
+          authorizer: auth0Authorizer
+  # Streams
+  stream_thermostatConfiguration:
+    handler: src/streams/thermostatConfiguration/index.post
+    environment:
+      PARTICLE_API_KEY_NAME: ${self:custom.secretNameParticleAPIKey}
+    events:
+      - http:
+          method: post
+          path: api/streams/thermostatConfiguration
           cors: true
           authorizer: auth0Authorizer
   # Webhooks
