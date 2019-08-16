@@ -2,6 +2,9 @@ import { DynamoDBStreamHandler } from "aws-lambda";
 import AWS from "aws-sdk";
 import "source-map-support/register";
 
+import axios from "axios";
+import qs from "qs";
+
 import { ThermostatConfiguration } from "../../shared/db";
 import * as ThermostatConfigurationAdapter from "../../shared/firmware/thermostatConfigurationAdapter";
 
@@ -67,9 +70,9 @@ export const dynamoStream: DynamoDBStreamHandler = async (
     });
 
     if (!updatesMap.size) {
-        return;
+      return;
     }
-    
+
     //
     // Deliver updates
     //
@@ -77,7 +80,33 @@ export const dynamoStream: DynamoDBStreamHandler = async (
     const particleAPIKey = await getParticleAPIKey();
 
     for (const [deviceId, firmwareConfiguration] of updatesMap) {
-      console.log(`Delivering to device ${deviceId}: ${firmwareConfiguration} using key ${particleAPIKey}`);
+      const packedFirmwareConfiguration = JSON.stringify(firmwareConfiguration, null, 0);
+
+      console.log(
+        `Delivering updated configuration to device ${deviceId}: ${packedFirmwareConfiguration}`
+      );
+
+      try {
+        const configPushFunctionName = "configPush"; // see /firmware/thermostat/Main.cpp#setup() > Particle.function()
+
+        const postResult = await axios.post(
+          `https://api.particle.io/v1/devices/${deviceId}/${configPushFunctionName}`,
+          qs.stringify({ arg: packedFirmwareConfiguration }),
+          {
+            headers: {
+              authorization: `Bearer ${particleAPIKey}`,
+              "content-type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
+
+        if (postResult.status != 200) {
+          console.log(postResult);
+        }
+      } catch (error) {
+        console.log(`Error delivering notification (see below), ignoring.`);
+        console.log(error);
+      }
     }
   } catch (error) {
     console.log(error);
