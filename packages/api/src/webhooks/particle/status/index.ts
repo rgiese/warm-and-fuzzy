@@ -2,6 +2,8 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import "source-map-support/register";
 
 import Responses from "../../../shared/Responses";
+import * as ActionsAdapter from "../../../shared/firmware/actionsAdapter";
+import * as ThermostatConfigurationAdapter from "../../../shared/firmware/thermostatConfigurationAdapter";
 
 import {
   DbMapper,
@@ -12,7 +14,6 @@ import {
 } from "../../../shared/db";
 
 import { StatusEvent, StatusEventSchema } from "./statusEvent";
-import * as ActionsAdapter from "./actionsAdapter";
 
 var deviceTenancyCache = new Map();
 
@@ -68,10 +69,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
       temperature: statusEvent.data.t,
       humidity: statusEvent.data.h,
 
-      setPointHeat: statusEvent.data.cc.sh,
-      setPointCool: statusEvent.data.cc.sc,
-      threshold: statusEvent.data.cc.th,
-      allowedActions: ActionsAdapter.modelFromFirmware(statusEvent.data.cc.aa),
+      ...ThermostatConfigurationAdapter.partialModelFromFirmware(statusEvent.data.cc),
     };
 
     const thermostatModel = Object.assign(new ThermostatValue(), thermostatData);
@@ -115,11 +113,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     Object.assign(new ThermostatConfiguration(), thermostatConfigurationCondition)
   );
 
-  return Responses.success({
-    sh: thermostatConfiguration.setPointHeat,
-    sc: thermostatConfiguration.setPointCool,
-    th: thermostatConfiguration.threshold,
-    ca: thermostatConfiguration.cadence,
-    aa: ActionsAdapter.firmwareFromModel(thermostatConfiguration.allowedActions),
-  });
+  return Responses.success(
+    ThermostatConfigurationAdapter.firmwareFromModel(thermostatConfiguration)
+  );
 };

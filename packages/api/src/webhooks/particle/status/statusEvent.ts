@@ -37,7 +37,7 @@ export const StatusEventSchema = yup.object().shape({
       h: yup.number().required(),
       ca: yup
         .string()
-        .nullable()
+        .min(0) // string needs to be present but can be empty
         .matches(/^H?C?R?$/), // firmware should upload in H-C-R order
       // Configuration
       cc: yup
@@ -49,7 +49,7 @@ export const StatusEventSchema = yup.object().shape({
           th: yup.number().required(),
           aa: yup
             .string()
-            .nullable()
+            .min(0) // string needs to be present but can be empty
             .matches(/^H?C?R?$/), // firmware should upload in H-C-R order
         }),
       // Measurements
@@ -60,7 +60,7 @@ export const StatusEventSchema = yup.object().shape({
           yup.object().shape({
             id: yup
               .string()
-              .nullable()
+              .required()
               .lowercase()
               .matches(/^([a-fA0-9]{16})$/, { excludeEmptyString: true }),
             t: yup.number().required(),
