@@ -1,4 +1,4 @@
-import * as GraphQL from "../../../../generated/graphqlTypes";
+import * as GraphQL from "../../../generated/graphqlTypes";
 
 //
 // Convert Set<GraphQL.ThermostatAction> to/from firmware shorthand notation, e.g. "HCR"
