@@ -39,6 +39,7 @@ provider:
     # Give selective access to the given tables
     - Effect: Allow
       Action:
+        # Basics
         - dynamodb:DescribeTable
         - dynamodb:Query
         - dynamodb:Scan
@@ -46,8 +47,14 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        # Batch operations
         - dynamodb:BatchGetItem
         - dynamodb:BatchWriteItem
+        # Streams
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
       Resource:
         - !GetAtt DeviceTenancyTable.Arn
         - !GetAtt LatestSensorValuesTable.Arn
@@ -110,15 +117,15 @@ functions:
           authorizer: auth0Authorizer
   # Streams
   stream_thermostatConfiguration:
-    handler: src/streams/thermostatConfiguration/index.post
+    handler: src/streams/thermostatConfiguration/index.dynamoStream
     environment:
       PARTICLE_API_KEY_NAME: ${self:custom.secretNameParticleAPIKey}
     events:
-      - http:
-          method: post
-          path: api/streams/thermostatConfiguration
-          cors: true
-          authorizer: auth0Authorizer
+      - stream:
+          type: dynamodb
+          arn: !GetAtt ThermostatConfigurationTable.StreamArn
+          batchSize: 1
+          startingPosition: LATEST
   # Webhooks
   particleStatus:
     handler: src/webhooks/particle/status/index.post

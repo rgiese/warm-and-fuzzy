@@ -1,39 +1,43 @@
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
+import { DynamoDBStreamHandler } from "aws-lambda";
 import AWS from "aws-sdk";
 import "source-map-support/register";
 
-import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import Authorizations from "../../auth/Authorizations";
-import Responses from "../../shared/Responses";
-
 const SSM = new AWS.SSM();
 
-export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-  // Authorize (for testing purposes)
-  const authorizations = new Authorizations(event);
-
-  if (
-    !authorizations.HasPermission(Authorization.Permissions.CrossTenantAdmin) ||
-    !authorizations.HasPermission(Authorization.Permissions.WriteConfig)
-  ) {
-    return Responses.noTenantOrPermissions();
-  }
-
+async function getParticleAPIKey(): Promise<string> {
   const keyName = process.env.PARTICLE_API_KEY_NAME;
 
   if (!keyName) {
-    return Responses.internalError("API key name not provided");
+    throw new Error("Configuration error: Particle API key name not provided.");
   }
 
   const response = await SSM.getParameter({ Name: keyName, WithDecryption: true }).promise();
 
-  if (!response.Parameter) {
-    console.log("Bad response");
+  if (!response.Parameter || !response.Parameter.Value) {
     console.log(response);
-
-    return Responses.internalError("API key not decrypted");
+    throw new Error("Configuration error: could not decrypt Particle API key.");
   }
 
-  return Responses.success({ whatever: "sure", keyName, decrypted: response.Parameter });
+  return response.Parameter.Value;
+}
+
+export const dynamoStream: DynamoDBStreamHandler = async (
+  event,
+  _context,
+  callback
+): Promise<void> => {
+  try {
+    const particleAPIKey = await getParticleAPIKey();
+    console.log(`API key: ${particleAPIKey}`);
+
+    event.Records.forEach(record => {
+      console.log(record.eventID);
+      console.log(record.eventName);
+      console.log("DynamoDB Record: %j", record.dynamodb);
+    });
+  } catch (error) {
+    console.log(error);
+    callback(error);
+    return;
+  }
 };
