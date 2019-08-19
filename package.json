@@ -29,7 +29,8 @@
     "start-mobile:local:prod": "lerna run start-mobile:local:prod --stream",
     "start-mobile:remote:dev": "lerna run start-mobile:remote:dev --stream",
     "start-mobile:remote:prod": "lerna run start-mobile:remote:prod --stream",
-    "bundle:mobile": "lerna run bundle-mobile --stream"
+    "bundle:mobile": "lerna run bundle-mobile --stream",
+    "publish-mobile:internal": "lerna run publish-mobile:internal --stream"
   },
   "devDependencies": {
     "@babel/core": "7.5.5",

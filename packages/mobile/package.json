@@ -37,9 +37,9 @@
     "clean-mobile": "cross-env ENVFILE=.env.prod run-script-os",
     "clean-mobile:win32": "cd .\\android && gradlew.bat clean",
     "clean-mobile:default": "cd ./android && ./gradlew clean",
-    "release-mobile:internal": "cross-env ENVFILE=.env.prod run-script-os",
-    "release-mobile:internal:win32": "cd .\\android && gradlew.bat publishReleaseBundle",
-    "release-mobile:internal:default": "cd ./android && ./gradlew publishReleaseBundle",
+    "publish-mobile:internal": "cross-env ENVFILE=.env.prod run-script-os",
+    "publish-mobile:internal:win32": "node tools/create-android-release-name.js && cd .\\android && gradlew.bat publishReleaseBundle",
+    "publish-mobile:internal:default": "node tools/create-android-release-name.js && cd ./android && ./gradlew publishReleaseBundle",
     "android:logcat": "adb -s emulator-5554 logcat -s \"ReactNativeJS\""
   },
   "dependencies": {

@@ -122,6 +122,36 @@ jobs:
       - run: npm run build:shared
       - run: npm run bundle:mobile
 
+      # Persist workspace for deployment
+      - persist_to_workspace:
+          root: .
+          paths:
+            - packages
+
+  mobile-publish:
+    executor: android-executor
+    steps:
+      # Check out source
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-mobile-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-mobile-dependencies-
+
+      # Attach to `build` workspace (provides built packages/)
+      - attach_workspace:
+          at: .
+
+      # Install dependencies
+      - run: npm install
+      - run: npm run bootstrap
+
+      # Run publish to internal Google Play channel
+      - run: npm run publish-mobile:internal
+  
   #
   # Firmware jobs
   #
@@ -213,6 +243,10 @@ workflows:
     jobs:
       - mobile-build:
           context: warm-and-fuzzy-git-secrets
+      - mobile-publish:
+          context: warm-and-fuzzy-git-secrets
+          requires:
+            - mobile-build
 
   firmware:
     jobs:
