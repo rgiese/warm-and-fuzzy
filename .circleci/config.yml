@@ -243,10 +243,20 @@ workflows:
     jobs:
       - mobile-build:
           context: warm-and-fuzzy-git-secrets
+      - hold-to-publish:
+          type: approval
+          requires:
+            - mobile-build
+          filters:
+            branches:
+              only: master
       - mobile-publish:
           context: warm-and-fuzzy-git-secrets
           requires:
-            - mobile-build
+            - hold-to-publish
+          filters:
+            branches:
+              only: master
 
   firmware:
     jobs:
