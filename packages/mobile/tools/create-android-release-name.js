@@ -8,26 +8,29 @@ const releaseNameFilePath = path.resolve(playFilesRoot, "release-names", "intern
 const releaseNotesFilePath = path.resolve(playFilesRoot, "release-notes", "en-US", "internal.txt");
 
 let branch;
+let buildNumber;
 let commitHash;
 let commitInfo;
 let buildUrl;
 
 if (process.env["CIRCLE_BRANCH"]) {
     branch = process.env["CIRCLE_BRANCH"];
+    buildNumber = process.env["CIRCLE_BUILD_NUM"];
     commitHash = process.env["CIRCLE_SHA1"].substr(0, 7);
     commitInfo = execSync("git log --format=oneline -n 1 --abbrev-commit $CIRCLE_SHA1").toString().replace(/(\r\n|\n|\r)/gm, "").trim();
     buildUrl = process.env["CIRCLE_BUILD_URL"];
 } else {
     branch = execSync("git branch --show-current").toString().replace(/(\r\n|\n|\r)/gm, "").trim();
-    commitHash = "<none>";
+    buildNumber = "0"
+    commitHash = "local";
     commitInfo = "<work in progress>";
     buildUrl = "<none>";
 }
 
-const releaseNameData = `${branch}.${commitHash}`;
+const releaseNameData = `${branch}.${buildNumber}.${commitHash}`;
 console.log(`Release name: ${releaseNameData}`);
 fs.writeFileSync(releaseNameFilePath, releaseNameData);
 
-const releaseNotesData = `${branch}.${commitHash}\n${commitInfo}\n${buildUrl}\n`;
+const releaseNotesData = `${branch}.${buildNumber}.${commitHash}\n${commitInfo}\n${buildUrl}\n`;
 console.log(`Release notes:\n${releaseNotesData}`);
 fs.writeFileSync(releaseNotesFilePath, releaseNotesData);
