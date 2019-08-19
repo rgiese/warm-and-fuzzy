@@ -151,7 +151,7 @@ jobs:
 
       # Run publish to internal Google Play channel
       - run: npm run publish-mobile:internal
-  
+
   #
   # Firmware jobs
   #
