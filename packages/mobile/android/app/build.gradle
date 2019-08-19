@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "com.github.triplet.play"
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 apply from: project(':react-native-vector-icons').projectDir.getPath() + "/../fonts.gradle"
 
@@ -202,6 +203,14 @@ android {
         pickFirst '**/x86/libjsc.so'
         pickFirst '**/armeabi-v7a/libjsc.so'
     }
+}
+
+play {
+    // See https://github.com/Triple-T/gradle-play-publisher
+    serviceAccountEmail = "warmandfuzzyci@api-5463003342924434615-284913.iam.gserviceaccount.com"
+    serviceAccountCredentials = file("google-play-service-account.p12.decrypted")
+
+    resolutionStrategy = "auto"
 }
 
 dependencies {

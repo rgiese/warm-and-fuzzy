@@ -17,9 +17,11 @@
     "decrypt-secrets": "npm-run-all decrypt-secrets:*",
     "decrypt-secrets:keystore": "cross-var openssl aes-256-cbc -d -out android/app/waf-upload-key.keystore.decrypted -in android/app/waf-upload-key.keystore.encrypted -k $WAF_GIT_SECRETS_KEY",
     "decrypt-secrets:keystore-password": "cross-var openssl aes-256-cbc -d -out android/app/waf-upload-key.password.decrypted -in android/app/waf-upload-key.password.encrypted -k $WAF_GIT_SECRETS_KEY",
+    "decrypt-secrets:google-play-service-account": "cross-var openssl aes-256-cbc -d -out android/app/google-play-service-account.p12.decrypted -in android/app/google-play-service-account.p12.encrypted -k $WAF_GIT_SECRETS_KEY",
     "encrypt-secrets": "npm-run-all encrypt-secrets:*",
     "encrypt-secrets:keystore": "cross-var openssl aes-256-cbc -e -in android/app/waf-upload-key.keystore.decrypted -out android/app/waf-upload-key.keystore.encrypted -k $WAF_GIT_SECRETS_KEY",
     "encrypt-secrets:keystore-password": "cross-var openssl aes-256-cbc -e -in android/app/waf-upload-key.password.decrypted -out android/app/waf-upload-key.password.encrypted -k $WAF_GIT_SECRETS_KEY",
+    "encrypt-secrets:google-play-service-account": "cross-var openssl aes-256-cbc -e -in android/app/google-play-service-account.p12.decrypted -out android/app/google-play-service-account.p12.encrypted -k $WAF_GIT_SECRETS_KEY",
     "prestart-mobile:local:dev": "npm-run-all codegen:*",
     "start-mobile:local:dev": "cross-env ENVFILE=.env.local react-native run-android",
     "prestart-mobile:local:prod": "npm-run-all codegen:*",
@@ -35,6 +37,9 @@
     "clean-mobile": "cross-env ENVFILE=.env.prod run-script-os",
     "clean-mobile:win32": "cd .\\android && gradlew.bat clean",
     "clean-mobile:default": "cd ./android && ./gradlew clean",
+    "publish-mobile:internal": "cross-env ENVFILE=.env.prod run-script-os",
+    "publish-mobile:internal:win32": "node tools/create-android-release-name.js && cd .\\android && gradlew.bat publishReleaseBundle",
+    "publish-mobile:internal:default": "node tools/create-android-release-name.js && cd ./android && ./gradlew publishReleaseBundle",
     "android:logcat": "adb -s emulator-5554 logcat -s \"ReactNativeJS\""
   },
   "dependencies": {
