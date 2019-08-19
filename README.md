@@ -66,6 +66,7 @@ All commands below start the mobile app server locally, varying which API it cal
 - `npx jetify` in `packages/mobile-rn` to update Java code brought in under `node_modules` to AndroidX (required after any new native-containing npm module is installed)
 - `lerna run android:logcat` == `adb -s (deviceName) logcat -s "ReactNativeJS"` for listening to ReactNative `console.log` output
   - `adb devices -l` to find active device name
+- Use [Launcher Icon Generator](https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html) to generate app icon sets
 
 ### CI
 
