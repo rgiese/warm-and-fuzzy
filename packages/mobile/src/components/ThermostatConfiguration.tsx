@@ -34,6 +34,7 @@ gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
     id
     name
+    availableActions
     allowedActions
     setPointHeat
     setPointCool
@@ -208,84 +209,90 @@ class ThermostatConfiguration extends React.Component<Props, State> {
               <Text style={styles.thermostatLabel}>{thermostatConfiguration.name}</Text>
 
               {/* Set point: Heat */}
-              <View style={styles.setPointRow}>
-                <Text style={styles.setPointText}>
-                  <ThemedText.Heat>Heat</ThemedText.Heat> to {thermostatConfiguration.setPointHeat}{" "}
-                  &deg;C
-                </Text>
-                <Slider
-                  style={styles.setPointSlider}
-                  value={thermostatConfiguration.setPointHeat}
-                  onValueChange={(value): void =>
-                    this.setState({
-                      thermostatConfiguration: {
-                        ...thermostatConfiguration,
-                        setPointHeat: value,
-                      },
-                    })
-                  }
-                  minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-                  maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                  step={1}
-                  minimumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
-                  maximumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
-                  thumbTintColor={ColorCodes[ThermostatAction.Heat]}
-                />
-                <Switch
-                  style={styles.setPointSwitch}
-                  value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Heat)}
-                  onValueChange={value => this.updateAllowedAction(ThermostatAction.Heat, value)}
-                  color={ColorCodes[ThermostatAction.Heat]}
-                />
-              </View>
+              {thermostatConfiguration.availableActions.includes(ThermostatAction.Heat) && (
+                <View style={styles.setPointRow}>
+                  <Text style={styles.setPointText}>
+                    <ThemedText.Heat>Heat</ThemedText.Heat> to{" "}
+                    {thermostatConfiguration.setPointHeat} &deg;C
+                  </Text>
+                  <Slider
+                    style={styles.setPointSlider}
+                    value={thermostatConfiguration.setPointHeat}
+                    onValueChange={(value): void =>
+                      this.setState({
+                        thermostatConfiguration: {
+                          ...thermostatConfiguration,
+                          setPointHeat: value,
+                        },
+                      })
+                    }
+                    minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
+                    maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+                    step={1}
+                    minimumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
+                    maximumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
+                    thumbTintColor={ColorCodes[ThermostatAction.Heat]}
+                  />
+                  <Switch
+                    style={styles.setPointSwitch}
+                    value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Heat)}
+                    onValueChange={value => this.updateAllowedAction(ThermostatAction.Heat, value)}
+                    color={ColorCodes[ThermostatAction.Heat]}
+                  />
+                </View>
+              )}
 
               {/* Set point: Cool */}
-              <View style={styles.setPointRow}>
-                <Text style={styles.setPointText}>
-                  <ThemedText.Cool>Cool</ThemedText.Cool> to {thermostatConfiguration.setPointCool}{" "}
-                  &deg;C
-                </Text>
-                <Slider
-                  style={styles.setPointSlider}
-                  value={thermostatConfiguration.setPointCool}
-                  onValueChange={(value): void =>
-                    this.setState({
-                      thermostatConfiguration: {
-                        ...thermostatConfiguration,
-                        setPointCool: value,
-                      },
-                    })
-                  }
-                  minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-                  maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                  step={1}
-                  minimumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
-                  maximumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
-                  thumbTintColor={ColorCodes[ThermostatAction.Cool]}
-                />
-                <Switch
-                  style={styles.setPointSwitch}
-                  value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Cool)}
-                  onValueChange={value => this.updateAllowedAction(ThermostatAction.Cool, value)}
-                  color={ColorCodes[ThermostatAction.Cool]}
-                />
-              </View>
+              {thermostatConfiguration.availableActions.includes(ThermostatAction.Cool) && (
+                <View style={styles.setPointRow}>
+                  <Text style={styles.setPointText}>
+                    <ThemedText.Cool>Cool</ThemedText.Cool> to{" "}
+                    {thermostatConfiguration.setPointCool} &deg;C
+                  </Text>
+                  <Slider
+                    style={styles.setPointSlider}
+                    value={thermostatConfiguration.setPointCool}
+                    onValueChange={(value): void =>
+                      this.setState({
+                        thermostatConfiguration: {
+                          ...thermostatConfiguration,
+                          setPointCool: value,
+                        },
+                      })
+                    }
+                    minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
+                    maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+                    step={1}
+                    minimumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
+                    maximumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
+                    thumbTintColor={ColorCodes[ThermostatAction.Cool]}
+                  />
+                  <Switch
+                    style={styles.setPointSwitch}
+                    value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Cool)}
+                    onValueChange={value => this.updateAllowedAction(ThermostatAction.Cool, value)}
+                    color={ColorCodes[ThermostatAction.Cool]}
+                  />
+                </View>
+              )}
 
               {/* Set point: Circulate */}
-              <View style={styles.setPointRow}>
-                <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
-                <View style={styles.setPointSlider}>{/* Empty */}</View>
-                <Switch
-                  style={styles.setPointSwitch}
-                  value={thermostatConfiguration.allowedActions.includes(
-                    ThermostatAction.Circulate
-                  )}
-                  onValueChange={value =>
-                    this.updateAllowedAction(ThermostatAction.Circulate, value)
-                  }
-                  color={ColorCodes[ThermostatAction.Circulate]}
-                />
-              </View>
+              {thermostatConfiguration.availableActions.includes(ThermostatAction.Circulate) && (
+                <View style={styles.setPointRow}>
+                  <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
+                  <View style={styles.setPointSlider}>{/* Empty */}</View>
+                  <Switch
+                    style={styles.setPointSwitch}
+                    value={thermostatConfiguration.allowedActions.includes(
+                      ThermostatAction.Circulate
+                    )}
+                    onValueChange={value =>
+                      this.updateAllowedAction(ThermostatAction.Circulate, value)
+                    }
+                    color={ColorCodes[ThermostatAction.Circulate]}
+                  />
+                </View>
+              )}
 
               {/* Save button */}
               <View style={styles.saveButtonRow}>
