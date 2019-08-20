@@ -1,4 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
+import moment from "moment";
 import "source-map-support/register";
 
 import Responses from "../../../shared/Responses";
@@ -54,15 +55,29 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     }
   }
 
+  // Patch up device time if it's overly out of sync with the "published" time attached by Particle Cloud
+  // - this can happen when a device first boots up and hasn't performed NTP sync yet;
+  //   in those cases, the device-reported time tends to be egregiously (~20 years) off.
+  const publishedTime = statusEvent.publishedAt;
+  const deviceLocalSerial = statusEvent.data.ser;
+  const reportedDeviceTime = new Date(statusEvent.data.ts * 1000); // .ts is in UTC epoch seconds
+
+  const deviceTimeToPublishedTimeDifference = moment.duration(
+    moment(publishedTime).diff(moment(reportedDeviceTime))
+  );
+
+  const deviceTime =
+    deviceTimeToPublishedTimeDifference.asMonths() < 1 ? reportedDeviceTime : publishedTime;
+
   // Store latest thermostat value (ignoring out-of-order delivery)
   {
     const thermostatData: ThermostatValue = {
       tenant: tenant,
       id: statusEvent.deviceId,
 
-      publishedTime: statusEvent.publishedAt,
-      deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
-      deviceLocalSerial: statusEvent.data.ser,
+      publishedTime,
+      deviceTime,
+      deviceLocalSerial,
 
       currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
 
@@ -88,9 +103,9 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
           tenant: tenant,
           id: value.id,
 
-          publishedTime: statusEvent.publishedAt,
-          deviceTime: new Date(statusEvent.data.ts * 1000), // .ts is in UTC epoch seconds
-          deviceLocalSerial: statusEvent.data.ser,
+          publishedTime,
+          deviceTime,
+          deviceLocalSerial,
 
           temperature: value.t,
         };
