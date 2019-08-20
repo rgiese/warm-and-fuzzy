@@ -1,0 +1,378 @@
+{
+    "deviceTenancy": [
+        {
+            "id": "360038001247363336383437",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "200033000f47363336383437",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "2a0023001347363336383437",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "450031001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "3f0046001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "390045001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "380027000f47363336383437",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "500055001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "43003e001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "41002f001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "4d002c001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "4d004c001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "450049001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "4c002d001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "17002c001247363333343437",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "500041001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "46005c001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "56002a001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "30005b001851373237343331",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "3b0023001247363336383437",
+            "tenant": "AmazingHouse"
+        },
+        {
+            "id": "3e0041001851373237343331",
+            "tenant": "AmazingHouse"
+        }
+    ],
+    "sensors": [
+        {
+            "tenant": "AmazingHouse",
+            "id": "280d681f0b000018",
+            "name": "OneWire/unassigned"
+        }
+    ],
+    "thermostats": [
+        {
+            "tenant": "AmazingHouse",
+            "id": "17002c001247363333343437",
+            "name": "Breadboard",
+            "setPointHeat": 18,
+            "setPointCool": 22,
+            "threshold": 0.5,
+            "cadence": 60,
+            "availableActions": [
+                "Circulate",
+                "Cool",
+                "Heat"
+            ],
+            "allowedActions": [
+                "Circulate",
+                "Cool"
+            ]
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "200033000f47363336383437",
+            "name": "Living Room Heat Pump",
+            "setPointHeat": 20,
+            "setPointCool": 24,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Circulate",
+                "Cool",
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "2a0023001347363336383437",
+            "name": "Manifold GameRoomCloset",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 1,
+            "cadence": 120,
+            "availableActions": [],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "30005b001851373237343331",
+            "name": "Phil's Room",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "360038001247363336383437",
+            "name": "Manifold Crawlspace",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 1,
+            "cadence": 120,
+            "availableActions": [],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "380027000f47363336383437",
+            "name": "Manifold LinenCloset",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 1,
+            "cadence": 120,
+            "availableActions": [],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "390045001851373237343331",
+            "name": "Manifold BoilerRoom-3Header",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 1,
+            "cadence": 120,
+            "availableActions": [],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "3b0023001247363336383437",
+            "name": "Band Room",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "3e0041001851373237343331",
+            "name": "Manifold BoilerRoom-7Header",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 1,
+            "cadence": 120,
+            "availableActions": [],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "3f0046001851373237343331",
+            "name": "Kids' Bathroom",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "41002f001851373237343331",
+            "name": "YouTube Studio",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "43002e001851373237343331",
+            "name": "Living Room",
+            "setPointHeat": 20,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "43003e001851373237343331",
+            "name": "Harry's Bedroom",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "450031001851373237343331",
+            "name": "Garage",
+            "setPointHeat": 20,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "450049001851373237343331",
+            "name": "Office",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "46005c001851373237343331",
+            "name": "Bird's Bathroom",
+            "setPointHeat": 20,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "4c002d001851373237343331",
+            "name": "Game Room",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "4d002c001851373237343331",
+            "name": "Sarah's Bedroom",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "4d004c001851373237343331",
+            "name": "Entry",
+            "setPointHeat": 16,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "500041001851373237343331",
+            "name": "Manifold NWKidBedroom",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 1,
+            "cadence": 120,
+            "availableActions": [],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "500055001851373237343331",
+            "name": "Ollie's Bedroom",
+            "setPointHeat": 18,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        },
+        {
+            "tenant": "AmazingHouse",
+            "id": "56002a001851373237343331",
+            "name": "Bird's Bedroom",
+            "setPointHeat": 20,
+            "setPointCool": 40,
+            "threshold": 0.5,
+            "cadence": 120,
+            "availableActions": [
+                "Heat"
+            ],
+            "allowedActions": []
+        }
+    ]
+}
