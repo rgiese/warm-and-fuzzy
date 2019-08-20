@@ -16,6 +16,14 @@ export namespace ClientConfiguration {
       },
     },
 
+    localAndroidEmulator: {
+      isProduction: false,
+      apiGateway: {
+        REGION: "us-west-2",
+        URL: "http://10.0.2.2:3001",
+      },
+    },
+
     dev: {
       isProduction: false,
       apiGateway: {

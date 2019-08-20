@@ -13,6 +13,7 @@ gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
     id
     name
+    availableActions
     allowedActions
     setPointHeat
     setPointCool
@@ -61,6 +62,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
               <div className="dtc pa2">Heat to</div>
               <div className="dtc pa2">Threshold</div>
               <div className="dtc pa2">Cadence</div>
+              <div className="dtc pa2">Available actions</div>
               <div className="dtc pa2"></div> {/* Submit button */}
             </div>
             {data.getThermostatConfigurations.map(
@@ -176,6 +178,37 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                                   />{" "}
                                   sec
                                   <ErrorMessage name="cadence" component="div" />
+                                </div>
+
+                                <div className="dtc">
+                                  <FieldArray
+                                    name="availableActions"
+                                    render={arrayHelpers => (
+                                      <>
+                                        {ThermostatConfigurationSchema.Actions.map(action => (
+                                          <label className="pa2" key={action}>
+                                            <input
+                                              name="availableActions"
+                                              type="checkbox"
+                                              value={action}
+                                              checked={values.availableActions.includes(action)}
+                                              onChange={e => {
+                                                if (e.target.checked) {
+                                                  arrayHelpers.push(action);
+                                                } else {
+                                                  const idxItem = values.availableActions.indexOf(
+                                                    action
+                                                  );
+                                                  arrayHelpers.remove(idxItem);
+                                                }
+                                              }}
+                                            />
+                                            {action}
+                                          </label>
+                                        ))}
+                                      </>
+                                    )}
+                                  />
                                 </div>
 
                                 <div className="dtc pa2">

@@ -78,6 +78,8 @@ input ThermostatConfigurationCreateInput {
   id: ID!
   name: String!
 
+  availableActions: [ThermostatAction!]!
+
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
@@ -90,6 +92,8 @@ input ThermostatConfigurationUpdateInput {
   id: ID!
   name: String
 
+  availableActions: [ThermostatAction!]!
+
   allowedActions: [ThermostatAction!]
   setPointHeat: Float
   setPointCool: Float
@@ -99,10 +103,11 @@ input ThermostatConfigurationUpdateInput {
 }
 
 type ThermostatConfiguration {
-  id: ID!
   tenant: String!
-
+  id: ID!
   name: String!
+
+  availableActions: [ThermostatAction!]!
 
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!

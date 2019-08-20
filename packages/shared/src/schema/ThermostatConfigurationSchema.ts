@@ -12,6 +12,7 @@ export namespace ThermostatConfigurationSchema {
   export const Schema = yup.object().shape({
     id: yup.string().required(),
     name: yup.string().required(),
+    availableActions: yup.array().of(yup.string().oneOf(Actions)),
     allowedActions: yup.array().of(yup.string().oneOf(Actions)),
     setPointHeat: yup
       .number()

@@ -34,6 +34,7 @@ gql`
     getThermostatConfigurations {
       id
       name
+      availableActions
       setPointCool
       setPointHeat
       allowedActions
@@ -49,7 +50,7 @@ type CurrentThermostatConfiguration = ArrayElementType<
 >;
 
 type ThermostatStatus = LatestThermostatValue & {
-  configuration?: CurrentThermostatConfiguration;
+  configuration: CurrentThermostatConfiguration;
 };
 
 const styles = StyleSheet.create({
@@ -145,14 +146,31 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     );
 
     // Assemble and sort data
-    const thermostatStatusData = data.getLatestThermostatValues
-      .map(
-        (v): ThermostatStatus =>
-          Object.assign({}, v, {
-            configuration: thermostatConfigurations.get(v.id),
-          })
-      )
-      .sort((lhs, rhs): number => rhs.deviceTime.getTime() - lhs.deviceTime.getTime());
+    let thermostatStatusData: ThermostatStatus[] = [];
+
+    data.getLatestThermostatValues.forEach((v): void => {
+      const configuration = thermostatConfigurations.get(v.id);
+
+      if (!configuration) {
+        return;
+      }
+
+      if (!configuration.availableActions || !configuration.availableActions.length) {
+        // Don't display devices that don't have available actions, i.e. aren't controlling thermostats
+        // (may be reporting-only devices)
+        return;
+      }
+
+      thermostatStatusData.push(
+        Object.assign({}, v, {
+          configuration,
+        })
+      );
+    });
+
+    thermostatStatusData = thermostatStatusData.sort(
+      (lhs, rhs): number => rhs.deviceTime.getTime() - lhs.deviceTime.getTime()
+    );
 
     return thermostatStatusData;
   }
@@ -201,9 +219,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {/* Top row */}
                   <View style={styles.primaryRow}>
                     {/* Device name */}
-                    <Text style={styles.thermostatName}>
-                      {item.configuration ? item.configuration.name : item.id}
-                    </Text>
+                    <Text style={styles.thermostatName}>{item.configuration.name}</Text>
 
                     {/* Details */}
                     <>
@@ -229,11 +245,9 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                             color={ColorCodes[ThermostatAction.Heat]}
                             style={styles.detailsIconPadding}
                           />
-                          {item.configuration && (
-                            <ThemedText.Heat style={styles.detailsText}>
-                              {item.configuration.setPointHeat} &deg;C
-                            </ThemedText.Heat>
-                          )}
+                          <ThemedText.Heat style={styles.detailsText}>
+                            {item.configuration.setPointHeat} &deg;C
+                          </ThemedText.Heat>
                         </>
                       )}
 
@@ -246,11 +260,9 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                             color={ColorCodes[ThermostatAction.Cool]}
                             style={styles.detailsIconPadding}
                           />
-                          {item.configuration && (
-                            <ThemedText.Cool style={styles.detailsText}>
-                              {item.configuration.setPointCool} &deg;C
-                            </ThemedText.Cool>
-                          )}
+                          <ThemedText.Cool style={styles.detailsText}>
+                            {item.configuration.setPointCool} &deg;C
+                          </ThemedText.Cool>
                         </>
                       )}
 

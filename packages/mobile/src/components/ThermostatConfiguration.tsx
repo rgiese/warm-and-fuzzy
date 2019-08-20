@@ -141,7 +141,7 @@ class ThermostatConfiguration extends React.Component<Props, State> {
         this.setState({ errors: JSON.stringify(queryResult.errors) });
       }
 
-      if (!queryResult.data) {
+      if (!queryResult.data || !queryResult.data.getThermostatConfiguration) {
         this.setState({ errors: "No data returned" });
       }
 

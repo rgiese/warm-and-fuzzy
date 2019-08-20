@@ -17,10 +17,11 @@ class ThermostatConfigurationMapper
       ThermostatConfiguration
     > {
   public graphqlFromModel(rhs: ThermostatConfiguration): GraphQL.ThermostatConfiguration {
-    const { allowedActions, ...remainder } = rhs;
+    const { availableActions, allowedActions, ...remainder } = rhs;
 
     return {
       ...remainder,
+      availableActions: availableActions ? Array.from(availableActions) : [],
       allowedActions: allowedActions ? Array.from(allowedActions) : [],
     };
   }
@@ -29,11 +30,12 @@ class ThermostatConfigurationMapper
     tenant: string,
     rhs: GraphQL.ThermostatConfigurationCreateInput
   ): ThermostatConfiguration {
-    const { allowedActions, ...remainder } = rhs;
+    const { availableActions, allowedActions, ...remainder } = rhs;
 
     return Object.assign(new ThermostatConfiguration(), {
       tenant,
       ...remainder,
+      availableActions: availableActions.length > 0 ? new Set(availableActions) : undefined,
       allowedActions: allowedActions.length > 0 ? new Set(allowedActions) : undefined,
     });
   }

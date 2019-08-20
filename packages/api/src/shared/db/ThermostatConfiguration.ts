@@ -16,6 +16,7 @@ export default class ThermostatConfiguration {
     this.threshold = NaN;
     this.cadence = NaN;
     this.allowedActions = undefined;
+    this.availableActions = undefined;
   }
 
   // Tenant (assigned by WarmAndFuzzy)
@@ -46,7 +47,11 @@ export default class ThermostatConfiguration {
   @attribute()
   public cadence: number;
 
-  // Allowed actions: GraphQL.ThermostatAction (may be `undefined` if no actions are permitted)
+  // Allowed actions: GraphQL.ThermostatAction (may be `undefined` if no actions are allowed)
   @attribute({ memberType: "String" })
   public allowedActions?: Set<GraphQL.ThermostatAction>;
+
+  // Available actions: GraphQL.ThermostatAction (may be `undefined` if no actions are available)
+  @attribute({ memberType: "String" })
+  public availableActions?: Set<GraphQL.ThermostatAction>;
 }
