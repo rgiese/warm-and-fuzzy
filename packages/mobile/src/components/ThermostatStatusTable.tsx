@@ -168,8 +168,8 @@ class ThermostatStatusTable extends React.Component<Props, State> {
       );
     });
 
-    thermostatStatusData = thermostatStatusData.sort(
-      (lhs, rhs): number => rhs.deviceTime.getTime() - lhs.deviceTime.getTime()
+    thermostatStatusData = thermostatStatusData.sort((lhs, rhs): number =>
+      lhs.configuration.name.localeCompare(rhs.configuration.name)
     );
 
     return thermostatStatusData;
