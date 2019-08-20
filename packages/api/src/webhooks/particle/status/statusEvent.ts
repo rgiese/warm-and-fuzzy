@@ -55,7 +55,7 @@ export const StatusEventSchema = yup.object().shape({
       // Measurements
       v: yup
         .array()
-        .required()
+        .min(0)
         .of(
           yup.object().shape({
             id: yup
