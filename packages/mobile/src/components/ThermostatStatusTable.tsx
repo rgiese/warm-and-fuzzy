@@ -34,6 +34,7 @@ gql`
     getThermostatConfigurations {
       id
       name
+      availableActions
       setPointCool
       setPointHeat
       allowedActions
@@ -151,6 +152,12 @@ class ThermostatStatusTable extends React.Component<Props, State> {
       const configuration = thermostatConfigurations.get(v.id);
 
       if (!configuration) {
+        return;
+      }
+
+      if (!configuration.availableActions || !configuration.availableActions.length) {
+        // Don't display devices that don't have available actions, i.e. aren't controlling thermostats
+        // (may be reporting-only devices)
         return;
       }
 
