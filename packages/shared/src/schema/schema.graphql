@@ -48,6 +48,19 @@ type Query {
   getLatestSensorValues: [SensorValue!]! @requiresPermission(permission: READ_DATA)
 
   getLatestSensorValue(id: ID!): SensorValue! @requiresPermission(permission: READ_DATA)
+
+  # Value streams
+  getThermostatValueStreams(
+    streamName: String!
+    fromDate: DateTime
+    toDate: DateTime
+  ): [ThermostatValueStream!]! @requiresPermission(permission: READ_DATA)
+
+  getSensorValueStreams(
+    streamName: String!
+    fromDate: DateTime
+    toDate: DateTime
+  ): [SensorValueStream!]! @requiresPermission(permission: READ_DATA)
 }
 
 type Mutation {
@@ -175,6 +188,37 @@ type ThermostatValue {
 type SensorValue {
   id: ID!
   tenant: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
+}
+
+#
+# Value streams
+#
+
+type ThermostatValueStream {
+  streamName: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
+  humidity: Float!
+  currentActions: [ThermostatAction!]!
+
+  setPointHeat: Float!
+  setPointCool: Float!
+  threshold: Float!
+  allowedActions: [ThermostatAction!]!
+}
+
+type SensorValueStream {
+  streamName: String!
 
   publishedTime: DateTime!
   deviceTime: DateTime!
