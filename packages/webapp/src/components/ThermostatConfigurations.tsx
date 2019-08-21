@@ -13,6 +13,7 @@ gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
     id
     name
+    streamName
     availableActions
     allowedActions
     setPointHeat
@@ -57,6 +58,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
             <div className="dtr b ba b--black">
               <div className="dtc pa2">Id</div>
               <div className="dtc pa2">Name</div>
+              <div className="dtc pa2">Stream Name</div>
               <div className="dtc pa2">Allowed actions</div>
               <div className="dtc pa2">Cool to</div>
               <div className="dtc pa2">Heat to</div>
@@ -95,6 +97,11 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
                                 <div className="dtc pa2">
                                   <Field type="text" name="name" />
                                   <ErrorMessage name="name" component="div" />
+                                </div>
+
+                                <div className="dtc pa2">
+                                  <Field type="text" name="streamName" />
+                                  <ErrorMessage name="streamName" component="div" />
                                 </div>
 
                                 <div className="dtc">

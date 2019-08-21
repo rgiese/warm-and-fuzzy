@@ -11,6 +11,7 @@ export default class ThermostatConfiguration {
     this.id = "";
 
     this.name = "";
+    this.streamName = "";
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
     this.threshold = NaN;
@@ -30,6 +31,10 @@ export default class ThermostatConfiguration {
   // User-facing name
   @attribute()
   public name: string;
+
+  // Stream (historical data) name
+  @attribute()
+  public streamName: string;
 
   // Target temperature for heating [Celsius]
   @attribute()

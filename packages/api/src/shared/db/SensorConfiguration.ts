@@ -9,6 +9,7 @@ export default class SensorConfiguration {
     this.id = "";
 
     this.name = "";
+    this.streamName = "";
   }
 
   // Tenant (assigned by WarmAndFuzzy)
@@ -22,4 +23,8 @@ export default class SensorConfiguration {
   // User-facing name
   @attribute()
   public name: string;
+
+  // Stream (historical data) name
+  @attribute()
+  public streamName: string;
 }
