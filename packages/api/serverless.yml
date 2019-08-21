@@ -103,15 +103,6 @@ functions:
           path: api/v1/config
           cors: true
           authorizer: auth0Authorizer
-  # Value streams
-  stream_get:
-    handler: src/rest/v1/stream/index.get
-    events:
-      - http:
-          method: get
-          path: api/v1/stream
-          cors: true
-          authorizer: auth0Authorizer
   # GraphQL
   graphql:
     handler: src/graphql/index.graphqlHandler
