@@ -61,6 +61,7 @@ provider:
         - !GetAtt LatestThermostatValuesTable.Arn
         - !GetAtt SensorConfigurationTable.Arn
         - !GetAtt ThermostatConfigurationTable.Arn
+        - !GetAtt ValueStreamsTable.Arn
     # Give selective access to the given encrypted SSM keys
     - Effect: Allow
       Action: ssm:GetParameter
@@ -77,6 +78,7 @@ resources:
   - ${file(resources/dynamodb-latest-thermostat-values.yml)}
   - ${file(resources/dynamodb-sensor-configuration.yml)}
   - ${file(resources/dynamodb-thermostat-configuration.yml)}
+  - ${file(resources/dynamodb-value-streams.yml)}
 
 functions:
   # Authorizers

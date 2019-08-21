@@ -77,6 +77,7 @@ type Mutation {
 input ThermostatConfigurationCreateInput {
   id: ID!
   name: String!
+  streamName: String!
 
   availableActions: [ThermostatAction!]!
 
@@ -91,6 +92,7 @@ input ThermostatConfigurationCreateInput {
 input ThermostatConfigurationUpdateInput {
   id: ID!
   name: String
+  streamName: String
 
   availableActions: [ThermostatAction!]!
 
@@ -106,6 +108,7 @@ type ThermostatConfiguration {
   tenant: String!
   id: ID!
   name: String!
+  streamName: String!
 
   availableActions: [ThermostatAction!]!
 
@@ -130,11 +133,13 @@ enum ThermostatAction {
 input SensorConfigurationCreateInput {
   id: ID!
   name: String!
+  streamName: String
 }
 
 input SensorConfigurationUpdateInput {
   id: ID!
   name: String
+  streamName: String
 }
 
 type SensorConfiguration {
@@ -142,6 +147,7 @@ type SensorConfiguration {
   tenant: String!
 
   name: String!
+  streamName: String
 }
 
 #
