@@ -23,6 +23,9 @@ class LatestThermostatValueMapper
   public graphqlFromModel(rhs: ThermostatValueStream): GraphQL.ThermostatValueStream {
     const { ts, stream, currentActions, allowedActions, ...remainder } = rhs;
 
+    // eslint-disable-line @typescript-eslint/no-unused-vars (destructured "stream" in order to drop it)
+    const _stream = stream;
+
     return {
       ...remainder,
       streamName: this.streamName,
