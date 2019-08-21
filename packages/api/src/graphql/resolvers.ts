@@ -8,6 +8,9 @@ import sensorConfigurationResolver from "./resolvers/SensorConfigurationResolver
 import latestThermostatValueResolver from "./resolvers/LatestThermostatValueResolver";
 import latestSensorValueResolver from "./resolvers/LatestSensorValueResolver";
 
+import thermostatValueStreamResolver from "./resolvers/ThermostatValueStreamResolver";
+import sensorValueStreamResolver from "./resolvers/SensorValueStreamResolver";
+
 const resolvers: GraphQL.Resolvers = {
   //
   // Custom types
@@ -22,7 +25,7 @@ const resolvers: GraphQL.Resolvers = {
       return value.toISOString();
     },
     parseLiteral(ast): Date | null {
-      if (ast.kind === Kind.INT) {
+      if (ast.kind === Kind.INT || ast.kind === Kind.STRING) {
         return new Date(ast.value); // AST value is always a string
       }
       return null;
@@ -58,6 +61,12 @@ const resolvers: GraphQL.Resolvers = {
     },
     getLatestSensorValue: async (_parents, args, context) => {
       return latestSensorValueResolver.getOne(context.AuthorizedTenant, args);
+    },
+    getThermostatValueStreams: async (_parents, args, context) => {
+      return thermostatValueStreamResolver.getAllWithCondition(context.AuthorizedTenant, args);
+    },
+    getSensorValueStreams: async (_parents, args, context) => {
+      return sensorValueStreamResolver.getAllWithCondition(context.AuthorizedTenant, args);
     },
   },
 

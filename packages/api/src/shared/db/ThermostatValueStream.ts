@@ -1,7 +1,6 @@
 import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
 
 import * as GraphQL from "../../../generated/graphqlTypes";
-import ThermostatConfiguration from "./ThermostatConfiguration";
 
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
@@ -22,11 +21,8 @@ export default class ThermostatValueStream {
     this.allowedActions = undefined;
   }
 
-  public static getStreamName(
-    tenant: string,
-    thermostatConfiguration: ThermostatConfiguration
-  ): string {
-    return `${tenant}#T#${thermostatConfiguration.streamName}`;
+  public static getStreamKey(tenant: string, streamName: string): string {
+    return `${tenant}#T#${streamName}`;
   }
 
   // Stream name (assigned by WarmAndFuzzy)

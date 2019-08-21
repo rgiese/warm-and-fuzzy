@@ -1,7 +1,5 @@
 import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
 
-import SensorConfiguration from "./SensorConfiguration";
-
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
 @table("ValueStreams")
@@ -15,8 +13,8 @@ export default class SensorValueStream {
     this.temperature = 0.0;
   }
 
-  public static getStreamName(tenant: string, sensorConfiguration: SensorConfiguration): string {
-    return `${tenant}#S#${sensorConfiguration.streamName}`;
+  public static getStreamKey(tenant: string, streamName: string): string {
+    return `${tenant}#S#${streamName}`;
   }
 
   // Stream name (assigned by WarmAndFuzzy)

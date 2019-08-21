@@ -117,7 +117,7 @@ functions:
           method: post
           cors: true
           authorizer: auth0Authorizer
-  # Streams
+  # DynamoDB Stream handlers
   stream_thermostatConfiguration:
     handler: src/streams/thermostatConfiguration/index.dynamoStream
     environment:

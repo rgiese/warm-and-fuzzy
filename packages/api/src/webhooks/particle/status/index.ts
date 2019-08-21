@@ -163,7 +163,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   {
     // Thermostat value stream
     const thermostatStreamData: ThermostatValueStream = {
-      stream: ThermostatValueStream.getStreamName(tenant, thermostatConfiguration),
+      stream: ThermostatValueStream.getStreamKey(tenant, thermostatConfiguration.streamName),
       ts: deviceTime.getTime(),
 
       publishedTime,
@@ -202,7 +202,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
     if (sensorConfiguration) {
       const sensorStreamData: SensorValueStream = {
-        stream: SensorValueStream.getStreamName(tenant, sensorConfiguration),
+        stream: SensorValueStream.getStreamKey(tenant, sensorConfiguration.streamName),
         ts: deviceTime.getTime(),
 
         publishedTime,
