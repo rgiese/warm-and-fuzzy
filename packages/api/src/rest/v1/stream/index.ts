@@ -1,4 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
+import { between } from "@aws/dynamodb-expressions";
 import * as yup from "yup";
 import "source-map-support/register";
 
@@ -18,11 +19,15 @@ enum StreamType {
 }
 
 const QueryParametersSchema = yup.object().shape({
+  // Required parameters
   stream: yup.string().required(),
   type: yup
     .string()
     .required()
     .oneOf([StreamType.Sensor, StreamType.Thermostat]),
+  // Optional parameters
+  startDate: yup.date().default(new Date(0 /* beginning of time */)),
+  endDate: yup.date().default(new Date(/* now */)),
 });
 
 //
@@ -31,14 +36,16 @@ const QueryParametersSchema = yup.object().shape({
 
 async function getSensorValueStream(
   tenant: string,
-  streamName: string
+  streamName: string,
+  startDate: Date,
+  endDate: Date
 ): Promise<RestSensorValueStream[]> {
-  const streamKey = SensorValueStream.getStreamKey(tenant, streamName);
-  const itemCondition: Pick<SensorValueStream, "stream"> = { stream: streamKey };
-
   const values = new Array<RestSensorValueStream>();
 
-  for await (const item of DbMapper.query(ThermostatValueStream, itemCondition)) {
+  for await (const item of DbMapper.query(ThermostatValueStream, {
+    stream: SensorValueStream.getStreamKey(tenant, streamName),
+    ts: between(startDate.getTime(), endDate.getTime()),
+  })) {
     const { ...remainder } = item;
 
     values.push({
@@ -52,14 +59,16 @@ async function getSensorValueStream(
 
 async function getThermostatValueStream(
   tenant: string,
-  streamName: string
+  streamName: string,
+  startDate: Date,
+  endDate: Date
 ): Promise<RestThermostatValueStream[]> {
-  const streamKey = ThermostatValueStream.getStreamKey(tenant, streamName);
-  const itemCondition: Pick<ThermostatValueStream, "stream"> = { stream: streamKey };
-
   const values = new Array<RestThermostatValueStream>();
 
-  for await (const item of DbMapper.query(ThermostatValueStream, itemCondition)) {
+  for await (const item of DbMapper.query(ThermostatValueStream, {
+    stream: ThermostatValueStream.getStreamKey(tenant, streamName),
+    ts: between(startDate.getTime(), endDate.getTime()),
+  })) {
     const { currentActions, allowedActions, ...remainder } = item;
 
     values.push({
@@ -104,15 +113,21 @@ export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
     });
   }
 
-  const streamName = queryParameters.stream;
-  const streamType =
-    queryParameters.type === StreamType.Sensor ? StreamType.Sensor : StreamType.Thermostat;
-
   // Retrieve data
   const streamData: any[] =
-    streamType === StreamType.Sensor
-      ? await getSensorValueStream(tenant, streamName)
-      : await getThermostatValueStream(tenant, streamName);
+    queryParameters.type === StreamType.Sensor
+      ? await getSensorValueStream(
+          tenant,
+          queryParameters.stream,
+          queryParameters.startDate,
+          queryParameters.endDate
+        )
+      : await getThermostatValueStream(
+          tenant,
+          queryParameters.stream,
+          queryParameters.startDate,
+          queryParameters.endDate
+        );
 
   // Return data
   return Responses.success(streamData);
