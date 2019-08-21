@@ -21,14 +21,12 @@ class LatestThermostatValueMapper
   }
 
   public graphqlFromModel(rhs: ThermostatValueStream): GraphQL.ThermostatValueStream {
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     const { ts, stream, currentActions, allowedActions, ...remainder } = rhs;
-
-    // eslint-disable-line @typescript-eslint/no-unused-vars (destructured "stream" in order to drop it)
-    const _stream = stream;
 
     return {
       ...remainder,
-      streamName: this.streamName,
+      streamName: this.streamName, // use provided `streamName` instead of encoded/fetched `stream`
       deviceTime: new Date(ts),
       currentActions: currentActions ? Array.from(currentActions) : [],
       allowedActions: allowedActions ? Array.from(allowedActions) : [],
