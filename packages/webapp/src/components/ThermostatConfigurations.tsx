@@ -1,13 +1,15 @@
 import React from "react";
+import { Table } from "semantic-ui-react";
 import gql from "graphql-tag";
-import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
+
+import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import {
   ThermostatConfigurationsComponent,
-  UpdateThermostatConfigurationComponent,
+  ThermostatConfigurationsQuery,
 } from "../generated/graphqlClient";
 
-import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import ThermostatConfigurationModel from "./ThermostatConfigurationModal";
 
 gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
@@ -37,214 +39,162 @@ gql`
   }
 `;
 
-const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
-  return (
-    <ThermostatConfigurationsComponent>
-      {({ loading, error, data }): React.ReactElement => {
-        if (loading) {
-          return <p>Loading...</p>;
-        }
+type ThermostatConfiguration = TypeTools.ArrayElementType<
+  TypeTools.PropType<ThermostatConfigurationsQuery, "getThermostatConfigurations">
+>;
 
-        if (error || !data || !data.getThermostatConfigurations) {
-          return (
-            <p>
-              Error: <pre>{JSON.stringify(error)}</pre>
-            </p>
+type SortableThermostatConfiguration = Pick<
+  ThermostatConfiguration,
+  "id" | "name" | "streamName" | "setPointHeat" | "setPointCool" | "threshold" | "cadence"
+>;
+
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface Props {}
+
+class State {
+  public constructor() {
+    this.sortOrder = "id";
+    this.sortAscending = true;
+  }
+
+  sortOrder: keyof SortableThermostatConfiguration;
+  sortAscending: boolean;
+}
+
+class ThermostatConfigs extends React.Component<Props, State> {
+  public constructor(props: Props) {
+    super(props);
+    this.state = new State();
+  }
+
+  handleSort = (sortOrder: keyof SortableThermostatConfiguration) => () => {
+    if (sortOrder !== this.state.sortOrder) {
+      this.setState({ sortOrder, sortAscending: true });
+    } else {
+      this.setState({ sortAscending: !this.state.sortAscending });
+    }
+  };
+
+  isSorted = (
+    sortOrder: keyof SortableThermostatConfiguration
+  ): "ascending" | "descending" | undefined => {
+    if (sortOrder !== this.state.sortOrder) {
+      return undefined;
+    }
+
+    return this.state.sortAscending ? "ascending" : "descending";
+  };
+
+  public render(): React.ReactElement {
+    return (
+      <ThermostatConfigurationsComponent>
+        {({ loading, error, data }): React.ReactElement => {
+          if (loading) {
+            return <p>Loading...</p>;
+          }
+
+          if (error || !data || !data.getThermostatConfigurations) {
+            return (
+              <p>
+                Error: <pre>{JSON.stringify(error)}</pre>
+              </p>
+            );
+          }
+
+          const thermostatConfigurations = data.getThermostatConfigurations.sort(
+            (lhs, rhs): number => {
+              const lhsKey = lhs[this.state.sortOrder];
+              const rhsKey = rhs[this.state.sortOrder];
+
+              const ascendingResult = ["id", "name", "streamName"].includes(this.state.sortOrder)
+                ? (lhsKey as string).localeCompare(rhsKey as string)
+                : (lhsKey as number) - (rhsKey as number);
+
+              return this.state.sortAscending ? ascendingResult : -1 * ascendingResult;
+            }
           );
-        }
 
-        return (
-          <div className="dt tl sans center mw-8 pt3">
-            <div className="dtr b ba b--black">
-              <div className="dtc pa2">Id</div>
-              <div className="dtc pa2">Name</div>
-              <div className="dtc pa2">Stream Name</div>
-              <div className="dtc pa2">Allowed actions</div>
-              <div className="dtc pa2">Cool to</div>
-              <div className="dtc pa2">Heat to</div>
-              <div className="dtc pa2">Threshold</div>
-              <div className="dtc pa2">Cadence</div>
-              <div className="dtc pa2">Available actions</div>
-              <div className="dtc pa2"></div> {/* Submit button */}
-            </div>
-            {data.getThermostatConfigurations.map(
-              (thermostatConfiguration): React.ReactElement => {
-                return (
-                  <UpdateThermostatConfigurationComponent key={thermostatConfiguration.id}>
-                    {(mutateFn, { error }): React.ReactElement => {
-                      return (
-                        <>
-                          <Formik
-                            initialValues={thermostatConfiguration}
-                            validationSchema={ThermostatConfigurationSchema.Schema}
-                            onSubmit={async (values, { resetForm }) => {
-                              // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
-                              delete values.__typename;
+          const tableDefinition: TableFieldDefinition<
+            ThermostatConfiguration,
+            SortableThermostatConfiguration
+          >[] = [
+            new TableFieldDefinition("id", "ID"),
+            new TableFieldDefinition("name", "Name"),
+            new TableFieldDefinition("streamName", "Stream Name"),
+            new TableFieldDefinition(undefined, "Allowed actions", "allowedActions"),
+            new TableFieldDefinition("setPointHeat", "Heat to"),
+            new TableFieldDefinition("setPointCool", "Cool to"),
+            new TableFieldDefinition("threshold", "Threshold"),
+            new TableFieldDefinition("cadence", "Cadence"),
+            new TableFieldDefinition(undefined, "Available actions", "availableActions"),
+          ];
 
-                              await mutateFn({
-                                variables: {
-                                  thermostatConfiguration: values,
-                                },
-                              });
-
-                              resetForm(values);
-                            }}
-                          >
-                            {({ values, dirty, isSubmitting }) => (
-                              <Form className="dtr">
-                                <div className="dtc pa2">{values.id}</div>
-
-                                <div className="dtc pa2">
-                                  <Field type="text" name="name" />
-                                  <ErrorMessage name="name" component="div" />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  <Field type="text" name="streamName" />
-                                  <ErrorMessage name="streamName" component="div" />
-                                </div>
-
-                                <div className="dtc">
-                                  <FieldArray
-                                    name="allowedActions"
-                                    render={arrayHelpers => (
-                                      <>
-                                        {ThermostatConfigurationSchema.Actions.map(action => (
-                                          <label className="pa2" key={action}>
-                                            <input
-                                              name="allowedActions"
-                                              type="checkbox"
-                                              value={action}
-                                              checked={values.allowedActions.includes(action)}
-                                              onChange={e => {
-                                                if (e.target.checked) {
-                                                  arrayHelpers.push(action);
-                                                } else {
-                                                  const idxItem = values.allowedActions.indexOf(
-                                                    action
-                                                  );
-                                                  arrayHelpers.remove(idxItem);
-                                                }
-                                              }}
-                                            />
-                                            {action}
-                                          </label>
-                                        ))}
-                                      </>
-                                    )}
-                                  />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  <Field
-                                    className="w3 tr"
-                                    type="number"
-                                    name="setPointCool"
-                                    min={ThermostatConfigurationSchema.SetPointRange.min}
-                                    max={ThermostatConfigurationSchema.SetPointRange.max}
-                                    step={0.5}
-                                  />{" "}
-                                  &deg;C
-                                  <ErrorMessage name="setPointCool" component="div" />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  <Field
-                                    className="w3 tr"
-                                    type="number"
-                                    name="setPointHeat"
-                                    min={ThermostatConfigurationSchema.SetPointRange.min}
-                                    max={ThermostatConfigurationSchema.SetPointRange.max}
-                                    step={0.5}
-                                  />{" "}
-                                  &deg;C
-                                  <ErrorMessage name="setPointHeat" component="div" />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  <Field
-                                    className="w3 tr"
-                                    type="number"
-                                    name="threshold"
-                                    min={ThermostatConfigurationSchema.ThresholdRange.min}
-                                    max={ThermostatConfigurationSchema.ThresholdRange.max}
-                                    step={0.5}
-                                  />{" "}
-                                  &Delta;&deg;C
-                                  <ErrorMessage name="threshold" component="div" />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  <Field
-                                    className="w3 tr"
-                                    type="number"
-                                    name="cadence"
-                                    min={ThermostatConfigurationSchema.CadenceRange.min}
-                                    max={ThermostatConfigurationSchema.CadenceRange.max}
-                                    step={10}
-                                  />{" "}
-                                  sec
-                                  <ErrorMessage name="cadence" component="div" />
-                                </div>
-
-                                <div className="dtc">
-                                  <FieldArray
-                                    name="availableActions"
-                                    render={arrayHelpers => (
-                                      <>
-                                        {ThermostatConfigurationSchema.Actions.map(action => (
-                                          <label className="pa2" key={action}>
-                                            <input
-                                              name="availableActions"
-                                              type="checkbox"
-                                              value={action}
-                                              checked={values.availableActions.includes(action)}
-                                              onChange={e => {
-                                                if (e.target.checked) {
-                                                  arrayHelpers.push(action);
-                                                } else {
-                                                  const idxItem = values.availableActions.indexOf(
-                                                    action
-                                                  );
-                                                  arrayHelpers.remove(idxItem);
-                                                }
-                                              }}
-                                            />
-                                            {action}
-                                          </label>
-                                        ))}
-                                      </>
-                                    )}
-                                  />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  {dirty && (
-                                    <button type="submit" disabled={isSubmitting}>
-                                      {isSubmitting ? "Saving..." : "Save"}
-                                    </button>
-                                  )}
-                                </div>
-                              </Form>
-                            )}
-                          </Formik>
-                          {error && (
-                            <p>
-                              Error: <pre>{JSON.stringify(error, null, 2)}</pre>
-                            </p>
-                          )}
-                        </>
+          return (
+            <Table sortable basic="very" compact size="small">
+              <Table.Header>
+                <Table.Row>
+                  {tableDefinition.map(
+                    (fieldDefinition): React.ReactElement => {
+                      return fieldDefinition.sortField !== undefined ? (
+                        <Table.HeaderCell
+                          onClick={this.handleSort(fieldDefinition.sortField)}
+                          sorted={this.isSorted(fieldDefinition.sortField)}
+                          key={fieldDefinition.label}
+                        >
+                          {fieldDefinition.label}
+                        </Table.HeaderCell>
+                      ) : (
+                        <Table.HeaderCell key={fieldDefinition.label}>
+                          {fieldDefinition.label}
+                        </Table.HeaderCell>
                       );
-                    }}
-                  </UpdateThermostatConfigurationComponent>
-                );
-              }
-            )}
-          </div>
-        );
-      }}
-    </ThermostatConfigurationsComponent>
-  );
-};
+                    }
+                  )}
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {thermostatConfigurations.map(
+                  (value): React.ReactElement => {
+                    return (
+                      <Table.Row key={value.id}>
+                        {tableDefinition.map(
+                          (fieldDefinition): React.ReactElement => {
+                            const valuePresenter = (v: any) => {
+                              return Array.isArray(v) ? v.join(", ") : v;
+                            };
+
+                            if (fieldDefinition.sortField) {
+                              return (
+                                <Table.Cell key={fieldDefinition.sortField}>
+                                  {valuePresenter(value[fieldDefinition.sortField])}
+                                </Table.Cell>
+                              );
+                            } else if (fieldDefinition.valueField) {
+                              return (
+                                <Table.Cell key={fieldDefinition.valueField}>
+                                  {valuePresenter(value[fieldDefinition.valueField])}
+                                </Table.Cell>
+                              );
+                            } else {
+                              return <></>;
+                            }
+                          }
+                        )}
+                        <Table.Cell>
+                          <ThermostatConfigurationModel thermostatConfiguration={value} />
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  }
+                )}
+              </Table.Body>
+            </Table>
+          );
+        }}
+      </ThermostatConfigurationsComponent>
+    );
+  }
+}
 
 export default ThermostatConfigs;

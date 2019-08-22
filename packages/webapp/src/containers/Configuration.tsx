@@ -1,4 +1,5 @@
 import React from "react";
+import { Divider, Header } from "semantic-ui-react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
@@ -19,10 +20,14 @@ class Configuration extends React.Component<Props, State> {
   public render(): React.ReactElement {
     return (
       <>
-        <h1>Thermostats</h1>
+        <Divider horizontal>
+          <Header as="h4">Thermostats</Header>
+        </Divider>
         <ThermostatConfigurations />
 
-        <h1>Sensors</h1>
+        <Divider horizontal style={{ paddingTop: "2em" }}>
+          <Header as="h4">Sensors</Header>
+        </Divider>
         <SensorConfigurations />
       </>
     );
