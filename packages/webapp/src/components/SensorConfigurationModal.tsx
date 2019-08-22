@@ -1,8 +1,11 @@
 import React from "react";
-import { Button, Form, Icon, InputOnChangeData, Message, Modal } from "semantic-ui-react";
+import { Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 
 import { SensorConfigurationSchema, TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+
+import EditFormModal from "./EditFormModal";
+import * as EditFormTools from "./EditFormTools";
 
 import {
   UpdateSensorConfigurationComponent,
@@ -14,19 +17,15 @@ type SensorConfiguration = TypeTools.ArrayElementType<
 >;
 
 interface Props {
-  sensorConfiguration: SensorConfiguration;
+  values: SensorConfiguration;
 }
 
 class State {
   constructor(props: Props) {
-    this.isModalOpen = false;
-    this.isSaving = false;
-    this.sensorConfiguration = props.sensorConfiguration;
+    this.values = props.values;
   }
 
-  isModalOpen: boolean;
-  isSaving: boolean;
-  sensorConfiguration: SensorConfiguration;
+  values: SensorConfiguration;
   validationError?: ValidationError;
 }
 
@@ -36,67 +35,23 @@ class SensorConfigurationModal extends React.Component<Props, State> {
     this.state = new State(props);
   }
 
-  handleOpen = (): void => {
-    this.setState({ isModalOpen: true });
-  };
-
-  handleClose = (): void => {
-    this.setState({ isModalOpen: false });
-  };
-
   handleChange = async (
     _event: React.ChangeEvent<HTMLInputElement>,
     data: InputOnChangeData
   ): Promise<void> => {
-    if (this.state.sensorConfiguration.hasOwnProperty(data.name)) {
-      let value;
+    const handleChangeResult = await EditFormTools.handleChange(
+      this.state.values,
+      SensorConfigurationSchema.Schema,
+      data
+    );
 
-      switch (data.type) {
-        case "text":
-          value = data.value;
-          break;
-
-        case "number":
-          value = parseFloat(data.value);
-
-          if (isNaN(value)) {
-            value = "";
-          }
-
-          break;
-      }
-
-      const SensorConfiguration = {
-        ...this.state.sensorConfiguration,
-        [data.name]: value,
-      } as SensorConfiguration;
-
-      let validationError: ValidationError | undefined = undefined;
-
-      try {
-        await SensorConfigurationSchema.Schema.validate(SensorConfiguration);
-      } catch (error) {
-        validationError = error;
-      }
-
-      this.setState({ sensorConfiguration: SensorConfiguration, validationError });
+    if (handleChangeResult) {
+      this.setState(handleChangeResult);
     }
   };
 
   getFieldError = (field: string): any | undefined => {
-    if (!this.state.sensorConfiguration.hasOwnProperty(field)) {
-      return undefined;
-    }
-
-    if (!this.state.validationError) {
-      return undefined;
-    }
-
-    if (this.state.validationError.path === field) {
-      return { content: this.state.validationError.message, pointing: "below" };
-    }
-
-    return undefined;
+    return EditFormTools.getFieldError(this.state, field);
   };
 
   public render(): React.ReactElement {
@@ -104,76 +59,41 @@ class SensorConfigurationModal extends React.Component<Props, State> {
       <UpdateSensorConfigurationComponent>
         {(mutateFunction, { error }): React.ReactElement => {
           return (
-            <Modal
-              open={this.state.isModalOpen}
-              trigger={
-                <Button animated="vertical" basic onClick={this.handleOpen}>
-                  <Button.Content hidden>Edit</Button.Content>
-                  <Button.Content visible>
-                    <Icon name="pencil" />
-                  </Button.Content>
-                </Button>
+            <EditFormModal
+              canSave={this.state.validationError !== undefined}
+              onSave={async (): Promise<void> => {
+                // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
+                let values = this.state.values;
+                delete values.__typename;
+
+                await mutateFunction({
+                  variables: {
+                    sensorConfiguration: values,
+                  },
+                });
+              }}
+              header={
+                <>
+                  {this.props.values.name} (<code>{this.props.values.id}</code>)
+                </>
               }
-              onClose={this.handleClose}
-              basic
-              dimmer="inverted"
-              size="small"
+              error={error ? JSON.stringify(error, null, 2) : undefined}
             >
-              <Modal.Header>
-                {this.props.sensorConfiguration.name} (
-                <code>{this.props.sensorConfiguration.id}</code>)
-              </Modal.Header>
-              <Modal.Content>
-                <Form loading={this.state.isSaving}>
-                  <Form.Input
-                    label="Name"
-                    name="name"
-                    error={this.getFieldError("name")}
-                    value={this.state.sensorConfiguration.name}
-                    onChange={this.handleChange}
-                  />
-                  <Form.Input
-                    label="Stream Name"
-                    name="streamName"
-                    error={this.getFieldError("streamName")}
-                    value={this.state.sensorConfiguration.streamName}
-                    onChange={this.handleChange}
-                  />
-                  {error && (
-                    <Message
-                      error
-                      header="Server response"
-                      content={JSON.stringify(error, null, 2)}
-                    />
-                  )}
-                </Form>
-              </Modal.Content>
-              <Modal.Actions>
-                <Button icon="cancel" content="Cancel" onClick={this.handleClose} />
-                <Button
-                  icon="save"
-                  content={this.state.isSaving ? "Saving..." : "Save"}
-                  positive
-                  disabled={this.state.validationError !== undefined}
-                  onClick={async (): Promise<void> => {
-                    this.setState({ isSaving: true });
-
-                    // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
-                    let values = this.state.sensorConfiguration;
-                    delete values.__typename;
-
-                    await mutateFunction({
-                      variables: {
-                        sensorConfiguration: values,
-                      },
-                    });
-
-                    this.setState({ isSaving: false });
-                    this.handleClose();
-                  }}
-                />
-              </Modal.Actions>
-            </Modal>
+              <Form.Input
+                label="Name"
+                name="name"
+                error={this.getFieldError("name")}
+                value={this.state.values.name}
+                onChange={this.handleChange}
+              />
+              <Form.Input
+                label="Stream Name"
+                name="streamName"
+                error={this.getFieldError("streamName")}
+                value={this.state.values.streamName}
+                onChange={this.handleChange}
+              />
+            </EditFormModal>
           );
         }}
       </UpdateSensorConfigurationComponent>

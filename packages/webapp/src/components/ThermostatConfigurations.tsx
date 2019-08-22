@@ -79,7 +79,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
             fieldDefinitions={tableDefinition}
             keyField="id"
             defaultSortField="name"
-            right={value => <ThermostatConfigurationModal thermostatConfiguration={value} />}
+            right={value => <ThermostatConfigurationModal values={value} />}
           />
         );
       }}

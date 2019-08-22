@@ -1,34 +1,31 @@
 import React from "react";
-import { Button, Checkbox, Form, Icon, InputOnChangeData, Message, Modal } from "semantic-ui-react";
+import { Checkbox, Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 
 import { ThermostatConfigurationSchema, TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+
+import EditFormModal from "./EditFormModal";
+import * as EditFormTools from "./EditFormTools";
 
 import {
   UpdateThermostatConfigurationComponent,
   ThermostatConfigurationsQuery,
 } from "../generated/graphqlClient";
 
-import { ThermostatAction } from "@grumpycorp/warm-and-fuzzy-shared/build/generated/graphqlTypes";
-
 type ThermostatConfiguration = TypeTools.ArrayElementType<
   TypeTools.PropType<ThermostatConfigurationsQuery, "getThermostatConfigurations">
 >;
 
 interface Props {
-  thermostatConfiguration: ThermostatConfiguration;
+  values: ThermostatConfiguration;
 }
 
 class State {
   constructor(props: Props) {
-    this.isModalOpen = false;
-    this.isSaving = false;
-    this.thermostatConfiguration = props.thermostatConfiguration;
+    this.values = props.values;
   }
 
-  isModalOpen: boolean;
-  isSaving: boolean;
-  thermostatConfiguration: ThermostatConfiguration;
+  values: ThermostatConfiguration;
   validationError?: ValidationError;
 }
 
@@ -38,86 +35,23 @@ class ThermostatConfigurationModal extends React.Component<Props, State> {
     this.state = new State(props);
   }
 
-  handleOpen = (): void => {
-    this.setState({ isModalOpen: true });
-  };
-
-  handleClose = (): void => {
-    this.setState({ isModalOpen: false });
-  };
-
   handleChange = async (
     _event: React.ChangeEvent<HTMLInputElement>,
     data: InputOnChangeData
   ): Promise<void> => {
-    if (this.state.thermostatConfiguration.hasOwnProperty(data.name)) {
-      let value;
+    const handleChangeResult = await EditFormTools.handleChange(
+      this.state.values,
+      ThermostatConfigurationSchema.Schema,
+      data
+    );
 
-      switch (data.type) {
-        case "text":
-          value = data.value;
-          break;
-
-        case "number":
-          value = parseFloat(data.value);
-
-          if (isNaN(value)) {
-            value = "";
-          }
-
-          break;
-
-        case "checkbox":
-          switch (data.name) {
-            case "allowedActions":
-              value = this.state.thermostatConfiguration.allowedActions;
-              break;
-            case "availableActions":
-              value = this.state.thermostatConfiguration.availableActions;
-              break;
-            default:
-              return;
-          }
-
-          value = value.filter(a => a !== data.value);
-
-          if (data.checked) {
-            value.push(data.value as ThermostatAction);
-          }
-          break;
-      }
-
-      const thermostatConfiguration = {
-        ...this.state.thermostatConfiguration,
-        [data.name]: value,
-      } as ThermostatConfiguration;
-
-      let validationError: ValidationError | undefined = undefined;
-
-      try {
-        await ThermostatConfigurationSchema.Schema.validate(thermostatConfiguration);
-      } catch (error) {
-        validationError = error;
-      }
-
-      this.setState({ thermostatConfiguration, validationError });
+    if (handleChangeResult) {
+      this.setState(handleChangeResult);
     }
   };
 
   getFieldError = (field: string): any | undefined => {
-    if (!this.state.thermostatConfiguration.hasOwnProperty(field)) {
-      return undefined;
-    }
-
-    if (!this.state.validationError) {
-      return undefined;
-    }
-
-    if (this.state.validationError.path === field) {
-      return { content: this.state.validationError.message, pointing: "below" };
-    }
-
-    return undefined;
+    return EditFormTools.getFieldError(this.state, field);
   };
 
   public render(): React.ReactElement {
@@ -125,150 +59,113 @@ class ThermostatConfigurationModal extends React.Component<Props, State> {
       <UpdateThermostatConfigurationComponent>
         {(mutateFunction, { error }): React.ReactElement => {
           return (
-            <Modal
-              open={this.state.isModalOpen}
-              trigger={
-                <Button animated="vertical" basic onClick={this.handleOpen}>
-                  <Button.Content hidden>Edit</Button.Content>
-                  <Button.Content visible>
-                    <Icon name="pencil" />
-                  </Button.Content>
-                </Button>
+            <EditFormModal
+              canSave={this.state.validationError !== undefined}
+              onSave={async (): Promise<void> => {
+                // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
+                let values = this.state.values;
+                delete values.__typename;
+
+                await mutateFunction({
+                  variables: {
+                    thermostatConfiguration: values,
+                  },
+                });
+              }}
+              header={
+                <>
+                  {this.props.values.name} (<code>{this.props.values.id}</code>)
+                </>
               }
-              onClose={this.handleClose}
-              basic
-              dimmer="inverted"
-              size="small"
+              error={error ? JSON.stringify(error, null, 2) : undefined}
             >
-              <Modal.Header>
-                {this.props.thermostatConfiguration.name} (
-                <code>{this.props.thermostatConfiguration.id}</code>)
-              </Modal.Header>
-              <Modal.Content>
-                <Form loading={this.state.isSaving}>
-                  <Form.Input
-                    label="Name"
-                    name="name"
-                    error={this.getFieldError("name")}
-                    value={this.state.thermostatConfiguration.name}
+              <Form.Input
+                label="Name"
+                name="name"
+                error={this.getFieldError("name")}
+                value={this.state.values.name}
+                onChange={this.handleChange}
+              />
+              <Form.Input
+                label="Stream Name"
+                name="streamName"
+                error={this.getFieldError("streamName")}
+                value={this.state.values.streamName}
+                onChange={this.handleChange}
+              />
+              <Form.Group inline>
+                <label>Allowed actions:</label>
+                {ThermostatConfigurationSchema.Actions.map(action => (
+                  <Form.Field
+                    control={Checkbox}
+                    label={action}
+                    name="allowedActions"
+                    value={action}
+                    checked={this.state.values.allowedActions.includes(action)}
+                    key={`allowedActions.${action}`}
                     onChange={this.handleChange}
                   />
-                  <Form.Input
-                    label="Stream Name"
-                    name="streamName"
-                    error={this.getFieldError("streamName")}
-                    value={this.state.thermostatConfiguration.streamName}
+                ))}
+              </Form.Group>
+              <Form.Input
+                label="Heat to"
+                name="setPointHeat"
+                error={this.getFieldError("setPointHeat")}
+                value={this.state.values.setPointHeat}
+                type="number"
+                min={ThermostatConfigurationSchema.SetPointRange.min}
+                max={ThermostatConfigurationSchema.SetPointRange.max}
+                step={1}
+                onChange={this.handleChange}
+              />
+              <Form.Input
+                label="Cool to"
+                name="setPointCool"
+                error={this.getFieldError("setPointCool")}
+                value={this.state.values.setPointCool}
+                type="number"
+                min={ThermostatConfigurationSchema.SetPointRange.min}
+                max={ThermostatConfigurationSchema.SetPointRange.max}
+                step={1}
+                onChange={this.handleChange}
+              />
+              <Form.Input
+                label="Threshold"
+                name="threshold"
+                error={this.getFieldError("threshold")}
+                value={this.state.values.threshold}
+                type="number"
+                min={ThermostatConfigurationSchema.ThresholdRange.min}
+                max={ThermostatConfigurationSchema.ThresholdRange.max}
+                step={0.5}
+                onChange={this.handleChange}
+              />
+              <Form.Input
+                label="Cadence"
+                name="cadence"
+                error={this.getFieldError("cadence")}
+                value={this.state.values.cadence}
+                type="number"
+                min={ThermostatConfigurationSchema.CadenceRange.min}
+                max={ThermostatConfigurationSchema.CadenceRange.max}
+                step={10}
+                onChange={this.handleChange}
+              />
+              <Form.Group inline>
+                <label>Available actions:</label>
+                {ThermostatConfigurationSchema.Actions.map(action => (
+                  <Form.Field
+                    control={Checkbox}
+                    label={action}
+                    name="availableActions"
+                    value={action}
+                    checked={this.state.values.availableActions.includes(action)}
+                    key={`availableAction.${action}`}
                     onChange={this.handleChange}
                   />
-                  <Form.Group inline>
-                    <label>Allowed actions:</label>
-                    {ThermostatConfigurationSchema.Actions.map(action => (
-                      <Form.Field
-                        control={Checkbox}
-                        label={action}
-                        name="allowedActions"
-                        value={action}
-                        checked={this.state.thermostatConfiguration.allowedActions.includes(action)}
-                        key={`allowedActions.${action}`}
-                        onChange={this.handleChange}
-                      />
-                    ))}
-                  </Form.Group>
-                  <Form.Input
-                    label="Heat to"
-                    name="setPointHeat"
-                    error={this.getFieldError("setPointHeat")}
-                    value={this.state.thermostatConfiguration.setPointHeat}
-                    type="number"
-                    min={ThermostatConfigurationSchema.SetPointRange.min}
-                    max={ThermostatConfigurationSchema.SetPointRange.max}
-                    step={1}
-                    onChange={this.handleChange}
-                  />
-                  <Form.Input
-                    label="Cool to"
-                    name="setPointCool"
-                    error={this.getFieldError("setPointCool")}
-                    value={this.state.thermostatConfiguration.setPointCool}
-                    type="number"
-                    min={ThermostatConfigurationSchema.SetPointRange.min}
-                    max={ThermostatConfigurationSchema.SetPointRange.max}
-                    step={1}
-                    onChange={this.handleChange}
-                  />
-                  <Form.Input
-                    label="Threshold"
-                    name="threshold"
-                    error={this.getFieldError("threshold")}
-                    value={this.state.thermostatConfiguration.threshold}
-                    type="number"
-                    min={ThermostatConfigurationSchema.ThresholdRange.min}
-                    max={ThermostatConfigurationSchema.ThresholdRange.max}
-                    step={0.5}
-                    onChange={this.handleChange}
-                  />
-                  <Form.Input
-                    label="Cadence"
-                    name="cadence"
-                    error={this.getFieldError("cadence")}
-                    value={this.state.thermostatConfiguration.cadence}
-                    type="number"
-                    min={ThermostatConfigurationSchema.CadenceRange.min}
-                    max={ThermostatConfigurationSchema.CadenceRange.max}
-                    step={10}
-                    onChange={this.handleChange}
-                  />
-                  <Form.Group inline>
-                    <label>Available actions:</label>
-                    {ThermostatConfigurationSchema.Actions.map(action => (
-                      <Form.Field
-                        control={Checkbox}
-                        label={action}
-                        name="availableActions"
-                        value={action}
-                        checked={this.state.thermostatConfiguration.availableActions.includes(
-                          action
-                        )}
-                        key={`availableAction.${action}`}
-                        onChange={this.handleChange}
-                      />
-                    ))}
-                  </Form.Group>
-                  {error && (
-                    <Message
-                      error
-                      header="Server response"
-                      content={JSON.stringify(error, null, 2)}
-                    />
-                  )}
-                </Form>
-              </Modal.Content>
-              <Modal.Actions>
-                <Button icon="cancel" content="Cancel" onClick={this.handleClose} />
-                <Button
-                  icon="save"
-                  content={this.state.isSaving ? "Saving..." : "Save"}
-                  positive
-                  disabled={this.state.validationError !== undefined}
-                  onClick={async (): Promise<void> => {
-                    this.setState({ isSaving: true });
-
-                    // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
-                    let values = this.state.thermostatConfiguration;
-                    delete values.__typename;
-
-                    await mutateFunction({
-                      variables: {
-                        thermostatConfiguration: values,
-                      },
-                    });
-
-                    this.setState({ isSaving: false });
-                    this.handleClose();
-                  }}
-                />
-              </Modal.Actions>
-            </Modal>
+                ))}
+              </Form.Group>
+            </EditFormModal>
           );
         }}
       </UpdateThermostatConfigurationComponent>

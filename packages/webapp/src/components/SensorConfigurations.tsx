@@ -65,7 +65,7 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
             fieldDefinitions={tableDefinition}
             keyField="id"
             defaultSortField="name"
-            right={value => <SensorConfigurationModal sensorConfiguration={value} />}
+            right={value => <SensorConfigurationModal values={value} />}
           />
         );
       }}
