@@ -62,7 +62,7 @@ class App extends React.Component<Props, State> {
         <Router history={History}>
           {/* Always show Nav (alternative: reference component directly using withRouter()) */}
           <AppliedRoute path="/" component={Header} props={childProps} />
-          <Container style={{ marginTop: "4em" /* For top menu */ }}>
+          <Container style={{ marginTop: "4em" /* for top menu */, marginBottom: "4em" /* for footer */ }}>
             <Switch>
               {/* Utility routes */}
               <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
