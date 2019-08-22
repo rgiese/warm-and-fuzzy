@@ -2,7 +2,7 @@ import React from "react";
 import { Table, StrictTableProps } from "semantic-ui-react";
 
 interface TableData {
-  [key: string]: string | number | Array<string> | Array<number>;
+  [key: string]: string | number | Date | Array<string> | Array<number>;
 }
 
 type TableProps = Omit<StrictTableProps, "renderBodyRow" | "tableData" | "sortable">;
@@ -75,6 +75,10 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
       return lhsKey - rhsKey;
     }
 
+    if (lhsKey instanceof Date && rhsKey instanceof Date) {
+      return lhsKey.getTime() - rhsKey.getTime();
+    }
+
     if (Array.isArray(lhsKey) && Array.isArray(rhsKey)) {
       return lhsKey.toString().localeCompare(rhsKey.toString());
     }
@@ -125,7 +129,15 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
                   {this.props.fieldDefinitions.map(
                     (fieldDefinition): React.ReactElement => {
                       const valuePresenter = (v: any) => {
-                        return Array.isArray(v) ? v.join(", ") : v;
+                        if (Array.isArray(v)) {
+                          return v.join(", ");
+                        }
+
+                        if (v instanceof Date) {
+                          return v.toLocaleString();
+                        }
+
+                        return v;
                       };
 
                       return (
