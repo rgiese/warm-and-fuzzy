@@ -1,4 +1,5 @@
 import React from "react";
+import { Table } from "semantic-ui-react";
 import gql from "graphql-tag";
 
 import { LatestSensorValuesComponent } from "../generated/graphqlClient";
@@ -49,24 +50,28 @@ const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement =
         );
 
         return (
-          <div className="dt tl sans center mw-8 pt3">
-            <div className="dtr b ba b--black">
-              <div className="dtc pa2">ID</div>
-              <div className="dtc pa2">Time</div>
-              <div className="dtc pa2">Temperature</div>
-            </div>
-            {sortedValues.map(
-              (value): React.ReactElement => {
-                return (
-                  <div className="dtr">
-                    <div className="dtc pa2">{sensorNames.get(value.id) || value.id}</div>
-                    <div className="dtc pa2">{value.deviceTime.toLocaleString()}</div>
-                    <div className="dtc pa2">{value.temperature}</div>
-                  </div>
-                );
-              }
-            )}
-          </div>
+          <Table basic="very" compact size="small">
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Sensor</Table.HeaderCell>
+                <Table.HeaderCell>Time</Table.HeaderCell>
+                <Table.HeaderCell>Temperature</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {sortedValues.map(
+                (value): React.ReactElement => {
+                  return (
+                    <Table.Row key={value.id}>
+                      <Table.Cell>{sensorNames.get(value.id) || value.id}</Table.Cell>
+                      <Table.Cell>{value.deviceTime.toLocaleString()}</Table.Cell>
+                      <Table.Cell>{value.temperature}</Table.Cell>
+                    </Table.Row>
+                  );
+                }
+              )}
+            </Table.Body>
+          </Table>
         );
       }}
     </LatestSensorValuesComponent>

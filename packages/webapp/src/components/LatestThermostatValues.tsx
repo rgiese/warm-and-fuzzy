@@ -1,4 +1,5 @@
 import React from "react";
+import { Table } from "semantic-ui-react";
 import gql from "graphql-tag";
 
 import { LatestThermostatValuesComponent } from "../generated/graphqlClient";
@@ -51,28 +52,32 @@ const LatestThermostatValues: React.FunctionComponent<{}> = (): React.ReactEleme
         );
 
         return (
-          <div className="dt tl sans center mw-8 pt3">
-            <div className="dtr b ba b--black">
-              <div className="dtc pa2">ID</div>
-              <div className="dtc pa2">Time</div>
-              <div className="dtc pa2">Temperature</div>
-              <div className="dtc pa2">Humidity</div>
-              <div className="dtc pa2">Actions</div>
-            </div>
-            {sortedValues.map(
-              (value): React.ReactElement => {
-                return (
-                  <div className="dtr">
-                    <div className="dtc pa2">{thermostatNames.get(value.id) || value.id}</div>
-                    <div className="dtc pa2">{value.deviceTime.toLocaleString()}</div>
-                    <div className="dtc pa2">{value.temperature}</div>
-                    <div className="dtc pa2">{value.humidity || ""}</div>
-                    <div className="dtc pa2">{value.currentActions.join(", ")}</div>
-                  </div>
-                );
-              }
-            )}
-          </div>
+          <Table basic="very" compact size="small">
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Thermostat</Table.HeaderCell>
+                <Table.HeaderCell>Time</Table.HeaderCell>
+                <Table.HeaderCell>Temperature</Table.HeaderCell>
+                <Table.HeaderCell>Humidity</Table.HeaderCell>
+                <Table.HeaderCell>Actions</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {sortedValues.map(
+                (value): React.ReactElement => {
+                  return (
+                    <Table.Row key={value.id}>
+                      <Table.Cell>{thermostatNames.get(value.id) || value.id}</Table.Cell>
+                      <Table.Cell>{value.deviceTime.toLocaleString()}</Table.Cell>
+                      <Table.Cell>{value.temperature}</Table.Cell>
+                      <Table.Cell>{value.humidity || ""}</Table.Cell>
+                      <Table.Cell>{value.currentActions.join(", ")}</Table.Cell>
+                    </Table.Row>
+                  );
+                }
+              )}
+            </Table.Body>
+          </Table>
         );
       }}
     </LatestThermostatValuesComponent>
