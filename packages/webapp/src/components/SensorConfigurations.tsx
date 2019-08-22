@@ -1,13 +1,16 @@
 import React from "react";
 import gql from "graphql-tag";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+
+import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+
+import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
 import {
   SensorConfigurationsComponent,
-  UpdateSensorConfigurationComponent,
+  SensorConfigurationsQuery,
 } from "../generated/graphqlClient";
 
-import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import SensorConfigurationModal from "./SensorConfigurationModal";
 
 gql`
   fragment SensorConfigurationFields on SensorConfiguration {
@@ -29,6 +32,16 @@ gql`
   }
 `;
 
+type SensorConfiguration = TypeTools.ArrayElementType<
+  TypeTools.PropType<SensorConfigurationsQuery, "getSensorConfigurations">
+>;
+
+const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
+  { field: "id", label: "ID" },
+  { field: "name", label: "Name" },
+  { field: "streamName", label: "Stream Name" },
+];
+
 const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
   return (
     <SensorConfigurationsComponent>
@@ -46,75 +59,14 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
         }
 
         return (
-          <div className="dt tl sans center mw-8 pt3">
-            <div className="dtr b ba b--black">
-              <div className="dtc pa2">ID</div>
-              <div className="dtc pa2">Name</div>
-              <div className="dtc pa2">Stream Name</div>
-              <div className="dtc pa2"></div> {/* Submit button */}
-            </div>
-            {data.getSensorConfigurations.map(
-              (sensorConfiguration): React.ReactElement => {
-                return (
-                  <UpdateSensorConfigurationComponent key={sensorConfiguration.id}>
-                    {(mutateFn, { error }): React.ReactElement => {
-                      return (
-                        <>
-                          <Formik
-                            initialValues={sensorConfiguration}
-                            validationSchema={SensorConfigurationSchema.Schema}
-                            onSubmit={async (values, { resetForm }) => {
-                              // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
-                              delete values.__typename;
-
-                              await mutateFn({
-                                variables: {
-                                  sensorConfiguration: values,
-                                },
-                              });
-
-                              resetForm(values);
-                            }}
-                          >
-                            {({ values, dirty, isSubmitting }) => (
-                              <Form className="dtr">
-                                <div className="dtc pa2">
-                                  <pre>{values.id}</pre>
-                                </div>
-
-                                <div className="dtc pa2">
-                                  <Field type="text" name="name" />
-                                  <ErrorMessage name="name" component="div" />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  <Field type="text" name="streamName" />
-                                  <ErrorMessage name="streamName" component="div" />
-                                </div>
-
-                                <div className="dtc pa2">
-                                  {dirty && (
-                                    <button type="submit" disabled={isSubmitting}>
-                                      {isSubmitting ? "Saving..." : "Save"}
-                                    </button>
-                                  )}
-                                </div>
-                              </Form>
-                            )}
-                          </Formik>
-                          {error && (
-                            <p>
-                              Error: <pre>{JSON.stringify(error, null, 2)}</pre>
-                            </p>
-                          )}
-                        </>
-                      );
-                    }}
-                  </UpdateSensorConfigurationComponent>
-                );
-              }
-            )}
-          </div>
+          <SortableTable
+            tableProps={{ basic: "very", compact: true, size: "small" }}
+            data={data.getSensorConfigurations}
+            fieldDefinitions={tableDefinition}
+            keyField="id"
+            defaultSortField="name"
+            right={value => <SensorConfigurationModal sensorConfiguration={value} />}
+          />
         );
       }}
     </SensorConfigurationsComponent>
