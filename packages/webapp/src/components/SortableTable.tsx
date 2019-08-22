@@ -1,9 +1,11 @@
 import React from "react";
-import { Table } from "semantic-ui-react";
+import { Table, StrictTableProps } from "semantic-ui-react";
 
 interface TableData {
   [key: string]: string | number | Array<string> | Array<number>;
 }
+
+type TableProps = Omit<StrictTableProps, "renderBodyRow" | "tableData" | "sortable">;
 
 export interface TableFieldDefinition<T> {
   field: keyof T;
@@ -18,6 +20,8 @@ interface Props<T> {
   defaultSortField: keyof T;
 
   right?: (value: T) => React.ReactElement;
+
+  tableProps?: TableProps;
 }
 
 class State<T> {
@@ -90,7 +94,7 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
     const sortedData = this.sortData();
 
     return (
-      <Table sortable basic="very" compact size="small">
+      <Table sortable {...this.props.tableProps}>
         <Table.Header>
           <Table.Row>
             {this.props.fieldDefinitions.map(

@@ -74,6 +74,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
 
         return (
           <SortableTable
+            tableProps={{ basic: "very", compact: true, size: "small" }}
             data={data.getThermostatConfigurations}
             fieldDefinitions={tableDefinition}
             keyField="id"
