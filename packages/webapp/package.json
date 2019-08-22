@@ -48,7 +48,6 @@
     "apollo-link-http": "^1.5.15",
     "auth0-js": "^9.11.3",
     "axios": "^0.19.0",
-    "formik": "^1.5.8",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "history": "^4.9.0",
