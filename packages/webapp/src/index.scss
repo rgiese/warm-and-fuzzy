@@ -1,25 +1,4 @@
 //
-// Typefaces
-//
-
-@import url("https://fonts.googleapis.com/css?family=Noto+Sans|Noto+Serif&display=swap");
-
-html {
-  font-family: "Noto Serif", "serif";
-}
-
-h1,
-h2,
-h3,
-.sans {
-  font-family: "Noto Sans", "sans-serif";
-}
-
-.serif {
-  font-family: "Noto Serif";
-}
-
-//
 // Global
 //
 
@@ -29,28 +8,27 @@ h3,
   --accent-mono-light: #ddd;
 }
 
-html,
-body {
-  // Without this, browser enters quirk mode and top-level flexbox layout doesn't scale to full height
-  // unless you remove the top-level DOCTYPE - oy.
-  // See https://stackoverflow.com/questions/32214152/why-does-my-div-height-100-work-only-when-doctype-is-removed/32215263#32215263.
-  height: 100%;
-}
-
 img {
   // Don't let images scale up past their built-in size (but they'll still scale down)
   max-width: 100%;
 }
 
-.content {
-  a:link {
-    color: var(--accent);
-  }
+// Link dim
 
-  a:hover,
-  a:visited {
-    color: var(--accent-mono);
-  }
+a {
+  opacity: 1;
+  transition: opacity 0.15s ease-in;
+}
+
+a:hover,
+a:focus {
+  opacity: 0.5;
+  transition: opacity 0.15s ease-in;
+}
+
+a:active {
+  opacity: 0.8;
+  transition: opacity 0.15s ease-out;
 }
 
 //
@@ -113,20 +91,4 @@ img {
 
 .dtr {
   display: table-row;
-}
-
-// An improvement over Tachyons' hide-child (which opens submenus on hover over the invisible submenu)
-// courtesy of https://css-tricks.com/solved-with-css-dropdown-menus/
-.nav-hide-child .nav-child {
-  visibility: hidden;
-  opacity: 0;
-  display: none;
-}
-
-.nav-hide-child:hover .nav-child,
-.nav-hide-child .nav-child:hover {
-  visibility: visible;
-  opacity: 1;
-  display: block;
-  z-index: 5;
 }
