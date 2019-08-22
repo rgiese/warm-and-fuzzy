@@ -146,7 +146,7 @@ enum ThermostatAction {
 input SensorConfigurationCreateInput {
   id: ID!
   name: String!
-  streamName: String
+  streamName: String!
 }
 
 input SensorConfigurationUpdateInput {
@@ -156,11 +156,10 @@ input SensorConfigurationUpdateInput {
 }
 
 type SensorConfiguration {
-  id: ID!
   tenant: String!
-
+  id: ID!
   name: String!
-  streamName: String
+  streamName: String!
 }
 
 #
