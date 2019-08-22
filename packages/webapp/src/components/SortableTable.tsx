@@ -16,6 +16,8 @@ interface Props<T> {
 
   fieldDefinitions: TableFieldDefinition<T>[];
   defaultSortField: keyof T;
+
+  right?: (value: T) => React.ReactElement;
 }
 
 class State<T> {
@@ -102,6 +104,7 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
                 </Table.HeaderCell>
               )
             )}
+            {this.props.right && <Table.HeaderCell />}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -128,6 +131,7 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
                       );
                     }
                   )}
+                  {this.props.right && <Table.Cell>{this.props.right(value)}</Table.Cell>}
                 </Table.Row>
               );
             }

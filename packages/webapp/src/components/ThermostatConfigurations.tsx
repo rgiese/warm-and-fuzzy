@@ -10,7 +10,7 @@ import {
   ThermostatConfigurationsQuery,
 } from "../generated/graphqlClient";
 
-//import ThermostatConfigurationModel from "./ThermostatConfigurationModal";
+import ThermostatConfigurationModal from "./ThermostatConfigurationModal";
 
 gql`
   fragment ThermostatConfigurationFields on ThermostatConfiguration {
@@ -78,6 +78,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
             fieldDefinitions={tableDefinition}
             keyField="id"
             defaultSortField="name"
+            right={value => <ThermostatConfigurationModal thermostatConfiguration={value} />}
           />
         );
       }}
