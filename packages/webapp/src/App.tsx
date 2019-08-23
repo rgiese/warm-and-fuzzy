@@ -15,6 +15,7 @@ import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 import AuthCallback from "./containers/AuthCallback";
 import Configuration from "./containers/Configuration";
+import Explore from "./containers/Explore";
 import Home from "./containers/Home";
 import NotFound from "./containers/NotFound";
 
@@ -76,6 +77,7 @@ class App extends React.Component<Props, State> {
                 component={Configuration}
                 props={childProps}
               />
+              <AuthenticatedRoute path="/explore" exact component={Explore} props={childProps}/>
               {/* Finally, catch all unmatched routes */}
               <Route component={NotFound} />
             </Switch>
