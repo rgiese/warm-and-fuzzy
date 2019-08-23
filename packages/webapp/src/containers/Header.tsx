@@ -46,7 +46,7 @@ class Header extends React.Component<Props, State> {
         <Menu.Item as={NavLink} to="/" exact>
           {tenant || ""} Home
         </Menu.Item>
-        {permissions.includes(Authorization.Permissions.WriteConfig) && (
+        {permissions.includes(Authorization.Permissions.ReadConfig) && (
           <Menu.Item as={NavLink} to="/configuration" content="Configuration" />
         )}
         <Menu.Menu position="right">

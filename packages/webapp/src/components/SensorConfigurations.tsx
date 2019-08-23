@@ -1,7 +1,8 @@
 import React from "react";
 import gql from "graphql-tag";
 
-import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+import { Authorization, TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+import { GlobalAuth } from "../services/Auth";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
@@ -58,6 +59,11 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
           );
         }
 
+        const canEdit = GlobalAuth.Permissions.includes(Authorization.Permissions.WriteConfig);
+        const fnBuildEditControl = (value: SensorConfiguration): React.ReactElement => (
+          <SensorConfigurationModal values={value} />
+        );
+
         return (
           <SortableTable
             tableProps={{ basic: "very", compact: true, size: "small" }}
@@ -65,7 +71,7 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
             fieldDefinitions={tableDefinition}
             keyField="id"
             defaultSortField="name"
-            right={value => <SensorConfigurationModal values={value} />}
+            right={canEdit ? fnBuildEditControl : undefined}
           />
         );
       }}
