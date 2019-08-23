@@ -48,10 +48,10 @@ type ThermostatConfiguration = TypeTools.ArrayElementType<
 const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "id", label: "ID" },
   { field: "name", label: "Name" },
-  { field: "streamName", label: "Stream Name" },
-  { field: "allowedActions", label: "Allowed actions" },
   { field: "setPointHeat", label: "Heat to" },
   { field: "setPointCool", label: "Cool to" },
+  { field: "allowedActions", label: "Allowed actions" },
+  { field: "streamName", label: "Stream Name" },
   { field: "threshold", label: "Threshold" },
   { field: "cadence", label: "Cadence" },
   { field: "availableActions", label: "Available actions" },
