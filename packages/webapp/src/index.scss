@@ -15,18 +15,21 @@ img {
 
 // Link dim
 
-a {
+.link {
+  color: var(--accent);
   opacity: 1;
   transition: opacity 0.15s ease-in;
 }
 
-a:hover,
-a:focus {
+.link:hover,
+.link:focus {
+  color: var(--accent);
   opacity: 0.5;
   transition: opacity 0.15s ease-in;
 }
 
-a:active {
+.link:active {
+  color: var(--accent);
   opacity: 0.8;
   transition: opacity 0.15s ease-out;
 }
@@ -87,8 +90,4 @@ a:active {
 .h075 {
   // as a complement to http://tachyons.io/docs/layout/heights/
   height: 0.75rem;
-}
-
-.dtr {
-  display: table-row;
 }
