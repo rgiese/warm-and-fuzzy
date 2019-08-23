@@ -48,7 +48,6 @@
     "apollo-link-http": "^1.5.15",
     "auth0-js": "^9.11.3",
     "axios": "^0.19.0",
-    "formik": "^1.5.8",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "history": "^4.9.0",
@@ -58,7 +57,8 @@
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.1",
     "reflect-metadata": "^0.1.13",
-    "tachyons": "^4.11.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.87.3",
     "yup": "^0.27.0"
   }
 }

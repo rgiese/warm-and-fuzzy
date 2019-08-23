@@ -8,7 +8,7 @@ import { withNavigation, NavigationInjectedProps } from "react-navigation";
 import gql from "graphql-tag";
 import moment from "moment";
 
-import { ArrayElementType, PropType } from "../TypeTools";
+import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import {
   LatestThermostatValuesComponent,
@@ -42,11 +42,11 @@ gql`
   }
 `;
 
-type LatestThermostatValue = ArrayElementType<
-  PropType<LatestThermostatValuesQuery, "getLatestThermostatValues">
+type LatestThermostatValue = TypeTools.ArrayElementType<
+  TypeTools.PropType<LatestThermostatValuesQuery, "getLatestThermostatValues">
 >;
-type CurrentThermostatConfiguration = ArrayElementType<
-  PropType<LatestThermostatValuesQuery, "getThermostatConfigurations">
+type CurrentThermostatConfiguration = TypeTools.ArrayElementType<
+  TypeTools.PropType<LatestThermostatValuesQuery, "getThermostatConfigurations">
 >;
 
 type ThermostatStatus = LatestThermostatValue & {

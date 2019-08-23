@@ -1,7 +1,14 @@
 import React from "react";
-import gql from "graphql-tag";
 
-import { LatestThermostatValuesComponent } from "../generated/graphqlClient";
+import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+
+import SortableTable, { TableFieldDefinition } from "./SortableTable";
+
+import gql from "graphql-tag";
+import {
+  LatestThermostatValuesComponent,
+  LatestThermostatValuesQuery,
+} from "../generated/graphqlClient";
 
 gql`
   query LatestThermostatValues {
@@ -18,6 +25,18 @@ gql`
     }
   }
 `;
+
+type ThermostatValue = TypeTools.ArrayElementType<
+  TypeTools.PropType<LatestThermostatValuesQuery, "getLatestThermostatValues">
+> & { name: string };
+
+const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
+  { field: "name", label: "Thermostat" },
+  { field: "deviceTime", label: "Time" },
+  { field: "temperature", label: "Temperature" },
+  { field: "humidity", label: "Humidity" },
+  { field: "currentActions", label: "Actions" },
+];
 
 const LatestThermostatValues: React.FunctionComponent<{}> = (): React.ReactElement => {
   return (
@@ -45,34 +64,21 @@ const LatestThermostatValues: React.FunctionComponent<{}> = (): React.ReactEleme
           data.getThermostatConfigurations.map((c): [string, string] => [c.id, c.name])
         );
 
-        // Sort by date, descending
-        const sortedValues = data.getLatestThermostatValues.sort(
-          (lhs, rhs): number => rhs.deviceTime.getTime() - lhs.deviceTime.getTime()
+        // Project data
+        const values = data.getLatestThermostatValues.map(
+          (value): ThermostatValue => {
+            return { ...value, name: thermostatNames.get(value.id) || value.id };
+          }
         );
 
         return (
-          <div className="dt tl sans center mw-8 pt3">
-            <div className="dtr b ba b--black">
-              <div className="dtc pa2">ID</div>
-              <div className="dtc pa2">Time</div>
-              <div className="dtc pa2">Temperature</div>
-              <div className="dtc pa2">Humidity</div>
-              <div className="dtc pa2">Actions</div>
-            </div>
-            {sortedValues.map(
-              (value): React.ReactElement => {
-                return (
-                  <div className="dtr">
-                    <div className="dtc pa2">{thermostatNames.get(value.id) || value.id}</div>
-                    <div className="dtc pa2">{value.deviceTime.toLocaleString()}</div>
-                    <div className="dtc pa2">{value.temperature}</div>
-                    <div className="dtc pa2">{value.humidity || ""}</div>
-                    <div className="dtc pa2">{value.currentActions.join(", ")}</div>
-                  </div>
-                );
-              }
-            )}
-          </div>
+          <SortableTable
+            tableProps={{ basic: "very", collapsing: true, compact: true, size: "small" }}
+            data={values}
+            fieldDefinitions={tableDefinition}
+            keyField="id"
+            defaultSortField="name"
+          />
         );
       }}
     </LatestThermostatValuesComponent>

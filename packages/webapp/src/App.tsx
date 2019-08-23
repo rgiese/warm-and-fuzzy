@@ -1,5 +1,6 @@
 import React from "react";
 import { Route, Router, Switch } from "react-router-dom";
+import { Container } from "semantic-ui-react";
 
 import { ApolloProvider } from "react-apollo";
 
@@ -59,27 +60,25 @@ class App extends React.Component<Props, State> {
     return (
       <ApolloProvider client={ApolloClient}>
         <Router history={History}>
-          <div className="flex flex-column items-stretch min-vh-100 tc bg-white">
-            {/* Always show Nav (alternative: reference component directly using withRouter()) */}
-            <AppliedRoute path="/" component={Header} props={childProps} />
-            <main style={{ flexGrow: 1 }}>
-              <Switch>
-                {/* Utility routes */}
-                <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
-                {/* Actual pages */}
-                <AppliedRoute path="/" exact component={Home} props={childProps} />
-                <AuthenticatedRoute
-                  path="/configuration"
-                  exact
-                  component={Configuration}
-                  props={childProps}
-                />
-                {/* Finally, catch all unmatched routes */}
-                <Route component={NotFound} />
-              </Switch>
-            </main>
-            <AppliedRoute path="/" component={Footer} props={childProps} />
-          </div>
+          {/* Always show Nav (alternative: reference component directly using withRouter()) */}
+          <AppliedRoute path="/" component={Header} props={childProps} />
+          <Container style={{ marginTop: "4em" /* for top menu */, marginBottom: "4em" /* for footer */ }}>
+            <Switch>
+              {/* Utility routes */}
+              <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
+              {/* Actual pages */}
+              <AppliedRoute path="/" exact component={Home} props={childProps} />
+              <AuthenticatedRoute
+                path="/configuration"
+                exact
+                component={Configuration}
+                props={childProps}
+              />
+              {/* Finally, catch all unmatched routes */}
+              <Route component={NotFound} />
+            </Switch>
+          </Container>
+          <AppliedRoute path="/" component={Footer} props={childProps} />
         </Router>
       </ApolloProvider>
     );

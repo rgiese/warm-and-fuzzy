@@ -1,4 +1,5 @@
 import React from "react";
+import { Container, Divider, Header } from "semantic-ui-react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
@@ -22,12 +23,17 @@ class Home extends React.Component<Props, State> {
 
   private renderContent(): React.ReactElement {
     return (
-      <>
-        <h1>Latest thermostat values</h1>
+      <Container text>
+        <Divider horizontal>
+          <Header as="h4">Thermostats</Header>
+        </Divider>
         <LatestThermostatValues />
-        <h1>Latest sensor values</h1>
+
+        <Divider horizontal style={{ paddingTop: "2em" }}>
+          <Header as="h4">Sensors</Header>
+        </Divider>
         <LatestSensorValues />
-      </>
+      </Container>
     );
   }
 

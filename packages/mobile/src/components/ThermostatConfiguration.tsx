@@ -15,9 +15,7 @@ import gql from "graphql-tag";
 import ApolloClient from "../services/ApolloClient";
 import fastCompare from "react-fast-compare";
 
-import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import { PropType } from "../TypeTools";
+import { ThermostatConfigurationSchema, TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import {
   UpdateThermostatConfigurationComponent,
@@ -108,9 +106,12 @@ interface Props {
 
 class State {
   errors?: string;
-  thermostatConfiguration?: PropType<ThermostatConfigurationQuery, "getThermostatConfiguration">;
+  thermostatConfiguration?: TypeTools.PropType<
+    ThermostatConfigurationQuery,
+    "getThermostatConfiguration"
+  >;
 
-  savedThermostatConfiguration?: PropType<
+  savedThermostatConfiguration?: TypeTools.PropType<
     ThermostatConfigurationQuery,
     "getThermostatConfiguration"
   >;
