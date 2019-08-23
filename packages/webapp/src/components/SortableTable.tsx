@@ -10,6 +10,7 @@ type TableProps = Omit<StrictTableProps, "renderBodyRow" | "tableData" | "sortab
 export interface TableFieldDefinition<T> {
   field: keyof T;
   label: string;
+  units?: string | React.ReactElement;
 }
 
 interface Props<T> {
@@ -143,6 +144,12 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
                       return (
                         <Table.Cell key={fieldDefinition.field as string}>
                           {valuePresenter(value[fieldDefinition.field])}
+                          {fieldDefinition.units && (
+                            <>
+                              {` `}
+                              {fieldDefinition.units}
+                            </>
+                          )}
                         </Table.Cell>
                       );
                     }

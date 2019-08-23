@@ -33,8 +33,8 @@ type ThermostatValue = TypeTools.ArrayElementType<
 const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
   { field: "name", label: "Thermostat" },
   { field: "deviceTime", label: "Time" },
-  { field: "temperature", label: "Temperature" },
-  { field: "humidity", label: "Humidity" },
+  { field: "temperature", label: "Temperature", units: <>&deg;C</> },
+  { field: "humidity", label: "Humidity", units: "%" },
   { field: "currentActions", label: "Actions" },
 ];
 

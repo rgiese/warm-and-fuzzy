@@ -28,7 +28,7 @@ type SensorValue = TypeTools.ArrayElementType<
 const tableDefinition: TableFieldDefinition<SensorValue>[] = [
   { field: "name", label: "Sensor" },
   { field: "deviceTime", label: "Time" },
-  { field: "temperature", label: "Temperature" },
+  { field: "temperature", label: "Temperature", units: <>&deg;C</> },
 ];
 
 const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement => {
