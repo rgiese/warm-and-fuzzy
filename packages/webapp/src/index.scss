@@ -1,20 +1,11 @@
-//
 // Global
-//
-
 :root {
   --accent: #f26739;
   --accent-mono: #999;
   --accent-mono-light: #ddd;
 }
 
-img {
-  // Don't let images scale up past their built-in size (but they'll still scale down)
-  max-width: 100%;
-}
-
 // Link dim
-
 .link {
   color: var(--accent);
   opacity: 1;
@@ -34,10 +25,7 @@ img {
   transition: opacity 0.15s ease-out;
 }
 
-//
 // SVG madness
-//
-
 .svg-fill-current-color {
   // Assign to an SVG element to inherit fill color
   fill: currentColor;
@@ -45,49 +33,4 @@ img {
 
 .svg-h-mirror {
   transform: scale(-1, 1);
-}
-
-//
-// Tachyons extensions
-//
-
-.accent {
-  color: var(--accent);
-}
-
-.bg-accent {
-  background-color: var(--accent);
-}
-
-.b--accent {
-  border-color: var(--accent);
-}
-
-.accent-mono {
-  color: var(--accent-mono);
-}
-
-.bg-accent-mono {
-  background-color: var(--accent-mono);
-}
-
-.b--accent-mono {
-  border-color: var(--accent-mono);
-}
-
-.accent-mono-light {
-  color: var(--accent-mono-light);
-}
-
-.bg-accent-mono-light {
-  background-color: var(--accent-mono-light);
-}
-
-.b--accent-mono-light {
-  border-color: var(--accent-mono-light);
-}
-
-.h075 {
-  // as a complement to http://tachyons.io/docs/layout/heights/
-  height: 0.75rem;
 }
