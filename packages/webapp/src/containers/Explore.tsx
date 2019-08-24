@@ -1,10 +1,29 @@
 import React from "react";
-import { Container, Dropdown, DropdownProps, Segment } from "semantic-ui-react";
+import { Container, Dropdown, DropdownProps, Message, Segment } from "semantic-ui-react";
 
+import gql from "graphql-tag";
 import { ResponsiveScatterPlotCanvas, Scale, Serie } from "@nivo/scatterplot";
 
-import ExploreSeriesBean, { SeriesProps } from "../components/ExploreSeriesBean";
-import { ColorPalette } from "../components/ExploreSeriesColors";
+import SeriesColorPalette from "../components/explore/SeriesColorPalette";
+import SeriesIdentifier from "../components/explore/SeriesIdentifier";
+import SeriesInstanceBean from "../components/explore/SeriesInstanceBean";
+import SeriesInstanceProps from "../components/explore/SeriesInstanceProps";
+
+import {
+  ExploreThermostatConfigurationsDocument,
+  ExploreThermostatConfigurationsQuery,
+} from "../generated/graphqlClient";
+import ApolloClient from "../services/ApolloClient";
+
+gql`
+  query ExploreThermostatConfigurations {
+    getThermostatConfigurations {
+      id
+      name
+      streamName
+    }
+  }
+`;
 
 enum ViewSpan {
   Day = "day",
@@ -25,62 +44,102 @@ class State {
     this.timezone = Timezone.Local;
 
     this.availableSeries = [];
-    this.seriesProps = [];
+    this.seriesInstanceProps = [];
   }
 
   viewSpan: ViewSpan;
   timezone: Timezone;
 
-  availableSeries: string[];
-  seriesProps: SeriesProps[];
+  availableSeries: SeriesIdentifier[];
+  seriesInstanceProps: SeriesInstanceProps[];
+
+  errors?: string;
 }
 
 class Explore extends React.Component<Props, State> {
-  private nextSeriesId: number;
+  private nextSeriesInstanceId: number;
 
   public constructor(props: Props) {
     super(props);
     this.state = new State();
-    this.nextSeriesId = 0;
+    this.nextSeriesInstanceId = 0;
   }
 
-  componentDidMount() {
-    this.setState({ availableSeries: ["Mango", "Kiwi", "Banana", "Jackfruit"] });
+  async componentDidMount(): Promise<void> {
+    // Obtain thermostat configuration
+    try {
+      const queryResult = await ApolloClient.query<ExploreThermostatConfigurationsQuery, {}>({
+        query: ExploreThermostatConfigurationsDocument,
+      });
+
+      if (queryResult.errors) {
+        this.setState({ errors: JSON.stringify(queryResult.errors) });
+      }
+
+      if (!queryResult.data || !queryResult.data.getThermostatConfigurations) {
+        this.setState({ errors: "No data returned" });
+      }
+
+      let availableSeries: SeriesIdentifier[] = queryResult.data.getThermostatConfigurations
+        .map(s => {
+          return { id: s.id, name: s.name, streamName: s.streamName };
+        })
+        .sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+
+      this.setState({ availableSeries });
+    } catch (error) {
+      this.setState({ errors: JSON.stringify(error) });
+    }
   }
 
-  private handleSeriesAdded = (
+  private handleSeriesInstanceAdded = (
     _event: React.SyntheticEvent<HTMLElement>,
     data: DropdownProps
   ): void => {
-    const seriesId = this.nextSeriesId;
-    ++this.nextSeriesId;
+    const instanceId = this.nextSeriesInstanceId;
+    ++this.nextSeriesInstanceId;
 
-    const addedSeries: SeriesProps = {
-      id: seriesId,
-      name: data.value as string,
-      color: ColorPalette[seriesId % ColorPalette.length],
+    const streamName = data.value as string; // see Dropdown key definition below
+    const seriesIdentifier = this.state.availableSeries.find(
+      series => series.streamName === streamName
+    );
+
+    if (!seriesIdentifier) {
+      throw new Error(`Unexpected: stream ${streamName} should be in available series.`);
+    }
+
+    const addedSeriesInstance: SeriesInstanceProps = {
+      instanceId,
+      seriesIdentifier,
+      color: SeriesColorPalette[instanceId % SeriesColorPalette.length],
       startDate: new Date(),
     };
 
-    this.setState({ seriesProps: [...this.state.seriesProps, addedSeries] });
+    this.setState({
+      seriesInstanceProps: [...this.state.seriesInstanceProps, addedSeriesInstance],
+    });
   };
 
-  private handleSeriesChanged = (data: SeriesProps): void => {
-    let seriesProps = this.state.seriesProps;
+  private handleSeriesInstanceChanged = (data: SeriesInstanceProps): void => {
+    let seriesInstanceProps = this.state.seriesInstanceProps;
 
-    const changedSeriesIndex = seriesProps.findIndex(series => series.id === data.id);
-    seriesProps[changedSeriesIndex] = data;
+    const changedSeriesIndex = seriesInstanceProps.findIndex(
+      series => series.instanceId === data.instanceId
+    );
+    seriesInstanceProps[changedSeriesIndex] = data;
 
-    this.setState({ seriesProps });
+    this.setState({ seriesInstanceProps: seriesInstanceProps });
   };
 
-  private handleSeriesRemoved = (data: SeriesProps): void => {
-    let seriesProps = this.state.seriesProps;
+  private handleSeriesInstanceRemoved = (data: SeriesInstanceProps): void => {
+    let seriesProps = this.state.seriesInstanceProps;
 
-    const removedSeriesIndex = seriesProps.findIndex(series => series.id === data.id);
-    seriesProps.splice(removedSeriesIndex, 1);
+    const removedSeriesInstanceIndex = seriesProps.findIndex(
+      series => series.instanceId === data.instanceId
+    );
+    seriesProps.splice(removedSeriesInstanceIndex, 1);
 
-    this.setState({ seriesProps });
+    this.setState({ seriesInstanceProps: seriesProps });
   };
 
   public render(): React.ReactElement {
@@ -91,6 +150,7 @@ class Explore extends React.Component<Props, State> {
 
     return (
       <Container>
+        {this.state.errors && <Message negative content={this.state.errors} />}
         <Segment>
           {/* View settings */}
           Show data for a{` `}
@@ -121,8 +181,8 @@ class Explore extends React.Component<Props, State> {
           <ResponsiveScatterPlotCanvas
             data={data}
             colors={
-              this.state.seriesProps.length
-                ? this.state.seriesProps.map(series => series.color.hexColor)
+              this.state.seriesInstanceProps.length
+                ? this.state.seriesInstanceProps.map(series => series.color.hexColor)
                 : { scheme: "nivo" }
             }
             // margin is required to show axis labels and legend
@@ -173,18 +233,18 @@ class Explore extends React.Component<Props, State> {
           />
         </Container>
         <Container>
-          {/* Series beans */}
-          {this.state.seriesProps.map(series => (
-            <ExploreSeriesBean
-              key={series.id}
-              seriesProps={series}
-              onChanged={this.handleSeriesChanged}
-              onRemoved={this.handleSeriesRemoved}
-              isSingleDay={this.state.viewSpan === ViewSpan.Day}
+          {/* Series instance beans */}
+          {this.state.seriesInstanceProps.map(series => (
+            <SeriesInstanceBean
+              key={series.instanceId}
+              seriesInstanceProps={series}
+              onChanged={this.handleSeriesInstanceChanged}
+              onRemoved={this.handleSeriesInstanceRemoved}
+              showingSingleDay={this.state.viewSpan === ViewSpan.Day}
               padding={6}
             />
           ))}
-          {/* Add series button */}
+          {/* Add series instance button */}
           <Dropdown
             style={{ padding: 12 }}
             button
@@ -194,9 +254,9 @@ class Explore extends React.Component<Props, State> {
             text="Add series"
             search
             options={this.state.availableSeries.map(s => {
-              return { key: s, value: s, text: s };
+              return { key: s.streamName, value: s.streamName, text: s.name };
             })}
-            onChange={this.handleSeriesAdded}
+            onChange={this.handleSeriesInstanceAdded}
             value="" // Control component so selecting the same item twice in a row still triggers `onChange`
           />
         </Container>
