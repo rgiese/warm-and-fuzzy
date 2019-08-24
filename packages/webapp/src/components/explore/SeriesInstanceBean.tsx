@@ -85,7 +85,12 @@ class SeriesInstanceBean extends React.Component<Props, State> {
       >
         <Popup
           on="click"
-          trigger={<Button content={this.props.seriesInstanceProps.seriesIdentifier.name} />}
+          trigger={
+            <Button
+              content={this.props.seriesInstanceProps.seriesIdentifier.name}
+              style={{ paddingLeft: interiorPadding, paddingRight: interiorPadding / 2 }}
+            />
+          }
           // See note in `State` re: controlling open/close;
           // onOpen/onClose are called by this popup when it itself thinks it should open/close
           open={this.state.isColorPickerOpen}
