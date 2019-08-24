@@ -1,17 +1,17 @@
 import React from "react";
 //import { Message } from "semantic-ui-react";
 import { ResponsiveScatterPlotCanvas, Scale, Serie, Datum } from "@nivo/scatterplot";
-//import moment from "moment";
+import moment from "moment";
 
 import SeriesInstanceProps from "./SeriesInstanceProps";
 
 import gql from "graphql-tag";
-// import {
-//   PlotSeriesDocument,
-//   PlotSeriesQuery,
-//   PlotSeriesQueryVariables,
-// } from "../../generated/graphqlClient";
-// import ApolloClient from "../../services/ApolloClient";
+import {
+  PlotSeriesDocument,
+  PlotSeriesQuery,
+  PlotSeriesQueryVariables,
+} from "../../generated/graphqlClient";
+import ApolloClient from "../../services/ApolloClient";
 
 gql`
   query PlotSeries($streamName: String!, $fromDate: DateTime!, $toDate: DateTime!) {
@@ -48,11 +48,21 @@ class SeriesInstanceDataDefinition {
   public toString(): string {
     return `${this.viewSpan}.${this.timezone}.${this.streamName}@${this.startDate.toDateString()}`;
   }
+
+  public equals(rhs: SeriesInstanceDataDefinition): boolean {
+    return (
+      this.streamName === rhs.streamName &&
+      this.startDate === rhs.startDate &&
+      this.viewSpan === rhs.viewSpan &&
+      this.timezone === rhs.timezone
+    );
+  }
 }
 
 interface SeriesInstanceData {
   definition: SeriesInstanceDataDefinition;
   data?: Datum[];
+  errors?: string;
 }
 
 interface Props {
@@ -129,18 +139,60 @@ class Plot extends React.Component<Props, State> {
   async componentDidUpdate(): Promise<void> {
     let haveUpdated = false;
 
-    const data = this.state.data.map(
-      (seriesInstanceData): SeriesInstanceData => {
-        if (seriesInstanceData.data) {
-          // No updates needed
-          return seriesInstanceData;
+    const data = await Promise.all(
+      this.state.data.map(
+        async (seriesInstanceData): Promise<SeriesInstanceData> => {
+          if (seriesInstanceData.data || seriesInstanceData.errors) {
+            // No updates needed
+            return seriesInstanceData;
+          }
+
+          let data;
+          let errors;
+
+          try {
+            // TODO: incorporate viewRange, timezone
+            const fromDate = moment(seriesInstanceData.definition.startDate)
+              .startOf("day")
+              .toDate();
+            const toDate = moment(seriesInstanceData.definition.startDate)
+              .endOf("day")
+              .toDate();
+
+            console.log(
+              `Fetching series instance ${seriesInstanceData.definition.toString()}: ${fromDate.toISOString()} - ${toDate.toISOString()}`
+            );
+
+            const queryResult = await ApolloClient.query<PlotSeriesQuery, PlotSeriesQueryVariables>(
+              {
+                query: PlotSeriesDocument,
+                variables: {
+                  streamName: seriesInstanceData.definition.streamName,
+                  fromDate,
+                  toDate,
+                },
+              }
+            );
+
+            if (queryResult.errors) {
+              errors = JSON.stringify(queryResult.errors);
+            } else if (!queryResult.data || !queryResult.data.getThermostatValueStreams) {
+              errors = "No data returned";
+            } else {
+              data = queryResult.data.getThermostatValueStreams.map(value => {
+                return { x: value.deviceTime, y: value.temperature };
+              });
+
+              console.log(`Fetched ${data.length} datapoints`);
+            }
+          } catch (error) {
+            errors = JSON.stringify(error);
+          }
+
+          haveUpdated = true;
+          return { ...seriesInstanceData, data, errors };
         }
-
-        console.log(`Fetching data for ${seriesInstanceData.definition.toString()}`);
-
-        haveUpdated = true;
-        return { ...seriesInstanceData, data: [{ x: 0, y: 0 }] };
-      }
+      )
     );
 
     if (haveUpdated) {
@@ -149,52 +201,28 @@ class Plot extends React.Component<Props, State> {
   }
 
   public render() {
-    let data: Serie[] = [];
-    /*
-    try {
-      this.props.seriesInstanceProps.forEach(
-        async (seriesInstance): Promise<void> => {
-          const fromDate = moment(seriesInstance.startDate)
-            .startOf("day")
-            .toDate();
-          const toDate = moment(seriesInstance.startDate)
-            .endOf("day")
-            .toDate();
+    let plotData: Serie[] = this.props.seriesInstanceProps.map(
+      (seriesInstanceProps): Serie => {
+        const dataDefinition = new SeriesInstanceDataDefinition(
+          seriesInstanceProps.seriesIdentifier.streamName,
+          seriesInstanceProps.startDate,
+          this.props.viewSpan,
+          this.props.timezone
+        );
+        const dataSeriesInstance = this.state.data.find(
+          data => data.data && !data.errors && data.definition.equals(dataDefinition)
+        );
 
-          console.log(
-            `Series instance ${
-              seriesInstance.instanceId
-            }: ${fromDate.toISOString()} - ${toDate.toISOString()}`
-          );
+        return {
+          id: seriesInstanceProps.seriesIdentifier.name,
+          data: dataSeriesInstance && dataSeriesInstance.data ? dataSeriesInstance.data : [],
+        };
+      }
+    );
 
-          const queryResult = await ApolloClient.query<PlotSeriesQuery, PlotSeriesQueryVariables>({
-            query: PlotSeriesDocument,
-            variables: { streamName: seriesInstance.seriesIdentifier.streamName, fromDate, toDate },
-          });
-
-          if (queryResult.errors) {
-            this.setState({ errors: JSON.stringify(queryResult.errors) });
-          }
-
-          if (!queryResult.data || !queryResult.data.getThermostatValueStreams) {
-            this.setState({ errors: "No data returned" });
-          }
-
-          data.push({
-            id: seriesInstance.seriesIdentifier.name,
-            data: queryResult.data.getThermostatValueStreams.map(value => {
-              return { x: value.deviceTime, y: value.temperature };
-            }),
-          });
-        }
-      );
-    } catch (error) {
-      return <Message negative content={JSON.stringify(error)} />;
-    }
-*/
     return (
       <ResponsiveScatterPlotCanvas
-        data={data}
+        data={plotData}
         colors={
           this.props.seriesInstanceProps.length
             ? this.props.seriesInstanceProps.map(series => series.color.hexColor)

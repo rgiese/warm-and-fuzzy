@@ -64,19 +64,17 @@ class Explore extends React.Component<Props, State> {
 
       if (queryResult.errors) {
         this.setState({ errors: JSON.stringify(queryResult.errors) });
-      }
-
-      if (!queryResult.data || !queryResult.data.getThermostatConfigurations) {
+      } else if (!queryResult.data || !queryResult.data.getThermostatConfigurations) {
         this.setState({ errors: "No data returned" });
+      } else {
+        let availableSeries: SeriesIdentifier[] = queryResult.data.getThermostatConfigurations
+          .map(s => {
+            return { id: s.id, name: s.name, streamName: s.streamName };
+          })
+          .sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+
+        this.setState({ availableSeries });
       }
-
-      let availableSeries: SeriesIdentifier[] = queryResult.data.getThermostatConfigurations
-        .map(s => {
-          return { id: s.id, name: s.name, streamName: s.streamName };
-        })
-        .sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
-
-      this.setState({ availableSeries });
     } catch (error) {
       this.setState({ errors: JSON.stringify(error) });
     }
