@@ -120,6 +120,11 @@ class Explore extends React.Component<Props, State> {
           {/* TODO: flexbox this */}
           <ResponsiveScatterPlotCanvas
             data={data}
+            colors={
+              this.state.seriesProps
+                ? this.state.seriesProps.map(series => series.color.hexColor)
+                : undefined
+            }
             // margin is required to show axis labels and legend
             margin={{ top: 10, right: 140, bottom: 70, left: 90 }}
             xScale={({ type: "linear", min: "auto", max: "auto" } as any) as Scale}

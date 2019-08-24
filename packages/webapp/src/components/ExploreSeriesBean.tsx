@@ -1,14 +1,14 @@
 import React from "react";
-import { Button, Label, Popup, SemanticCOLORS } from "semantic-ui-react";
+import { Button, Label, Popup } from "semantic-ui-react";
 import { DateInput } from "semantic-ui-calendar-react";
 import moment from "moment";
 
-import { ColorPalette } from "../components/ExploreSeriesColors";
+import { ColorDefinition, ColorPalette } from "../components/ExploreSeriesColors";
 
 export interface SeriesProps {
   id: number;
   name: string;
-  color: SemanticCOLORS;
+  color: ColorDefinition;
   startDate: Date;
 }
 
@@ -46,9 +46,9 @@ class ExploreSeriesBean extends React.Component<Props, State> {
     this.setState({ isColorPickerOpen: false });
   };
 
-  private handleColorChanged = (value: SemanticCOLORS): void => {
+  private handleColorChanged = (value: ColorDefinition): void => {
     this.handleColorPickerClose();
-    this.props.onChanged({ ...this.props.seriesProps, color: value as SemanticCOLORS });
+    this.props.onChanged({ ...this.props.seriesProps, color: value });
   };
 
   private toDateInputString(date: Date): string {
@@ -80,7 +80,10 @@ class ExploreSeriesBean extends React.Component<Props, State> {
     const interiorPadding = 8;
 
     return (
-      <Button.Group color={this.props.seriesProps.color} style={{ padding: this.props.padding }}>
+      <Button.Group
+        color={this.props.seriesProps.color.semanticColor}
+        style={{ padding: this.props.padding }}
+      >
         <Popup
           on="click"
           trigger={<Button content={this.props.seriesProps.name} />}
@@ -94,13 +97,13 @@ class ExploreSeriesBean extends React.Component<Props, State> {
             {ColorPalette.map(c => {
               return (
                 <Label
-                  key={c}
+                  key={c.semanticColor}
                   as="a"
                   circular
-                  color={c}
+                  color={c.semanticColor}
                   style={
                     // Provide subtle highlighting by scale to selected color
-                    c === this.props.seriesProps.color
+                    c.semanticColor === this.props.seriesProps.color.semanticColor
                       ? { transform: `scale(0.75, 0.75)` }
                       : undefined
                   }
