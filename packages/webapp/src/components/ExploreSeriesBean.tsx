@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Dropdown, DropdownProps, Popup, SemanticCOLORS } from "semantic-ui-react";
+import { Button, Label, Popup, SemanticCOLORS } from "semantic-ui-react";
 import { DateInput } from "semantic-ui-calendar-react";
 import moment from "moment";
 
@@ -23,12 +23,8 @@ interface Props {
 
 class State {
   public constructor() {
-    // Control state of color picker dropdown so that its surrounding button area
-    // can also serve as a trigger
+    // Control states of respective popups so we can dismiss them once a new value has been selected
     this.isColorPickerOpen = false;
-
-    // Control state of date picker popup so we can dismiss it
-    // once a new date has been selected.
     this.isDatePickerOpen = false;
   }
 
@@ -50,11 +46,9 @@ class ExploreSeriesBean extends React.Component<Props, State> {
     this.setState({ isColorPickerOpen: false });
   };
 
-  private handleColorChanged = (
-    _event: React.SyntheticEvent<HTMLElement>,
-    data: DropdownProps
-  ): void => {
-    this.props.onChanged({ ...this.props.seriesProps, color: data.value as SemanticCOLORS });
+  private handleColorChanged = (value: SemanticCOLORS): void => {
+    this.handleColorPickerClose();
+    this.props.onChanged({ ...this.props.seriesProps, color: value as SemanticCOLORS });
   };
 
   private toDateInputString(date: Date): string {
@@ -87,22 +81,36 @@ class ExploreSeriesBean extends React.Component<Props, State> {
 
     return (
       <Button.Group color={this.props.seriesProps.color} style={{ padding: this.props.padding }}>
-        <Button style={{ paddingRight: interiorPadding / 2 }} onClick={this.handleColorPickerOpen}>
-          <Dropdown
-            icon={null}
-            text={this.props.seriesProps.name}
-            options={ColorPalette.map(c => {
-              return { key: c, value: c, label: { color: c, empty: true, circular: true } };
+        <Popup
+          on="click"
+          trigger={<Button content={this.props.seriesProps.name} />}
+          // See note in `State` re: controlling open/close;
+          // onOpen/onClose are called by this popup when it itself thinks it should open/close
+          open={this.state.isColorPickerOpen}
+          onOpen={this.handleColorPickerOpen}
+          onClose={this.handleColorPickerClose}
+        >
+          <Popup.Content>
+            {ColorPalette.map(c => {
+              return (
+                <Label
+                  key={c}
+                  as="a"
+                  circular
+                  color={c}
+                  style={
+                    // Provide subtle highlighting by scale to selected color
+                    c === this.props.seriesProps.color
+                      ? { transform: `scale(0.75, 0.75)` }
+                      : undefined
+                  }
+                  onClick={() => this.handleColorChanged(c)}
+                />
+              );
             })}
-            // See note in `State` re: controlling open/close;
-            // onOpen/onClose are called by this control when it itself thinks it should open/close
-            open={this.state.isColorPickerOpen}
-            onOpen={this.handleColorPickerOpen}
-            onClose={this.handleColorPickerClose}
-            onChange={this.handleColorChanged}
-            value={this.props.seriesProps.color}
-          />
-        </Button>
+          </Popup.Content>
+        </Popup>
+
         <Popup
           // We use a Popup to house an inline (always displayed) DateInput because the DateInput
           // can otherwise not help itself from showing a textual representation in its own `dateFormat`
