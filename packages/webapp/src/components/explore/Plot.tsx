@@ -1,5 +1,5 @@
 import React from "react";
-//import { Message } from "semantic-ui-react";
+import { Message } from "semantic-ui-react";
 import { ResponsiveScatterPlotCanvas, Scale, Serie, Datum } from "@nivo/scatterplot";
 import moment from "moment";
 
@@ -220,60 +220,69 @@ class Plot extends React.Component<Props, State> {
       }
     );
 
+    let errors = this.state.data
+      .map(seriesInstanceData => seriesInstanceData.errors)
+      .filter(error => error !== undefined);
+
     return (
-      <ResponsiveScatterPlotCanvas
-        data={plotData}
-        colors={
-          this.props.seriesInstanceProps.length
-            ? this.props.seriesInstanceProps.map(series => series.color.hexColor)
-            : { scheme: "nivo" }
-        }
-        // margin is required to show axis labels and legend
-        margin={{ top: 10, right: 140, bottom: 70, left: 90 }}
-        xScale={({ type: "linear", min: "auto", max: "auto" } as any) as Scale}
-        yScale={({ type: "linear", min: 0, max: "auto" } as any) as Scale}
-        axisBottom={{
-          orient: "bottom",
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: "X axis label",
-          legendPosition: "middle",
-          legendOffset: 40,
-        }}
-        axisLeft={{
-          orient: "left",
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: "size",
-          legendPosition: "middle",
-          legendOffset: -60,
-        }}
-        legends={[
-          {
-            anchor: "bottom-right",
-            direction: "column",
-            justify: false,
-            translateX: 130,
-            translateY: 0,
-            itemWidth: 100,
-            itemHeight: 12,
-            itemsSpacing: 5,
-            itemDirection: "left-to-right",
-            symbolSize: 12,
-            symbolShape: "rect",
-            effects: [
-              {
-                on: "hover",
-                style: {
-                  itemOpacity: 1,
+      <>
+        {errors && errors.length > 0 && (
+          <Message negative header="Errors fetching data" list={errors} />
+        )}
+        <ResponsiveScatterPlotCanvas
+          data={plotData}
+          colors={
+            this.props.seriesInstanceProps.length
+              ? this.props.seriesInstanceProps.map(series => series.color.hexColor)
+              : { scheme: "nivo" }
+          }
+          // margin is required to show axis labels and legend
+          margin={{ top: 10, right: 140, bottom: 70, left: 90 }}
+          xScale={({ type: "linear", min: "auto", max: "auto" } as any) as Scale}
+          yScale={({ type: "linear", min: 0, max: "auto" } as any) as Scale}
+          axisBottom={{
+            orient: "bottom",
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: "X axis label",
+            legendPosition: "middle",
+            legendOffset: 40,
+          }}
+          axisLeft={{
+            orient: "left",
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: "size",
+            legendPosition: "middle",
+            legendOffset: -60,
+          }}
+          legends={[
+            {
+              anchor: "bottom-right",
+              direction: "column",
+              justify: false,
+              translateX: 130,
+              translateY: 0,
+              itemWidth: 100,
+              itemHeight: 12,
+              itemsSpacing: 5,
+              itemDirection: "left-to-right",
+              symbolSize: 12,
+              symbolShape: "rect",
+              effects: [
+                {
+                  on: "hover",
+                  style: {
+                    itemOpacity: 1,
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-      />
+              ],
+            },
+          ]}
+        />
+      </>
     );
   }
 }
