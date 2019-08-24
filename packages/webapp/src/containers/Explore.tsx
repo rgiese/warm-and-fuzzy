@@ -96,7 +96,7 @@ class Explore extends React.Component<Props, State> {
           Show data for a{` `}
           <Dropdown
             inline
-            header="Adjust time span"
+            header="Choose time span"
             options={[ViewSpan.Day, ViewSpan.Week].map(v => {
               return { key: v, value: v, text: v };
             })}
@@ -106,7 +106,7 @@ class Explore extends React.Component<Props, State> {
           in{` `}
           <Dropdown
             inline
-            header="Adjust time span"
+            header="Choose time zone"
             options={[Timezone.Local, Timezone.UTC].map(tz => {
               return { key: tz, value: tz, text: tz };
             })}
@@ -121,9 +121,9 @@ class Explore extends React.Component<Props, State> {
           <ResponsiveScatterPlotCanvas
             data={data}
             colors={
-              this.state.seriesProps
+              this.state.seriesProps.length
                 ? this.state.seriesProps.map(series => series.color.hexColor)
-                : undefined
+                : { scheme: "nivo" }
             }
             // margin is required to show axis labels and legend
             margin={{ top: 10, right: 140, bottom: 70, left: 90 }}
