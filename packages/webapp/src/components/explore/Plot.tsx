@@ -32,13 +32,26 @@ export enum Timezone {
   UTC = "UTC",
 }
 
-// Series instance data handle: a string form of just those properties of Props/SeriesInstanceProps
-// that affect what data we need to fetch for a given series instance.
-// c.f. Plot#getSeriesInstanceDataHandle
-type SeriesInstanceDataHandle = string;
+class SeriesInstanceDataDefinition {
+  public constructor(streamName: string, startDate: Date, viewSpan: ViewSpan, timezone: Timezone) {
+    this.streamName = streamName;
+    this.startDate = startDate;
+    this.viewSpan = viewSpan;
+    this.timezone = timezone;
+  }
+
+  streamName: string;
+  startDate: Date;
+  viewSpan: ViewSpan;
+  timezone: Timezone;
+
+  public toString(): string {
+    return `${this.viewSpan}.${this.timezone}.${this.streamName}@${this.startDate.toDateString()}`;
+  }
+}
 
 interface SeriesInstanceData {
-  dataHandle: SeriesInstanceDataHandle;
+  definition: SeriesInstanceDataDefinition;
   data?: Datum[];
 }
 
@@ -62,15 +75,6 @@ class Plot extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  private static getSeriesInstanceDataHandle(
-    props: Props,
-    seriesInstance: SeriesInstanceProps
-  ): SeriesInstanceDataHandle {
-    return `${props.viewSpan}.${props.timezone}.${
-      seriesInstance.seriesIdentifier.streamName
-    }@${seriesInstance.startDate.toDateString()}`;
-  }
-
   static getDerivedStateFromProps(props: Props, state: State): State | null {
     //
     // In `State`, relative to `seriesInstanceDataHandles`, elements in `data[]` may be:
@@ -81,27 +85,38 @@ class Plot extends React.Component<Props, State> {
     // - Missing (we haven't fetched them before) -> add them
     //
 
-    const seriesInstanceDataHandles = props.seriesInstanceProps.map(series =>
-      Plot.getSeriesInstanceDataHandle(props, series)
+    // Build definitions for the data we'd like to have
+    const seriesInstanceDataDefinitions = props.seriesInstanceProps.map(
+      series =>
+        new SeriesInstanceDataDefinition(
+          series.seriesIdentifier.streamName,
+          series.startDate,
+          props.viewSpan,
+          props.timezone
+        )
+    );
+
+    // Transform those into strings for lookup purposes
+    const seriesInstanceDataDefinitionsLookup = seriesInstanceDataDefinitions.map(def =>
+      def.toString()
     );
 
     // Keep only the data we still want
     const remainingData = state.data.filter(data =>
-      seriesInstanceDataHandles.includes(data.dataHandle)
+      seriesInstanceDataDefinitionsLookup.includes(data.definition.toString())
     );
+
+    // Transform definitions of remaining data into strings for lookup purposes
+    const remainingDataDefinitionsLookup = remainingData.map(data => data.definition.toString());
 
     // Add additional data to be fetched
-    const remainingDataHandles = remainingData.map(data => data.dataHandle);
-
-    const dataHandlesToFetch = seriesInstanceDataHandles.filter(
-      dataHandle => !remainingDataHandles.includes(dataHandle)
-    );
-
-    const dataToFetch = dataHandlesToFetch.map(
-      (dataHandle): SeriesInstanceData => {
-        return { dataHandle };
-      }
-    );
+    const dataToFetch = seriesInstanceDataDefinitions
+      .filter(def => !remainingDataDefinitionsLookup.includes(def.toString()))
+      .map(
+        (def): SeriesInstanceData => {
+          return { definition: def };
+        }
+      );
 
     const data = remainingData.concat(dataToFetch);
 
@@ -111,25 +126,25 @@ class Plot extends React.Component<Props, State> {
     return haveRemovedData || haveAddedData ? { data } : null;
   }
 
-  componentDidUpdate() {
+  async componentDidUpdate(): Promise<void> {
     let haveUpdated = false;
 
-    const updatedData = this.state.data.map(
-      (data): SeriesInstanceData => {
-        if (data.data) {
+    const data = this.state.data.map(
+      (seriesInstanceData): SeriesInstanceData => {
+        if (seriesInstanceData.data) {
           // No updates needed
-          return data;
+          return seriesInstanceData;
         }
 
-        console.log(`Fetching data for ${data.dataHandle}`);
+        console.log(`Fetching data for ${seriesInstanceData.definition.toString()}`);
 
         haveUpdated = true;
-        return { dataHandle: data.dataHandle, data: [{ x: 0, y: 0 }] };
+        return { ...seriesInstanceData, data: [{ x: 0, y: 0 }] };
       }
     );
 
     if (haveUpdated) {
-      this.setState({ data: updatedData });
+      this.setState({ data });
     }
   }
 
