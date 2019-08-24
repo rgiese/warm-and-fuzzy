@@ -1,14 +1,14 @@
 import React from "react";
 import { Container, Dropdown, DropdownProps, Message, Segment } from "semantic-ui-react";
 
-import gql from "graphql-tag";
-import { ResponsiveScatterPlotCanvas, Scale, Serie } from "@nivo/scatterplot";
-
 import SeriesColorPalette from "../components/explore/SeriesColorPalette";
 import SeriesIdentifier from "../components/explore/SeriesIdentifier";
 import SeriesInstanceBean from "../components/explore/SeriesInstanceBean";
 import SeriesInstanceProps from "../components/explore/SeriesInstanceProps";
 
+import Plot, { ViewSpan, Timezone } from "../components/explore/Plot";
+
+import gql from "graphql-tag";
 import {
   ExploreThermostatConfigurationsDocument,
   ExploreThermostatConfigurationsQuery,
@@ -24,16 +24,6 @@ gql`
     }
   }
 `;
-
-enum ViewSpan {
-  Day = "day",
-  Week = "week",
-}
-
-enum Timezone {
-  Local = "local",
-  UTC = "UTC",
-}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}
@@ -143,11 +133,6 @@ class Explore extends React.Component<Props, State> {
   };
 
   public render(): React.ReactElement {
-    const data: Serie[] = [
-      { id: "a", data: [{ x: 10, y: 1 }, { x: 12, y: 2 }, { x: 13, y: 5 }] },
-      { id: "b", data: [{ x: 11, y: 2 }, { x: 12, y: 4 }, { x: 13, y: 1 }] },
-    ];
-
     return (
       <Container>
         {this.state.errors && <Message negative content={this.state.errors} />}
@@ -175,61 +160,11 @@ class Explore extends React.Component<Props, State> {
           />
           time.
         </Segment>
-        <Container style={{ height: "40em" }}>
-          {" "}
-          {/* TODO: flexbox this */}
-          <ResponsiveScatterPlotCanvas
-            data={data}
-            colors={
-              this.state.seriesInstanceProps.length
-                ? this.state.seriesInstanceProps.map(series => series.color.hexColor)
-                : { scheme: "nivo" }
-            }
-            // margin is required to show axis labels and legend
-            margin={{ top: 10, right: 140, bottom: 70, left: 90 }}
-            xScale={({ type: "linear", min: "auto", max: "auto" } as any) as Scale}
-            yScale={({ type: "linear", min: 0, max: "auto" } as any) as Scale}
-            axisBottom={{
-              orient: "bottom",
-              tickSize: 5,
-              tickPadding: 5,
-              tickRotation: 0,
-              legend: "X axis label",
-              legendPosition: "middle",
-              legendOffset: 40,
-            }}
-            axisLeft={{
-              orient: "left",
-              tickSize: 5,
-              tickPadding: 5,
-              tickRotation: 0,
-              legend: "size",
-              legendPosition: "middle",
-              legendOffset: -60,
-            }}
-            legends={[
-              {
-                anchor: "bottom-right",
-                direction: "column",
-                justify: false,
-                translateX: 130,
-                translateY: 0,
-                itemWidth: 100,
-                itemHeight: 12,
-                itemsSpacing: 5,
-                itemDirection: "left-to-right",
-                symbolSize: 12,
-                symbolShape: "rect",
-                effects: [
-                  {
-                    on: "hover",
-                    style: {
-                      itemOpacity: 1,
-                    },
-                  },
-                ],
-              },
-            ]}
+        <Container style={{ height: "40em" /* TODO: flexbox this */ }}>
+          <Plot
+            seriesInstanceProps={this.state.seriesInstanceProps}
+            viewSpan={this.state.viewSpan}
+            timezone={this.state.timezone}
           />
         </Container>
         <Container>
