@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Dropdown, DropdownProps } from "semantic-ui-react";
+import { Container, Dropdown, DropdownProps, Segment } from "semantic-ui-react";
 
 import { ResponsiveScatterPlotCanvas, Scale, Serie } from "@nivo/scatterplot";
 
@@ -91,7 +91,7 @@ class Explore extends React.Component<Props, State> {
 
     return (
       <Container>
-        <Container>
+        <Segment>
           {/* View settings */}
           Show data for a{` `}
           <Dropdown
@@ -114,7 +114,7 @@ class Explore extends React.Component<Props, State> {
             onChange={(_event, data) => this.setState({ timezone: data.value as Timezone })}
           />
           time.
-        </Container>
+        </Segment>
         <Container style={{ height: "40em" }}>
           {" "}
           {/* TODO: flexbox this */}
