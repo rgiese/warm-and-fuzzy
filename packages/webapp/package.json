@@ -54,6 +54,7 @@
     "graphql-tag": "^2.10.1",
     "history": "^4.9.0",
     "jwt-decode": "^2.2.0",
+    "moment": "^2.24.0",
     "plotly.js": "^1.49.4",
     "react": "^16.8.6",
     "react-apollo": "^3.0.0",
@@ -61,6 +62,7 @@
     "react-plotly.js": "^2.3.0",
     "react-router-dom": "^5.0.1",
     "reflect-metadata": "^0.1.13",
+    "semantic-ui-calendar-react": "^0.15.3",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.87.3",
     "yup": "^0.27.0"

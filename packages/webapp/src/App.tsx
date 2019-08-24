@@ -77,7 +77,7 @@ class App extends React.Component<Props, State> {
                 component={Configuration}
                 props={childProps}
               />
-              <AuthenticatedRoute path="/explore" exact component={Explore} props={childProps}/>
+              <AuthenticatedRoute path="/explore" exact component={Explore} props={childProps} />
               {/* Finally, catch all unmatched routes */}
               <Route component={NotFound} />
             </Switch>
