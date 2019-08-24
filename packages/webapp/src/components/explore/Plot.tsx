@@ -1,6 +1,8 @@
 import React from "react";
 import { Message } from "semantic-ui-react";
 import { ResponsiveScatterPlotCanvas, Scale, Serie, Datum } from "@nivo/scatterplot";
+import { TimeScale } from "@nivo/scales";
+import { AxisProps } from "@nivo/axes";
 import moment from "moment";
 
 import SeriesInstanceProps from "./SeriesInstanceProps";
@@ -180,7 +182,7 @@ class Plot extends React.Component<Props, State> {
               errors = "No data returned";
             } else {
               data = queryResult.data.getThermostatValueStreams.map(value => {
-                return { x: value.deviceTime, y: value.temperature };
+                return { x: new Date(value.deviceTime), y: value.temperature };
               });
 
               console.log(`Fetched ${data.length} datapoints`);
@@ -201,7 +203,7 @@ class Plot extends React.Component<Props, State> {
   }
 
   public render() {
-    let plotData: Serie[] = this.props.seriesInstanceProps.map(
+    const plotData: Serie[] = this.props.seriesInstanceProps.map(
       (seriesInstanceProps): Serie => {
         const dataDefinition = new SeriesInstanceDataDefinition(
           seriesInstanceProps.seriesIdentifier.streamName,
@@ -220,9 +222,19 @@ class Plot extends React.Component<Props, State> {
       }
     );
 
-    let errors = this.state.data
+    const errors = this.state.data
       .map(seriesInstanceData => seriesInstanceData.errors)
       .filter(error => error !== undefined);
+
+    // TimeScale format defines input data; "native" = using native (JavaScript) Date objects
+    const xScale: TimeScale = {
+      type: "time",
+      format: "native",
+      precision: this.props.viewSpan === ViewSpan.Day ? "hour" : "day",
+    };
+
+    // Axis format strings via https://github.com/d3/d3-time-format
+    const xAxis: AxisProps = { format: "%H:%M", tickValues: "every 2 hours" };
 
     return (
       <>
@@ -238,14 +250,16 @@ class Plot extends React.Component<Props, State> {
           }
           // margin is required to show axis labels and legend
           margin={{ top: 10, right: 140, bottom: 70, left: 90 }}
-          xScale={({ type: "linear", min: "auto", max: "auto" } as any) as Scale}
+          // https://github.com/plouc/nivo/issues/674 for scale casting
+          xScale={(xScale as any) as Scale}
           yScale={({ type: "linear", min: 0, max: "auto" } as any) as Scale}
           axisBottom={{
+            ...xAxis,
             orient: "bottom",
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: "X axis label",
+            legend: "Time",
             legendPosition: "middle",
             legendOffset: 40,
           }}
