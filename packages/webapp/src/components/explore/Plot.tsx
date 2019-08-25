@@ -154,10 +154,12 @@ class Plot extends React.Component<Props, State> {
 
           try {
             // TODO: incorporate viewRange, timezone
-            const fromDate = moment(seriesInstanceData.definition.startDate)
+            const startDate = seriesInstanceData.definition.startDate;
+
+            const fromDate = moment(startDate)
               .startOf("day")
               .toDate();
-            const toDate = moment(seriesInstanceData.definition.startDate)
+            const toDate = moment(startDate)
               .endOf("day")
               .toDate();
 
@@ -182,7 +184,7 @@ class Plot extends React.Component<Props, State> {
               errors = "No data returned";
             } else {
               data = queryResult.data.getThermostatValueStreams.map(value => {
-                return { x: new Date(value.deviceTime), y: value.temperature };
+                return { x: new Date(value.deviceTime).getTime(), y: value.temperature };
               });
 
               console.log(`Fetched ${data.length} datapoints`);
@@ -226,14 +228,17 @@ class Plot extends React.Component<Props, State> {
       .map(seriesInstanceData => seriesInstanceData.errors)
       .filter(error => error !== undefined);
 
-    // TimeScale format defines input data; "native" = using native (JavaScript) Date objects
+    // Time format strings via https://github.com/d3/d3-time-format
+
+    // TimeScale format defines input data
+    // - "native" = using native (JavaScript) Date objects
+    // - "%Q" = msec since Unix epoch
     const xScale: TimeScale = {
       type: "time",
-      format: "native",
+      format: "%Q",
       precision: this.props.viewSpan === ViewSpan.Day ? "hour" : "day",
     };
 
-    // Axis format strings via https://github.com/d3/d3-time-format
     const xAxis: AxisProps = { format: "%H:%M", tickValues: "every 2 hours" };
 
     return (
