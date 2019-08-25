@@ -1,7 +1,7 @@
 import React from "react";
 import { Message } from "semantic-ui-react";
 import { ResponsiveScatterPlotCanvas, Scale, Serie, Datum } from "@nivo/scatterplot";
-import { TimeScale } from "@nivo/scales";
+import { LinearScale, TimeScale } from "@nivo/scales";
 import { AxisProps } from "@nivo/axes";
 import moment from "moment";
 
@@ -70,6 +70,8 @@ interface SeriesInstanceData {
   definition: SeriesInstanceDataDefinition;
   data?: Datum[];
   errors?: string;
+  min?: number;
+  max?: number;
 }
 
 interface Props {
@@ -156,6 +158,8 @@ class Plot extends React.Component<Props, State> {
 
           let data;
           let errors;
+          let min: number | undefined;
+          let max: number | undefined;
 
           try {
             // TODO: incorporate viewRange
@@ -212,6 +216,10 @@ class Plot extends React.Component<Props, State> {
                 const deviceTime_RelativeToStartTime_TimezoneAdjusted =
                   deviceTime_RelativeToStartTime + startOfToday;
 
+                // Memoize series min/max Y values
+                min = min ? Math.min(min, value.temperature) : value.temperature;
+                max = max ? Math.max(max, value.temperature) : value.temperature;
+
                 return { x: deviceTime_RelativeToStartTime_TimezoneAdjusted, y: value.temperature };
               });
 
@@ -222,7 +230,7 @@ class Plot extends React.Component<Props, State> {
           }
 
           haveUpdated = true;
-          return { ...seriesInstanceData, data, errors };
+          return { ...seriesInstanceData, data, errors, min, max };
         }
       )
     );
@@ -233,6 +241,10 @@ class Plot extends React.Component<Props, State> {
   }
 
   public render() {
+    // Pick reasonable Y-axis defaults considering interior temperature ranges
+    let plotMin = 16;
+    let plotMax = 36;
+
     const plotData: Serie[] = this.props.seriesInstanceProps.map(
       (seriesInstanceProps): Serie => {
         const dataDefinition = new SeriesInstanceDataDefinition(
@@ -247,6 +259,15 @@ class Plot extends React.Component<Props, State> {
 
         const id =
           seriesInstanceProps.seriesIdentifier.name + ` (${seriesInstanceProps.startDate})`;
+
+        plotMin =
+          dataSeriesInstance && dataSeriesInstance.min
+            ? Math.min(plotMin, dataSeriesInstance.min)
+            : plotMin;
+        plotMax =
+          dataSeriesInstance && dataSeriesInstance.max
+            ? Math.max(plotMax, dataSeriesInstance.max)
+            : plotMax;
 
         return {
           id,
@@ -271,6 +292,12 @@ class Plot extends React.Component<Props, State> {
 
     const xAxis: AxisProps = { format: "%H:%M", tickValues: "every 2 hours" };
 
+    const yScale: LinearScale = {
+      type: "linear",
+      min: plotMin,
+      max: plotMax,
+    };
+
     return (
       <>
         {errors && errors.length > 0 && (
@@ -287,7 +314,7 @@ class Plot extends React.Component<Props, State> {
           margin={{ top: 10, right: 240, bottom: 70, left: 90 }}
           // https://github.com/plouc/nivo/issues/674 for scale casting
           xScale={(xScale as any) as Scale}
-          yScale={({ type: "linear", min: 0, max: 40 } as any) as Scale}
+          yScale={(yScale as any) as Scale}
           axisBottom={{
             ...xAxis,
             orient: "bottom",
