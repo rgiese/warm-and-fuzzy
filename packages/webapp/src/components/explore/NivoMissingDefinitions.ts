@@ -1,5 +1,6 @@
 import React from "react";
 import { Value } from "@nivo/scatterplot";
+import { TimeScale } from "@nivo/scales";
 
 interface CustomTooltipNode {
   index: number;
@@ -22,3 +23,11 @@ interface CustomTooltipNode {
 }
 
 export type CustomTooltip = ({ node }: { node: CustomTooltipNode }) => React.ReactNode;
+
+
+export interface TimeScaleEx extends TimeScale {
+  // Properties missing from nivo's outdated TypeScript definitions
+  min?: "auto" | number;
+  max?: "auto" | number;
+  useUTC?: boolean;
+}
