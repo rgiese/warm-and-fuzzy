@@ -24,7 +24,6 @@ interface CustomTooltipNode {
 
 export type CustomTooltip = ({ node }: { node: CustomTooltipNode }) => React.ReactNode;
 
-
 export interface TimeScaleEx extends TimeScale {
   // Properties missing from nivo's outdated TypeScript definitions
   min?: "auto" | number;
