@@ -329,6 +329,7 @@ class Plot extends React.Component<Props, State> {
             legendPosition: "middle",
             legendOffset: -60,
           }}
+          // https://github.com/d3/d3-format
           xFormat="time:%H:%M"
           yFormat=".1f"
           tooltip={PlotTooltip}
