@@ -305,6 +305,7 @@ class Plot extends React.Component<Props, State> {
               ? this.props.seriesInstanceProps.map(series => series.color.hexColor)
               : { scheme: "nivo" }
           }
+          nodeSize={6}
           // margin is required to show axis labels and legend
           margin={{ top: 10, right: 240, bottom: 70, left: 90 }}
           // https://github.com/plouc/nivo/issues/674 for scale casting
@@ -345,15 +346,7 @@ class Plot extends React.Component<Props, State> {
               itemsSpacing: 5,
               itemDirection: "left-to-right",
               symbolSize: 12,
-              symbolShape: "rect",
-              effects: [
-                {
-                  on: "hover",
-                  style: {
-                    itemOpacity: 1,
-                  },
-                },
-              ],
+              symbolShape: "circle",
             },
           ]}
         />
