@@ -34,14 +34,13 @@ class State {
     this.viewSpan = ViewSpan.Day;
     this.timezone = Timezone.Local;
 
-    this.availableSeries = [];
     this.seriesInstanceProps = [];
   }
 
   viewSpan: ViewSpan;
   timezone: Timezone;
 
-  availableSeries: SeriesIdentifier[];
+  availableSeries?: SeriesIdentifier[];
   seriesInstanceProps: SeriesInstanceProps[];
 
   errors?: string;
@@ -85,6 +84,10 @@ class Explore extends React.Component<Props, State> {
     _event: React.SyntheticEvent<HTMLElement>,
     data: DropdownProps
   ): void => {
+    if (!this.state.availableSeries) {
+      throw new Error(`Unexpected: available series should be loaded`);
+    }
+
     const instanceId = this.nextSeriesInstanceId;
     ++this.nextSeriesInstanceId;
 
@@ -191,11 +194,16 @@ class Explore extends React.Component<Props, State> {
             className="icon"
             icon="add"
             labeled
+            loading={!this.state.availableSeries}
             text="Add series"
             search
-            options={this.state.availableSeries.map(s => {
-              return { key: s.streamName, value: s.streamName, text: s.name };
-            })}
+            options={
+              this.state.availableSeries
+                ? this.state.availableSeries.map(s => {
+                    return { key: s.streamName, value: s.streamName, text: s.name };
+                  })
+                : []
+            }
             onChange={this.handleSeriesInstanceAdded}
             value="" // Control component so selecting the same item twice in a row still triggers `onChange`
           />

@@ -1,5 +1,5 @@
 import React from "react";
-import { Message } from "semantic-ui-react";
+import { Dimmer, Loader, Message } from "semantic-ui-react";
 import { ResponsiveScatterPlotCanvas, Scale, Serie, Datum } from "@nivo/scatterplot";
 import { LinearScale, TimeScale } from "@nivo/scales";
 import { AxisProps } from "@nivo/axes";
@@ -284,6 +284,11 @@ class Plot extends React.Component<Props, State> {
       .map(seriesInstanceData => seriesInstanceData.errors)
       .filter(error => error !== undefined);
 
+    const isLoading =
+      this.state.data
+        .map(seriesInstanceData => !seriesInstanceData.data && !seriesInstanceData.errors)
+        .find(isLoading => isLoading) || false;
+
     // Time format strings via https://github.com/d3/d3-time-format
     const timeFormat = "%H:%M";
 
@@ -307,7 +312,10 @@ class Plot extends React.Component<Props, State> {
     };
 
     return (
-      <>
+      <Dimmer.Dimmable blurring style={{ width: "100%", height: "100%" }}>
+        <Dimmer active={isLoading} inverted>
+          <Loader content="Loading" />
+        </Dimmer>
         {errors && errors.length > 0 && (
           <Message negative header="Errors fetching data" list={errors} />
         )}
@@ -363,7 +371,7 @@ class Plot extends React.Component<Props, State> {
             },
           ]}
         />
-      </>
+      </Dimmer.Dimmable>
     );
   }
 }
