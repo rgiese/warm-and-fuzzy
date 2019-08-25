@@ -123,7 +123,7 @@ class SeriesInstanceBean extends React.Component<Props, State> {
               content={
                 (this.props.showingSingleDay ? "on" : "beginning") +
                 " " +
-                moment(this.props.seriesInstanceProps.startDate).format("ll")
+                moment(this.props.seriesInstanceProps.startDate).format("ddd ll")
               }
             />
           }

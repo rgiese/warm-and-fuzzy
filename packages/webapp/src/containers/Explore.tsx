@@ -7,7 +7,7 @@ import SeriesIdentifier from "../components/explore/SeriesIdentifier";
 import SeriesInstanceBean from "../components/explore/SeriesInstanceBean";
 import SeriesInstanceProps from "../components/explore/SeriesInstanceProps";
 
-import Plot, { ViewSpan, Timezone } from "../components/explore/Plot";
+import Plot, { ViewSpan, viewSpanToDays, Timezone } from "../components/explore/Plot";
 
 import gql from "graphql-tag";
 import {
@@ -98,7 +98,10 @@ class Explore extends React.Component<Props, State> {
     }
 
     // Format current day as ISO 8601 with no time component to avoid time zone madness
-    const startDate = moment().format("YYYY-MM-DD");
+    // - if we're in something other than day mode, default the start date to the beginning of the period ending with today
+    const startDate = moment()
+      .subtract(viewSpanToDays(this.state.viewSpan) - 1, "days")
+      .format("YYYY-MM-DD");
 
     const addedSeriesInstance: SeriesInstanceProps = {
       instanceId,

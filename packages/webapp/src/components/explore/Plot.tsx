@@ -30,6 +30,17 @@ export enum ViewSpan {
   Week = "week",
 }
 
+export function viewSpanToDays(viewSpan: ViewSpan): number {
+  switch (viewSpan) {
+    case ViewSpan.Day:
+      return 1;
+    case ViewSpan.Week:
+      return 7;
+    default:
+      throw new Error(`Unexpected ViewSpan ${viewSpan}`);
+  }
+}
+
 export enum Timezone {
   Local = "local",
   UTC = "UTC",
@@ -163,18 +174,15 @@ class Plot extends React.Component<Props, State> {
           let max: number | undefined;
 
           try {
-            // TODO: incorporate viewRange
             const startDate =
               this.props.timezone === Timezone.Local
                 ? moment(seriesInstanceData.definition.startDate)
                 : moment.utc(seriesInstanceData.definition.startDate);
 
-            const fromDate = moment(startDate)
-              .startOf("day")
-              .toDate();
-            const toDate = moment(startDate)
-              .endOf("day")
-              .toDate();
+            let fromMoment = moment(startDate).startOf("day");
+
+            const fromDate = fromMoment.toDate();
+            const toDate = fromMoment.add(viewSpanToDays(this.props.viewSpan), "day").toDate();
 
             console.log(
               `Fetching series instance ${seriesInstanceData.definition.toString()}: ${fromDate.toISOString()} - ${toDate.toISOString()}`
@@ -207,7 +215,8 @@ class Plot extends React.Component<Props, State> {
                 // Determine relative time to start time (since series may have different start days)
                 const deviceTime_RelativeToStartTime = deviceTime.getTime() - fromDate.getTime();
 
-                // Shift interval relative to a semi-arbitrart start day (today) so that Nivo uses today's timezone for display
+                // Shift interval relative to a semi-arbitrary start day (today) so that Nivo uses today's timezone for display
+                // (will cause issues if there's a change in timezones during a multi-day view - alas.)
                 const deviceTime_RelativeToStartTime_TimezoneAdjusted =
                   deviceTime_RelativeToStartTime + startOfToday;
 
@@ -276,6 +285,7 @@ class Plot extends React.Component<Props, State> {
       .filter(error => error !== undefined);
 
     // Time format strings via https://github.com/d3/d3-time-format
+    const timeFormat = "%H:%M";
 
     // TimeScale format defines input data
     // - "native" = using native (JavaScript) Date objects
@@ -285,7 +295,10 @@ class Plot extends React.Component<Props, State> {
       format: "%Q",
     };
 
-    const xAxis: AxisProps = { format: "%H:%M", tickValues: "every 2 hours" };
+    const xAxis: AxisProps = {
+      format: timeFormat,
+      tickValues: `every ${this.props.viewSpan === ViewSpan.Day ? 2 : 12} hours`,
+    };
 
     const yScale: LinearScale = {
       type: "linear",
@@ -331,7 +344,7 @@ class Plot extends React.Component<Props, State> {
             legendOffset: -60,
           }}
           // https://github.com/d3/d3-format
-          xFormat="time:%H:%M"
+          xFormat={`time:${timeFormat}`}
           yFormat=".1f"
           tooltip={PlotTooltip}
           legends={[
