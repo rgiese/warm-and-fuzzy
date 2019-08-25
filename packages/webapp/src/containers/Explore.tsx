@@ -5,7 +5,9 @@ import moment from "moment";
 import SeriesColorPalette from "../components/explore/SeriesColorPalette";
 import SeriesIdentifier from "../components/explore/SeriesIdentifier";
 import SeriesInstanceBean from "../components/explore/SeriesInstanceBean";
-import SeriesInstanceProps from "../components/explore/SeriesInstanceProps";
+import SeriesInstanceProps, {
+  SeriesInstanceDateFormat,
+} from "../components/explore/SeriesInstanceProps";
 
 import Plot, { ViewSpan, viewSpanToDays, Timezone } from "../components/explore/Plot";
 
@@ -100,11 +102,10 @@ class Explore extends React.Component<Props, State> {
       throw new Error(`Unexpected: stream ${streamName} should be in available series.`);
     }
 
-    // Format current day as ISO 8601 with no time component to avoid time zone madness
-    // - if we're in something other than day mode, default the start date to the beginning of the period ending with today
+    // If we're in something other than Day mode, default the start date to the beginning of the period ending with today
     const startDate = moment()
       .subtract(viewSpanToDays(this.state.viewSpan) - 1, "days")
-      .format("YYYY-MM-DD");
+      .format(SeriesInstanceDateFormat);
 
     const addedSeriesInstance: SeriesInstanceProps = {
       instanceId,

@@ -5,7 +5,7 @@ import moment from "moment";
 
 import SeriesColor from "./SeriesColor";
 import SeriesColorPalette from "./SeriesColorPalette";
-import SeriesInstanceProps from "./SeriesInstanceProps";
+import SeriesInstanceProps, { SeriesInstanceDateFormat } from "./SeriesInstanceProps";
 
 interface Props {
   seriesInstanceProps: SeriesInstanceProps;
@@ -138,7 +138,8 @@ class SeriesInstanceBean extends React.Component<Props, State> {
             <DateInput
               inline
               animation={"none" as any}
-              dateFormat="YYYY-MM-DD" // ISO 8601 so it auto-parses
+              dateFormat={SeriesInstanceDateFormat}
+              maxDate={moment().format(SeriesInstanceDateFormat)}
               value={this.props.seriesInstanceProps.startDate}
               onChange={this.handleDatePicked}
             />
