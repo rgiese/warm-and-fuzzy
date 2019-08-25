@@ -47,11 +47,6 @@ class SeriesInstanceBean extends React.Component<Props, State> {
     this.props.onChanged({ ...this.props.seriesInstanceProps, color: value });
   };
 
-  private toDateInputString(date: Date): string {
-    // Format as ISO 8601 (see `dateFormat` on <DateInput/> below) with no time component to avoid time zone madness
-    return `${date.getFullYear()}-${date.getDate()}-${date.getMonth() + 1}`;
-  }
-
   private handleDateInputPopupOpen = (): void => {
     this.setState({ isDatePickerOpen: true });
   };
@@ -61,10 +56,9 @@ class SeriesInstanceBean extends React.Component<Props, State> {
   };
 
   private handleDatePicked = (_event: React.SyntheticEvent<HTMLElement>, data: any): void => {
-    const updatedDate = moment(data.value).toDate();
     const updatedSeriesInstanceProps: SeriesInstanceProps = {
       ...this.props.seriesInstanceProps,
-      startDate: updatedDate,
+      startDate: data.value,
     };
 
     this.setState({ isDatePickerOpen: false });
@@ -145,7 +139,7 @@ class SeriesInstanceBean extends React.Component<Props, State> {
               inline
               animation={"none" as any}
               dateFormat="YYYY-MM-DD" // ISO 8601 so it auto-parses
-              value={this.toDateInputString(this.props.seriesInstanceProps.startDate)}
+              value={this.props.seriesInstanceProps.startDate}
               onChange={this.handleDatePicked}
             />
           </Popup.Content>

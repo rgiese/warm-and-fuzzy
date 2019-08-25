@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Dropdown, DropdownProps, Message, Segment } from "semantic-ui-react";
+import moment from "moment";
 
 import SeriesColorPalette from "../components/explore/SeriesColorPalette";
 import SeriesIdentifier from "../components/explore/SeriesIdentifier";
@@ -96,11 +97,14 @@ class Explore extends React.Component<Props, State> {
       throw new Error(`Unexpected: stream ${streamName} should be in available series.`);
     }
 
+    // Format current day as ISO 8601 with no time component to avoid time zone madness
+    const startDate = moment().format("YYYY-MM-DD");
+
     const addedSeriesInstance: SeriesInstanceProps = {
       instanceId,
       seriesIdentifier,
       color: SeriesColorPalette[instanceId % SeriesColorPalette.length],
-      startDate: new Date(),
+      startDate,
     };
 
     this.setState({
@@ -146,7 +150,7 @@ class Explore extends React.Component<Props, State> {
             value={this.state.viewSpan}
             onChange={(_event, data) => this.setState({ viewSpan: data.value as ViewSpan })}
           />
-          in{` `}
+          by{` `}
           <Dropdown
             inline
             header="Choose time zone"

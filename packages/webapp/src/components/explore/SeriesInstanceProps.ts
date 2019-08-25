@@ -5,5 +5,5 @@ export default interface SeriesInstanceProps {
   instanceId: number;
   seriesIdentifier: SeriesIdentifier;
   color: SeriesColor;
-  startDate: Date;
+  startDate: string; // formatted as YYYY-MM-DD
 }

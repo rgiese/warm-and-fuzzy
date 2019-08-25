@@ -35,7 +35,12 @@ export enum Timezone {
 }
 
 class SeriesInstanceDataDefinition {
-  public constructor(streamName: string, startDate: Date, viewSpan: ViewSpan, timezone: Timezone) {
+  public constructor(
+    streamName: string,
+    startDate: string,
+    viewSpan: ViewSpan,
+    timezone: Timezone
+  ) {
     this.streamName = streamName;
     this.startDate = startDate;
     this.viewSpan = viewSpan;
@@ -43,12 +48,12 @@ class SeriesInstanceDataDefinition {
   }
 
   streamName: string;
-  startDate: Date;
+  startDate: string;
   viewSpan: ViewSpan;
   timezone: Timezone;
 
   public toString(): string {
-    return `${this.viewSpan}.${this.timezone}.${this.streamName}@${this.startDate.toDateString()}`;
+    return `${this.streamName}@${this.startDate}.${this.timezone}.${this.viewSpan}`;
   }
 
   public equals(rhs: SeriesInstanceDataDefinition): boolean {
@@ -153,8 +158,17 @@ class Plot extends React.Component<Props, State> {
           let errors;
 
           try {
-            // TODO: incorporate viewRange, timezone
-            const startDate = seriesInstanceData.definition.startDate;
+            // TODO: incorporate viewRange
+            const startDate =
+              this.props.timezone === Timezone.Local
+                ? moment(seriesInstanceData.definition.startDate)
+                : moment.utc(seriesInstanceData.definition.startDate);
+
+            console.log(
+              `startDate: ${
+                seriesInstanceData.definition.startDate
+              }, moment: ${startDate.toISOString()}`
+            );
 
             const fromDate = moment(startDate)
               .startOf("day")
@@ -183,8 +197,22 @@ class Plot extends React.Component<Props, State> {
             } else if (!queryResult.data || !queryResult.data.getThermostatValueStreams) {
               errors = "No data returned";
             } else {
+              const startOfToday = moment()
+                .startOf("day")
+                .valueOf();
+
               data = queryResult.data.getThermostatValueStreams.map(value => {
-                return { x: new Date(value.deviceTime).getTime(), y: value.temperature };
+                // Parse text timestamp returned by GraphQL
+                const deviceTime = new Date(value.deviceTime);
+
+                // Determine relative time to start time (since series may have different start days)
+                const deviceTime_RelativeToStartTime = deviceTime.getTime() - fromDate.getTime();
+
+                // Shift interval relative to a semi-arbitrart start day (today) so that Nivo uses today's timezone for display
+                const deviceTime_RelativeToStartTime_TimezoneAdjusted =
+                  deviceTime_RelativeToStartTime + startOfToday;
+
+                return { x: deviceTime_RelativeToStartTime_TimezoneAdjusted, y: value.temperature };
               });
 
               console.log(`Fetched ${data.length} datapoints`);
@@ -217,8 +245,11 @@ class Plot extends React.Component<Props, State> {
           data => data.data && !data.errors && data.definition.equals(dataDefinition)
         );
 
+        const id =
+          seriesInstanceProps.seriesIdentifier.name + ` (${seriesInstanceProps.startDate})`;
+
         return {
-          id: seriesInstanceProps.seriesIdentifier.name,
+          id,
           data: dataSeriesInstance && dataSeriesInstance.data ? dataSeriesInstance.data : [],
         };
       }
@@ -236,7 +267,6 @@ class Plot extends React.Component<Props, State> {
     const xScale: TimeScale = {
       type: "time",
       format: "%Q",
-      precision: this.props.viewSpan === ViewSpan.Day ? "hour" : "day",
     };
 
     const xAxis: AxisProps = { format: "%H:%M", tickValues: "every 2 hours" };
@@ -254,10 +284,10 @@ class Plot extends React.Component<Props, State> {
               : { scheme: "nivo" }
           }
           // margin is required to show axis labels and legend
-          margin={{ top: 10, right: 140, bottom: 70, left: 90 }}
+          margin={{ top: 10, right: 240, bottom: 70, left: 90 }}
           // https://github.com/plouc/nivo/issues/674 for scale casting
           xScale={(xScale as any) as Scale}
-          yScale={({ type: "linear", min: 0, max: "auto" } as any) as Scale}
+          yScale={({ type: "linear", min: 0, max: 40 } as any) as Scale}
           axisBottom={{
             ...xAxis,
             orient: "bottom",
@@ -277,6 +307,8 @@ class Plot extends React.Component<Props, State> {
             legendPosition: "middle",
             legendOffset: -60,
           }}
+          xFormat="time:%H:%M"
+          yFormat=".1f"
           legends={[
             {
               anchor: "bottom-right",
