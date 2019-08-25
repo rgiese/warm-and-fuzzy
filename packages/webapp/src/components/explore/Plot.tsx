@@ -6,6 +6,7 @@ import { AxisProps } from "@nivo/axes";
 import moment from "moment";
 
 import SeriesInstanceProps from "./SeriesInstanceProps";
+import PlotTooltip from "./PlotTooltip";
 
 import gql from "graphql-tag";
 import {
@@ -167,12 +168,6 @@ class Plot extends React.Component<Props, State> {
               this.props.timezone === Timezone.Local
                 ? moment(seriesInstanceData.definition.startDate)
                 : moment.utc(seriesInstanceData.definition.startDate);
-
-            console.log(
-              `startDate: ${
-                seriesInstanceData.definition.startDate
-              }, moment: ${startDate.toISOString()}`
-            );
 
             const fromDate = moment(startDate)
               .startOf("day")
@@ -336,6 +331,7 @@ class Plot extends React.Component<Props, State> {
           }}
           xFormat="time:%H:%M"
           yFormat=".1f"
+          tooltip={PlotTooltip}
           legends={[
             {
               anchor: "bottom-right",
