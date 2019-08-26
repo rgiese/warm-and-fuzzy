@@ -3,7 +3,6 @@ import { Button, Label, Popup } from "semantic-ui-react";
 import { DateInput } from "semantic-ui-calendar-react";
 import moment from "moment";
 
-import SeriesColor from "./SeriesColor";
 import SeriesColorPalette from "./SeriesColorPalette";
 import SeriesInstanceProps, { SeriesInstanceDateFormat } from "./SeriesInstanceProps";
 
@@ -42,9 +41,9 @@ class SeriesInstanceBean extends React.Component<Props, State> {
     this.setState({ isColorPickerOpen: false });
   };
 
-  private handleColorChanged = (value: SeriesColor): void => {
+  private handleColorChanged = (colorIndex: number): void => {
     this.handleColorPickerClose();
-    this.props.onChanged({ ...this.props.seriesInstanceProps, color: value });
+    this.props.onChanged({ ...this.props.seriesInstanceProps, colorIndex });
   };
 
   private handleDateInputPopupOpen = (): void => {
@@ -74,7 +73,7 @@ class SeriesInstanceBean extends React.Component<Props, State> {
 
     return (
       <Button.Group
-        color={this.props.seriesInstanceProps.color.semanticColor}
+        color={SeriesColorPalette[this.props.seriesInstanceProps.colorIndex].semanticColor}
         style={{ padding: this.props.padding }}
       >
         <Popup
@@ -92,20 +91,20 @@ class SeriesInstanceBean extends React.Component<Props, State> {
           onClose={this.handleColorPickerClose}
         >
           <Popup.Content>
-            {SeriesColorPalette.map(c => {
+            {SeriesColorPalette.map((color, index) => {
               return (
                 <Label
-                  key={c.semanticColor}
+                  key={color.semanticColor}
                   as="a"
                   circular
-                  color={c.semanticColor}
+                  color={color.semanticColor}
                   style={
                     // Provide subtle highlighting by scale to selected color
-                    c.semanticColor === this.props.seriesInstanceProps.color.semanticColor
+                    index === this.props.seriesInstanceProps.colorIndex
                       ? { transform: `scale(0.75, 0.75)` }
                       : undefined
                   }
-                  onClick={() => this.handleColorChanged(c)}
+                  onClick={() => this.handleColorChanged(index)}
                 />
               );
             })}

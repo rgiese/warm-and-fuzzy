@@ -5,6 +5,7 @@ import { LinearScale, TimeScale } from "@nivo/scales";
 import { AxisProps } from "@nivo/axes";
 import moment from "moment";
 
+import SeriesColorPalette from "./SeriesColorPalette";
 import SeriesInstanceProps from "./SeriesInstanceProps";
 import PlotTooltip from "./PlotTooltip";
 
@@ -327,7 +328,9 @@ class Plot extends React.Component<Props, State> {
           data={plotData}
           colors={
             this.props.seriesInstanceProps.length
-              ? this.props.seriesInstanceProps.map(series => series.color.hexColor)
+              ? this.props.seriesInstanceProps.map(
+                  series => SeriesColorPalette[series.colorIndex].hexColor
+                )
               : { scheme: "nivo" }
           }
           nodeSize={6}

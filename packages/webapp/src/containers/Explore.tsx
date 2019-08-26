@@ -121,7 +121,7 @@ class Explore extends React.Component<Props, State> {
   private addSeriesInstance = (
     streamName: string,
     startDate: string,
-    colorPaletteIndex: number,
+    colorIndex: number,
     shouldFailSilently: boolean = false
   ) => {
     if (!this.state.availableSeries) {
@@ -148,7 +148,7 @@ class Explore extends React.Component<Props, State> {
     const addedSeriesInstance: SeriesInstanceProps = {
       instanceId,
       seriesIdentifier,
-      color: SeriesColorPalette[colorPaletteIndex % SeriesColorPalette.length],
+      colorIndex: colorIndex % SeriesColorPalette.length,
       startDate,
     };
 

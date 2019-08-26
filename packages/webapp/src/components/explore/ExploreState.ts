@@ -1,5 +1,4 @@
 import { ViewSpan, ViewSpans, Timezone, Timezones } from "./Plot";
-import SeriesColorPalette from "./SeriesColorPalette";
 import SeriesIdentifier from "./SeriesIdentifier";
 import SeriesInstanceProps from "./SeriesInstanceProps";
 
@@ -20,13 +19,9 @@ export function ToSearchParams(state: State): string {
 
   // Per-series instance parameters
   state.seriesInstanceProps.forEach(seriesInstanceProps => {
-    const colorPaletteIndex = SeriesColorPalette.findIndex(
-      color => color.semanticColor === seriesInstanceProps.color.semanticColor
-    );
-
     urlParams[
       "ts." + seriesInstanceProps.seriesIdentifier.streamName
-    ] = `${seriesInstanceProps.startDate}_${colorPaletteIndex}`;
+    ] = `${seriesInstanceProps.startDate}_${seriesInstanceProps.colorIndex}`;
   });
 
   return new URLSearchParams(urlParams).toString();
@@ -39,7 +34,7 @@ export function FromSearchParams(
   onAddSeriesInstance: (
     streamName: string,
     startDate: string,
-    colorPaletteIndex: number,
+    colorIndex: number,
     shouldFailSilently: boolean
   ) => void
 ): void {
@@ -61,12 +56,12 @@ export function FromSearchParams(
     } else if (key.startsWith("ts.")) {
       // Rehydrate series instance
       const streamName = key.substr("ts.".length);
-      const [startDate, colorPaletteIndex] = value.split("_");
+      const [startDate, colorIndex] = value.split("_");
 
       onAddSeriesInstance(
         streamName,
         startDate,
-        parseInt(colorPaletteIndex),
+        parseInt(colorIndex),
         true /* shouldFailSilently */
       );
     }
