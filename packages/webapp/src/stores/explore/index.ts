@@ -4,14 +4,16 @@ import { RootStore } from "../stores";
 
 import SeriesIdentifier from "./SeriesIdentifier";
 import SeriesInstanceProps from "../../components/explore/SeriesInstanceProps";
-import Timezone from "./Timezone";
-import ViewSpan from "./ViewSpan";
+import Timezone, { Timezones } from "./Timezone";
+import ViewSpan, { ViewSpans } from "./ViewSpan";
 
 export class ExploreStore {
   private rootStore: RootStore;
+  private nextSeriesInstanceId: number;
 
   public constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
+    this.nextSeriesInstanceId = 0;
   }
 
   // Timezone
@@ -86,7 +88,54 @@ export class ExploreStore {
     this.seriesInstanceProps.remove(removedSeriesInstanceProps);
   }
 
-  private nextSeriesInstanceId: number = 0;
+  // URL persistence helpers
+  public toURLString() {
+    let urlParams: any = {
+      view: this.viewSpan,
+      tz: this.timezone,
+    };
+
+    // Per-series instance parameters
+    this.seriesInstanceProps.forEach(seriesInstanceProps => {
+      urlParams[
+        "ts." + seriesInstanceProps.seriesIdentifier.streamName
+      ] = `${seriesInstanceProps.startDate}_${seriesInstanceProps.colorIndex}`;
+    });
+
+    return "?" + new URLSearchParams(urlParams).toString();
+  }
+
+  @action
+  public fromURLString(searchString: string) {
+    const urlParams = new URLSearchParams(searchString);
+
+    for (const [key, value] of urlParams.entries()) {
+      if (key === "view") {
+        const viewSpan = ViewSpans.find((viewSpan): boolean => viewSpan === value);
+
+        if (viewSpan) {
+          this.viewSpan = viewSpan;
+        }
+      } else if (key === "tz") {
+        const timezone = Timezones.find((timezone): boolean => timezone === value);
+
+        if (timezone) {
+          this.timezone = timezone;
+        }
+      } else if (key.startsWith("ts.")) {
+        // Rehydrate series instance
+        const streamName = key.substr("ts.".length);
+        const [startDate, colorIndex] = value.split("_");
+
+        this.addSeriesInstance(
+          streamName,
+          startDate,
+          parseInt(colorIndex),
+          true /* shouldFailSilently */
+        );
+      }
+    }
+  }
 }
 
 // Exported by name above for the sake of ../internal.ts,

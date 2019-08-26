@@ -18,18 +18,13 @@ interface Props extends RouteComponentProps {
   exploreStore: ExploreStore;
 }
 
-class State {
-  public constructor() {
-    this.haveParsedURLParams = false;
-    this.lastURLParams = undefined;
-  }
-
-  haveParsedURLParams: boolean;
-  lastURLParams?: string;
-}
+class State {}
 
 @observer
 class Explore extends React.Component<Props, State> {
+  private haveParsedURLParams: boolean = false;
+  private lastURLParams: string = "";
+
   public constructor(props: Props) {
     super(props);
     this.state = new State();
@@ -37,28 +32,32 @@ class Explore extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     // Parse URL params
-    // ExploreState.FromSearchParams(
-    //   this.props.location.search,
-    //   viewSpan => (this.props.store.viewSpan = viewSpan),
-    //   timezone => (this.props.store.timezone = timezone),
-    //   this.addSeriesInstance
-    // );
-    // this.setState({ haveParsedURLParams: true });
+    this.props.exploreStore.fromURLString(this.props.location.search);
+
+    // Update URL as needed
+    const urlParamsString = this.props.exploreStore.toURLString();
+    this.lastURLParams = urlParamsString;
+
+    if (urlParamsString !== this.props.location.search) {
+      this.props.history.replace({ search: urlParamsString });
+    }
+    
+    this.haveParsedURLParams = true;
   }
 
   componentDidUpdate(): void {
-    // if (this.state.haveParsedURLParams) {
-    //   // Consider updating URL search params
-    //   const urlParamsString = ExploreState.ToSearchParams(
-    //     this.props.store.viewSpan,
-    //     this.props.store.timezone,
-    //     this.state.seriesInstanceProps
-    //   );
-    //   if (urlParamsString !== this.state.lastURLParams) {
-    //     this.setState({ lastURLParams: urlParamsString });
-    //     this.props.history.push({ search: "?" + urlParamsString });
-    //   }
-    // }
+    if (this.haveParsedURLParams) {
+      // Update URL as needed
+      const urlParamsString = this.props.exploreStore.toURLString();
+
+      if (urlParamsString !== this.lastURLParams) {
+        this.lastURLParams = urlParamsString;
+
+        if (urlParamsString !== this.props.location.search) {
+          this.props.history.push({ search: urlParamsString });
+        }
+      }
+    }
   }
 
   private handleSeriesInstanceAdded = (
