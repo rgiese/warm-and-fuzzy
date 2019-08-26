@@ -30,6 +30,8 @@ export enum ViewSpan {
   Week = "week",
 }
 
+export const ViewSpans = [ViewSpan.Day, ViewSpan.Week];
+
 export function viewSpanToDays(viewSpan: ViewSpan): number {
   switch (viewSpan) {
     case ViewSpan.Day:
@@ -45,6 +47,8 @@ export enum Timezone {
   Local = "local",
   UTC = "UTC",
 }
+
+export const Timezones = [Timezone.Local, Timezone.UTC];
 
 class SeriesInstanceDataDefinition {
   public constructor(

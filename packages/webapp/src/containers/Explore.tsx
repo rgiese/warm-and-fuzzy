@@ -1,7 +1,9 @@
 import React from "react";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Container, Dropdown, DropdownProps, Message, Segment } from "semantic-ui-react";
 import moment from "moment";
 
+import * as ExploreState from "../components/explore/ExploreState";
 import SeriesColorPalette from "../components/explore/SeriesColorPalette";
 import SeriesIdentifier from "../components/explore/SeriesIdentifier";
 import SeriesInstanceBean from "../components/explore/SeriesInstanceBean";
@@ -9,7 +11,13 @@ import SeriesInstanceProps, {
   SeriesInstanceDateFormat,
 } from "../components/explore/SeriesInstanceProps";
 
-import Plot, { ViewSpan, viewSpanToDays, Timezone } from "../components/explore/Plot";
+import Plot, {
+  ViewSpan,
+  ViewSpans,
+  viewSpanToDays,
+  Timezone,
+  Timezones,
+} from "../components/explore/Plot";
 
 import gql from "graphql-tag";
 import {
@@ -28,15 +36,16 @@ gql`
   }
 `;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props {}
+interface Props extends RouteComponentProps {}
 
-class State {
+class State implements ExploreState.State {
   public constructor() {
     this.viewSpan = ViewSpan.Day;
     this.timezone = Timezone.Local;
 
     this.seriesInstanceProps = [];
+
+    this.haveParsedURLParams = false;
   }
 
   viewSpan: ViewSpan;
@@ -46,6 +55,9 @@ class State {
   seriesInstanceProps: SeriesInstanceProps[];
 
   errors?: string;
+
+  haveParsedURLParams: boolean;
+  lastURLParams?: string;
 }
 
 class Explore extends React.Component<Props, State> {
@@ -59,6 +71,8 @@ class Explore extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     // Obtain thermostat configuration
+    let availableSeries: SeriesIdentifier[];
+
     try {
       const queryResult = await ApolloClient.query<ExploreThermostatConfigurationsQuery, {}>({
         query: ExploreThermostatConfigurationsDocument,
@@ -69,7 +83,7 @@ class Explore extends React.Component<Props, State> {
       } else if (!queryResult.data || !queryResult.data.getThermostatConfigurations) {
         this.setState({ errors: "No data returned" });
       } else {
-        let availableSeries: SeriesIdentifier[] = queryResult.data.getThermostatConfigurations
+        availableSeries = queryResult.data.getThermostatConfigurations
           .map(s => {
             return { id: s.id, name: s.name, streamName: s.streamName };
           })
@@ -80,43 +94,81 @@ class Explore extends React.Component<Props, State> {
     } catch (error) {
       this.setState({ errors: JSON.stringify(error) });
     }
+
+    // Parse URL params
+    ExploreState.FromSearchParams(
+      this.props.location.search,
+      viewSpan => this.setState({ viewSpan }),
+      timezone => this.setState({ timezone }),
+      this.addSeriesInstance
+    );
+
+    this.setState({ haveParsedURLParams: true });
   }
 
-  private handleSeriesInstanceAdded = (
-    _event: React.SyntheticEvent<HTMLElement>,
-    data: DropdownProps
-  ): void => {
+  componentDidUpdate(): void {
+    if (this.state.haveParsedURLParams) {
+      // Consider updating URL search params
+      const urlParamsString = ExploreState.ToSearchParams(this.state);
+
+      if (urlParamsString !== this.state.lastURLParams) {
+        this.setState({ lastURLParams: urlParamsString });
+        this.props.history.push({ search: "?" + urlParamsString });
+      }
+    }
+  }
+
+  private addSeriesInstance = (
+    streamName: string,
+    startDate: string,
+    colorPaletteIndex: number,
+    shouldFailSilently: boolean = false
+  ) => {
     if (!this.state.availableSeries) {
-      throw new Error(`Unexpected: available series should be loaded`);
+      if (!shouldFailSilently) {
+        throw new Error(`Unexpected: available series should be loaded`);
+      }
+      return;
     }
 
     const instanceId = this.nextSeriesInstanceId;
     ++this.nextSeriesInstanceId;
 
-    const streamName = data.value as string; // see Dropdown key definition below
     const seriesIdentifier = this.state.availableSeries.find(
       series => series.streamName === streamName
     );
 
     if (!seriesIdentifier) {
-      throw new Error(`Unexpected: stream ${streamName} should be in available series.`);
+      if (!shouldFailSilently) {
+        throw new Error(`Unexpected: stream ${streamName} should be in available series.`);
+      }
+      return;
     }
-
-    // If we're in something other than Day mode, default the start date to the beginning of the period ending with today
-    const startDate = moment()
-      .subtract(viewSpanToDays(this.state.viewSpan) - 1, "days")
-      .format(SeriesInstanceDateFormat);
 
     const addedSeriesInstance: SeriesInstanceProps = {
       instanceId,
       seriesIdentifier,
-      color: SeriesColorPalette[instanceId % SeriesColorPalette.length],
+      color: SeriesColorPalette[colorPaletteIndex % SeriesColorPalette.length],
       startDate,
     };
 
     this.setState({
       seriesInstanceProps: [...this.state.seriesInstanceProps, addedSeriesInstance],
     });
+  };
+
+  private handleSeriesInstanceAdded = (
+    _event: React.SyntheticEvent<HTMLElement>,
+    data: DropdownProps
+  ): void => {
+    const streamName = data.value as string; // see Dropdown key definition below
+
+    // Default the start date to the beginning of the period ending with today
+    const startDate = moment()
+      .subtract(viewSpanToDays(this.state.viewSpan) - 1, "days")
+      .format(SeriesInstanceDateFormat);
+
+    this.addSeriesInstance(streamName, startDate, this.nextSeriesInstanceId);
   };
 
   private handleSeriesInstanceChanged = (data: SeriesInstanceProps): void => {
@@ -151,7 +203,7 @@ class Explore extends React.Component<Props, State> {
           <Dropdown
             inline
             header="Choose time span"
-            options={[ViewSpan.Day, ViewSpan.Week].map(v => {
+            options={ViewSpans.map(v => {
               return { key: v, value: v, text: v };
             })}
             value={this.state.viewSpan}
@@ -161,7 +213,7 @@ class Explore extends React.Component<Props, State> {
           <Dropdown
             inline
             header="Choose time zone"
-            options={[Timezone.Local, Timezone.UTC].map(tz => {
+            options={Timezones.map(tz => {
               return { key: tz, value: tz, text: tz };
             })}
             value={this.state.timezone}
@@ -214,4 +266,4 @@ class Explore extends React.Component<Props, State> {
   }
 }
 
-export default Explore;
+export default withRouter(Explore);
