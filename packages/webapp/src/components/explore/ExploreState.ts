@@ -1,24 +1,20 @@
-import { ViewSpan, ViewSpans, Timezone, Timezones } from "./Plot";
-import SeriesIdentifier from "./SeriesIdentifier";
 import SeriesInstanceProps from "./SeriesInstanceProps";
+import Timezone, { Timezones } from "../../stores/explore/Timezone";
+import ViewSpan, { ViewSpans } from "../../stores/explore/ViewSpan";
 
-export interface State {
-  viewSpan: ViewSpan;
-  timezone: Timezone;
-
-  availableSeries?: SeriesIdentifier[];
-  seriesInstanceProps: SeriesInstanceProps[];
-}
-
-export function ToSearchParams(state: State): string {
+export function ToSearchParams(
+  viewSpan: ViewSpan,
+  timezone: Timezone,
+  seriesInstanceProps: SeriesInstanceProps[]
+): string {
   // Page-wide parameters
   let urlParams: any = {
-    view: state.viewSpan,
-    tz: state.timezone,
+    view: viewSpan,
+    tz: timezone,
   };
 
   // Per-series instance parameters
-  state.seriesInstanceProps.forEach(seriesInstanceProps => {
+  seriesInstanceProps.forEach(seriesInstanceProps => {
     urlParams[
       "ts." + seriesInstanceProps.seriesIdentifier.streamName
     ] = `${seriesInstanceProps.startDate}_${seriesInstanceProps.colorIndex}`;

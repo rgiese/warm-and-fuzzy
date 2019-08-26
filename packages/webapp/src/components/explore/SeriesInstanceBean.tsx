@@ -5,14 +5,13 @@ import moment from "moment";
 
 import SeriesColorPalette from "./SeriesColorPalette";
 import SeriesInstanceProps, { SeriesInstanceDateFormat } from "./SeriesInstanceProps";
+import ViewSpan from "../../stores/explore/ViewSpan";
+
+import ExploreStore from "../../stores/explore";
 
 interface Props {
+  store: ExploreStore;
   seriesInstanceProps: SeriesInstanceProps;
-
-  onChanged(data: SeriesInstanceProps): void;
-  onRemoved(data: SeriesInstanceProps): void;
-
-  showingSingleDay: boolean;
   padding: number;
 }
 
@@ -43,7 +42,7 @@ class SeriesInstanceBean extends React.Component<Props, State> {
 
   private handleColorChanged = (colorIndex: number): void => {
     this.handleColorPickerClose();
-    this.props.onChanged({ ...this.props.seriesInstanceProps, colorIndex });
+    this.props.store.updateSeriesInstance({ ...this.props.seriesInstanceProps, colorIndex });
   };
 
   private handleDateInputPopupOpen = (): void => {
@@ -55,17 +54,15 @@ class SeriesInstanceBean extends React.Component<Props, State> {
   };
 
   private handleDatePicked = (_event: React.SyntheticEvent<HTMLElement>, data: any): void => {
-    const updatedSeriesInstanceProps: SeriesInstanceProps = {
+    this.setState({ isDatePickerOpen: false });
+    this.props.store.updateSeriesInstance({
       ...this.props.seriesInstanceProps,
       startDate: data.value,
-    };
-
-    this.setState({ isDatePickerOpen: false });
-    this.props.onChanged(updatedSeriesInstanceProps);
+    });
   };
 
   private handleRemoved = (): void => {
-    this.props.onRemoved(this.props.seriesInstanceProps);
+    this.props.store.removeSeriesInstance(this.props.seriesInstanceProps);
   };
 
   public render(): React.ReactElement {
@@ -100,7 +97,7 @@ class SeriesInstanceBean extends React.Component<Props, State> {
                   color={color.semanticColor}
                   style={
                     // Provide subtle highlighting by scale to selected color
-                    index === this.props.seriesInstanceProps.colorIndex
+                    index === this.props.seriesInstanceProps.colorIndex % SeriesColorPalette.length
                       ? { transform: `scale(0.75, 0.75)` }
                       : undefined
                   }
@@ -120,7 +117,7 @@ class SeriesInstanceBean extends React.Component<Props, State> {
             <Button
               style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding }}
               content={
-                (this.props.showingSingleDay ? "on" : "beginning") +
+                (this.props.store.viewSpan === ViewSpan.Day ? "on" : "beginning") +
                 " " +
                 moment(this.props.seriesInstanceProps.startDate).format("ddd ll")
               }

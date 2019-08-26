@@ -1,4 +1,4 @@
-import SeriesIdentifier from "./SeriesIdentifier";
+import SeriesIdentifier from "../../stores/explore/SeriesIdentifier";
 
 export const SeriesInstanceDateFormat = "YYYY-MM-DD"; // ISO 8601 so it auto-parses
 

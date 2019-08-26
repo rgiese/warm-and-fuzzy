@@ -6,8 +6,11 @@ import { AxisProps } from "@nivo/axes";
 import moment from "moment";
 
 import SeriesColorPalette from "./SeriesColorPalette";
-import SeriesInstanceProps from "./SeriesInstanceProps";
 import PlotTooltip from "./PlotTooltip";
+import Timezone from "../../stores/explore/Timezone";
+import ViewSpan, { viewSpanToDays } from "../../stores/explore/ViewSpan";
+
+import ExploreStore from "../../stores/explore";
 
 import gql from "graphql-tag";
 import {
@@ -25,31 +28,6 @@ gql`
     }
   }
 `;
-
-export enum ViewSpan {
-  Day = "day",
-  Week = "week",
-}
-
-export const ViewSpans = [ViewSpan.Day, ViewSpan.Week];
-
-export function viewSpanToDays(viewSpan: ViewSpan): number {
-  switch (viewSpan) {
-    case ViewSpan.Day:
-      return 1;
-    case ViewSpan.Week:
-      return 7;
-    default:
-      throw new Error(`Unexpected ViewSpan ${viewSpan}`);
-  }
-}
-
-export enum Timezone {
-  Local = "local",
-  UTC = "UTC",
-}
-
-export const Timezones = [Timezone.Local, Timezone.UTC];
 
 class SeriesInstanceDataDefinition {
   public constructor(
@@ -92,9 +70,7 @@ interface SeriesInstanceData {
 }
 
 interface Props {
-  seriesInstanceProps: SeriesInstanceProps[];
-  viewSpan: ViewSpan;
-  timezone: Timezone;
+  store: ExploreStore;
 }
 
 class State {
@@ -122,13 +98,13 @@ class Plot extends React.Component<Props, State> {
     //
 
     // Build definitions for the data we'd like to have
-    const seriesInstanceDataDefinitions = props.seriesInstanceProps.map(
+    const seriesInstanceDataDefinitions = props.store.seriesInstanceProps.map(
       series =>
         new SeriesInstanceDataDefinition(
           series.seriesIdentifier.streamName,
           series.startDate,
-          props.viewSpan,
-          props.timezone
+          props.store.viewSpan,
+          props.store.timezone
         )
     );
 
@@ -180,14 +156,16 @@ class Plot extends React.Component<Props, State> {
 
           try {
             const startDate =
-              this.props.timezone === Timezone.Local
+              this.props.store.timezone === Timezone.Local
                 ? moment(seriesInstanceData.definition.startDate)
                 : moment.utc(seriesInstanceData.definition.startDate);
 
             let fromMoment = moment(startDate).startOf("day");
 
             const fromDate = fromMoment.toDate();
-            const toDate = fromMoment.add(viewSpanToDays(this.props.viewSpan), "day").toDate();
+            const toDate = fromMoment
+              .add(viewSpanToDays(this.props.store.viewSpan), "day")
+              .toDate();
 
             console.log(
               `Fetching series instance ${seriesInstanceData.definition.toString()}: ${fromDate.toISOString()} - ${toDate.toISOString()}`
@@ -254,13 +232,13 @@ class Plot extends React.Component<Props, State> {
     let plotMin = 16;
     let plotMax = 36;
 
-    const plotData: Serie[] = this.props.seriesInstanceProps.map(
+    const plotData: Serie[] = this.props.store.seriesInstanceProps.map(
       (seriesInstanceProps): Serie => {
         const dataDefinition = new SeriesInstanceDataDefinition(
           seriesInstanceProps.seriesIdentifier.streamName,
           seriesInstanceProps.startDate,
-          this.props.viewSpan,
-          this.props.timezone
+          this.props.store.viewSpan,
+          this.props.store.timezone
         );
         const dataSeriesInstance = this.state.data.find(
           data => data.data && !data.errors && data.definition.equals(dataDefinition)
@@ -307,7 +285,7 @@ class Plot extends React.Component<Props, State> {
 
     const xAxis: AxisProps = {
       format: timeFormat,
-      tickValues: `every ${this.props.viewSpan === ViewSpan.Day ? 2 : 12} hours`,
+      tickValues: `every ${this.props.store.viewSpan === ViewSpan.Day ? 2 : 12} hours`,
     };
 
     const yScale: LinearScale = {
@@ -315,6 +293,10 @@ class Plot extends React.Component<Props, State> {
       min: plotMin,
       max: plotMax,
     };
+
+    const colors: string[] = this.props.store.seriesInstanceProps.map(
+      series => SeriesColorPalette[series.colorIndex % SeriesColorPalette.length].hexColor
+    );
 
     return (
       <Dimmer.Dimmable blurring style={{ width: "100%", height: "100%" }}>
@@ -326,13 +308,7 @@ class Plot extends React.Component<Props, State> {
         )}
         <ResponsiveScatterPlotCanvas
           data={plotData}
-          colors={
-            this.props.seriesInstanceProps.length
-              ? this.props.seriesInstanceProps.map(
-                  series => SeriesColorPalette[series.colorIndex].hexColor
-                )
-              : { scheme: "nivo" }
-          }
+          colors={colors}
           nodeSize={6}
           // margin is required to show axis labels and legend
           margin={{ top: 10, right: 240, bottom: 70, left: 90 }}
