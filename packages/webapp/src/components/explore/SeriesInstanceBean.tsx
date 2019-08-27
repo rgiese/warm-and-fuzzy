@@ -4,7 +4,9 @@ import { DateInput } from "semantic-ui-calendar-react";
 import moment from "moment";
 
 import SeriesColorPalette from "./SeriesColorPalette";
-import SeriesInstanceProps, { SeriesInstanceDateFormat } from "./SeriesInstanceProps";
+import SeriesInstanceProps, {
+  SeriesInstanceDateFormat,
+} from "../../stores/explore/SeriesInstanceProps";
 import ViewSpan from "../../stores/explore/ViewSpan";
 
 import { ExploreStore } from "../../stores/stores";

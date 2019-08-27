@@ -3,7 +3,7 @@ import { action, observable } from "mobx";
 import { RootStore } from "../stores";
 
 import SeriesIdentifier from "./SeriesIdentifier";
-import SeriesInstanceProps from "../../components/explore/SeriesInstanceProps";
+import SeriesInstanceProps from "./SeriesInstanceProps";
 import Timezone, { Timezones } from "./Timezone";
 import ViewSpan, { ViewSpans } from "./ViewSpan";
 

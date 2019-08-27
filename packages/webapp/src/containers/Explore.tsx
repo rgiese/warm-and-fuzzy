@@ -6,7 +6,7 @@ import moment from "moment";
 
 import Plot from "../components/explore/Plot";
 import SeriesInstanceBean from "../components/explore/SeriesInstanceBean";
-import { SeriesInstanceDateFormat } from "../components/explore/SeriesInstanceProps";
+import { SeriesInstanceDateFormat } from "../stores/explore/SeriesInstanceProps";
 import Timezone, { Timezones } from "../stores/explore/Timezone";
 import ViewSpan, { ViewSpans, viewSpanToDays } from "../stores/explore/ViewSpan";
 
