@@ -3,6 +3,7 @@ import { Route, Router, Switch } from "react-router-dom";
 import { Container } from "semantic-ui-react";
 
 import { ApolloProvider } from "react-apollo";
+import { configure } from "mobx";
 
 import AuthStateProps from "./common/AuthStateProps";
 
@@ -15,11 +16,21 @@ import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 import AuthCallback from "./containers/AuthCallback";
 import Configuration from "./containers/Configuration";
+import Explore from "./containers/Explore";
 import Home from "./containers/Home";
 import NotFound from "./containers/NotFound";
 
 import Header from "./containers/Header";
 import Footer from "./containers/Footer";
+
+import { RootStore, ExploreStore, ExplorePlotDataStore } from "./stores/stores";
+
+// App-wide MobX configuration
+configure({ enforceActions: "observed" });
+
+const rootStore = new RootStore();
+const exploreStore = new ExploreStore(rootStore); // for the top-level Explore page
+const explorePlotDataStore = new ExplorePlotDataStore(exploreStore);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}
@@ -75,6 +86,12 @@ class App extends React.Component<Props, State> {
                 exact
                 component={Configuration}
                 props={childProps}
+              />
+              <AuthenticatedRoute
+                path="/explore"
+                exact
+                component={Explore}
+                props={{ ...childProps, rootStore, exploreStore, explorePlotDataStore }}
               />
               {/* Finally, catch all unmatched routes */}
               <Route component={NotFound} />

@@ -49,6 +49,9 @@ class Header extends React.Component<Props, State> {
         {permissions.includes(Authorization.Permissions.ReadConfig) && (
           <Menu.Item as={NavLink} to="/configuration" content="Configuration" />
         )}
+        {permissions.includes(Authorization.Permissions.ReadData) && (
+          <Menu.Item as={NavLink} to="/explore" content="Explore" />
+        )}
         <Menu.Menu position="right">
           {!Config.isProduction && <Menu.Item header>Stage: {ConfigStageName}</Menu.Item>}
           {!this.props.isAuthenticated ? (

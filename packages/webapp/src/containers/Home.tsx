@@ -38,11 +38,7 @@ class Home extends React.Component<Props, State> {
   }
 
   public render(): React.ReactElement {
-    return (
-      <div className="pv4">
-        {this.props.isAuthenticated ? this.renderContent() : this.renderLander()}
-      </div>
-    );
+    return <div>{this.props.isAuthenticated ? this.renderContent() : this.renderLander()}</div>;
   }
 }
 

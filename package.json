@@ -10,7 +10,7 @@
   "author": "robin@grumpycorp.com",
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --stream",
+    "build": "lerna run --concurrency 1 build --stream",
     "build:shared": "lerna run build --scope \"@grumpycorp/warm-and-fuzzy-shared*\" --stream",
     "decrypt-secrets": "lerna run decrypt-secrets --parallel",
     "encrypt-secrets": "lerna run encrypt-secrets --parallel",
