@@ -31,14 +31,17 @@ export class ExplorePlotDataStore {
     this.exploreStore = exploreStore;
 
     reaction(
-        () => this.seriesInstanceDataDefinitions.map(d => d),
-        seriesInstanceDataDefinitions => {
-            this.fetchSeriesInstanceData(seriesInstanceDataDefinitions);
+      () => this.seriesInstanceDataDefinitions.map(d => d),
+      seriesInstanceDataDefinitions => {
+        this.fetchSeriesInstanceData(seriesInstanceDataDefinitions);
       }
     );
   }
 
+  //
   // SeriesInstanceDataDefinitions
+  //
+
   @computed get seriesInstanceDataDefinitions(): SeriesInstanceDataDefinition[] {
     return this.exploreStore.seriesInstanceProps.map(
       seriesInstance =>
@@ -51,19 +54,47 @@ export class ExplorePlotDataStore {
     );
   }
 
+  //
   // SeriesInstanceData
-  readonly seriesInstanceDatas = observable.array<SeriesInstanceData>([]);
+  //
+
+  readonly seriesInstanceDatas = observable.map<string, SeriesInstanceData>();
 
   @action
   async fetchSeriesInstanceData(seriesInstanceDataDefinitions: SeriesInstanceDataDefinition[]) {
     if (seriesInstanceDataDefinitions.length === 0) {
-      this.seriesInstanceDatas.replace([]);
+      this.seriesInstanceDatas.clear();
       return;
     }
 
-    const seriesInstanceDatas = await Promise.all(
-      seriesInstanceDataDefinitions.map(
-        async (definition): Promise<SeriesInstanceData> => {
+    // Retire data that's no longer required
+    const requiredDataDefinitionStrings = seriesInstanceDataDefinitions.map(def => def.toString());
+    const existingDataDefinitionStrings = Array.from(this.seriesInstanceDatas.keys());
+
+    existingDataDefinitionStrings.forEach(existingDataDefinitionString => {
+      if (!requiredDataDefinitionStrings.includes(existingDataDefinitionString)) {
+        this.seriesInstanceDatas.delete(existingDataDefinitionString);
+      }
+    });
+
+    // Determine what we need to fetch
+    const unfetchedDataDefinitionStrings = requiredDataDefinitionStrings.filter(
+      requiredDataDefinitionString =>
+        !existingDataDefinitionStrings.includes(requiredDataDefinitionString)
+    );
+
+    // Fetch data
+    const fetchedSeriesInstanceDatas = await Promise.all(
+      unfetchedDataDefinitionStrings.map(
+        async (definitionString): Promise<SeriesInstanceData> => {
+          const definition = seriesInstanceDataDefinitions.find(
+            def => def.toString() === definitionString
+          );
+
+          if (!definition) {
+            throw new Error("Expected to find definition.");
+          }
+
           let data;
           let errors;
           let min: number | undefined;
@@ -130,8 +161,14 @@ export class ExplorePlotDataStore {
       )
     );
 
+    // Commit fetched data
     runInAction(() => {
-      this.seriesInstanceDatas.replace(seriesInstanceDatas);
+      this.seriesInstanceDatas.merge(
+        fetchedSeriesInstanceDatas.map(seriesInstanceData => [
+          seriesInstanceData.definition.toString(),
+          seriesInstanceData,
+        ])
+      );
     });
   }
 }

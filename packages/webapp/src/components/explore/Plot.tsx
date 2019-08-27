@@ -27,6 +27,9 @@ const Plot: React.FunctionComponent<Props> = observer(
     let plotMin = 16;
     let plotMax = 36;
 
+    let isLoading = false;
+    let errors: string[] = [];
+
     const plotData: Serie[] = exploreStore.seriesInstanceProps.map(
       (seriesInstanceProps): Serie => {
         const dataDefinition = new SeriesInstanceDataDefinition(
@@ -36,9 +39,17 @@ const Plot: React.FunctionComponent<Props> = observer(
           exploreStore.timezone
         );
 
-        const dataSeriesInstance = explorePlotDataStore.seriesInstanceDatas.find(
-          data => data.definition.equals(dataDefinition) && data.data && !data.errors
+        const dataSeriesInstance = explorePlotDataStore.seriesInstanceDatas.get(
+          dataDefinition.toString()
         );
+
+        // begin side effects
+        if (!dataSeriesInstance) {
+          isLoading = true;
+        } else if (dataSeriesInstance.errors) {
+          errors.push(dataSeriesInstance.errors)
+        }
+        // end side effects
 
         const id =
           seriesInstanceProps.seriesIdentifier.name + ` (${seriesInstanceProps.startDate})`;
@@ -58,15 +69,6 @@ const Plot: React.FunctionComponent<Props> = observer(
         };
       }
     );
-
-    const errors = explorePlotDataStore.seriesInstanceDatas
-      .map(seriesInstanceData => seriesInstanceData.errors)
-      .filter(error => error !== undefined);
-
-    const isLoading =
-      explorePlotDataStore.seriesInstanceDatas
-        .map(seriesInstanceData => !seriesInstanceData.data && !seriesInstanceData.errors)
-        .find(isLoading => isLoading) || false;
 
     // Time format strings via https://github.com/d3/d3-time-format
     const timeFormat = "%H:%M";
