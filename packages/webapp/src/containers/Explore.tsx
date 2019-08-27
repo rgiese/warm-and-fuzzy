@@ -107,7 +107,7 @@ class Explore extends React.Component<Props, State> {
           />
           time.
         </Segment>
-        <Container style={{ height: "40em" /* TODO: flexbox this */ }}>
+        <Container style={{ height: "60vh" }}>
           <Plot
             exploreStore={exploreStore}
             explorePlotDataStore={this.props.explorePlotDataStore}
