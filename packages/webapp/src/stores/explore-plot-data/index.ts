@@ -1,4 +1,4 @@
-import { autorun, computed, observable, action, runInAction } from "mobx";
+import { observable, computed, action, reaction, runInAction } from "mobx";
 import moment from "moment";
 
 import { ExploreStore } from "../stores";
@@ -30,15 +30,12 @@ export class ExplorePlotDataStore {
   constructor(exploreStore: ExploreStore) {
     this.exploreStore = exploreStore;
 
-    autorun(() => {
-      // Automatically re-fetch data if the data definitions change.
-      // MobX doesn't track inside the async function we're calling
-      // so we need to reference an observable property here so it _can_ get tracked.
-      const dataLength = this.seriesInstanceDataDefinitions.length;
-      if (dataLength > -1) {
-        this.fetchSeriesInstanceData();
+    reaction(
+        () => this.seriesInstanceDataDefinitions.map(d => d),
+        seriesInstanceDataDefinitions => {
+            this.fetchSeriesInstanceData(seriesInstanceDataDefinitions);
       }
-    });
+    );
   }
 
   // SeriesInstanceDataDefinitions
@@ -58,9 +55,7 @@ export class ExplorePlotDataStore {
   readonly seriesInstanceDatas = observable.array<SeriesInstanceData>([]);
 
   @action
-  async fetchSeriesInstanceData() {
-    const seriesInstanceDataDefinitions = this.seriesInstanceDataDefinitions;
-
+  async fetchSeriesInstanceData(seriesInstanceDataDefinitions: SeriesInstanceDataDefinition[]) {
     if (seriesInstanceDataDefinitions.length === 0) {
       this.seriesInstanceDatas.replace([]);
       return;
@@ -84,10 +79,6 @@ export class ExplorePlotDataStore {
 
             const fromDate = fromMoment.toDate();
             const toDate = fromMoment.add(viewSpanToDays(definition.viewSpan), "day").toDate();
-
-            console.log(
-              `Fetching series instance ${definition.toString()}: ${fromDate.toISOString()} - ${toDate.toISOString()}`
-            );
 
             const queryResult = await ApolloClient.query<PlotSeriesQuery, PlotSeriesQueryVariables>(
               {
@@ -128,7 +119,7 @@ export class ExplorePlotDataStore {
                 return { x: deviceTime_RelativeToStartTime_TimezoneAdjusted, y: value.temperature };
               });
 
-              console.log(`Fetched ${data.length} datapoints`);
+              console.log(`Fetched ${data.length} datapoints for ${definition.toString()}`);
             }
           } catch (error) {
             errors = JSON.stringify(error);
