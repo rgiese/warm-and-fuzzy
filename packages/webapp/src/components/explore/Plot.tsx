@@ -47,7 +47,7 @@ const Plot: React.FunctionComponent<Props> = observer(
         if (!dataSeriesInstance) {
           isLoading = true;
         } else if (dataSeriesInstance.errors) {
-          errors.push(dataSeriesInstance.errors)
+          errors.push(dataSeriesInstance.errors);
         }
         // end side effects
 
