@@ -137,7 +137,3 @@ export class ExploreStore {
     }
   }
 }
-
-// Exported by name above for the sake of ../internal.ts,
-// exporting as default here for the sake of direct dependencies.
-export default ExploreStore;

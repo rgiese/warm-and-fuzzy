@@ -1,247 +1,43 @@
 import React from "react";
 import { Dimmer, Loader, Message } from "semantic-ui-react";
-import { ResponsiveScatterPlotCanvas, Scale, Serie, Datum } from "@nivo/scatterplot";
+import { observer } from "mobx-react";
+
+import { ResponsiveScatterPlotCanvas, Scale, Serie } from "@nivo/scatterplot";
 import { LinearScale, TimeScale } from "@nivo/scales";
 import { AxisProps } from "@nivo/axes";
-import moment from "moment";
 
 import SeriesColorPalette from "./SeriesColorPalette";
 import PlotTooltip from "./PlotTooltip";
-import Timezone from "../../stores/explore/Timezone";
-import ViewSpan, { viewSpanToDays } from "../../stores/explore/ViewSpan";
+import ViewSpan from "../../stores/explore/ViewSpan";
 
-import ExploreStore from "../../stores/explore";
-
-import gql from "graphql-tag";
-import {
-  PlotSeriesDocument,
-  PlotSeriesQuery,
-  PlotSeriesQueryVariables,
-} from "../../generated/graphqlClient";
-import ApolloClient from "../../services/ApolloClient";
-
-gql`
-  query PlotSeries($streamName: String!, $fromDate: DateTime!, $toDate: DateTime!) {
-    getThermostatValueStreams(streamName: $streamName, fromDate: $fromDate, toDate: $toDate) {
-      deviceTime
-      temperature
-    }
-  }
-`;
-
-class SeriesInstanceDataDefinition {
-  public constructor(
-    streamName: string,
-    startDate: string,
-    viewSpan: ViewSpan,
-    timezone: Timezone
-  ) {
-    this.streamName = streamName;
-    this.startDate = startDate;
-    this.viewSpan = viewSpan;
-    this.timezone = timezone;
-  }
-
-  streamName: string;
-  startDate: string;
-  viewSpan: ViewSpan;
-  timezone: Timezone;
-
-  public toString(): string {
-    return `${this.streamName}@${this.startDate}.${this.timezone}.${this.viewSpan}`;
-  }
-
-  public equals(rhs: SeriesInstanceDataDefinition): boolean {
-    return (
-      this.streamName === rhs.streamName &&
-      this.startDate === rhs.startDate &&
-      this.viewSpan === rhs.viewSpan &&
-      this.timezone === rhs.timezone
-    );
-  }
-}
-
-interface SeriesInstanceData {
-  definition: SeriesInstanceDataDefinition;
-  data?: Datum[];
-  errors?: string;
-  min?: number;
-  max?: number;
-}
+import { ExploreStore, ExplorePlotDataStore } from "../../stores/stores";
+import SeriesInstanceDataDefinition from "../../stores/explore-plot-data/SeriesInstanceDataDefinition";
 
 interface Props {
-  store: ExploreStore;
+  exploreStore: ExploreStore;
+  explorePlotDataStore: ExplorePlotDataStore;
 }
 
-class State {
-  public constructor() {
-    this.data = [];
-  }
+const Plot: React.FunctionComponent<Props> = observer(
+  (props): React.ReactElement => {
+    const exploreStore = props.exploreStore;
+    const explorePlotDataStore = props.explorePlotDataStore;
 
-  data: SeriesInstanceData[];
-}
-
-class Plot extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
-    this.state = new State();
-  }
-
-  static getDerivedStateFromProps(props: Props, state: State): State | null {
-    //
-    // In `State`, relative to `seriesInstanceDataHandles`, elements in `data[]` may be:
-    // - Extraneous -> remove them
-    // - Present -> keep them, since...
-    //   - without data available -> it's likely still being fetched, let that complete asynchronously -> keep them
-    //   - with data available -> keep them
-    // - Missing (we haven't fetched them before) -> add them
-    //
-
-    // Build definitions for the data we'd like to have
-    const seriesInstanceDataDefinitions = props.store.seriesInstanceProps.map(
-      series =>
-        new SeriesInstanceDataDefinition(
-          series.seriesIdentifier.streamName,
-          series.startDate,
-          props.store.viewSpan,
-          props.store.timezone
-        )
-    );
-
-    // Transform those into strings for lookup purposes
-    const seriesInstanceDataDefinitionsLookup = seriesInstanceDataDefinitions.map(def =>
-      def.toString()
-    );
-
-    // Keep only the data we still want
-    const remainingData = state.data.filter(data =>
-      seriesInstanceDataDefinitionsLookup.includes(data.definition.toString())
-    );
-
-    // Transform definitions of remaining data into strings for lookup purposes
-    const remainingDataDefinitionsLookup = remainingData.map(data => data.definition.toString());
-
-    // Add additional data to be fetched
-    const dataToFetch = seriesInstanceDataDefinitions
-      .filter(def => !remainingDataDefinitionsLookup.includes(def.toString()))
-      .map(
-        (def): SeriesInstanceData => {
-          return { definition: def };
-        }
-      );
-
-    const data = remainingData.concat(dataToFetch);
-
-    const haveRemovedData = remainingData.length !== state.data.length;
-    const haveAddedData = dataToFetch.length > 0;
-
-    return haveRemovedData || haveAddedData ? { data } : null;
-  }
-
-  async componentDidUpdate(): Promise<void> {
-    let haveUpdated = false;
-
-    const data = await Promise.all(
-      this.state.data.map(
-        async (seriesInstanceData): Promise<SeriesInstanceData> => {
-          if (seriesInstanceData.data || seriesInstanceData.errors) {
-            // No updates needed
-            return seriesInstanceData;
-          }
-
-          let data;
-          let errors;
-          let min: number | undefined;
-          let max: number | undefined;
-
-          try {
-            const startDate =
-              this.props.store.timezone === Timezone.Local
-                ? moment(seriesInstanceData.definition.startDate)
-                : moment.utc(seriesInstanceData.definition.startDate);
-
-            let fromMoment = moment(startDate).startOf("day");
-
-            const fromDate = fromMoment.toDate();
-            const toDate = fromMoment
-              .add(viewSpanToDays(this.props.store.viewSpan), "day")
-              .toDate();
-
-            console.log(
-              `Fetching series instance ${seriesInstanceData.definition.toString()}: ${fromDate.toISOString()} - ${toDate.toISOString()}`
-            );
-
-            const queryResult = await ApolloClient.query<PlotSeriesQuery, PlotSeriesQueryVariables>(
-              {
-                query: PlotSeriesDocument,
-                variables: {
-                  streamName: seriesInstanceData.definition.streamName,
-                  fromDate,
-                  toDate,
-                },
-              }
-            );
-
-            if (queryResult.errors) {
-              errors = JSON.stringify(queryResult.errors);
-            } else if (!queryResult.data || !queryResult.data.getThermostatValueStreams) {
-              errors = "No data returned";
-            } else {
-              const startOfToday = moment()
-                .startOf("day")
-                .valueOf();
-
-              data = queryResult.data.getThermostatValueStreams.map(value => {
-                // Parse text timestamp returned by GraphQL
-                const deviceTime = new Date(value.deviceTime);
-
-                // Determine relative time to start time (since series may have different start days)
-                const deviceTime_RelativeToStartTime = deviceTime.getTime() - fromDate.getTime();
-
-                // Shift interval relative to a semi-arbitrary start day (today) so that Nivo uses today's timezone for display
-                // (will cause issues if there's a change in timezones during a multi-day view - alas.)
-                const deviceTime_RelativeToStartTime_TimezoneAdjusted =
-                  deviceTime_RelativeToStartTime + startOfToday;
-
-                // Memoize series min/max Y values
-                min = min ? Math.min(min, value.temperature) : value.temperature;
-                max = max ? Math.max(max, value.temperature) : value.temperature;
-
-                return { x: deviceTime_RelativeToStartTime_TimezoneAdjusted, y: value.temperature };
-              });
-
-              console.log(`Fetched ${data.length} datapoints`);
-            }
-          } catch (error) {
-            errors = JSON.stringify(error);
-          }
-
-          haveUpdated = true;
-          return { ...seriesInstanceData, data, errors, min, max };
-        }
-      )
-    );
-
-    if (haveUpdated) {
-      this.setState({ data });
-    }
-  }
-
-  public render() {
     // Pick reasonable Y-axis defaults considering interior temperature ranges
     let plotMin = 16;
     let plotMax = 36;
 
-    const plotData: Serie[] = this.props.store.seriesInstanceProps.map(
+    const plotData: Serie[] = exploreStore.seriesInstanceProps.map(
       (seriesInstanceProps): Serie => {
         const dataDefinition = new SeriesInstanceDataDefinition(
           seriesInstanceProps.seriesIdentifier.streamName,
           seriesInstanceProps.startDate,
-          this.props.store.viewSpan,
-          this.props.store.timezone
+          exploreStore.viewSpan,
+          exploreStore.timezone
         );
-        const dataSeriesInstance = this.state.data.find(
-          data => data.data && !data.errors && data.definition.equals(dataDefinition)
+
+        const dataSeriesInstance = explorePlotDataStore.seriesInstanceDatas.find(
+          data => data.definition.equals(dataDefinition) && data.data && !data.errors
         );
 
         const id =
@@ -263,12 +59,12 @@ class Plot extends React.Component<Props, State> {
       }
     );
 
-    const errors = this.state.data
+    const errors = explorePlotDataStore.seriesInstanceDatas
       .map(seriesInstanceData => seriesInstanceData.errors)
       .filter(error => error !== undefined);
 
     const isLoading =
-      this.state.data
+      explorePlotDataStore.seriesInstanceDatas
         .map(seriesInstanceData => !seriesInstanceData.data && !seriesInstanceData.errors)
         .find(isLoading => isLoading) || false;
 
@@ -285,7 +81,7 @@ class Plot extends React.Component<Props, State> {
 
     const xAxis: AxisProps = {
       format: timeFormat,
-      tickValues: `every ${this.props.store.viewSpan === ViewSpan.Day ? 2 : 12} hours`,
+      tickValues: `every ${exploreStore.viewSpan === ViewSpan.Day ? 2 : 12} hours`,
     };
 
     const yScale: LinearScale = {
@@ -294,7 +90,7 @@ class Plot extends React.Component<Props, State> {
       max: plotMax,
     };
 
-    const colors: string[] = this.props.store.seriesInstanceProps.map(
+    const colors: string[] = exploreStore.seriesInstanceProps.map(
       series => SeriesColorPalette[series.colorIndex % SeriesColorPalette.length].hexColor
     );
 
@@ -357,6 +153,6 @@ class Plot extends React.Component<Props, State> {
       </Dimmer.Dimmable>
     );
   }
-}
+);
 
 export default Plot;

@@ -10,12 +10,12 @@ import { SeriesInstanceDateFormat } from "../components/explore/SeriesInstancePr
 import Timezone, { Timezones } from "../stores/explore/Timezone";
 import ViewSpan, { ViewSpans, viewSpanToDays } from "../stores/explore/ViewSpan";
 
-import RootStore from "../stores";
-import ExploreStore from "../stores/explore";
+import { RootStore, ExploreStore, ExplorePlotDataStore } from "../stores/stores";
 
 interface Props extends RouteComponentProps {
   rootStore: RootStore;
   exploreStore: ExploreStore;
+  explorePlotDataStore: ExplorePlotDataStore;
 }
 
 class State {}
@@ -41,7 +41,7 @@ class Explore extends React.Component<Props, State> {
     if (urlParamsString !== this.props.location.search) {
       this.props.history.replace({ search: urlParamsString });
     }
-    
+
     this.haveParsedURLParams = true;
   }
 
@@ -108,7 +108,10 @@ class Explore extends React.Component<Props, State> {
           time.
         </Segment>
         <Container style={{ height: "40em" /* TODO: flexbox this */ }}>
-          <Plot store={exploreStore} />
+          <Plot
+            exploreStore={exploreStore}
+            explorePlotDataStore={this.props.explorePlotDataStore}
+          />
         </Container>
         <Container>
           {/* Series instance beans */}

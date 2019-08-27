@@ -7,7 +7,7 @@ import SeriesColorPalette from "./SeriesColorPalette";
 import SeriesInstanceProps, { SeriesInstanceDateFormat } from "./SeriesInstanceProps";
 import ViewSpan from "../../stores/explore/ViewSpan";
 
-import ExploreStore from "../../stores/explore";
+import { ExploreStore } from "../../stores/stores";
 
 interface Props {
   store: ExploreStore;
