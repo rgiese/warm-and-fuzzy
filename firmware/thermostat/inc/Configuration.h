@@ -6,6 +6,8 @@
 #define ARDUINOJSON_ENABLE_PROGMEM 0
 #include <ArduinoJson.h>
 
+#include "../onewire/OneWireAddress.h"
+
 //
 // A note on EEPROM emulation on Particle devices:
 // (c.f. https://github.com/particle-iot/device-os/blob/develop/services/inc/eeprom_emulation.h)
@@ -169,6 +171,16 @@ public:
                                                                                \
     Target = variant.as<decltype(Target)>();
 
+#define GET_OPTIONAL_JSON_STRING(MemberName, Target)                                                      \
+    Target = nullptr;                                                                                     \
+    JsonVariant variant = jsonDocument.getMember(MemberName);                                             \
+                                                                                                          \
+    if (!variant.isNull() && variant.is<decltype(Target)>() && variant.as<decltype(Target)>()[0] != '\0') \
+    {                                                                                                     \
+        Target = variant.as<decltype(Target)>();                                                          \
+    }
+
+
         float setPointHeat;
         {
             GET_JSON_VALUE("sh", setPointHeat);
@@ -202,6 +214,22 @@ public:
             }
         }
 
+        OneWireAddress externalSensorId;
+        {
+            char const* szExternalSensorId = NULL;
+            {
+                GET_OPTIONAL_JSON_STRING("xs", szExternalSensorId);
+            }
+
+            if (szExternalSensorId)
+            {
+                if (!externalSensorId.FromString(szExternalSensorId))
+                {
+                    return onInvalidConfig("'xs' is malformed OneWire address", szData);
+                }
+            }
+        }
+
 #undef GET_JSON_VALUE
 
         // Commit values
@@ -215,6 +243,7 @@ public:
             Threshold(threshold);
             Cadence(cadence);
             AllowedActions(allowedActions);
+            ExternalSensorId(externalSensorId);
 
             bool const fIsDirty = IsDirty();
 
@@ -231,16 +260,20 @@ public:
     {
         LockGuard autoLock(m_Mutex);
 
+        char szExternalSensorId[OneWireAddress::sc_cchAsHexString_WithTerminator];
+        ExternalSensorId().ToString(szExternalSensorId);
+
         Serial.printlnf(
             "SetPoints = %.1f C (heat) / %.1f C (cool), Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = "
-            "[%c%c%c]",
+            "[%c%c%c], ExternalSensorId = %s",
             SetPointHeat(),
             SetPointCool(),
             Threshold(),
             Cadence(),
             AllowedActions().Heat ? 'H' : '_',
             AllowedActions().Cool ? 'C' : '_',
-            AllowedActions().Circulate ? 'R' : '_');
+            AllowedActions().Circulate ? 'R' : '_',
+            szExternalSensorId);
     }
 
 private:
@@ -258,7 +291,7 @@ private:
         }
 
         static constexpr uint16_t sc_Signature = 0x8233;
-        static constexpr uint16_t sc_CurrentVersion = 1;
+        static constexpr uint16_t sc_CurrentVersion = 2;
     };
 
     struct ConfigurationData
@@ -302,6 +335,12 @@ private:
          */
         Thermostat::Actions AllowedActions;
 
+        /**
+         * @name ExternalSensorId
+         * External sensor ID (if provided, prefer this over onboard sensor) [OneWire 64-bit hex ID]
+         */
+        OneWireAddress ExternalSensorId;
+
         ConfigurationData()
             : Header()
             , SetPointHeat()
@@ -309,6 +348,7 @@ private:
             , Threshold()
             , Cadence()
             , AllowedActions()
+            , ExternalSensorId()
         {
         }
     };
@@ -321,7 +361,7 @@ private:
     }                                                                       \
                                                                             \
     decltype(Configuration::ConfigurationData::FieldName) FieldName(        \
-        decltype(Configuration::ConfigurationData::FieldName) value)        \
+        decltype(Configuration::ConfigurationData::FieldName) const& value) \
     {                                                                       \
         if (!m_fIsReadOnly)                                                 \
         {                                                                   \
@@ -346,6 +386,7 @@ public:
     WAF_GENERATE_CONFIGURATION_ACCESSOR(Threshold);
     WAF_GENERATE_CONFIGURATION_ACCESSOR(Cadence);
     WAF_GENERATE_CONFIGURATION_ACCESSOR(AllowedActions);
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(ExternalSensorId);
 
 private:
 #undef WAF_GENERATE_CONFIGURATION_ACCESSOR
@@ -374,6 +415,7 @@ private:
         Threshold(1.0f);
         Cadence(60);
         AllowedActions(Thermostat::Actions());
+        ExternalSensorId(OneWireAddress());
 
         m_fIsDirty = true;
     }
@@ -401,6 +443,11 @@ private:
     Thermostat::Actions clampAllowedActions(Thermostat::Actions const& value) const
     {
         return value.Clamp();
+    }
+
+    OneWireAddress const& clampExternalSensorId(OneWireAddress const& value) const
+    {
+        return value;
     }
 
 private:

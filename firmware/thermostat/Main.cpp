@@ -19,7 +19,7 @@
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(10);  // Increment for each release
+PRODUCT_VERSION(11);  // Increment for each release
 
 
 //
@@ -186,10 +186,50 @@ void loop()
     Configuration const snappedConfiguration(g_Configuration);
 
     //
+    // Apply configuration
+    //
+
+    // Override onboard temperature if requested and available
+    float operableTemperature = onboardTemperature;
+    bool fUsedExternalSensor = false;
+
+    if (!snappedConfiguration.ExternalSensorId().IsEmpty())
+    {
+        OneWireAddress const& externalSensorId = snappedConfiguration.ExternalSensorId();
+
+        for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
+        {
+            // Find sensor by address
+            if (rgAddresses[idxAddress] != externalSensorId)
+            {
+                continue;
+            }
+
+            // Make sure it has a reported value
+            if (isnan(rgExternalTemperatures[idxAddress]))
+            {
+                continue;
+            }
+
+            // Apply override
+            operableTemperature = rgExternalTemperatures[idxAddress];
+            fUsedExternalSensor = true;
+
+            // Punch out sensor from reported sensors list (no point in double-reporting)
+            rgExternalTemperatures[idxAddress] = nan("");
+        }
+
+        if (!fUsedExternalSensor)
+        {
+            Serial.println("!! Warning: couldn't locate requested external sensor.");
+        }
+    }
+
+    //
     // Apply data
     //
 
-    g_Thermostat.Apply(snappedConfiguration, onboardTemperature);
+    g_Thermostat.Apply(snappedConfiguration, operableTemperature);
 
     //
     // Publish data
@@ -199,6 +239,8 @@ void loop()
         Activity publishActivity("PublishStatus");
         g_StatusPublisher.Publish(snappedConfiguration,
                                   g_Thermostat.CurrentActions(),
+                                  fUsedExternalSensor,
+                                  operableTemperature,
                                   onboardTemperature,
                                   onboardHumidity,
                                   rgAddresses,

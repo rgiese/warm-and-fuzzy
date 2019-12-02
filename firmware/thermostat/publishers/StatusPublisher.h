@@ -21,6 +21,8 @@ public:
 public:
     void Publish(Configuration const& configuration,
                  Thermostat::Actions const& currentActions,
+                 bool const fUsedExternalSensor,
+                 float const operableTemperature,
                  float const onboardTemperature,
                  float const onboardHumidity,
                  OneWireAddress const* const rgAddresses,
@@ -34,9 +36,14 @@ public:
         ++m_SerialNumber;
 
         // Status
-        sb.AppendFormat(",\"t\":%.1f,\"h\":%.1f",
-                        !isnan(onboardTemperature) ? onboardTemperature : 0.0f,
-                        !isnan(onboardHumidity) ? onboardHumidity : 0.0f);
+        sb.AppendFormat(",\"t\":%.1f", !isnan(operableTemperature) ? operableTemperature : 0.0f);
+
+        if (fUsedExternalSensor)
+        {
+            sb.AppendFormat(",\"t2\":%.1f", !isnan(onboardTemperature) ? onboardTemperature : 0.0f);
+        }
+
+        sb.AppendFormat(",\"h\":%.1f", !isnan(onboardHumidity) ? onboardHumidity : 0.0f);
 
         sb.Append(",\"ca\":\"");
         currentActions.AppendToStringBuilder(sb);
@@ -85,7 +92,7 @@ public:
 private:
     static size_t constexpr cchEventData =
         static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬")      // Header
-        + static_strlen(",'t':-100.0,'h':100.0,'ca':'HCR'")                 // Status
+        + static_strlen(",'t':-100.0,'t2':-100.0,'h':100.0,'ca':'HCR'")     // Status
         + static_strlen(",cc:{'sh':10.0,'sc':10.0,'th':10.00,'aa':'HCR'}")  // Configuration
         + static_strlen(",'v':[]}")                                         // Measurements
         + c_cOneWireDevices_Max *

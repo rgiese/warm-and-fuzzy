@@ -34,6 +34,7 @@ export const StatusEventSchema = yup.object().shape({
         .min(0),
       // Status
       t: yup.number().required(),
+      t2: yup.number().notRequired(), // temperature value from onboard sensor if external sensor override was used
       h: yup.number().required(),
       ca: yup
         .string()
