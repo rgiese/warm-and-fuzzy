@@ -62,7 +62,7 @@ export const StatusEventSchema = yup.object().shape({
               .string()
               .required()
               .lowercase()
-              .matches(/^([a-fA0-9]{16})$/, { excludeEmptyString: true }),
+              .matches(/^([a-f0-9]{16})$/, { excludeEmptyString: true }),
             t: yup.number().required(),
           })
         ),
