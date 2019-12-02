@@ -8,6 +8,7 @@ export interface FirmwareConfiguration {
   th: number;
   ca: number;
   aa: string;
+  xs: string;
 }
 
 export function firmwareFromModel(
@@ -19,11 +20,12 @@ export function firmwareFromModel(
     th: thermostatConfiguration.threshold,
     ca: thermostatConfiguration.cadence,
     aa: ActionsAdapter.firmwareFromModel(thermostatConfiguration.allowedActions),
+    xs: thermostatConfiguration.externalSensorId || "",
   };
 }
 
-export function partialModelFromFirmware( // ...partial because we don't need cadence reported back from the firmware
-  firmwareConfiguration: Omit<FirmwareConfiguration, "ca">
+export function partialModelFromFirmware( // ...partial because we don't need cadence or external sensor ID reported back from the firmware
+  firmwareConfiguration: Omit<FirmwareConfiguration, "ca" | "xs">
 ): Pick<ThermostatConfiguration, "setPointHeat" | "setPointCool" | "threshold" | "allowedActions"> {
   return {
     setPointHeat: firmwareConfiguration.sh,
