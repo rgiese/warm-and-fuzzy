@@ -8,6 +8,7 @@ export interface FirmwareConfiguration {
   th: number;
   ca: number;
   aa: string;
+  xs: string;
 }
 
 export function firmwareFromModel(
@@ -19,6 +20,7 @@ export function firmwareFromModel(
     th: thermostatConfiguration.threshold,
     ca: thermostatConfiguration.cadence,
     aa: ActionsAdapter.firmwareFromModel(thermostatConfiguration.allowedActions),
+    xs: thermostatConfiguration.externalSensorId || "",
   };
 }
 
