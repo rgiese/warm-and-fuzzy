@@ -26,6 +26,10 @@ export namespace ThermostatConfigurationSchema {
       .number()
       .min(SetPointRange.min)
       .max(SetPointRange.max),
+    externalSensorId: yup
+      .string()
+      .notRequired()
+      .matches(/^$|^[a-f0-9]{16}$/),
     threshold: yup
       .number()
       .min(ThresholdRange.min)

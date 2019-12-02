@@ -97,8 +97,9 @@ input ThermostatConfigurationCreateInput {
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
-  threshold: Float!
 
+  externalSensorId: String
+  threshold: Float!
   cadence: Int!
 }
 
@@ -112,8 +113,9 @@ input ThermostatConfigurationUpdateInput {
   allowedActions: [ThermostatAction!]
   setPointHeat: Float
   setPointCool: Float
-  threshold: Float
 
+  externalSensorId: String
+  threshold: Float
   cadence: Int
 }
 
@@ -128,8 +130,9 @@ type ThermostatConfiguration {
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
-  threshold: Float!
 
+  externalSensorId: String
+  threshold: Float!
   cadence: Int!
 }
 

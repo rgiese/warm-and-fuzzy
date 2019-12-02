@@ -135,13 +135,15 @@ public:
 
         // Set up document
         size_t constexpr cbJsonDocument =
-            JSON_OBJECT_SIZE(5)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR"}
+            JSON_OBJECT_SIZE(6)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR", "xs": "2851861f0b000033"}
             + countof("sh")      // string copy of "sh" (setPointHeat)
             + countof("sc")      // string copy of "sc" (setPointCool)
             + countof("th")      // string copy of "th" (threshold)
             + countof("ca")      // string copy of "ca" (cadence)
             + countof("aa")      // string copy of "aa" (allowedActions)
             + countof("HCR")     // string copy of potential values for aa (allowedActions)
+            + countof("xs")      // string copy of "xs" (externalSensorId)
+            + countof("2851861f0b000033")  // string copy of external sensor ID (16 hex characters)
             ;
 
         StaticJsonDocument<cbJsonDocument> jsonDocument;

@@ -182,6 +182,17 @@ class ThermostatConfigurationModal extends React.Component<Props, State> {
                     />
                   </Form.Group>
 
+                  <Form.Group widths="equal">
+                    <Form.Input
+                      fluid
+                      label="External sensor ID"
+                      name="externalSensorId"
+                      error={this.getFieldError("externalSensorId")}
+                      value={this.state.values.externalSensorId}
+                      onChange={this.handleChange}
+                    />
+                  </Form.Group>
+
                   <Form.Group inline>
                     <label>Available actions:</label>
                     {ThermostatConfigurationSchema.Actions.map(action => (
