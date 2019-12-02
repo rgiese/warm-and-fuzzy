@@ -2,7 +2,7 @@ import React from "react";
 import { Table, StrictTableProps } from "semantic-ui-react";
 
 interface TableData {
-  [key: string]: string | number | Date | Array<string> | Array<number>;
+  [key: string]: string | number | Date | Array<string> | Array<number> | undefined;
 }
 
 type TableProps = Omit<StrictTableProps, "renderBodyRow" | "tableData" | "sortable">;

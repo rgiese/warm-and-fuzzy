@@ -22,6 +22,7 @@ gql`
     allowedActions
     setPointHeat
     setPointCool
+    externalSensorId
     threshold
     cadence
   }
@@ -51,6 +52,7 @@ const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "setPointHeat", label: "Heat to", units: <>&deg;C</> },
   { field: "setPointCool", label: "Cool to", units: <>&deg;C</> },
   { field: "allowedActions", label: "Allowed actions" },
+  { field: "externalSensorId", label: "External sensor" },
   { field: "streamName", label: "Stream Name" },
   { field: "threshold", label: "Threshold", units: <>&Delta;&deg;C</> },
   { field: "cadence", label: "Cadence", units: "sec" },
