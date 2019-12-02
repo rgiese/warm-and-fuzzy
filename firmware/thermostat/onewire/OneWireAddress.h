@@ -64,9 +64,20 @@ public:
         return m_Address[0];
     }
 
+    bool IsEqual(OneWireAddress const& rhs) const
+    {
+        return memcmp(m_Address, rhs.m_Address, sizeof(m_Address)) == 0;
+    }
+
+    bool IsEmpty() const
+    {
+        OneWireAddress emptyAddress;
+        return IsEqual(emptyAddress);
+    }
+
     bool IsValid() const
     {
-        return (OneWireCRC::Compute(m_Address, countof(m_Address) - 1) == m_Address[countof(m_Address) - 1]);
+        return IsValid(m_Address);
     }
 
 
@@ -89,6 +100,75 @@ public:
         rgBuffer[sc_cchAsHexString_WithTerminator - 1] = 0;
     }
 
+    bool FromString(char const* rgBuffer)
+    {
+        if (strlen(rgBuffer) != 2 * sc_cAddressBytes)
+        {
+            return false;
+        }
+
+        uint8_t constexpr c_InvalidCharacter = static_cast<uint8_t>(-1);
+
+        auto fromHexChar = [](char const c) -> uint8_t {
+            if ((c >= '0') && (c <= '9'))
+            {
+                return c - '0';
+            }
+
+            if ((c >= 'A') && (c <= 'F'))
+            {
+                return c - 'A' + 0xA;
+            }
+
+            if ((c >= 'a') && (c <= 'f'))
+            {
+                return c - 'a' + 0xA;
+            }
+
+            return c_InvalidCharacter;
+        };
+
+        // LSB...MSB
+        uint8_t rgAddress[sc_cAddressBytes];
+
+        for (size_t idxByte = 0; idxByte < countof(m_Address); ++idxByte)
+        {
+            uint8_t const upperNibble = fromHexChar(rgBuffer[2 * idxByte + 0]);
+            uint8_t const lowerNibble = fromHexChar(rgBuffer[2 * idxByte + 1]);
+
+            if ((upperNibble == c_InvalidCharacter) || (lowerNibble == c_InvalidCharacter))
+            {
+                return false;
+            }
+
+            rgAddress[idxByte] = lowerNibble | (upperNibble << 4);
+        }
+
+        if (!IsEmpty() && !IsValid(rgAddress))
+        {
+            return false;
+        }
+
+        // Commit
+        memcpy(m_Address, rgAddress, sizeof(m_Address));
+        return true;
+    }
+
 private:
     uint8_t m_Address[sc_cAddressBytes];
+
+    static bool IsValid(uint8_t const rgAddress[sc_cAddressBytes])
+    {
+        return (OneWireCRC::Compute(rgAddress, sc_cAddressBytes - 1) == rgAddress[sc_cAddressBytes - 1]);
+    }
 };
+
+inline bool operator==(OneWireAddress const& lhs, OneWireAddress const& rhs)
+{
+    return lhs.IsEqual(rhs);
+}
+
+inline bool operator!=(OneWireAddress const& lhs, OneWireAddress const& rhs)
+{
+    return !lhs.IsEqual(rhs);
+}
