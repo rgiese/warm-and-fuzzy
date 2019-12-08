@@ -1,5 +1,3 @@
 import Authorizations from "../auth/Authorizations";
 
-export interface Context {
-  authorizations: Authorizations;
-}
+export class Context extends Authorizations {}

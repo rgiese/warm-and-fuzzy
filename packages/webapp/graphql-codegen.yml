@@ -2,7 +2,10 @@ schema: ../shared/src/schema/schema.graphql
 
 generates:
   ./src/generated/graphqlClient.tsx:
-    documents: ./src/**/*.tsx
+    documents: ./src/**/!(graphqlClient).{ts,tsx}
+    config:
+      scalars:
+        DateTime: Date
     plugins:
       - add: "/* eslint-disable */"
       - typescript

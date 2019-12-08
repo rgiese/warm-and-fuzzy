@@ -5,10 +5,10 @@ Resources:
       TableName: ${self:custom.dynamoDbTablePrefix}DeviceTenancy
       KeySchema:
         # Partition key
-        - AttributeName: deviceId
+        - AttributeName: id
           KeyType: HASH
       AttributeDefinitions:
         # Partition key
-        - AttributeName: deviceId
+        - AttributeName: id
           AttributeType: S
       BillingMode: PAY_PER_REQUEST

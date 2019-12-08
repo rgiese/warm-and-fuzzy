@@ -1,3 +1,0 @@
-"tenant (S)","deviceId (S)","allowedActions (S)","cadence (N)","name (S)","setPointCool (N)","setPointHeat (N)","threshold (N)"
-"AmazingHouse","17002c001247363333343437","HCR","120","Breadboard","22.5","18","0.5"
-"AmazingHouse","450031001851373237343331","H","120","Garage","99","18","0.5"

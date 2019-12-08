@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.common.json",
+  "compilerOptions": {
+    "lib": ["es6"],
+
+    "jsx": "react-native",
+
+    "noEmit": true
+  },
+  "include": ["./src", "./generated", "./index.ts"],
+  "exclude": ["node_modules"]
+}

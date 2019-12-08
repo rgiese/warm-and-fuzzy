@@ -4,6 +4,7 @@ plugins:
   - serverless-webpack
   - serverless-offline
   - serverless-domain-manager
+  - serverless-pseudo-parameters
 
 custom:
   # Distinguish WarmAndFuzzy resource names from other resources in same AWS account
@@ -21,6 +22,8 @@ custom:
   # Dev environment
   serverless-offline:
     port: 3001
+  # Secrets management
+  secretNameParticleAPIKey: "particleAPIKey"
 
 provider:
   name: aws
@@ -30,15 +33,13 @@ provider:
   apiKeys:
     - Webhooks.Particle.${self:custom.stage}
   environment:
-    AUTH_TOKEN_ISSUER: "https://grumpycorp.auth0.com/"
-    AUTH_JWKS_URI: "https://grumpycorp.auth0.com/.well-known/jwks.json"
-    AUTH_AUDIENCE: "https://api.warmandfuzzy.house"
-    AUTH_CUSTOM_CLAIMS_NAMESPACE: "https://warmandfuzzy.house/"
     DYNAMODB_REGION: "${self:provider.region}"
     DYNAMODB_TABLE_NAME_PREFIX: "${self:custom.dynamoDbTablePrefix}"
   iamRoleStatements:
+    # Give selective access to the given tables
     - Effect: Allow
       Action:
+        # Basics
         - dynamodb:DescribeTable
         - dynamodb:Query
         - dynamodb:Scan
@@ -46,21 +47,38 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
+        # Batch operations
         - dynamodb:BatchGetItem
         - dynamodb:BatchWriteItem
-      # Restrict our IAM role permissions to the given tables
+        # Streams
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:DescribeStream
+        - dynamodb:ListStreams
       Resource:
         - !GetAtt DeviceTenancyTable.Arn
-        - !GetAtt LatestActionsTable.Arn
-        - !GetAtt LatestValuesTable.Arn
-        - !GetAtt ThermostatConfigTable.Arn
+        - !GetAtt LatestSensorValuesTable.Arn
+        - !GetAtt LatestThermostatValuesTable.Arn
+        - !GetAtt SensorConfigurationTable.Arn
+        - !GetAtt ThermostatConfigurationTable.Arn
+        - !GetAtt ValueStreamsTable.Arn
+    # Give selective access to the given encrypted SSM keys
+    - Effect: Allow
+      Action: ssm:GetParameter
+      Resource:
+        - "arn:aws:ssm:#{AWS::Region}:#{AWS::AccountId}:parameter/${self:custom.secretNameParticleAPIKey}"
+    - Effect: Allow
+      Action: kms:Decrypt
+      Resource: "arn:aws:kms:#{AWS::Region}:#{AWS::AccountId}:alias/aws/ssm"
 
 resources:
   - ${file(resources/api-gateway-errors.yml)}
   - ${file(resources/dynamodb-device-tenancy.yml)}
-  - ${file(resources/dynamodb-latest-action.yml)}
-  - ${file(resources/dynamodb-latest-value.yml)}
-  - ${file(resources/dynamodb-thermostat-config.yml)}
+  - ${file(resources/dynamodb-latest-sensor-values.yml)}
+  - ${file(resources/dynamodb-latest-thermostat-values.yml)}
+  - ${file(resources/dynamodb-sensor-configuration.yml)}
+  - ${file(resources/dynamodb-thermostat-configuration.yml)}
+  - ${file(resources/dynamodb-value-streams.yml)}
 
 functions:
   # Authorizers
@@ -69,20 +87,20 @@ functions:
     handler: src/auth/handler.authorize
     cors: true
   # Config API
-  apiConfig_List:
-    handler: src/rest/v1/config/index.list
+  api_config_get:
+    handler: src/rest/v1/config/index.get
     events:
       - http:
           method: get
           path: api/v1/config
           cors: true
           authorizer: auth0Authorizer
-  apiLatest_List:
-    handler: src/rest/v1/latest/index.list
+  api_config_put:
+    handler: src/rest/v1/config/index.put
     events:
       - http:
-          method: get
-          path: api/v1/latest
+          method: put
+          path: api/v1/config
           cors: true
           authorizer: auth0Authorizer
   # GraphQL
@@ -99,6 +117,17 @@ functions:
           method: post
           cors: true
           authorizer: auth0Authorizer
+  # DynamoDB Stream handlers
+  stream_thermostatConfiguration:
+    handler: src/streams/thermostatConfiguration/index.dynamoStream
+    environment:
+      PARTICLE_API_KEY_NAME: ${self:custom.secretNameParticleAPIKey}
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt ThermostatConfigurationTable.StreamArn
+          batchSize: 1
+          startingPosition: LATEST
   # Webhooks
   particleStatus:
     handler: src/webhooks/particle/status/index.post

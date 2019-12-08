@@ -1,93 +1,67 @@
 import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
 
+import * as GraphQL from "../../../generated/graphqlTypes";
+
 // See https://github.com/awslabs/dynamodb-data-mapper-js
 
-@table("ThermostatConfig")
+@table("ThermostatConfiguration")
 export default class ThermostatConfiguration {
   public constructor() {
     this.tenant = "";
-    this.deviceId = "";
+    this.id = "";
 
     this.name = "";
+    this.streamName = "";
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
+    this.externalSensorId = undefined;
     this.threshold = NaN;
     this.cadence = NaN;
-    this.allowedActions = "";
+    this.allowedActions = undefined;
+    this.availableActions = undefined;
   }
 
-  /**
-   * @name ThermostatConfiguration#deviceId
-   *
-   * Tenant (assigned by WarmAndFuzzy)
-   */
+  // Tenant (assigned by WarmAndFuzzy)
   @hashKey()
   public tenant: string;
 
-  /**
-   * @name ThermostatConfiguration#deviceId
-   *
-   * Device ID (assigned by Particle)
-   */
+  // Device ID (assigned by Particle)
   @rangeKey()
-  public deviceId: string;
+  public id: string;
 
-  /**
-   * @name ThermostatConfiguration#name
-   *
-   * User-facing name
-   */
+  // User-facing name
   @attribute()
   public name: string;
 
-  /**
-   * @name ThermostatConfiguration#setPointHeat
-   *
-   * Target temperature for heating
-   * Units: Celsius
-   */
+  // Stream (historical data) name
+  @attribute()
+  public streamName: string;
+
+  // Target temperature for heating [Celsius]
   @attribute()
   public setPointHeat: number;
 
-  /**
-   * @name ThermostatConfiguration#setPointCool
-   *
-   * Target temperature for cooling
-   * Units: Celsius
-   */
+  // Target temperature for cooling [Celsius]
   @attribute()
   public setPointCool: number;
 
-  /**
-   * @name ThermostatConfiguration#threshold
-   *
-   * Hysteresis threshold around targets
-   * Units: Celsius
-   */
+  // External sensor ID (if provided, prefer this over onboard sensor) [OneWire 64-bit hex ID]
+  @attribute()
+  public externalSensorId?: string;
+
+  // Hysteresis threshold around targets [Celsius]
   @attribute()
   public threshold: number;
 
-  /**
-   * @name ThermostatConfiguration#cadence
-   *
-   * Operational cadence
-   * Units: seconds
-   */
+  // Operational cadence [sec]
   @attribute()
   public cadence: number;
 
-  /**
-   * @name ThermostatConfiguration#allowedActions
-   *
-   * Allowed actions:
-   * - heating ("H")
-   * - cooling ("C")
-   * - circulation ("R")
-   *
-   * For example: "HCR"
-   *
-   * May be left empty if no actions are permitted.
-   */
-  @attribute()
-  public allowedActions: string;
+  // Allowed actions: GraphQL.ThermostatAction (may be `undefined` if no actions are allowed)
+  @attribute({ memberType: "String" })
+  public allowedActions?: Set<GraphQL.ThermostatAction>;
+
+  // Available actions: GraphQL.ThermostatAction (may be `undefined` if no actions are available)
+  @attribute({ memberType: "String" })
+  public availableActions?: Set<GraphQL.ThermostatAction>;
 }

@@ -1,73 +1,97 @@
-import * as GraphQL from "../../generated/graphqlTypes";
-import { DbMapper, ThermostatConfiguration } from "../shared/db";
-import ThermostatConfigurationMapper from "./mappers/ThermostatConfigurationMapper";
+import { GraphQLScalarType, Kind } from "graphql";
 
-import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import * as GraphQL from "../../generated/graphqlTypes";
+
+import thermostatConfigurationResolver from "./resolvers/ThermostatConfigurationResolver";
+import sensorConfigurationResolver from "./resolvers/SensorConfigurationResolver";
+
+import latestThermostatValueResolver from "./resolvers/LatestThermostatValueResolver";
+import latestSensorValueResolver from "./resolvers/LatestSensorValueResolver";
+
+import thermostatValueStreamResolver from "./resolvers/ThermostatValueStreamResolver";
+import sensorValueStreamResolver from "./resolvers/SensorValueStreamResolver";
 
 const resolvers: GraphQL.Resolvers = {
+  //
+  // Custom types
+  //
+
+  DateTime: new GraphQLScalarType({
+    name: "DateTime",
+    parseValue(value: any): Date {
+      return new Date(value);
+    },
+    serialize(value: Date): string {
+      return value.toISOString();
+    },
+    parseLiteral(ast): Date | null {
+      if (ast.kind === Kind.INT || ast.kind === Kind.STRING) {
+        return new Date(ast.value); // AST value is always a string
+      }
+      return null;
+    },
+  }),
+
+  //
+  // Query
+  //
+
+  /* eslint-disable @typescript-eslint/explicit-function-return-type */
   Query: {
     getThermostatConfigurations: async (_parent, _args, context) => {
-      let configs: GraphQL.ThermostatConfiguration[] = [];
-
-      for await (const config of DbMapper.query(ThermostatConfiguration, {
-        tenant: context.authorizations.AuthorizedTenant,
-      })) {
-        configs.push(ThermostatConfigurationMapper.publicFromPrivate(config));
-      }
-
-      return configs;
+      return thermostatConfigurationResolver.getAll(context.AuthorizedTenant);
     },
     getThermostatConfiguration: async (_parents, args, context) => {
-      const thermostatConfiguration = await DbMapper.get(
-        Object.assign(new ThermostatConfiguration(), {
-          tenant: context.authorizations.AuthorizedTenant,
-          deviceId: args.deviceId,
-        })
-      );
-
-      return ThermostatConfigurationMapper.publicFromPrivate(thermostatConfiguration);
+      return thermostatConfigurationResolver.getOne(context.AuthorizedTenant, args);
+    },
+    getSensorConfigurations: async (_parent, _args, context) => {
+      return sensorConfigurationResolver.getAll(context.AuthorizedTenant);
+    },
+    getSensorConfiguration: async (_parents, args, context) => {
+      return sensorConfigurationResolver.getOne(context.AuthorizedTenant, args);
+    },
+    getLatestThermostatValues: async (_parent, _args, context) => {
+      return latestThermostatValueResolver.getAll(context.AuthorizedTenant);
+    },
+    getLatestThermostatValue: async (_parents, args, context) => {
+      return latestThermostatValueResolver.getOne(context.AuthorizedTenant, args);
+    },
+    getLatestSensorValues: async (_parent, _args, context) => {
+      return latestSensorValueResolver.getAll(context.AuthorizedTenant);
+    },
+    getLatestSensorValue: async (_parents, args, context) => {
+      return latestSensorValueResolver.getOne(context.AuthorizedTenant, args);
+    },
+    getThermostatValueStreams: async (_parents, args, context) => {
+      return thermostatValueStreamResolver.getAllWithCondition(context.AuthorizedTenant, args);
+    },
+    getSensorValueStreams: async (_parents, args, context) => {
+      return sensorValueStreamResolver.getAllWithCondition(context.AuthorizedTenant, args);
     },
   },
+
+  //
+  // Mutation
+  //
+
   Mutation: {
     createThermostatConfiguration: async (_parent, args, context) => {
-      // Verify provided values
-      await ThermostatConfigurationSchema.Schema.validate(args.thermostatConfiguration);
-
-      // Build new object with provided values
-      let thermostatConfiguration = Object.assign(new ThermostatConfiguration(), {
-        tenant: context.authorizations.AuthorizedTenant,
-        deviceId: args.thermostatConfiguration.deviceId,
-      });
-
-      ThermostatConfigurationMapper.privateFromPublic(
-        thermostatConfiguration,
+      return thermostatConfigurationResolver.create(
+        context.AuthorizedTenant,
         args.thermostatConfiguration
       );
-
-      // Persist changes
-      await DbMapper.put(thermostatConfiguration);
-
-      return ThermostatConfigurationMapper.publicFromPrivate(thermostatConfiguration);
     },
     updateThermostatConfiguration: async (_parent, args, context) => {
-      // Retrieve existing item
-      const thermostatConfiguration = await DbMapper.get(
-        Object.assign(new ThermostatConfiguration(), {
-          tenant: context.authorizations.AuthorizedTenant,
-          deviceId: args.thermostatConfiguration.deviceId,
-        })
-      );
-
-      // Copy over mutated values
-      ThermostatConfigurationMapper.privateFromPublicUpdate(
-        thermostatConfiguration,
+      return thermostatConfigurationResolver.update(
+        context.AuthorizedTenant,
         args.thermostatConfiguration
       );
-
-      // Persist changes
-      await DbMapper.put(thermostatConfiguration);
-
-      return ThermostatConfigurationMapper.publicFromPrivate(thermostatConfiguration);
+    },
+    createSensorConfiguration: async (_parent, args, context) => {
+      return sensorConfigurationResolver.create(context.AuthorizedTenant, args.sensorConfiguration);
+    },
+    updateSensorConfiguration: async (_parent, args, context) => {
+      return sensorConfigurationResolver.update(context.AuthorizedTenant, args.sensorConfiguration);
     },
   },
 };

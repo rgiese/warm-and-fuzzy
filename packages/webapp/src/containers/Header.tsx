@@ -1,10 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { Menu } from "semantic-ui-react";
+
+import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import Config, { ConfigStageName } from "../config";
 
 import AuthStateProps from "../common/AuthStateProps";
-import { GlobalAuth, Permissions } from "../services/Auth";
+import { GlobalAuth } from "../services/Auth";
 
 import { ReactComponent as GrumpyBird } from "../assets/grumpy-robin.svg";
 
@@ -34,46 +37,35 @@ class Header extends React.Component<Props, State> {
     const permissions = GlobalAuth.Permissions;
 
     return (
-      <nav className="cf pv2 bg-accent-mono-light sans">
-        <div className="fl dib pl2">
-          {/*** Logo ***/}
-          <div className="dib ph1 ph2-ns">
-            <GrumpyBird className="v-mid w2 h2 pr2" />
-            <Link className="link dim black-80" to="/">
-              {tenant ? `${tenant}` : `Home`}
-            </Link>
-          </div>
-
-          {/*** Config ***/}
-          {permissions.includes(Permissions.WriteConfig) && (
-            <div className="dib ph1 ph2-ns">
-              <Link className="link dim black-80" to="/configuration">
-                Configuration
-              </Link>
-            </div>
+      <Menu fixed="top" pointing secondary style={{ backgroundColor: "white" }}>
+        {/* Menu requires explicit white background color to keep items from sliding under it
+        since the `secondary` style makes the menu transparent (`background 0 0`) by default */}
+        <Menu.Item header style={{ paddingTop: 0, paddingBottom: 6 }}>
+          <GrumpyBird style={{ width: "1.5rem", height: "1.5rem" }} />
+        </Menu.Item>
+        <Menu.Item as={NavLink} to="/" exact>
+          {tenant || ""} Home
+        </Menu.Item>
+        {permissions.includes(Authorization.Permissions.ReadConfig) && (
+          <Menu.Item as={NavLink} to="/configuration" content="Configuration" />
+        )}
+        {permissions.includes(Authorization.Permissions.ReadData) && (
+          <Menu.Item as={NavLink} to="/explore" content="Explore" />
+        )}
+        <Menu.Menu position="right">
+          {!Config.isProduction && <Menu.Item header>Stage: {ConfigStageName}</Menu.Item>}
+          {!this.props.isAuthenticated ? (
+            <Menu.Item name="login" onClick={this.handleLogin}>
+              Log in
+            </Menu.Item>
+          ) : (
+            <Menu.Item name="logout" onClick={this.handleLogout}>
+              {" "}
+              Log out {userName ? userName.split(" ")[0] : ""}
+            </Menu.Item>
           )}
-        </div>
-
-        <div className="fr dib ph3">
-          {/*** Prod/dev indicator ***/}
-          <span className="f5 accent">
-            {Config.isProduction ? `` : `[stage: ${ConfigStageName}]`}
-          </span>
-
-          {/*** Login/logout ***/}
-          <div className="dib ph1 ph2-ns">
-            {!this.props.isAuthenticated ? (
-              <button className="link dim f5 black-80" onClick={this.handleLogin}>
-                Log in
-              </button>
-            ) : (
-              <button className="link dim f5 black-80" onClick={this.handleLogout}>
-                Log out {userName ? userName.split(" ")[0] : ""}
-              </button>
-            )}
-          </div>
-        </div>
-      </nav>
+        </Menu.Menu>
+      </Menu>
     );
   }
 }

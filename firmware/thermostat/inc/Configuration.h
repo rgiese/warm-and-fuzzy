@@ -1,6 +1,12 @@
 #pragma once
 
 #include <Particle.h>
+#include <mutex>
+
+#define ARDUINOJSON_ENABLE_PROGMEM 0
+#include <ArduinoJson.h>
+
+#include "../onewire/OneWireAddress.h"
 
 //
 // A note on EEPROM emulation on Particle devices:
@@ -32,12 +38,33 @@ public:
     Configuration()
         : m_Data()
         , m_fIsDirty()
+        , m_fIsReadOnly()
+        , m_Mutex()
     {
     }
 
     ~Configuration()
     {
     }
+
+public:
+    //
+    // Snap (read-only clone) support
+    // - clones shouldn't be able to take updates or persist to EEPROM
+    //
+
+    Configuration(Configuration const& rhs)
+        : Configuration()
+    {
+        // Provide a transaction-level lock while copying;
+        // we're using a recursive mutex so the accessors can do their own locks as well.
+        LockGuard autoLock(rhs.m_Mutex);
+
+        m_Data = rhs.m_Data;
+        m_fIsReadOnly = true;
+    }
+
+    Configuration& operator=(Configuration const&) = delete;
 
 public:
     //
@@ -70,11 +97,15 @@ public:
 
     bool IsDirty() const
     {
+        LockGuard autoLock(m_Mutex);
+
         return m_fIsDirty;
     }
 
     void Flush()
     {
+        LockGuard autoLock(m_Mutex);
+
         if (!m_fIsDirty)
         {
             return;
@@ -87,21 +118,162 @@ public:
         m_fIsDirty = false;
     }
 
+    enum class ConfigUpdateResult
+    {
+        Retained,
+        Updated,
+        Invalid,
+        NotAllowed,
+    };
+
+    ConfigUpdateResult UpdateFromString(char const* const szData)
+    {
+        if (m_fIsReadOnly)
+        {
+            // The property accessors wouldn't take updates anyhow
+            // but this provides a more succinct error.
+            return ConfigUpdateResult::NotAllowed;
+        }
+
+        // Set up document
+        size_t constexpr cbJsonDocument =
+            JSON_OBJECT_SIZE(6)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR", "xs": "2851861f0b000033"}
+            + countof("sh")      // string copy of "sh" (setPointHeat)
+            + countof("sc")      // string copy of "sc" (setPointCool)
+            + countof("th")      // string copy of "th" (threshold)
+            + countof("ca")      // string copy of "ca" (cadence)
+            + countof("aa")      // string copy of "aa" (allowedActions)
+            + countof("HCR")     // string copy of potential values for aa (allowedActions)
+            + countof("xs")      // string copy of "xs" (externalSensorId)
+            + countof("2851861f0b000033")  // string copy of external sensor ID (16 hex characters)
+            ;
+
+        StaticJsonDocument<cbJsonDocument> jsonDocument;
+        {
+            DeserializationError const jsonError = deserializeJson(jsonDocument, szData);
+
+            if (jsonError)
+            {
+                return onInvalidConfig("Failed to deserialize", szData);
+            }
+        }
+
+        // Extract values from document
+        // (goofy macro because ArduinoJson's variant.is<> can't be used inside a template with gcc)
+
+#define GET_JSON_VALUE(MemberName, Target)                                     \
+    JsonVariant variant = jsonDocument.getMember(MemberName);                  \
+                                                                               \
+    if (variant.isNull() || !variant.is<decltype(Target)>())                   \
+    {                                                                          \
+        return onInvalidConfig("'" MemberName "' missing or invalid", szData); \
+    }                                                                          \
+                                                                               \
+    Target = variant.as<decltype(Target)>();
+
+#define GET_OPTIONAL_JSON_STRING(MemberName, Target)                                                      \
+    Target = nullptr;                                                                                     \
+    JsonVariant variant = jsonDocument.getMember(MemberName);                                             \
+                                                                                                          \
+    if (!variant.isNull() && variant.is<decltype(Target)>() && variant.as<decltype(Target)>()[0] != '\0') \
+    {                                                                                                     \
+        Target = variant.as<decltype(Target)>();                                                          \
+    }
+
+
+        float setPointHeat;
+        {
+            GET_JSON_VALUE("sh", setPointHeat);
+        }
+
+        float setPointCool;
+        {
+            GET_JSON_VALUE("sc", setPointCool);
+        }
+
+        float threshold;
+        {
+            GET_JSON_VALUE("th", threshold);
+        }
+
+        uint16_t cadence;
+        {
+            GET_JSON_VALUE("ca", cadence);
+        }
+
+        Thermostat::Actions allowedActions;
+        {
+            char const* szAllowedActions;
+            {
+                GET_JSON_VALUE("aa", szAllowedActions);
+            }
+
+            if (!allowedActions.UpdateFromString(szAllowedActions))
+            {
+                return onInvalidConfig("'aa' contains invalid token", szData);
+            }
+        }
+
+        OneWireAddress externalSensorId;
+        {
+            char const* szExternalSensorId = NULL;
+            {
+                GET_OPTIONAL_JSON_STRING("xs", szExternalSensorId);
+            }
+
+            if (szExternalSensorId)
+            {
+                if (!externalSensorId.FromString(szExternalSensorId))
+                {
+                    return onInvalidConfig("'xs' is malformed OneWire address", szData);
+                }
+            }
+        }
+
+#undef GET_JSON_VALUE
+
+        // Commit values
+        {
+            // Provide a transaction-level lock for all updates;
+            // we're using a recursive mutex so the accessors can do their own locks as well.
+            LockGuard autoLock(m_Mutex);
+
+            SetPointHeat(setPointHeat);
+            SetPointCool(setPointCool);
+            Threshold(threshold);
+            Cadence(cadence);
+            AllowedActions(allowedActions);
+            ExternalSensorId(externalSensorId);
+
+            bool const fIsDirty = IsDirty();
+
+            Flush();
+
+            return fIsDirty ? ConfigUpdateResult::Updated : ConfigUpdateResult::Retained;
+        }
+    }
+
     //
     // Debugging
     //
     void PrintConfiguration() const
     {
+        LockGuard autoLock(m_Mutex);
+
+        char szExternalSensorId[OneWireAddress::sc_cchAsHexString_WithTerminator];
+        ExternalSensorId().ToString(szExternalSensorId);
+
         Serial.printlnf(
             "SetPoints = %.1f C (heat) / %.1f C (cool), Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = "
-            "[%c%c%c]",
+            "[%c%c%c], ExternalSensorId = %s",
             SetPointHeat(),
             SetPointCool(),
             Threshold(),
             Cadence(),
             AllowedActions().Heat ? 'H' : '_',
             AllowedActions().Cool ? 'C' : '_',
-            AllowedActions().Circulate ? 'R' : '_');
+            AllowedActions().Circulate ? 'R' : '_',
+            szExternalSensorId);
     }
 
 private:
@@ -119,7 +291,7 @@ private:
         }
 
         static constexpr uint16_t sc_Signature = 0x8233;
-        static constexpr uint16_t sc_CurrentVersion = 1;
+        static constexpr uint16_t sc_CurrentVersion = 2;
     };
 
     struct ConfigurationData
@@ -163,6 +335,12 @@ private:
          */
         Thermostat::Actions AllowedActions;
 
+        /**
+         * @name ExternalSensorId
+         * External sensor ID (if provided, prefer this over onboard sensor) [OneWire 64-bit hex ID]
+         */
+        OneWireAddress ExternalSensorId;
+
         ConfigurationData()
             : Header()
             , SetPointHeat()
@@ -170,6 +348,7 @@ private:
             , Threshold()
             , Cadence()
             , AllowedActions()
+            , ExternalSensorId()
         {
         }
     };
@@ -177,17 +356,22 @@ private:
 #define WAF_GENERATE_CONFIGURATION_ACCESSOR(FieldName)                      \
     decltype(Configuration::ConfigurationData::FieldName) FieldName() const \
     {                                                                       \
+        LockGuard autoLock(m_Mutex);                                        \
         return m_Data.FieldName;                                            \
     }                                                                       \
                                                                             \
     decltype(Configuration::ConfigurationData::FieldName) FieldName(        \
-        decltype(Configuration::ConfigurationData::FieldName) value)        \
+        decltype(Configuration::ConfigurationData::FieldName) const& value) \
     {                                                                       \
-        auto const acceptedValue = clamp##FieldName(value);                 \
-        if (acceptedValue != m_Data.FieldName)                              \
+        if (!m_fIsReadOnly)                                                 \
         {                                                                   \
-            m_Data.FieldName = acceptedValue;                               \
-            m_fIsDirty = true;                                              \
+            LockGuard autoLock(m_Mutex);                                    \
+            auto const acceptedValue = clamp##FieldName(value);             \
+            if (acceptedValue != m_Data.FieldName)                          \
+            {                                                               \
+                m_Data.FieldName = acceptedValue;                           \
+                m_fIsDirty = true;                                          \
+            }                                                               \
         }                                                                   \
         return m_Data.FieldName;                                            \
     }
@@ -202,13 +386,20 @@ public:
     WAF_GENERATE_CONFIGURATION_ACCESSOR(Threshold);
     WAF_GENERATE_CONFIGURATION_ACCESSOR(Cadence);
     WAF_GENERATE_CONFIGURATION_ACCESSOR(AllowedActions);
+    WAF_GENERATE_CONFIGURATION_ACCESSOR(ExternalSensorId);
 
 private:
 #undef WAF_GENERATE_CONFIGURATION_ACCESSOR
 
 private:
+    typedef std::recursive_mutex Mutex;
+    typedef std::lock_guard<Mutex> LockGuard;
+
+private:
     ConfigurationData m_Data;
     bool m_fIsDirty;
+    bool m_fIsReadOnly;
+    mutable Mutex m_Mutex;
 
     static constexpr int sc_EEPROMAddress = 0;
 
@@ -224,6 +415,7 @@ private:
         Threshold(1.0f);
         Cadence(60);
         AllowedActions(Thermostat::Actions());
+        ExternalSensorId(OneWireAddress());
 
         m_fIsDirty = true;
     }
@@ -251,5 +443,17 @@ private:
     Thermostat::Actions clampAllowedActions(Thermostat::Actions const& value) const
     {
         return value.Clamp();
+    }
+
+    OneWireAddress const& clampExternalSensorId(OneWireAddress const& value) const
+    {
+        return value;
+    }
+
+private:
+    ConfigUpdateResult onInvalidConfig(char const* szReason, char const* szData)
+    {
+        Serial.printlnf("Invalid config (%s): %s", szReason, szData);
+        return ConfigUpdateResult::Invalid;
     }
 };

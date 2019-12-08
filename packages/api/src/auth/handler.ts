@@ -1,20 +1,22 @@
-import { CustomAuthorizerHandler } from "aws-lambda";
+import { CustomAuthorizerHandler, CustomAuthorizerResult } from "aws-lambda";
+
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import * as JsonWebToken from "jsonwebtoken";
 import * as JsonWebKeySet from "jwks-rsa";
 
-import Authorizations from "./Authorizations";
+import { PackedAuthorizations, PackPermissions } from "./PackedAuthorizations";
 
 class Jwks {
   private static jsonWebKeyClient = JsonWebKeySet({
-    jwksUri: process.env.AUTH_JWKS_URI as string,
+    jwksUri: `https://${AuthenticationConfiguration.Domain}/.well-known/jwks.json`,
     strictSsl: true,
     cache: true,
   });
 
   public static getSigningKey(kid: any): Promise<string> {
-    return new Promise((resolve, reject) => {
-      Jwks.jsonWebKeyClient.getSigningKey(kid, (err: any, key: any) => {
+    return new Promise((resolve, reject): void => {
+      Jwks.jsonWebKeyClient.getSigningKey(kid, (err: any, key: any): void => {
         if (err) {
           reject(err);
         }
@@ -25,7 +27,9 @@ class Jwks {
   }
 }
 
-export const authorize: CustomAuthorizerHandler = async event => {
+export const authorize: CustomAuthorizerHandler = async (
+  event
+): Promise<CustomAuthorizerResult> => {
   try {
     // Retrieve access token from request headers
     if (!event.authorizationToken) {
@@ -47,19 +51,21 @@ export const authorize: CustomAuthorizerHandler = async event => {
 
     // Verify access token
     const verifiedToken = (await JsonWebToken.verify(bearerToken, signingKey, {
-      audience: process.env.AUTH_AUDIENCE,
-      issuer: process.env.AUTH_TOKEN_ISSUER,
+      audience: AuthenticationConfiguration.Audience,
+      issuer: `https://${AuthenticationConfiguration.Domain}/`,
       algorithms: ["RS256"],
     })) as any;
 
     // Extract custom information from token
     const customClaimIds = {
-      Tenant: process.env.AUTH_CUSTOM_CLAIMS_NAMESPACE + "tenant",
+      Tenant:
+        AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.Tenant,
     };
 
-    const authorizations: Authorizations = {
+    const authorizations: PackedAuthorizations = {
       AuthorizedTenant: verifiedToken[customClaimIds.Tenant],
-      AuthorizedPermissions: (verifiedToken.permissions as string[]).join(","),
+      AuthorizedPermissions: PackPermissions(verifiedToken.permissions as string[]),
     };
 
     if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {

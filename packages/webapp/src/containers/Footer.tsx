@@ -1,30 +1,33 @@
 import React from "react";
-
-import { ReactComponent as Heart } from "../assets/heart.svg";
-import { ReactComponent as GrumpyCorp } from "../assets/grumpycorp-name.svg";
+import { Icon, Grid, Menu } from "semantic-ui-react";
 
 const Footer: React.FunctionComponent<{}> = (): React.ReactElement => (
-  <footer className="tc pa3 mt4 black-60 bg-accent-mono-light">
-    ©{new Date().getFullYear()} All rights reserved.
-    {` `}
-    <a
-      className="link accent dim"
-      rel="license"
-      href="http://creativecommons.org/licenses/by-sa/4.0/"
-    >
-      CC-BY-SA-4.0
-    </a>
-    . Made with <Heart className="v-mid w1 h1" /> in Seattle by{" "}
-    <a
-      className="link dim"
-      href="https://www.grumpycorp.com"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <GrumpyCorp className="v-bottom h075" />
-    </a>
-    .
-  </footer>
+  <Menu fixed="bottom" inverted color="grey">
+    <Menu.Item style={{ width: "100%" }}>
+      <Grid columns="equal" divided textAlign="center" style={{ width: "100%" }}>
+        <Grid.Column>©{new Date().getFullYear()} All rights reserved.</Grid.Column>
+        <Grid.Column>
+          Made with <Icon name="heart" style={{ paddingLeft: "0.25rem", paddingRight: "1rem" }} />{" "}
+          in Seattle by
+          <a
+            href="https://www.grumpycorp.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ paddingLeft: "0.25rem" }}
+            className="link"
+          >
+            GrumpyCorp
+          </a>
+          .
+        </Grid.Column>
+        <Grid.Column>
+          <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" className="link">
+            CC-BY-SA-4.0
+          </a>
+        </Grid.Column>
+      </Grid>
+    </Menu.Item>
+  </Menu>
 );
 
 export default Footer;

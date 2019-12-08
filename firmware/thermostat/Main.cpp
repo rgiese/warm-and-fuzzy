@@ -2,9 +2,6 @@
 
 #include "PietteTech_DHT.h"
 
-#define ARDUINOJSON_ENABLE_PROGMEM 0
-#include <ArduinoJson.h>
-
 #include <math.h>
 
 #include "inc/CoreDefs.h"
@@ -22,7 +19,7 @@
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(7);  // Increment for each release
+PRODUCT_VERSION(11);  // Increment for each release
 
 
 //
@@ -45,6 +42,7 @@ OneWireGateway2484 g_OneWireGateway;
 
 // Configuration
 Configuration g_Configuration;
+bool g_fReceivedConfigurationUpdate;
 
 // Services
 Thermostat g_Thermostat;
@@ -58,6 +56,7 @@ StatusPublisher g_StatusPublisher;
 //
 
 void onStatusResponse(char const* szEvent, char const* szData);
+int onConfigPush(String configString);
 
 //
 // Setup
@@ -81,6 +80,7 @@ void setup()
 
     // Set up configuration
     g_Configuration.Initialize();
+    g_fReceivedConfigurationUpdate = false;
 
     Serial.print("Current configuration: ");
     g_Configuration.PrintConfiguration();
@@ -97,6 +97,7 @@ void setup()
     // Configure cloud interactions
     // (async since we're not yet connected to the cloud, courtesy of SYSTEM_MODE = SEMI_AUTOMATIC)
     Particle.subscribe(System.deviceID() + "/hook-response/status", onStatusResponse, MY_DEVICES);
+    Particle.function("configPush", onConfigPush);
 
     // Request connection to cloud (not blocking)
     {
@@ -177,10 +178,58 @@ void loop()
     }
 
     //
+    // Snap a copy of the configuration so we don't get tearing
+    // if there's a config update on another thread.
+    //
+
+    g_fReceivedConfigurationUpdate = false;
+    Configuration const snappedConfiguration(g_Configuration);
+
+    //
+    // Apply configuration
+    //
+
+    // Override onboard temperature if requested and available
+    float operableTemperature = onboardTemperature;
+    bool fUsedExternalSensor = false;
+
+    if (!snappedConfiguration.ExternalSensorId().IsEmpty())
+    {
+        OneWireAddress const& externalSensorId = snappedConfiguration.ExternalSensorId();
+
+        for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
+        {
+            // Find sensor by address
+            if (rgAddresses[idxAddress] != externalSensorId)
+            {
+                continue;
+            }
+
+            // Make sure it has a reported value
+            if (isnan(rgExternalTemperatures[idxAddress]))
+            {
+                continue;
+            }
+
+            // Apply override
+            operableTemperature = rgExternalTemperatures[idxAddress];
+            fUsedExternalSensor = true;
+
+            // Punch out sensor from reported sensors list (no point in double-reporting)
+            rgExternalTemperatures[idxAddress] = nan("");
+        }
+
+        if (!fUsedExternalSensor)
+        {
+            Serial.println("!! Warning: couldn't locate requested external sensor.");
+        }
+    }
+
+    //
     // Apply data
     //
 
-    g_Thermostat.Apply(g_Configuration, onboardTemperature);
+    g_Thermostat.Apply(snappedConfiguration, operableTemperature);
 
     //
     // Publish data
@@ -188,7 +237,10 @@ void loop()
 
     {
         Activity publishActivity("PublishStatus");
-        g_StatusPublisher.Publish(g_Thermostat.CurrentActions(),
+        g_StatusPublisher.Publish(snappedConfiguration,
+                                  g_Thermostat.CurrentActions(),
+                                  fUsedExternalSensor,
+                                  operableTemperature,
                                   onboardTemperature,
                                   onboardHumidity,
                                   rgAddresses,
@@ -211,19 +263,30 @@ void loop()
     {
         Activity loopDelayActivity("LoopDelay");
 
-        unsigned long const loopEndTime_msec = millis();
-        unsigned long const loopDuration_msec = loopEndTime_msec - loopStartTime_msec;
-
-        unsigned long const loopDesiredCadence_msec = g_Configuration.Cadence() * 1000;
-
-        if (loopDuration_msec > loopDesiredCadence_msec)
+        while (true)
         {
-            // No further delay required
-        }
-        else
-        {
-            // Delay for remainder of desired cadence
-            delay(loopDesiredCadence_msec - loopDuration_msec);
+            // (Carefully phrased to deal with rollovers)
+            unsigned long const currentTime_msec = millis();
+            unsigned long const timeSinceLastLoopStart_msec = currentTime_msec - loopStartTime_msec;
+
+            unsigned long const loopDesiredCadence_msec = snappedConfiguration.Cadence() * 1000;
+
+            if (timeSinceLastLoopStart_msec > loopDesiredCadence_msec)
+            {
+                // No further delay required
+                break;
+            }
+
+            if (g_fReceivedConfigurationUpdate)
+            {
+                // Skip remaining delay so we can act on the latest configuration changes right away
+                break;
+            }
+
+            unsigned long const remainingTotalDelay_msec = loopDesiredCadence_msec - timeSinceLastLoopStart_msec;
+            unsigned long const maxPollingDelay_msec = 2 * 1000;  // maximum time between config update checks
+
+            delay(std::min(remainingTotalDelay_msec, maxPollingDelay_msec));
         }
     }
 }
@@ -233,9 +296,24 @@ void loop()
 // Subscriptions
 //
 
-void onInvalidStatusResponse(char const* szReason, char const* szEvent, char const* szData)
+Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, char const* const szSource)
 {
-    Serial.printlnf("onStatusResponse: %s for %s = %s", szReason, szEvent, szData);
+    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(szData);
+
+    if (configUpdateResult != Configuration::ConfigUpdateResult::Invalid)
+    {
+        bool const fUpdatedConfig = (configUpdateResult == Configuration::ConfigUpdateResult::Updated);
+
+        if (fUpdatedConfig)
+        {
+            g_fReceivedConfigurationUpdate = true;
+        }
+
+        Serial.printf("%s configuration from %s: ", fUpdatedConfig ? "Updated" : "Retained", szSource);
+        g_Configuration.PrintConfiguration();
+    }
+
+    return configUpdateResult;
 }
 
 void onStatusResponse(char const* szEvent, char const* szData)
@@ -244,91 +322,15 @@ void onStatusResponse(char const* szEvent, char const* szData)
 
     if (strstr(szEvent, "/hook-response/status/0") == nullptr)  // [deviceID]/hook-response/status/0
     {
-        onInvalidStatusResponse("Unexpected event", szEvent, szData);
+        Serial.printlnf("Unexpected event %s with data %s", szEvent, szData);
         return;
     }
 
-    // Set up document
-    size_t constexpr cbJsonDocument = JSON_OBJECT_SIZE(5)  // {"sh":20.0, "sc": 22.0, "th": 1.0, "ca": 60, "aa": "HCR"}
-                                      + countof("sh")      // string copy of "sh" (setPointHeat)
-                                      + countof("sc")      // string copy of "sc" (setPointCool)
-                                      + countof("th")      // string copy of "th" (threshold)
-                                      + countof("ca")      // string copy of "ca" (cadence)
-                                      + countof("aa")      // string copy of "am" (allowedActions)
-                                      + countof("HCR")     // string copy of potential values for aa (allowedActions)
-        ;
+    (void)handleUpdatedConfig(szData, "statusResponse");
+}
 
-    StaticJsonDocument<cbJsonDocument> jsonDocument;
-    {
-        DeserializationError const jsonError = deserializeJson(jsonDocument, szData);
-
-        if (jsonError)
-        {
-            onInvalidStatusResponse("Failed to deserialize", szEvent, szData);
-            return;
-        }
-    }
-
-    // Extract values from document
-    // (goofy macro because ArduinoJson's variant.is<> can't be used inside a template with gcc)
-
-#define GET_JSON_VALUE(MemberName, Target)                                               \
-    JsonVariant variant = jsonDocument.getMember(MemberName);                            \
-                                                                                         \
-    if (variant.isNull() || !variant.is<decltype(Target)>())                             \
-    {                                                                                    \
-        onInvalidStatusResponse("'" MemberName "' missing or invalid", szEvent, szData); \
-        return;                                                                          \
-    }                                                                                    \
-                                                                                         \
-    Target = variant.as<decltype(Target)>();
-
-    float setPointHeat;
-    {
-        GET_JSON_VALUE("sh", setPointHeat);
-    }
-
-    float setPointCool;
-    {
-        GET_JSON_VALUE("sc", setPointCool);
-    }
-
-    float threshold;
-    {
-        GET_JSON_VALUE("th", threshold);
-    }
-
-    uint16_t cadence;
-    {
-        GET_JSON_VALUE("ca", cadence);
-    }
-
-    Thermostat::Actions allowedActions;
-    {
-        char const* szAllowedActions;
-        {
-            GET_JSON_VALUE("aa", szAllowedActions);
-        }
-
-        if (!allowedActions.UpdateFromString(szAllowedActions))
-        {
-            onInvalidStatusResponse("'aa' contains invalid token", szEvent, szData);
-            return;
-        }
-    }
-
-#undef GET_JSON_VALUE
-
-    // Commit values
-    g_Configuration.SetPointHeat(setPointHeat);
-    g_Configuration.SetPointCool(setPointCool);
-    g_Configuration.Threshold(threshold);
-    g_Configuration.Cadence(cadence);
-    g_Configuration.AllowedActions(allowedActions);
-
-    Serial.print(g_Configuration.IsDirty() ? "Updated" : "Retained");
-    Serial.print(" configuration: ");
-    g_Configuration.PrintConfiguration();
-
-    g_Configuration.Flush();
+int onConfigPush(String configString)
+{
+    Activity configPushActivity("ConfigPush");
+    return static_cast<int>(handleUpdatedConfig(configString.c_str(), "push"));
 }

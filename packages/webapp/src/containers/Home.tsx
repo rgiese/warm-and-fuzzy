@@ -1,6 +1,10 @@
 import React from "react";
+import { Container, Divider, Header } from "semantic-ui-react";
 
 import AuthStateProps from "../common/AuthStateProps";
+
+import LatestThermostatValues from "../components/LatestThermostatValues";
+import LatestSensorValues from "../components/LatestSensorValues";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends AuthStateProps {}
@@ -18,15 +22,23 @@ class Home extends React.Component<Props, State> {
   }
 
   private renderContent(): React.ReactElement {
-    return <div>Current status coming soon!</div>;
+    return (
+      <Container text>
+        <Divider horizontal>
+          <Header as="h4">Thermostats</Header>
+        </Divider>
+        <LatestThermostatValues />
+
+        <Divider horizontal style={{ paddingTop: "2em" }}>
+          <Header as="h4">Sensors</Header>
+        </Divider>
+        <LatestSensorValues />
+      </Container>
+    );
   }
 
   public render(): React.ReactElement {
-    return (
-      <div className="pv4">
-        {this.props.isAuthenticated ? this.renderContent() : this.renderLander()}
-      </div>
-    );
+    return <div>{this.props.isAuthenticated ? this.renderContent() : this.renderLander()}</div>;
   }
 }
 

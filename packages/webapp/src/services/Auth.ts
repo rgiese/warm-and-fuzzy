@@ -1,7 +1,7 @@
 import Auth0 from "auth0-js";
 import JwtDecode from "jwt-decode";
 
-import Config from "../config";
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
 const localStorageKeys = {
   expiresAt: "auth.expiresAt",
@@ -9,19 +9,14 @@ const localStorageKeys = {
   idToken: "auth.idToken",
 };
 
-export enum Permissions {
-  ReadConfig = "read:config",
-  WriteConfig = "write:config",
-}
-
 class Auth {
   private tokenRenewalTimeout: any;
 
   private auth0 = new Auth0.WebAuth({
-    domain: Config.auth0.domain,
-    clientID: Config.auth0.clientID,
-    redirectUri: window.location.origin + Config.auth0.callbackRoute,
-    audience: Config.auth0.audience,
+    domain: AuthenticationConfiguration.Domain,
+    clientID: AuthenticationConfiguration.ClientId,
+    redirectUri: window.location.origin + "/callback",
+    audience: AuthenticationConfiguration.Audience,
     responseType: "token id_token",
     scope: "openid",
   });
@@ -30,6 +25,10 @@ class Auth {
     // Schedule token renewal if we're still logged in from localStorage
     this.scheduleRenewal();
   }
+
+  //
+  // Login
+  //
 
   public login(): void {
     this.auth0.authorize();
@@ -57,6 +56,10 @@ class Auth {
       });
     });
   }
+
+  //
+  // Accessors
+  //
 
   public get ExpiresAt(): number {
     const storedValue = localStorage.getItem(localStorageKeys.expiresAt);
@@ -90,7 +93,10 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[Config.auth0.customClaimsNamespace + "user_name"];
+    return decodedIdToken[
+      AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.UserName
+    ];
   }
 
   public get UserEmail(): string | undefined {
@@ -101,7 +107,10 @@ class Auth {
     }
 
     const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[Config.auth0.customClaimsNamespace + "user_email"];
+    return decodedIdToken[
+      AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.UserEmail
+    ];
   }
 
   public get Tenant(): string | undefined {
@@ -112,7 +121,10 @@ class Auth {
     }
 
     const decodedAccessToken = JwtDecode(accessToken) as any;
-    return decodedAccessToken[Config.auth0.customClaimsNamespace + "tenant"];
+    return decodedAccessToken[
+      AuthenticationConfiguration.CustomClaimsNamespace +
+        AuthenticationConfiguration.CustomClaims.Tenant
+    ];
   }
 
   public get Permissions(): string[] {
@@ -126,17 +138,9 @@ class Auth {
     return decodedAccessToken["permissions"];
   }
 
-  private setSession(authResult: any): void {
-    // Set the time that the access token will expire at
-    const expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
-
-    localStorage.setItem(localStorageKeys.accessToken, authResult.accessToken);
-    localStorage.setItem(localStorageKeys.idToken, authResult.idToken);
-    localStorage.setItem(localStorageKeys.expiresAt, expiresAt.toString());
-
-    // Schedule token renewal
-    this.scheduleRenewal();
-  }
+  //
+  // Logout
+  //
 
   public logout(): void {
     // Clear token renewal
@@ -150,6 +154,22 @@ class Auth {
     this.auth0.logout({
       returnTo: window.location.origin,
     });
+  }
+
+  //
+  // Internals
+  //
+
+  private setSession(authResult: any): void {
+    // Set the time that the access token will expire at
+    const expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+
+    localStorage.setItem(localStorageKeys.accessToken, authResult.accessToken);
+    localStorage.setItem(localStorageKeys.idToken, authResult.idToken);
+    localStorage.setItem(localStorageKeys.expiresAt, expiresAt.toString());
+
+    // Schedule token renewal
+    this.scheduleRenewal();
   }
 
   private scheduleRenewal(): void {

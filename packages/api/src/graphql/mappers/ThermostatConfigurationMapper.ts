@@ -1,70 +1,43 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
 import { ThermostatConfiguration } from "../../shared/db";
 
-const dbCharacterToEnumMap = new Map<string, GraphQL.ThermostatAction>([
-  ["H", GraphQL.ThermostatAction.Heat],
-  ["C", GraphQL.ThermostatAction.Cool],
-  ["R", GraphQL.ThermostatAction.Circulate],
-]);
+import GraphQLModelMapper from "./GraphQLModelMapper";
 
-const enumToDbCharacterMap = new Map<GraphQL.ThermostatAction, string>([
-  [GraphQL.ThermostatAction.Heat, "H"],
-  [GraphQL.ThermostatAction.Cool, "C"],
-  [GraphQL.ThermostatAction.Circulate, "R"],
-]);
+//
+// Adapt GraphQL <-> Model (DB) conventions:
+// - allowedActions is a non-nullable array in GraphQL but a nullable Set in DynamoDB
+//   and needs to be set to `undefined` for empty sets
+//
 
-const throwUndefinedStoredAction = (a: string): GraphQL.ThermostatAction => {
-  throw new Error(`Unrecognized action '${a}'`);
-};
+class ThermostatConfigurationMapper
+  implements
+    GraphQLModelMapper<
+      GraphQL.ThermostatConfiguration,
+      GraphQL.ThermostatConfigurationCreateInput,
+      ThermostatConfiguration
+    > {
+  public graphqlFromModel(rhs: ThermostatConfiguration): GraphQL.ThermostatConfiguration {
+    const { availableActions, allowedActions, ...remainder } = rhs;
 
-const throwUndefinedProvidedAction = (a: GraphQL.ThermostatAction): string => {
-  throw new Error(`Unrecognized action '${a}'`);
-};
-
-class ThermostatConfigurationMapper {
-  public static publicFromPrivate(rhs: ThermostatConfiguration): GraphQL.ThermostatConfiguration {
     return {
-      tenant: rhs.tenant,
-      deviceId: rhs.deviceId,
-      name: rhs.name,
-      setPointHeat: rhs.setPointHeat,
-      setPointCool: rhs.setPointCool,
-      threshold: rhs.threshold,
-      cadence: rhs.cadence,
-      allowedActions: rhs.allowedActions
-        .split("")
-        .map(c => dbCharacterToEnumMap.get(c) || throwUndefinedStoredAction(c)),
+      ...remainder,
+      availableActions: availableActions ? Array.from(availableActions) : [],
+      allowedActions: allowedActions ? Array.from(allowedActions) : [],
     };
   }
 
-  public static privateFromPublic(
-    lhs: ThermostatConfiguration,
+  public modelFromGraphql(
+    tenant: string,
     rhs: GraphQL.ThermostatConfigurationCreateInput
-  ) {
-    lhs.name = rhs.name;
-    lhs.setPointHeat = rhs.setPointHeat;
-    lhs.setPointCool = rhs.setPointCool;
-    lhs.threshold = rhs.threshold;
-    lhs.cadence = rhs.cadence;
-    lhs.allowedActions = rhs.allowedActions
-      .map(a => enumToDbCharacterMap.get(a) || throwUndefinedProvidedAction(a))
-      .join("");
-  }
+  ): ThermostatConfiguration {
+    const { availableActions, allowedActions, ...remainder } = rhs;
 
-  public static privateFromPublicUpdate(
-    lhs: ThermostatConfiguration,
-    rhs: GraphQL.ThermostatConfigurationUpdateInput
-  ) {
-    lhs.name = rhs.name || lhs.name;
-    lhs.setPointHeat = rhs.setPointHeat || lhs.setPointHeat;
-    lhs.setPointCool = rhs.setPointCool || lhs.setPointCool;
-    lhs.threshold = rhs.threshold || lhs.threshold;
-    lhs.cadence = rhs.cadence || lhs.cadence;
-    lhs.allowedActions = rhs.allowedActions
-      ? rhs.allowedActions
-          .map(a => enumToDbCharacterMap.get(a) || throwUndefinedProvidedAction(a))
-          .join("")
-      : lhs.allowedActions;
+    return Object.assign(new ThermostatConfiguration(), {
+      tenant,
+      ...remainder,
+      availableActions: availableActions.length > 0 ? new Set(availableActions) : undefined,
+      allowedActions: allowedActions.length > 0 ? new Set(allowedActions) : undefined,
+    });
   }
 }
 

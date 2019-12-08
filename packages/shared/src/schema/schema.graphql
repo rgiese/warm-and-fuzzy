@@ -1,20 +1,86 @@
+#
+# Directives
+#
+
+directive @requiresPermission(permission: RequiredPermission) on FIELD_DEFINITION
+
+enum RequiredPermission {
+  READ_DATA
+  READ_CONFIG
+  WRITE_CONFIG
+  CROSS_TENANT_ADMIN
+}
+
+#
+# Base types
+#
+
+scalar DateTime
+
+#
+# Root
+#
+
 schema {
   query: Query
   mutation: Mutation
 }
 
 type Query {
+  # ThermostatConfiguration
   getThermostatConfigurations: [ThermostatConfiguration!]!
-  getThermostatConfiguration(deviceId: ID!): ThermostatConfiguration!
+    @requiresPermission(permission: READ_CONFIG)
+
+  getThermostatConfiguration(id: ID!): ThermostatConfiguration!
+    @requiresPermission(permission: READ_CONFIG)
+
+  # SensorConfiguration
+  getSensorConfigurations: [SensorConfiguration!]! @requiresPermission(permission: READ_CONFIG)
+
+  getSensorConfiguration(id: ID!): SensorConfiguration! @requiresPermission(permission: READ_CONFIG)
+
+  # LatestThermostatValues
+  getLatestThermostatValues: [ThermostatValue!]! @requiresPermission(permission: READ_DATA)
+
+  getLatestThermostatValue(id: ID!): ThermostatValue! @requiresPermission(permission: READ_DATA)
+
+  # LatestSensorValues
+  getLatestSensorValues: [SensorValue!]! @requiresPermission(permission: READ_DATA)
+
+  getLatestSensorValue(id: ID!): SensorValue! @requiresPermission(permission: READ_DATA)
+
+  # Value streams
+  getThermostatValueStreams(
+    streamName: String!
+    fromDate: DateTime
+    toDate: DateTime
+  ): [ThermostatValueStream!]! @requiresPermission(permission: READ_DATA)
+
+  getSensorValueStreams(
+    streamName: String!
+    fromDate: DateTime
+    toDate: DateTime
+  ): [SensorValueStream!]! @requiresPermission(permission: READ_DATA)
 }
 
 type Mutation {
+  # ThermostatConfiguration
   createThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationCreateInput!
-  ): ThermostatConfiguration!
+  ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+
   updateThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationUpdateInput!
-  ): ThermostatConfiguration!
+  ): ThermostatConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+
+  # SensorConfiguration
+  createSensorConfiguration(
+    sensorConfiguration: SensorConfigurationCreateInput!
+  ): SensorConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+
+  updateSensorConfiguration(
+    sensorConfiguration: SensorConfigurationUpdateInput!
+  ): SensorConfiguration! @requiresPermission(permission: WRITE_CONFIG)
 }
 
 #
@@ -22,40 +88,51 @@ type Mutation {
 #
 
 input ThermostatConfigurationCreateInput {
-  deviceId: ID!
+  id: ID!
   name: String!
+  streamName: String!
+
+  availableActions: [ThermostatAction!]!
 
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
-  threshold: Float!
 
+  externalSensorId: String
+  threshold: Float!
   cadence: Int!
 }
 
 input ThermostatConfigurationUpdateInput {
-  deviceId: ID!
+  id: ID!
   name: String
+  streamName: String
+
+  availableActions: [ThermostatAction!]!
 
   allowedActions: [ThermostatAction!]
   setPointHeat: Float
   setPointCool: Float
-  threshold: Float
 
+  externalSensorId: String
+  threshold: Float
   cadence: Int
 }
 
 type ThermostatConfiguration {
-  deviceId: ID!
   tenant: String!
-
+  id: ID!
   name: String!
+  streamName: String!
+
+  availableActions: [ThermostatAction!]!
 
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
-  threshold: Float!
 
+  externalSensorId: String
+  threshold: Float!
   cadence: Int!
 }
 
@@ -63,4 +140,91 @@ enum ThermostatAction {
   Heat
   Cool
   Circulate
+}
+
+#
+# SensorConfiguration
+#
+
+input SensorConfigurationCreateInput {
+  id: ID!
+  name: String!
+  streamName: String!
+}
+
+input SensorConfigurationUpdateInput {
+  id: ID!
+  name: String
+  streamName: String
+}
+
+type SensorConfiguration {
+  tenant: String!
+  id: ID!
+  name: String!
+  streamName: String!
+}
+
+#
+# [Thermostat,Sensor]Values
+#
+
+type ThermostatValue {
+  id: ID!
+  tenant: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
+  humidity: Float!
+  currentActions: [ThermostatAction!]!
+
+  setPointHeat: Float!
+  setPointCool: Float!
+  threshold: Float!
+  allowedActions: [ThermostatAction!]!
+}
+
+type SensorValue {
+  id: ID!
+  tenant: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
+}
+
+#
+# Value streams
+#
+
+type ThermostatValueStream {
+  streamName: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
+  humidity: Float!
+  currentActions: [ThermostatAction!]!
+
+  setPointHeat: Float!
+  setPointCool: Float!
+  threshold: Float!
+  allowedActions: [ThermostatAction!]!
+}
+
+type SensorValueStream {
+  streamName: String!
+
+  publishedTime: DateTime!
+  deviceTime: DateTime!
+  deviceLocalSerial: Int!
+
+  temperature: Float!
 }

@@ -1,7 +1,9 @@
 import React from "react";
 import { Route, Router, Switch } from "react-router-dom";
+import { Container } from "semantic-ui-react";
 
 import { ApolloProvider } from "react-apollo";
+import { configure } from "mobx";
 
 import AuthStateProps from "./common/AuthStateProps";
 
@@ -14,11 +16,21 @@ import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 import AuthCallback from "./containers/AuthCallback";
 import Configuration from "./containers/Configuration";
+import Explore from "./containers/Explore";
 import Home from "./containers/Home";
 import NotFound from "./containers/NotFound";
 
 import Header from "./containers/Header";
 import Footer from "./containers/Footer";
+
+import { RootStore, ExploreStore, ExplorePlotDataStore } from "./stores/stores";
+
+// App-wide MobX configuration
+configure({ enforceActions: "observed" });
+
+const rootStore = new RootStore();
+const exploreStore = new ExploreStore(rootStore); // for the top-level Explore page
+const explorePlotDataStore = new ExplorePlotDataStore(exploreStore);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}
@@ -59,27 +71,33 @@ class App extends React.Component<Props, State> {
     return (
       <ApolloProvider client={ApolloClient}>
         <Router history={History}>
-          <div className="flex flex-column items-stretch min-vh-100 tc bg-white">
-            {/* Always show Nav (alternative: reference component directly using withRouter()) */}
-            <AppliedRoute path="/" component={Header} props={childProps} />
-            <main style={{ flexGrow: 1 }}>
-              <Switch>
-                {/* Utility routes */}
-                <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
-                {/* Actual pages */}
-                <AppliedRoute path="/" exact component={Home} props={childProps} />
-                <AuthenticatedRoute
-                  path="/configuration"
-                  exact
-                  component={Configuration}
-                  props={childProps}
-                />
-                {/* Finally, catch all unmatched routes */}
-                <Route component={NotFound} />
-              </Switch>
-            </main>
-            <AppliedRoute path="/" component={Footer} props={childProps} />
-          </div>
+          {/* Always show Nav (alternative: reference component directly using withRouter()) */}
+          <AppliedRoute path="/" component={Header} props={childProps} />
+          <Container
+            style={{ marginTop: "4em" /* for top menu */, marginBottom: "4em" /* for footer */ }}
+          >
+            <Switch>
+              {/* Utility routes */}
+              <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
+              {/* Actual pages */}
+              <AppliedRoute path="/" exact component={Home} props={childProps} />
+              <AuthenticatedRoute
+                path="/configuration"
+                exact
+                component={Configuration}
+                props={childProps}
+              />
+              <AuthenticatedRoute
+                path="/explore"
+                exact
+                component={Explore}
+                props={{ ...childProps, rootStore, exploreStore, explorePlotDataStore }}
+              />
+              {/* Finally, catch all unmatched routes */}
+              <Route component={NotFound} />
+            </Switch>
+          </Container>
+          <AppliedRoute path="/" component={Footer} props={childProps} />
         </Router>
       </ApolloProvider>
     );

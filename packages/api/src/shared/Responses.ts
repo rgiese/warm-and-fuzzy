@@ -13,6 +13,10 @@ export default class Responses {
     return Responses.buildResponse(401, "Unauthorized - no tenant or permissions defined");
   }
 
+  public static internalError(body: any): APIGatewayProxyResult {
+    return Responses.buildResponse(500, body);
+  }
+
   private static buildResponse(statusCode: number, body: any): APIGatewayProxyResult {
     return {
       statusCode: statusCode,

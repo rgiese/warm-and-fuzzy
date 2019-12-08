@@ -19,34 +19,55 @@ export const StatusEventSchema = yup.object().shape({
     .number()
     .positive()
     .integer(),
-  data: yup.object().shape({
-    ts: yup
-      .number()
-      .integer()
-      .min(0),
-    ser: yup
-      .number()
-      .integer()
-      .min(0),
-    ca: yup
-      .string()
-      .nullable()
-      .matches(/^H?C?R?$/), // firmware should upload in H-C-R order
-    v: yup
-      .array()
-      .required()
-      .of(
-        yup.object().shape({
-          id: yup
+  data: yup
+    .object()
+    .required()
+    .shape({
+      // Header
+      ts: yup
+        .number()
+        .integer()
+        .min(0),
+      ser: yup
+        .number()
+        .integer()
+        .min(0),
+      // Status
+      t: yup.number().required(),
+      t2: yup.number().notRequired(), // temperature value from onboard sensor if external sensor override was used
+      h: yup.number().required(),
+      ca: yup
+        .string()
+        .min(0) // string needs to be present but can be empty
+        .matches(/^H?C?R?$/), // firmware should upload in H-C-R order
+      // Configuration
+      cc: yup
+        .object()
+        .required()
+        .shape({
+          sh: yup.number().required(),
+          sc: yup.number().required(),
+          th: yup.number().required(),
+          aa: yup
             .string()
-            .nullable()
-            .lowercase()
-            .matches(/^([a-fA0-9]{16})$/, { excludeEmptyString: true }),
-          t: yup.number().required(),
-          h: yup.number().nullable(),
-        })
-      ),
-  }),
+            .min(0) // string needs to be present but can be empty
+            .matches(/^H?C?R?$/), // firmware should upload in H-C-R order
+        }),
+      // Measurements
+      v: yup
+        .array()
+        .min(0)
+        .of(
+          yup.object().shape({
+            id: yup
+              .string()
+              .required()
+              .lowercase()
+              .matches(/^([a-f0-9]{16})$/, { excludeEmptyString: true }),
+            t: yup.number().required(),
+          })
+        ),
+    }),
 });
 
 export type StatusEvent = yup.InferType<typeof StatusEventSchema>;
