@@ -19,7 +19,7 @@
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(11);  // Increment for each release
+PRODUCT_VERSION(12);  // Increment for each release
 
 
 //

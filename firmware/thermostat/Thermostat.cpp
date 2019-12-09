@@ -51,8 +51,9 @@ void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperat
         proposedActions.Cool = true;
     }
 
-    // Circulate - FUTURE
-    proposedActions.Circulate = false;
+    // Circulate - whenever allowed
+    // FUTURE: circulate up/down to some threshold, or to some delta to another thermostat?
+    proposedActions.Circulate = true;
 
     // Intersect with allowed actions
     proposedActions = proposedActions & Configuration.AllowedActions();
