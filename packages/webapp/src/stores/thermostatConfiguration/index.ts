@@ -1,5 +1,6 @@
 import { flow, observable } from "mobx";
 import gql from "graphql-tag";
+import { ApolloQueryResult } from "apollo-client";
 
 import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
@@ -55,12 +56,17 @@ export class ThermostatConfigurationStore {
     this.state = "fetching";
 
     try {
-      const queryResult = yield ApolloClient.query<ThermostatConfigurationsStoreQuery, {}>({
+      // TypeScripts clowning for MobX/flow/yield
+      const yieldedQueryResult = yield ApolloClient.query<ThermostatConfigurationsStoreQuery, {}>({
         query: ThermostatConfigurationsStoreDocument,
       });
 
+      const queryResult = (yieldedQueryResult as unknown) as ApolloQueryResult<
+        ThermostatConfigurationsStoreQuery
+      >;
+
       if (queryResult.errors) {
-        throw new Error(queryResult.errors);
+        throw new Error(queryResult.errors.toString());
       }
 
       if (!queryResult.data || !queryResult.data.getThermostatConfigurations) {
