@@ -80,7 +80,7 @@ class App extends React.Component<Props, State> {
               {/* Utility routes */}
               <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
               {/* Actual pages */}
-              <AppliedRoute path="/" exact component={Home} props={childProps} />
+              <AppliedRoute path="/" exact component={Home} props={{ ...childProps, rootStore }} />
               <AuthenticatedRoute
                 path="/configuration"
                 exact

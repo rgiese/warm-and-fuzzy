@@ -6,8 +6,11 @@ import AuthStateProps from "../common/AuthStateProps";
 import LatestThermostatValues from "../components/LatestThermostatValues";
 import LatestSensorValues from "../components/LatestSensorValues";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props extends AuthStateProps {}
+import { RootStore } from "../stores/stores";
+
+interface Props extends AuthStateProps {
+  rootStore: RootStore;
+}
 
 class State {}
 
@@ -27,7 +30,7 @@ class Home extends React.Component<Props, State> {
         <Divider horizontal>
           <Header as="h4">Thermostats</Header>
         </Divider>
-        <LatestThermostatValues />
+        <LatestThermostatValues rootStore={this.props.rootStore} />
 
         <Divider horizontal style={{ paddingTop: "2em" }}>
           <Header as="h4">Sensors</Header>
