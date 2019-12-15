@@ -91,7 +91,8 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
   };
 
   sortData = (): T[] => {
-    return this.props.data.sort((lhs, rhs): number => {
+    // .slice(): Duplicate data so we don't mutate the passed-in object
+    return this.props.data.slice().sort((lhs, rhs): number => {
       const ascendingResult = this.compareAscending(lhs, rhs);
       return this.state.sortAscending ? ascendingResult : -1 * ascendingResult;
     });
