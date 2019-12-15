@@ -5,26 +5,30 @@ import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 import GraphqlMutableStoreBase from "../GraphqlMutableStoreBase";
 
 import {
-  SensorConfigurationsStoreDocument,
   SensorConfigurationsStoreQuery,
-  UpdateSensorConfigurationStoreDocument,
   UpdateSensorConfigurationStoreMutation,
   UpdateSensorConfigurationStoreMutationVariables,
 } from "../../generated/graphqlClient";
 
-gql`
+const sensorConfigurationFragments = gql`
   fragment SensorConfigurationStoreFields on SensorConfiguration {
     id
     name
     streamName
   }
+`;
 
+const sensorConfigurationsStoreDocument = gql`
+  ${sensorConfigurationFragments}
   query SensorConfigurationsStore {
     getSensorConfigurations {
       ...SensorConfigurationStoreFields
     }
   }
+`;
 
+const updateSensorConfigurationStoreDocument = gql`
+  ${sensorConfigurationFragments}
   mutation UpdateSensorConfigurationStore($SensorConfiguration: SensorConfigurationUpdateInput!) {
     updateSensorConfiguration(sensorConfiguration: $SensorConfiguration) {
       ...SensorConfigurationStoreFields
@@ -45,12 +49,12 @@ export class SensorConfigurationStore extends GraphqlMutableStoreBase<
   public constructor() {
     super(
       // Mutation
-      UpdateSensorConfigurationStoreDocument,
+      updateSensorConfigurationStoreDocument,
       (item: SensorConfiguration) => {
         return { SensorConfiguration: item };
       },
       // Query
-      SensorConfigurationsStoreDocument,
+      sensorConfigurationsStoreDocument,
       (queryData: SensorConfigurationsStoreQuery) => {
         return queryData.getSensorConfigurations;
       }

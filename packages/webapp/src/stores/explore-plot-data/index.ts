@@ -8,14 +8,10 @@ import Timezone from "../explore/Timezone";
 import { viewSpanToDays } from "../explore/ViewSpan";
 
 import gql from "graphql-tag";
-import {
-  PlotSeriesDocument,
-  PlotSeriesQuery,
-  PlotSeriesQueryVariables,
-} from "../../generated/graphqlClient";
+import { PlotSeriesQuery, PlotSeriesQueryVariables } from "../../generated/graphqlClient";
 import ApolloClient from "../../services/ApolloClient";
 
-gql`
+const plotSeriesDocument = gql`
   query PlotSeries($streamName: String!, $fromDate: DateTime!, $toDate: DateTime!) {
     getThermostatValueStreams(streamName: $streamName, fromDate: $fromDate, toDate: $toDate) {
       deviceTime
@@ -113,7 +109,7 @@ export class ExplorePlotDataStore {
 
             const queryResult = await ApolloClient.query<PlotSeriesQuery, PlotSeriesQueryVariables>(
               {
-                query: PlotSeriesDocument,
+                query: plotSeriesDocument,
                 variables: {
                   streamName: definition.streamName,
                   fromDate,

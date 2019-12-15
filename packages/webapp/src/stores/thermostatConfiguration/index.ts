@@ -5,14 +5,12 @@ import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 import GraphqlMutableStoreBase from "../GraphqlMutableStoreBase";
 
 import {
-  ThermostatConfigurationsStoreDocument,
   ThermostatConfigurationsStoreQuery,
-  UpdateThermostatConfigurationStoreDocument,
   UpdateThermostatConfigurationStoreMutation,
   UpdateThermostatConfigurationStoreMutationVariables,
 } from "../../generated/graphqlClient";
 
-gql`
+const thermostatConfigurationsFragment = gql`
   fragment ThermostatConfigurationStoreFields on ThermostatConfiguration {
     id
     name
@@ -25,13 +23,19 @@ gql`
     threshold
     cadence
   }
+`;
 
+const thermostatConfigurationsStoreDocument = gql`
+  ${thermostatConfigurationsFragment}
   query ThermostatConfigurationsStore {
     getThermostatConfigurations {
       ...ThermostatConfigurationStoreFields
     }
   }
+`;
 
+const updateThermostatConfigurationStoreDocument = gql`
+  ${thermostatConfigurationsFragment}
   mutation UpdateThermostatConfigurationStore(
     $thermostatConfiguration: ThermostatConfigurationUpdateInput!
   ) {
@@ -54,12 +58,12 @@ export class ThermostatConfigurationStore extends GraphqlMutableStoreBase<
   public constructor() {
     super(
       // Mutation
-      UpdateThermostatConfigurationStoreDocument,
+      updateThermostatConfigurationStoreDocument,
       (item: ThermostatConfiguration) => {
         return { thermostatConfiguration: item };
       },
       // Query
-      ThermostatConfigurationsStoreDocument,
+      thermostatConfigurationsStoreDocument,
       (queryData: ThermostatConfigurationsStoreQuery) => {
         return queryData.getThermostatConfigurations;
       }

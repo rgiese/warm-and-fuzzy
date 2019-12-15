@@ -4,12 +4,9 @@ import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import GraphqlStoreBase from "../GraphqlStoreBase";
 
-import {
-  LatestThermostatValuesStoreDocument,
-  LatestThermostatValuesStoreQuery,
-} from "../../generated/graphqlClient";
+import { LatestThermostatValuesStoreQuery } from "../../generated/graphqlClient";
 
-gql`
+const latestThermostatValuesStoreDocument = gql`
   query LatestThermostatValuesStore {
     getLatestThermostatValues {
       id
@@ -31,7 +28,7 @@ export class LatestThermostatValuesStore extends GraphqlStoreBase<
 > {
   public constructor() {
     super(
-      LatestThermostatValuesStoreDocument,
+      latestThermostatValuesStoreDocument,
       (queryData: LatestThermostatValuesStoreQuery) => {
         return queryData.getLatestThermostatValues;
       },
