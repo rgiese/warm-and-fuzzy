@@ -28,8 +28,8 @@ const LatestThermostatValues: React.FunctionComponent<{ rootStore: RootStore }> 
 
   const storeDependencies = [latestThermostatValuesStore, thermostatConfigurationStore];
 
-  if (!StoreChecks.areStoresReady(storeDependencies)) {
-    return StoreChecks.renderStoreLoadingOrErrorComponent(storeDependencies);
+  if (!StoreChecks.areStoresAvailable(storeDependencies)) {
+    return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
   }
 
   // Build maps

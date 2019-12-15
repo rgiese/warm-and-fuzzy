@@ -29,8 +29,8 @@ const ThermostatConfigs: React.FunctionComponent<{ rootStore: RootStore }> = ({
 }): React.ReactElement => {
   const storeDependencies = [rootStore.thermostatConfigurationStore];
 
-  if (!StoreChecks.areStoresReady(storeDependencies)) {
-    return StoreChecks.renderStoreLoadingOrErrorComponent(storeDependencies);
+  if (!StoreChecks.areStoresAvailable(storeDependencies)) {
+    return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
   }
 
   const canEdit = GlobalAuth.Permissions.includes(Authorization.Permissions.WriteConfig);

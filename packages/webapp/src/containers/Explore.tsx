@@ -81,8 +81,8 @@ class Explore extends React.Component<Props, State> {
 
     const storeDependencies = [thermostatConfigurationStore];
 
-    if (!StoreChecks.areStoresReady(storeDependencies)) {
-      return StoreChecks.renderStoreLoadingOrErrorComponent(storeDependencies);
+    if (!StoreChecks.areStoresAvailable(storeDependencies)) {
+      return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
     }
 
     return (

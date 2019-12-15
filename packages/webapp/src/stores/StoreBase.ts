@@ -12,6 +12,10 @@ export default class StoreBase {
     return this.state === "ready";
   }
 
+  @computed get isUpdating(): boolean {
+    return this.state === "updating";
+  }
+
   @computed get hasErrors(): boolean {
     return this.state === "error";
   }

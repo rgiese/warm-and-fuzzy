@@ -3,12 +3,11 @@ import { Message } from "semantic-ui-react";
 
 import StoreBase from "../stores/StoreBase";
 
-export function areStoresReady(stores: StoreBase[]) {
-  const anyStoresWorking = stores.some(store => store.isWorking);
-  return !anyStoresWorking;
+export function areStoresAvailable(stores: StoreBase[]) {
+  return stores.every(store => store.isReady || store.isUpdating);
 }
 
-export function renderStoreLoadingOrErrorComponent(stores: StoreBase[]) {
+export function renderStoreWorkingOrErrorComponent(stores: StoreBase[]) {
   const anyStoresWorking = stores.some(store => store.isWorking);
 
   if (anyStoresWorking) {
