@@ -134,7 +134,7 @@ class Explore extends React.Component<Props, State> {
             className="icon"
             icon="add"
             labeled
-            loading={thermostatConfigurationStore.state === "fetching"}
+            loading={thermostatConfigurationStore.isWorking}
             text="Add series"
             search
             options={thermostatConfigurationStore.data.map(config => {
