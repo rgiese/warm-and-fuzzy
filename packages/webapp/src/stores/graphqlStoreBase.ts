@@ -1,8 +1,15 @@
-import { flow, observable } from "mobx";
+import { action, flow, observable } from "mobx";
 import { ApolloQueryResult } from "apollo-client";
 import { DocumentNode } from "graphql";
 
 import ApolloClient from "../services/ApolloClient";
+
+import StoreBase from "./StoreBase";
+
+interface IdType {
+  id: string;
+  __typename?: string;
+}
 
 interface QueryResultExtractor<TResult, TQuery> {
   (queryData: TQuery): TResult[];
@@ -12,10 +19,7 @@ interface QueryResultPatcher<TResult> {
   (data: TResult): TResult;
 }
 
-export default class GraphqlStoreBase<T, TQuery> {
-  @observable state: "fetching" | "ready" | "error" = "fetching";
-  error?: string;
-
+export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBase {
   readonly data = observable.array<T>([]);
 
   private queryDocument: DocumentNode;
@@ -27,6 +31,8 @@ export default class GraphqlStoreBase<T, TQuery> {
     resultExtractor: QueryResultExtractor<T, TQuery>,
     resultPatcher?: QueryResultPatcher<T>
   ) {
+    super();
+
     this.queryDocument = queryDocument;
     this.resultExtractor = resultExtractor;
     this.resultPatcher = resultPatcher;
@@ -67,4 +73,18 @@ export default class GraphqlStoreBase<T, TQuery> {
       this.state = "error";
     }
   });
+
+  @action
+  updateItem(item: T) {
+    const updatedItemIndex = this.data.findIndex(existingItem => existingItem.id === item.id);
+
+    // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
+    if (item.__typename) {
+      delete item.__typename;
+    }
+
+    // TODO: Persist change
+
+    this.data[updatedItemIndex] = item;
+  }
 }

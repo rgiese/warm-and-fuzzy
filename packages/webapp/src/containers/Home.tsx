@@ -3,10 +3,10 @@ import { Container, Divider, Header } from "semantic-ui-react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
+import { RootStore } from "../stores/stores";
+
 import LatestThermostatValues from "../components/LatestThermostatValues";
 import LatestSensorValues from "../components/LatestSensorValues";
-
-import { RootStore } from "../stores/stores";
 
 interface Props extends AuthStateProps {
   rootStore: RootStore;

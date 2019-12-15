@@ -1,5 +1,6 @@
 import React from "react";
 import { Table, StrictTableProps } from "semantic-ui-react";
+import { observer } from "mobx-react";
 
 interface TableData {
   [key: string]: string | number | Date | Array<string> | Array<number> | undefined;
@@ -35,6 +36,7 @@ class State<T> {
   sortAscending: boolean;
 }
 
+@observer // required when used with MobX store data
 class SortableTable<T extends TableData> extends React.Component<Props<T>, State<T>> {
   public constructor(props: Props<T>) {
     super(props);

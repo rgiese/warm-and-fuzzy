@@ -61,9 +61,14 @@ class App extends React.Component<Props, State> {
   };
 
   public render(): React.ReactElement {
-    const childProps: AuthStateProps = {
+    const childAuthStateProps: AuthStateProps = {
       isAuthenticated: this.state.isAuthenticated,
       setIsAuthenticated: this.setIsAuthenticated,
+    };
+
+    const childProps = {
+      ...childAuthStateProps,
+      rootStore,
     };
 
     // Documentation for Router:
@@ -80,7 +85,7 @@ class App extends React.Component<Props, State> {
               {/* Utility routes */}
               <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
               {/* Actual pages */}
-              <AppliedRoute path="/" exact component={Home} props={{ ...childProps, rootStore }} />
+              <AppliedRoute path="/" exact component={Home} props={childProps} />
               <AuthenticatedRoute
                 path="/configuration"
                 exact
@@ -91,7 +96,7 @@ class App extends React.Component<Props, State> {
                 path="/explore"
                 exact
                 component={Explore}
-                props={{ ...childProps, rootStore, exploreStore, explorePlotDataStore }}
+                props={{ ...childProps, exploreStore, explorePlotDataStore }}
               />
               {/* Finally, catch all unmatched routes */}
               <Route component={NotFound} />

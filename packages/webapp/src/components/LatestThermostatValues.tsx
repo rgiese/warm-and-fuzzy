@@ -1,10 +1,10 @@
 import React from "react";
-import { Message } from "semantic-ui-react";
 import { observer } from "mobx-react";
 
 import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import { RootStore, LatestThermostatValuesStore } from "../stores/stores";
+import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
@@ -26,19 +26,10 @@ const LatestThermostatValues: React.FunctionComponent<{ rootStore: RootStore }> 
   const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
 
-  if (thermostatConfigurationStore.state === "error") {
-    return <Message negative content={thermostatConfigurationStore.error} />;
-  }
+  const storeDependencies = [latestThermostatValuesStore, thermostatConfigurationStore];
 
-  if (latestThermostatValuesStore.state === "error") {
-    return <Message negative content={latestThermostatValuesStore.error} />;
-  }
-
-  if (
-    thermostatConfigurationStore.state === "fetching" ||
-    latestThermostatValuesStore.state === "fetching"
-  ) {
-    return <Message content="Fetching..." />;
+  if (!StoreChecks.areStoresReady(storeDependencies)) {
+    return StoreChecks.renderStoreLoadingOrErrorComponent(storeDependencies);
   }
 
   // Build maps

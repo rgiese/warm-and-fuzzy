@@ -1,16 +1,21 @@
 import React from "react";
 import { Divider, Header } from "semantic-ui-react";
+import { observer } from "mobx-react";
 
 import AuthStateProps from "../common/AuthStateProps";
+
+import { RootStore } from "../stores/stores";
 
 import SensorConfigurations from "../components/SensorConfigurations";
 import ThermostatConfigurations from "../components/ThermostatConfigurations";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props extends AuthStateProps {}
+interface Props extends AuthStateProps {
+  rootStore: RootStore;
+}
 
 class State {}
 
+@observer
 class Configuration extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
@@ -23,7 +28,7 @@ class Configuration extends React.Component<Props, State> {
         <Divider horizontal>
           <Header as="h4">Thermostats</Header>
         </Divider>
-        <ThermostatConfigurations />
+        <ThermostatConfigurations rootStore={this.props.rootStore} />
 
         <Divider horizontal style={{ paddingTop: "2em" }}>
           <Header as="h4">Sensors</Header>

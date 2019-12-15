@@ -1,50 +1,15 @@
 import React from "react";
-import gql from "graphql-tag";
+import { observer } from "mobx-react";
 
-import { Authorization, TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
 import { GlobalAuth } from "../services/Auth";
+
+import { RootStore, ThermostatConfiguration } from "../stores/stores";
+import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
-import {
-  ThermostatConfigurationsComponent,
-  ThermostatConfigurationsQuery,
-} from "../generated/graphqlClient";
-
 import ThermostatConfigurationModal from "./ThermostatConfigurationModal";
-
-gql`
-  fragment ThermostatConfigurationFields on ThermostatConfiguration {
-    id
-    name
-    streamName
-    availableActions
-    allowedActions
-    setPointHeat
-    setPointCool
-    externalSensorId
-    threshold
-    cadence
-  }
-
-  query ThermostatConfigurations {
-    getThermostatConfigurations {
-      ...ThermostatConfigurationFields
-    }
-  }
-
-  mutation UpdateThermostatConfiguration(
-    $thermostatConfiguration: ThermostatConfigurationUpdateInput!
-  ) {
-    updateThermostatConfiguration(thermostatConfiguration: $thermostatConfiguration) {
-      ...ThermostatConfigurationFields
-    }
-  }
-`;
-
-type ThermostatConfiguration = TypeTools.ArrayElementType<
-  TypeTools.PropType<ThermostatConfigurationsQuery, "getThermostatConfigurations">
->;
 
 const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "id", label: "ID" },
@@ -59,40 +24,31 @@ const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "availableActions", label: "Available actions" },
 ];
 
-const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
+const ThermostatConfigs: React.FunctionComponent<{ rootStore: RootStore }> = ({
+  rootStore,
+}): React.ReactElement => {
+  const storeDependencies = [rootStore.thermostatConfigurationStore];
+
+  if (!StoreChecks.areStoresReady(storeDependencies)) {
+    return StoreChecks.renderStoreLoadingOrErrorComponent(storeDependencies);
+  }
+
+  const canEdit = GlobalAuth.Permissions.includes(Authorization.Permissions.WriteConfig);
+
+  const fnBuildEditControl = (value: ThermostatConfiguration): React.ReactElement => (
+    <ThermostatConfigurationModal values={value} store={rootStore.thermostatConfigurationStore} />
+  );
+
   return (
-    <ThermostatConfigurationsComponent>
-      {({ loading, error, data }): React.ReactElement => {
-        if (loading) {
-          return <p>Loading...</p>;
-        }
-
-        if (error || !data || !data.getThermostatConfigurations) {
-          return (
-            <p>
-              Error: <pre>{JSON.stringify(error)}</pre>
-            </p>
-          );
-        }
-
-        const canEdit = GlobalAuth.Permissions.includes(Authorization.Permissions.WriteConfig);
-        const fnBuildEditControl = (value: ThermostatConfiguration): React.ReactElement => (
-          <ThermostatConfigurationModal values={value} />
-        );
-
-        return (
-          <SortableTable
-            tableProps={{ basic: "very", compact: true, size: "small" }}
-            data={data.getThermostatConfigurations}
-            fieldDefinitions={tableDefinition}
-            keyField="id"
-            defaultSortField="name"
-            right={canEdit ? fnBuildEditControl : undefined}
-          />
-        );
-      }}
-    </ThermostatConfigurationsComponent>
+    <SortableTable
+      tableProps={{ basic: "very", compact: true, size: "small" }}
+      data={rootStore.thermostatConfigurationStore.data}
+      fieldDefinitions={tableDefinition}
+      keyField="id"
+      defaultSortField="name"
+      right={canEdit ? fnBuildEditControl : undefined}
+    />
   );
 };
 
-export default ThermostatConfigs;
+export default observer(ThermostatConfigs);

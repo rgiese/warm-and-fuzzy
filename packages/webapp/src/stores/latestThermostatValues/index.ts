@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import GraphqlStoreBase from "../graphqlStoreBase";
+import GraphqlStoreBase from "../GraphqlStoreBase";
 
 import {
   LatestThermostatValuesStoreDocument,
@@ -21,7 +21,7 @@ gql`
   }
 `;
 
-type LatestThermostatValue = TypeTools.ArrayElementType<
+export type LatestThermostatValue = TypeTools.ArrayElementType<
   TypeTools.PropType<LatestThermostatValuesStoreQuery, "getLatestThermostatValues">
 >;
 

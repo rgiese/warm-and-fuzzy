@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import GraphqlStoreBase from "../graphqlStoreBase";
+import GraphqlStoreBase from "../GraphqlStoreBase";
 
 import {
   ThermostatConfigurationsStoreDocument,
@@ -37,7 +37,7 @@ gql`
   }
 `;
 
-type ThermostatConfiguration = TypeTools.ArrayElementType<
+export type ThermostatConfiguration = TypeTools.ArrayElementType<
   TypeTools.PropType<ThermostatConfigurationsStoreQuery, "getThermostatConfigurations">
 >;
 

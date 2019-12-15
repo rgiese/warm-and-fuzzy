@@ -1,6 +1,6 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { Container, Dropdown, DropdownProps, Message, Segment } from "semantic-ui-react";
+import { Container, Dropdown, DropdownProps, Segment } from "semantic-ui-react";
 import { observer } from "mobx-react";
 import moment from "moment";
 
@@ -11,6 +11,7 @@ import Timezone, { Timezones } from "../stores/explore/Timezone";
 import ViewSpan, { ViewSpans, viewSpanToDays } from "../stores/explore/ViewSpan";
 
 import { RootStore, ExploreStore, ExplorePlotDataStore } from "../stores/stores";
+import * as StoreChecks from "../components/StoreChecks";
 
 interface Props extends RouteComponentProps {
   rootStore: RootStore;
@@ -78,11 +79,14 @@ class Explore extends React.Component<Props, State> {
     const exploreStore = this.props.exploreStore;
     const thermostatConfigurationStore = this.props.rootStore.thermostatConfigurationStore;
 
+    const storeDependencies = [thermostatConfigurationStore];
+
+    if (!StoreChecks.areStoresReady(storeDependencies)) {
+      return StoreChecks.renderStoreLoadingOrErrorComponent(storeDependencies);
+    }
+
     return (
       <Container>
-        {thermostatConfigurationStore.state === "error" && (
-          <Message negative content={thermostatConfigurationStore.error} />
-        )}
         <Segment>
           {/* View settings */}
           Show data for a{` `}
