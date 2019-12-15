@@ -60,6 +60,11 @@ All commands below start the mobile app server locally, varying which API it cal
 - `lerna clean` to wipe all `node_modules` from packages (though not the root)
 - `lerna link convert` to move a new package's dev dependencies up to the root `package.json`
 - `npx sort-package-json` to clean up `package.json` files
+- Updating packages (run in repo root):
+  - `npm update`
+  - `lerna exec npm update --stream`
+  - `lerna bootstrap`
+  - `npm run build` to verify
 
 ### Android
 
