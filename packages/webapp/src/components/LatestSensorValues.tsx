@@ -26,15 +26,10 @@ const LatestSensorValues: React.FunctionComponent<{ rootStore: RootStore }> = ({
     return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
   }
 
-  // Build maps
-  const sensorNames = new Map(
-    sensorConfigurationStore.data.map((c): [string, string] => [c.id, c.name])
-  );
-
   // Project data
   const values = latestSensorValuesStore.data.map(
     (value): SensorValue => {
-      return { ...value, name: sensorNames.get(value.id) || value.id };
+      return { ...value, name: sensorConfigurationStore.findById(value.id)?.name || value.id };
     }
   );
 

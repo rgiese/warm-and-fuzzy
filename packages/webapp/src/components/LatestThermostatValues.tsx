@@ -28,15 +28,10 @@ const LatestThermostatValues: React.FunctionComponent<{ rootStore: RootStore }> 
     return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
   }
 
-  // Build maps
-  const thermostatNames = new Map(
-    thermostatConfigurationStore.data.map((c): [string, string] => [c.id, c.name])
-  );
-
   // Project data
   const values = latestThermostatValuesStore.data.map(
     (value): ThermostatValue => {
-      return { ...value, name: thermostatNames.get(value.id) || value.id };
+      return { ...value, name: thermostatConfigurationStore.findById(value.id)?.name || value.id };
     }
   );
 

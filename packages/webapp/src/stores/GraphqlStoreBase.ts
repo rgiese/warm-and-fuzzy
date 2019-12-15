@@ -1,4 +1,5 @@
 import { flow, observable } from "mobx";
+import { computedFn } from "mobx-utils";
 import { ApolloQueryResult } from "apollo-client";
 import { DocumentNode } from "graphql";
 
@@ -72,5 +73,11 @@ export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBas
       this.error = JSON.stringify(error); // stringify exception
       this.state = "error";
     }
+  });
+
+  findById = computedFn(function(this: GraphqlStoreBase<T, TQuery>, id: string): T | undefined {
+    // For now we're going to assume that our datasets are small enough
+    // that a linear search is good enough.
+    return this.data.find(item => item.id === id);
   });
 }
