@@ -27,7 +27,7 @@ gql`
 
   query ThermostatConfigurationsStore {
     getThermostatConfigurations {
-      ...ThermostatConfigurationFields
+      ...ThermostatConfigurationStoreFields
     }
   }
 
@@ -35,7 +35,7 @@ gql`
     $thermostatConfiguration: ThermostatConfigurationUpdateInput!
   ) {
     updateThermostatConfiguration(thermostatConfiguration: $thermostatConfiguration) {
-      ...ThermostatConfigurationFields
+      ...ThermostatConfigurationStoreFields
     }
   }
 `;
