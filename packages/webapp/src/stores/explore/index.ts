@@ -53,7 +53,7 @@ export class ExploreStore {
     const instanceId = this.nextSeriesInstanceId;
     ++this.nextSeriesInstanceId;
 
-    const seriesIdentifier = thermostatConfigurationStore.thermostatConfigurations.find(
+    const seriesIdentifier = thermostatConfigurationStore.data.find(
       series => series.streamName === streamName
     );
 

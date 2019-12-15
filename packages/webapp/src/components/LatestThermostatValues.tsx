@@ -43,10 +43,7 @@ const LatestThermostatValues: React.FunctionComponent<{ rootStore: RootStore }> 
 
   // Build maps
   const thermostatNames = new Map(
-    thermostatConfigurationStore.thermostatConfigurations.map((c): [string, string] => [
-      c.id,
-      c.name,
-    ])
+    thermostatConfigurationStore.data.map((c): [string, string] => [c.id, c.name])
   );
 
   // Project data

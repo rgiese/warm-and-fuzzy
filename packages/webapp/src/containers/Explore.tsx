@@ -133,7 +133,7 @@ class Explore extends React.Component<Props, State> {
             loading={thermostatConfigurationStore.state === "fetching"}
             text="Add series"
             search
-            options={thermostatConfigurationStore.thermostatConfigurations.map(config => {
+            options={thermostatConfigurationStore.data.map(config => {
               return { key: config.streamName, value: config.streamName, text: config.name };
             })}
             onChange={this.handleSeriesInstanceAdded}
