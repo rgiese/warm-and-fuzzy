@@ -2,6 +2,7 @@
 
 export * from "./RootStore";
 export * from "./latestThermostatValues";
+export * from "./sensorConfiguration";
 export * from "./thermostatConfiguration";
 export * from "./explore";
 export * from "./explore-plot-data";

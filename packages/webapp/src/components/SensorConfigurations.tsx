@@ -1,41 +1,15 @@
 import React from "react";
-import gql from "graphql-tag";
+import { observer } from "mobx-react";
 
-import { Authorization, TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
 import { GlobalAuth } from "../services/Auth";
+
+import { RootStore, SensorConfiguration } from "../stores/stores";
+import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
-import {
-  SensorConfigurationsComponent,
-  SensorConfigurationsQuery,
-} from "../generated/graphqlClient";
-
 import SensorConfigurationModal from "./SensorConfigurationModal";
-
-gql`
-  fragment SensorConfigurationFields on SensorConfiguration {
-    id
-    name
-    streamName
-  }
-
-  query SensorConfigurations {
-    getSensorConfigurations {
-      ...SensorConfigurationFields
-    }
-  }
-
-  mutation UpdateSensorConfiguration($sensorConfiguration: SensorConfigurationUpdateInput!) {
-    updateSensorConfiguration(sensorConfiguration: $sensorConfiguration) {
-      ...SensorConfigurationFields
-    }
-  }
-`;
-
-type SensorConfiguration = TypeTools.ArrayElementType<
-  TypeTools.PropType<SensorConfigurationsQuery, "getSensorConfigurations">
->;
 
 const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
   { field: "id", label: "ID" },
@@ -43,40 +17,31 @@ const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
   { field: "streamName", label: "Stream Name" },
 ];
 
-const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
+const SensorConfigs: React.FunctionComponent<{ rootStore: RootStore }> = ({
+  rootStore,
+}): React.ReactElement => {
+  const storeDependencies = [rootStore.sensorConfigurationStore];
+
+  if (!StoreChecks.areStoresAvailable(storeDependencies)) {
+    return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
+  }
+
+  const canEdit = GlobalAuth.Permissions.includes(Authorization.Permissions.WriteConfig);
+
+  const fnBuildEditControl = (value: SensorConfiguration): React.ReactElement => (
+    <SensorConfigurationModal values={value} store={rootStore.sensorConfigurationStore} />
+  );
+
   return (
-    <SensorConfigurationsComponent>
-      {({ loading, error, data }): React.ReactElement => {
-        if (loading) {
-          return <p>Loading...</p>;
-        }
-
-        if (error || !data || !data.getSensorConfigurations) {
-          return (
-            <p>
-              Error: <pre>{JSON.stringify(error)}</pre>
-            </p>
-          );
-        }
-
-        const canEdit = GlobalAuth.Permissions.includes(Authorization.Permissions.WriteConfig);
-        const fnBuildEditControl = (value: SensorConfiguration): React.ReactElement => (
-          <SensorConfigurationModal values={value} />
-        );
-
-        return (
-          <SortableTable
-            tableProps={{ basic: "very", compact: true, size: "small" }}
-            data={data.getSensorConfigurations}
-            fieldDefinitions={tableDefinition}
-            keyField="id"
-            defaultSortField="name"
-            right={canEdit ? fnBuildEditControl : undefined}
-          />
-        );
-      }}
-    </SensorConfigurationsComponent>
+    <SortableTable
+      tableProps={{ basic: "very", compact: true, size: "small" }}
+      data={rootStore.sensorConfigurationStore.data}
+      fieldDefinitions={tableDefinition}
+      keyField="id"
+      defaultSortField="name"
+      right={canEdit ? fnBuildEditControl : undefined}
+    />
   );
 };
 
-export default SensorConfigs;
+export default observer(SensorConfigs);

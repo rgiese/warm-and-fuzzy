@@ -33,7 +33,7 @@ class Configuration extends React.Component<Props, State> {
         <Divider horizontal style={{ paddingTop: "2em" }}>
           <Header as="h4">Sensors</Header>
         </Divider>
-        <SensorConfigurations />
+        <SensorConfigurations rootStore={this.props.rootStore} />
       </>
     );
   }
