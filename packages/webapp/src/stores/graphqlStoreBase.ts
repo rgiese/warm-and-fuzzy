@@ -11,11 +11,11 @@ export interface IdType {
   __typename?: string;
 }
 
-export interface QueryResultExtractor<TResult, TQuery> {
+export interface QueryResultDataExtractor<TResult, TQuery> {
   (queryData: TQuery): TResult[];
 }
 
-export interface QueryResultPatcher<TResult> {
+export interface QueryResultDataItemPatcher<TResult> {
   (data: TResult): TResult;
 }
 
@@ -23,19 +23,19 @@ export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBas
   readonly data = observable.array<T>([]);
 
   private queryDocument: DocumentNode;
-  private resultExtractor: QueryResultExtractor<T, TQuery>;
-  private resultPatcher?: QueryResultPatcher<T>;
+  private queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>;
+  private queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>;
 
   public constructor(
     queryDocument: DocumentNode,
-    resultExtractor: QueryResultExtractor<T, TQuery>,
-    resultPatcher?: QueryResultPatcher<T>
+    queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
+    queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
   ) {
     super();
 
     this.queryDocument = queryDocument;
-    this.resultExtractor = resultExtractor;
-    this.resultPatcher = resultPatcher;
+    this.queryResultDataExtractor = queryResultDataExtractor;
+    this.queryResultDataItemPatcher = queryResultDataItemPatcher;
 
     this.fetchData();
   }
@@ -44,8 +44,8 @@ export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBas
     this.state = "fetching";
 
     try {
-      // TypeScripts clowning around for MobX/flow requiring yield vs. await
-      const yieldedQueryResult = yield ApolloClient.query<TQuery, {}>({
+      // TypeScript clowning around for MobX/flow requiring yield vs. await
+      const yieldedQueryResult = yield ApolloClient.query<TQuery>({
         query: this.queryDocument,
       });
 
@@ -59,17 +59,17 @@ export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBas
         throw new Error("No data returned");
       }
 
-      const extractedData = this.resultExtractor(queryResult.data);
+      const data = this.queryResultDataExtractor(queryResult.data);
 
-      if (!this.resultPatcher) {
-        this.data.replace(extractedData);
+      if (!this.queryResultDataItemPatcher) {
+        this.data.replace(data);
       } else {
-        this.data.replace(extractedData.map(this.resultPatcher));
+        this.data.replace(data.map(this.queryResultDataItemPatcher));
       }
 
       this.state = "ready";
     } catch (error) {
-      this.error = JSON.stringify(error);
+      this.error = error;
       this.state = "error";
     }
   });
