@@ -18,6 +18,7 @@ gql`
     name
     streamName
     availableActions
+    externalSensorId
     allowedActions
     setPointHeat
     setPointCool
