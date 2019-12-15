@@ -1,38 +1,78 @@
-import { action } from "mobx";
-//import { ApolloQueryResult } from "apollo-client";
+import { flow } from "mobx";
+import { FetchResult } from "apollo-link";
 import { DocumentNode } from "graphql";
-
-//import ApolloClient from "../services/ApolloClient";
+import ApolloClient from "../services/ApolloClient";
 
 import GraphqlStoreBase, {
   IdType,
-  QueryResultExtractor,
-  QueryResultPatcher,
+  QueryResultDataExtractor,
+  QueryResultDataItemPatcher,
 } from "./GraphqlStoreBase";
 
-export default class GraphqlMutableStoreBase<T extends IdType, TQuery> extends GraphqlStoreBase<
-  T,
-  TQuery
-> {
+export interface MutationVariablesBuilder<T extends IdType, TMutationVariables> {
+  (item: T): TMutationVariables;
+}
+
+export default class GraphqlMutableStoreBase<
+  T extends IdType,
+  TQuery,
+  TMutation,
+  TMutationVariables
+> extends GraphqlStoreBase<T, TQuery> {
+  private mutationDocument: DocumentNode;
+  private mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>;
+
   public constructor(
+    mutationDocument: DocumentNode,
+    mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>,
     queryDocument: DocumentNode,
-    resultExtractor: QueryResultExtractor<T, TQuery>,
-    resultPatcher?: QueryResultPatcher<T>
+    queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
+    queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
   ) {
-    super(queryDocument, resultExtractor, resultPatcher);
+    super(queryDocument, queryResultDataExtractor, queryResultDataItemPatcher);
+
+    this.mutationDocument = mutationDocument;
+    this.mutationVariablesBuilder = mutationVariablesBuilder;
   }
 
-  @action
-  updateItem(item: T) {
-    const updatedItemIndex = this.data.findIndex(existingItem => existingItem.id === item.id);
+  updateItem = flow(function*(
+    this: GraphqlMutableStoreBase<T, TQuery, TMutation, TMutationVariables>,
+    item: T
+  ) {
+    this.state = "updating";
 
-    // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
-    if (item.__typename) {
-      delete item.__typename;
+    try {
+      const updatedItemIndex = this.data.findIndex(existingItem => existingItem.id === item.id);
+
+      if (updatedItemIndex === -1) {
+        throw new Error("Item not found");
+      }
+
+      // Remove GraphQL-injected fields that won't be accepted in a GraphQL mutation
+      if (item.__typename) {
+        delete item.__typename;
+      }
+
+      const mutationVariables = this.mutationVariablesBuilder(item);
+
+      // TypeScript clowning around for MobX/flow requiring yield vs. await
+      const yieldedMutationResult = yield ApolloClient.mutate<TMutation, TMutationVariables>({
+        mutation: this.mutationDocument,
+        variables: mutationVariables,
+      });
+
+      const mutationResult = (yieldedMutationResult as unknown) as FetchResult<TMutation>;
+
+      if (mutationResult.errors) {
+        throw new Error(mutationResult.errors.toString());
+      }
+
+      this.data[updatedItemIndex] = item;
+
+      this.state = "ready";
+    } catch (error) {
+      this.error = error;
+      this.state = "error";
     }
-
-    // TODO: Persist change
-
-    this.data[updatedItemIndex] = item;
-  }
+  });
 }

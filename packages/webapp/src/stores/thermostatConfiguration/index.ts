@@ -7,6 +7,9 @@ import GraphqlMutableStoreBase from "../GraphqlMutableStoreBase";
 import {
   ThermostatConfigurationsStoreDocument,
   ThermostatConfigurationsStoreQuery,
+  UpdateThermostatConfigurationStoreDocument,
+  UpdateThermostatConfigurationStoreMutation,
+  UpdateThermostatConfigurationStoreMutationVariables,
 } from "../../generated/graphqlClient";
 
 gql`
@@ -43,10 +46,18 @@ export type ThermostatConfiguration = TypeTools.ArrayElementType<
 
 export class ThermostatConfigurationStore extends GraphqlMutableStoreBase<
   ThermostatConfiguration,
-  ThermostatConfigurationsStoreQuery
+  ThermostatConfigurationsStoreQuery,
+  UpdateThermostatConfigurationStoreMutation,
+  UpdateThermostatConfigurationStoreMutationVariables
 > {
   public constructor() {
     super(
+      // Mutation
+      UpdateThermostatConfigurationStoreDocument,
+      (item: ThermostatConfiguration) => {
+        return { thermostatConfiguration: item };
+      },
+      // Query
       ThermostatConfigurationsStoreDocument,
       (queryData: ThermostatConfigurationsStoreQuery) => {
         return queryData.getThermostatConfigurations;

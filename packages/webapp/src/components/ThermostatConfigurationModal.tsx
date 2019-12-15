@@ -1,6 +1,5 @@
 import React from "react";
 import { Accordion, Checkbox, Form, Icon, InputOnChangeData } from "semantic-ui-react";
-import { observer } from "mobx-react";
 import { ValidationError } from "yup";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
@@ -26,7 +25,6 @@ class State {
   showSystemSetup: boolean;
 }
 
-@observer
 class ThermostatConfigurationModal extends React.Component<Props, State> {
   public constructor(props: Props) {
     super(props);
@@ -57,7 +55,7 @@ class ThermostatConfigurationModal extends React.Component<Props, State> {
       <EditFormModal
         canSave={this.state.validationError !== undefined}
         onSave={async (): Promise<void> => {
-          this.props.store.updateItem(this.state.values);
+          await this.props.store.updateItem(this.state.values);
         }}
         header={
           <>
