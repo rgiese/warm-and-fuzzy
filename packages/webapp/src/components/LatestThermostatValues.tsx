@@ -1,16 +1,12 @@
 import React from "react";
 import { observer } from "mobx-react";
 
-import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import { RootStore, LatestThermostatValuesStore } from "../stores/stores";
+import { RootStore, LatestThermostatValue } from "../stores/stores";
 import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
-type ThermostatValue = TypeTools.ArrayElementType<
-  TypeTools.PropType<LatestThermostatValuesStore, "data">
-> & { name: string };
+type ThermostatValue = LatestThermostatValue & { name: string };
 
 const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
   { field: "name", label: "Thermostat" },

@@ -35,7 +35,7 @@ class Home extends React.Component<Props, State> {
         <Divider horizontal style={{ paddingTop: "2em" }}>
           <Header as="h4">Sensors</Header>
         </Divider>
-        <LatestSensorValues />
+        <LatestSensorValues rootStore={this.props.rootStore} />
       </Container>
     );
   }
