@@ -36,7 +36,7 @@ export class LatestThermostatValuesStore extends GraphqlStoreBase<
         return queryData.getLatestThermostatValues;
       },
       (latestValue: LatestThermostatValue) => {
-        // Rehydrate date types
+        // Rehydrate Date types
         return { ...latestValue, deviceTime: new Date(latestValue.deviceTime) };
       }
     );
