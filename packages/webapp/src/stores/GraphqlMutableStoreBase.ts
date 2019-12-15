@@ -64,14 +64,14 @@ export default class GraphqlMutableStoreBase<
       const mutationResult = (yieldedMutationResult as unknown) as FetchResult<TMutation>;
 
       if (mutationResult.errors) {
-        throw new Error(mutationResult.errors.toString());
+        throw new Error(JSON.stringify(mutationResult.errors)); // stringify errors
       }
 
       this.data[updatedItemIndex] = item;
 
       this.state = "ready";
     } catch (error) {
-      this.error = error;
+      this.error = JSON.stringify(error); // stringify exception
       this.state = "error";
     }
   });

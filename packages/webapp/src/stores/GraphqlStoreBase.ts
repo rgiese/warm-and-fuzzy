@@ -52,7 +52,7 @@ export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBas
       const queryResult = (yieldedQueryResult as unknown) as ApolloQueryResult<TQuery>;
 
       if (queryResult.errors) {
-        throw new Error(queryResult.errors.toString());
+        throw new Error(JSON.stringify(queryResult.errors)); // stringify errors
       }
 
       if (!queryResult.data) {
@@ -69,7 +69,7 @@ export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBas
 
       this.state = "ready";
     } catch (error) {
-      this.error = error;
+      this.error = JSON.stringify(error); // stringify exception
       this.state = "error";
     }
   });
