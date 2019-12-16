@@ -1,4 +1,5 @@
 import React from "react";
+import { ScrollView } from "react-native";
 import { NavigationScreenProp, NavigationState } from "react-navigation";
 import { NavigationStackOptions } from "react-navigation-stack";
 
@@ -29,9 +30,11 @@ class ThermostatScreen extends React.Component<Props, State> {
   public render(): React.ReactElement {
     return (
       <BaseView>
-        <ThermostatConfiguration
-          thermostatId={this.props.navigation.state.params?.thermostatId || "0"}
-        />
+        <ScrollView>
+          <ThermostatConfiguration
+            thermostatId={this.props.navigation.state.params?.thermostatId || "0"}
+          />
+        </ScrollView>
       </BaseView>
     );
   }

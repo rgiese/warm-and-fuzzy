@@ -1,4 +1,5 @@
 import React from "react";
+import { View } from "react-native";
 import { ActivityIndicator, Button, Caption, Surface, Text, Title } from "react-native-paper";
 import { NavigationScreenProp, NavigationState } from "react-navigation";
 
@@ -43,31 +44,33 @@ class AuthScreen extends React.Component<Props, State> {
 
   public render(): React.ReactElement {
     return (
-      <BaseView contentContainerStyle={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        {this.state.signingIn ? (
-          <ActivityIndicator animating={true} />
-        ) : (
-          <>
-            <Surface
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-                height: 80,
-                marginBottom: 20,
-              }}
-            >
-              <GrumpyRobin width={60} height={60} />
-            </Surface>
-            <Title style={{ marginBottom: 20 }}>Warm and Fuzzy</Title>
-            <Button mode="contained" onPress={this.handleLogin}>
-              Sign in
-            </Button>
-            <Caption style={{ marginTop: 20 }}>
-              API target: <Text style={{ fontWeight: "bold" }}>{ConfigStageName}</Text>
-            </Caption>
-          </>
-        )}
+      <BaseView>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          {this.state.signingIn ? (
+            <ActivityIndicator animating={true} />
+          ) : (
+            <>
+              <Surface
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                  height: 80,
+                  marginBottom: 20,
+                }}
+              >
+                <GrumpyRobin width={60} height={60} />
+              </Surface>
+              <Title style={{ marginBottom: 20 }}>Warm and Fuzzy</Title>
+              <Button mode="contained" onPress={this.handleLogin}>
+                Sign in
+              </Button>
+              <Caption style={{ marginTop: 20 }}>
+                API target: <Text style={{ fontWeight: "bold" }}>{ConfigStageName}</Text>
+              </Caption>
+            </>
+          )}
+        </View>
       </BaseView>
     );
   }
