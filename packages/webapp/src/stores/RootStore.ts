@@ -3,7 +3,9 @@ import {
   LatestThermostatValuesStore,
   SensorConfigurationStore,
   ThermostatConfigurationStore,
-} from "./stores";
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import ApolloClient from "../services/ApolloClient";
 
 export class RootStore {
   readonly latestSensorValuesStore: LatestSensorValuesStore;
@@ -12,9 +14,9 @@ export class RootStore {
   readonly thermostatConfigurationStore: ThermostatConfigurationStore;
 
   public constructor() {
-    this.latestSensorValuesStore = new LatestSensorValuesStore();
-    this.latestThermostatValuesStore = new LatestThermostatValuesStore();
-    this.sensorConfigurationStore = new SensorConfigurationStore();
-    this.thermostatConfigurationStore = new ThermostatConfigurationStore();
+    this.latestSensorValuesStore = new LatestSensorValuesStore(ApolloClient);
+    this.latestThermostatValuesStore = new LatestThermostatValuesStore(ApolloClient);
+    this.sensorConfigurationStore = new SensorConfigurationStore(ApolloClient);
+    this.thermostatConfigurationStore = new ThermostatConfigurationStore(ApolloClient);
   }
 }

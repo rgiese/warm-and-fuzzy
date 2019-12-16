@@ -2,7 +2,9 @@ import gql from "graphql-tag";
 
 import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import GraphqlStoreBase from "../GraphqlStoreBase";
+import { ApolloClient } from "../../services/ApolloClientBase";
+
+import { GraphqlStoreBase } from "../GraphqlStoreBase";
 
 import { LatestSensorValuesStoreQuery } from "../../generated/graphqlClient";
 
@@ -24,8 +26,9 @@ export class LatestSensorValuesStore extends GraphqlStoreBase<
   LatestSensorValue,
   LatestSensorValuesStoreQuery
 > {
-  public constructor() {
+  public constructor(apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      apolloClient,
       latestSensorValuesStoreDocument,
       (queryData: LatestSensorValuesStoreQuery) => {
         return queryData.getLatestSensorValues;

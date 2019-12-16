@@ -3,8 +3,10 @@ import { Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 
 import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import { SensorConfiguration, SensorConfigurationStore } from "../stores/stores";
+import {
+  SensorConfiguration,
+  SensorConfigurationStore,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";

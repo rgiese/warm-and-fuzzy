@@ -3,8 +3,10 @@ import { Accordion, Checkbox, Form, Icon, InputOnChangeData } from "semantic-ui-
 import { ValidationError } from "yup";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import { ThermostatConfiguration, ThermostatConfigurationStore } from "../stores/stores";
+import {
+  ThermostatConfiguration,
+  ThermostatConfigurationStore,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";

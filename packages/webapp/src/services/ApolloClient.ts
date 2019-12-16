@@ -1,7 +1,7 @@
-import { ApolloClient } from "apollo-client";
-import { InMemoryCache } from "apollo-cache-inmemory";
 import { createHttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
+
+import { ApolloClient } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import config from "../config";
 
@@ -18,9 +18,6 @@ const apolloAuthContextLink = setContext((_, { headers }): any => {
   };
 });
 
-const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: apolloAuthContextLink.concat(apolloHttpLink),
-});
+const apolloClient = ApolloClient.buildApolloClient(apolloAuthContextLink.concat(apolloHttpLink));
 
 export default apolloClient;

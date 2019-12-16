@@ -1,6 +1,6 @@
 import { computed, observable } from "mobx";
 
-export default class StoreBase {
+export class StoreBase {
   @observable state: "fetching" | "updating" | "ready" | "error" = "fetching";
   error?: string;
 

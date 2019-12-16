@@ -2,9 +2,11 @@ import React from "react";
 import { observer } from "mobx-react";
 
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
+import { SensorConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
 import { GlobalAuth } from "../services/Auth";
 
-import { RootStore, SensorConfiguration } from "../stores/stores";
+import { RootStore } from "../stores/stores";
 import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";

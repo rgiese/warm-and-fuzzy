@@ -1,7 +1,7 @@
 import React from "react";
 import { Message } from "semantic-ui-react";
 
-import StoreBase from "../stores/StoreBase";
+import { StoreBase } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 export function areStoresAvailable(stores: StoreBase[]) {
   return stores.every(store => store.isReady || store.isUpdating);

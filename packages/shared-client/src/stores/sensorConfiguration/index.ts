@@ -2,7 +2,9 @@ import gql from "graphql-tag";
 
 import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import GraphqlMutableStoreBase from "../GraphqlMutableStoreBase";
+import { ApolloClient } from "../../services/ApolloClientBase";
+
+import { GraphqlMutableStoreBase } from "../GraphqlMutableStoreBase";
 
 import {
   SensorConfigurationsStoreQuery,
@@ -46,8 +48,9 @@ export class SensorConfigurationStore extends GraphqlMutableStoreBase<
   UpdateSensorConfigurationStoreMutation,
   UpdateSensorConfigurationStoreMutationVariables
 > {
-  public constructor() {
+  public constructor(apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      apolloClient,
       // Mutation
       updateSensorConfigurationStoreDocument,
       (item: SensorConfiguration) => {

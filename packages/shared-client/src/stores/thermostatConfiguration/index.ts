@@ -2,7 +2,9 @@ import gql from "graphql-tag";
 
 import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import GraphqlMutableStoreBase from "../GraphqlMutableStoreBase";
+import { ApolloClient } from "../../services/ApolloClientBase";
+
+import { GraphqlMutableStoreBase } from "../GraphqlMutableStoreBase";
 
 import {
   ThermostatConfigurationsStoreQuery,
@@ -55,8 +57,9 @@ export class ThermostatConfigurationStore extends GraphqlMutableStoreBase<
   UpdateThermostatConfigurationStoreMutation,
   UpdateThermostatConfigurationStoreMutationVariables
 > {
-  public constructor() {
+  public constructor(apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      apolloClient,
       // Mutation
       updateThermostatConfigurationStoreDocument,
       (item: ThermostatConfiguration) => {

@@ -3,11 +3,11 @@ import { computedFn } from "mobx-utils";
 import { ApolloQueryResult } from "apollo-client";
 import { DocumentNode } from "graphql";
 
-import ApolloClient from "../services/ApolloClient";
+import { ApolloClient } from "../services/ApolloClientBase";
 
-import StoreBase from "./StoreBase";
+import { StoreBase } from "./StoreBase";
 
-export interface IdType {
+export interface GraphqlStoreItem {
   id: string;
   __typename?: string;
 }
@@ -20,20 +20,24 @@ export interface QueryResultDataItemPatcher<TResult> {
   (data: TResult): TResult;
 }
 
-export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBase {
+export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreBase {
   readonly data = observable.array<T>([]);
+
+  protected apolloClient: ApolloClient.ApolloClientBase;
 
   private queryDocument: DocumentNode;
   private queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>;
   private queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>;
 
   public constructor(
+    apolloClient: ApolloClient.ApolloClientBase,
     queryDocument: DocumentNode,
     queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
     queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
   ) {
     super();
 
+    this.apolloClient = apolloClient;
     this.queryDocument = queryDocument;
     this.queryResultDataExtractor = queryResultDataExtractor;
     this.queryResultDataItemPatcher = queryResultDataItemPatcher;
@@ -46,7 +50,7 @@ export default class GraphqlStoreBase<T extends IdType, TQuery> extends StoreBas
 
     try {
       // TypeScript clowning around for MobX/flow requiring yield vs. await
-      const yieldedQueryResult = yield ApolloClient.query<TQuery>({
+      const yieldedQueryResult = yield this.apolloClient.query<TQuery>({
         query: this.queryDocument,
       });
 

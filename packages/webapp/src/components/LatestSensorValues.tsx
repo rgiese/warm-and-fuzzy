@@ -1,7 +1,9 @@
 import React from "react";
 import { observer } from "mobx-react";
 
-import { RootStore, LatestSensorValue } from "../stores/stores";
+import { LatestSensorValue } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import { RootStore } from "../stores/stores";
 import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";

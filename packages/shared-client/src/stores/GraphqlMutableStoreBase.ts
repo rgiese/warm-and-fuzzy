@@ -1,20 +1,22 @@
 import { flow } from "mobx";
 import { FetchResult } from "apollo-link";
 import { DocumentNode } from "graphql";
-import ApolloClient from "../services/ApolloClient";
 
-import GraphqlStoreBase, {
-  IdType,
+import { ApolloClient } from "../services/ApolloClientBase";
+
+import {
+  GraphqlStoreBase,
+  GraphqlStoreItem,
   QueryResultDataExtractor,
   QueryResultDataItemPatcher,
 } from "./GraphqlStoreBase";
 
-export interface MutationVariablesBuilder<T extends IdType, TMutationVariables> {
+export interface MutationVariablesBuilder<T extends GraphqlStoreItem, TMutationVariables> {
   (item: T): TMutationVariables;
 }
 
-export default class GraphqlMutableStoreBase<
-  T extends IdType,
+export class GraphqlMutableStoreBase<
+  T extends GraphqlStoreItem,
   TQuery,
   TMutation,
   TMutationVariables
@@ -23,13 +25,14 @@ export default class GraphqlMutableStoreBase<
   private mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>;
 
   public constructor(
+    apolloClient: ApolloClient.ApolloClientBase,
     mutationDocument: DocumentNode,
     mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>,
     queryDocument: DocumentNode,
     queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
     queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
   ) {
-    super(queryDocument, queryResultDataExtractor, queryResultDataItemPatcher);
+    super(apolloClient, queryDocument, queryResultDataExtractor, queryResultDataItemPatcher);
 
     this.mutationDocument = mutationDocument;
     this.mutationVariablesBuilder = mutationVariablesBuilder;
@@ -56,7 +59,7 @@ export default class GraphqlMutableStoreBase<
       const mutationVariables = this.mutationVariablesBuilder(item);
 
       // TypeScript clowning around for MobX/flow requiring yield vs. await
-      const yieldedMutationResult = yield ApolloClient.mutate<TMutation, TMutationVariables>({
+      const yieldedMutationResult = yield this.apolloClient.mutate<TMutation, TMutationVariables>({
         mutation: this.mutationDocument,
         variables: mutationVariables,
       });

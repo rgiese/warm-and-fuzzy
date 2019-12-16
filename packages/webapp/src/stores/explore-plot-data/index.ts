@@ -7,9 +7,10 @@ import SeriesInstanceDataDefinition from "./SeriesInstanceDataDefinition";
 import Timezone from "../explore/Timezone";
 import { viewSpanToDays } from "../explore/ViewSpan";
 
+import ApolloClient from "../../services/ApolloClient";
+
 import gql from "graphql-tag";
 import { PlotSeriesQuery, PlotSeriesQueryVariables } from "../../generated/graphqlClient";
-import ApolloClient from "../../services/ApolloClient";
 
 const plotSeriesDocument = gql`
   query PlotSeries($streamName: String!, $fromDate: DateTime!, $toDate: DateTime!) {
