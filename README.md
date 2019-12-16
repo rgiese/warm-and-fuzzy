@@ -20,6 +20,15 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 # Dev setup
 
 - Getting started
+  - For Android development:
+    - Install [Android Studio](https://developer.android.com/studio)
+    - [Windows-specific](https://docs.microsoft.com/en-us/xamarin/android/get-started/installation/android-emulator/hardware-acceleration?pivots=windows):
+      - Enable `Hyper-V` and `Windows Hypervisor Platform` Windows features
+      - Download [Visual Studio](https://visualstudio.microsoft.com/) 2019+ Community Edition and install the `Mobile development with .NET` workload and `Android SDK setup` individual component.
+      - Open Tools > Android > Android Device Manager to create and start a new device.
+    - make sure `JAVA_HOME` is set in the environment, pointing at the root (not `bin`) directory of a Java install.
+    - make sure `ANDROID_SDK_ROOT` is set in the environment, pointing to (e.g.) `../android-sdk`.
+    - make sure `%ANDROID_SDK_ROOT%/platform-tools` is on the system path so that `adb` is available.
   - `npm install`
   - `lerna bootstrap`
   - `lerna run decrypt-secrets` (make sure `WAF_GIT_SECRETS_KEY` is present in the environment)
@@ -27,9 +36,9 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
   - `lerna run build`
 - Pre-commit
   - `npm run format:fix`
-  - `lerna run lint:fix`
+  - `npm run lint:fix`
 - Deploy (dev API only, if needed - everything should run through CI)
-  - `lerna run deploy:dev --stream`
+  - `npm run deploy:dev`
 
 # Running the web app locally
 
@@ -52,6 +61,8 @@ All commands below start the mobile app server locally, varying which API it cal
 | `npm run start-mobile:local:prod`  | Local        | Prod     |
 | `npm run start-mobile:remote:dev`  | Cloud (Dev)  | Dev      |
 | `npm run start-mobile:remote:prod` | Cloud (Prod) | Prod     |
+
+If the JS server fails to start (the window just closes), try running a full mobile build with `lerna run bundle-mobile --stream`.
 
 ## Dev tooling tricks
 
