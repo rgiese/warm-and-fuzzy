@@ -3,7 +3,7 @@ import { Route, Router, Switch } from "react-router-dom";
 import { Container } from "semantic-ui-react";
 
 import { ApolloProvider } from "react-apollo";
-import { configure } from "mobx";
+import { configure as MobxConfigure } from "mobx";
 
 import AuthStateProps from "./common/AuthStateProps";
 
@@ -26,7 +26,7 @@ import Footer from "./containers/Footer";
 import { RootStore, ExploreStore, ExplorePlotDataStore } from "./stores/stores";
 
 // App-wide MobX configuration
-configure({ enforceActions: "observed" });
+MobxConfigure({ enforceActions: "observed" });
 
 const rootStore = new RootStore();
 const exploreStore = new ExploreStore(rootStore); // for the top-level Explore page
@@ -51,10 +51,15 @@ class App extends React.Component<Props, State> {
   }
 
   private setIsAuthenticated = (isAuthenticated: boolean): void => {
-    const justLoggedOut = this.state.isAuthenticated && !isAuthenticated;
+    const stateChanged = this.state.isAuthenticated !== isAuthenticated;
 
-    if (justLoggedOut) {
-      ApolloClient.resetStore();
+    if (stateChanged) {
+      if (isAuthenticated) {
+        rootStore.authStore.onUserLoggedIn();
+      } else {
+        rootStore.authStore.onUserLoggedOut();
+        ApolloClient.resetStore();
+      }
     }
 
     this.setState({ isAuthenticated: isAuthenticated });

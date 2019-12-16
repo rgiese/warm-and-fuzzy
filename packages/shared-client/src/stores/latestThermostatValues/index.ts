@@ -5,6 +5,7 @@ import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ApolloClient } from "../../services/ApolloClientBase";
 
 import { GraphqlStoreBase } from "../GraphqlStoreBase";
+import { AuthStore } from "../auth";
 
 import { LatestThermostatValuesStoreQuery } from "../../generated/graphqlClient";
 
@@ -28,8 +29,9 @@ export class LatestThermostatValuesStore extends GraphqlStoreBase<
   LatestThermostatValue,
   LatestThermostatValuesStoreQuery
 > {
-  public constructor(apolloClient: ApolloClient.ApolloClientBase) {
+  public constructor(authStore: AuthStore, apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      authStore,
       apolloClient,
       latestThermostatValuesStoreDocument,
       (queryData: LatestThermostatValuesStoreQuery) => {

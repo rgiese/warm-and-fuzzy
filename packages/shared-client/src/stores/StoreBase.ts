@@ -1,7 +1,7 @@
 import { computed, observable } from "mobx";
 
 export class StoreBase {
-  @observable state: "fetching" | "updating" | "ready" | "error" = "fetching";
+  @observable state: "fetching" | "updating" | "ready" | "error" = "ready";
   error?: string;
 
   public constructor() {

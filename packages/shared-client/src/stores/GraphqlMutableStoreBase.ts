@@ -3,6 +3,7 @@ import { FetchResult } from "apollo-link";
 import { DocumentNode } from "graphql";
 
 import { ApolloClient } from "../services/ApolloClientBase";
+import { AuthStore } from "./auth";
 
 import {
   GraphqlStoreBase,
@@ -25,6 +26,7 @@ export class GraphqlMutableStoreBase<
   private mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>;
 
   public constructor(
+    authStore: AuthStore,
     apolloClient: ApolloClient.ApolloClientBase,
     mutationDocument: DocumentNode,
     mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>,
@@ -32,7 +34,13 @@ export class GraphqlMutableStoreBase<
     queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
     queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
   ) {
-    super(apolloClient, queryDocument, queryResultDataExtractor, queryResultDataItemPatcher);
+    super(
+      authStore,
+      apolloClient,
+      queryDocument,
+      queryResultDataExtractor,
+      queryResultDataItemPatcher
+    );
 
     this.mutationDocument = mutationDocument;
     this.mutationVariablesBuilder = mutationVariablesBuilder;

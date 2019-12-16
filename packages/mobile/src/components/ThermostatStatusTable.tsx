@@ -1,57 +1,28 @@
 import React from "react";
 import { FlatList, View, StyleSheet } from "react-native";
-import { ActivityIndicator, Text, Title, Theme, withTheme } from "react-native-paper";
+import { Text, Theme, withTheme } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
 import { withNavigation, NavigationInjectedProps } from "react-navigation";
 
-import gql from "graphql-tag";
+import { observer } from "mobx-react";
 import moment from "moment";
 
-import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
-
 import {
-  LatestThermostatValuesComponent,
-  LatestThermostatValuesQuery,
-  ThermostatAction,
-} from "../../generated/graphqlClient";
+  LatestThermostatValue,
+  ThermostatConfiguration,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import RootStore from "../stores/RootStore";
+import * as StoreChecks from "./StoreChecks";
+
+import { ThermostatAction } from "../../generated/graphqlClient";
 
 import { ColorCodes } from "../Theme";
 import * as ThemedText from "./ThemedText";
 
 import ScreenRoutes from "../screens/ScreenRoutes";
 import { ThermostatNavigationParams } from "../screens/ThermostatScreen";
-
-gql`
-  query LatestThermostatValues {
-    getLatestThermostatValues {
-      id
-      deviceTime
-      currentActions
-      temperature
-      humidity
-    }
-    getThermostatConfigurations {
-      id
-      name
-      availableActions
-      setPointCool
-      setPointHeat
-      allowedActions
-    }
-  }
-`;
-
-type LatestThermostatValue = TypeTools.ArrayElementType<
-  TypeTools.PropType<LatestThermostatValuesQuery, "getLatestThermostatValues">
->;
-type CurrentThermostatConfiguration = TypeTools.ArrayElementType<
-  TypeTools.PropType<LatestThermostatValuesQuery, "getThermostatConfigurations">
->;
-
-type ThermostatStatus = LatestThermostatValue & {
-  configuration: CurrentThermostatConfiguration;
-};
 
 const styles = StyleSheet.create({
   containingListItem: {
@@ -105,6 +76,8 @@ class State {
   }
 }
 
+type ThermostatValue = LatestThermostatValue & { configuration: ThermostatConfiguration };
+
 class ThermostatStatusTable extends React.Component<Props, State> {
   private intervalRefreshTimeSince: any;
   private isFirstFetch: boolean;
@@ -131,178 +104,142 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     clearInterval(this.intervalRefreshTimeSince);
   }
 
-  private prepareData(data: LatestThermostatValuesQuery): ThermostatStatus[] {
-    // Rehydrate custom types
-    data.getLatestThermostatValues.forEach((a): void => {
-      a.deviceTime = new Date(a.deviceTime);
-    });
-
-    // Build maps
-    const thermostatConfigurations = new Map(
-      data.getThermostatConfigurations.map((c): [string, CurrentThermostatConfiguration] => [
-        c.id,
-        c,
-      ])
-    );
-
-    // Assemble and sort data
-    let thermostatStatusData: ThermostatStatus[] = [];
-
-    data.getLatestThermostatValues.forEach((v): void => {
-      const configuration = thermostatConfigurations.get(v.id);
-
-      if (!configuration) {
-        return;
-      }
-
-      if (!configuration.availableActions || !configuration.availableActions.length) {
-        // Don't display devices that don't have available actions, i.e. aren't controlling thermostats
-        // (may be reporting-only devices)
-        return;
-      }
-
-      thermostatStatusData.push(
-        Object.assign({}, v, {
-          configuration,
-        })
-      );
-    });
-
-    thermostatStatusData = thermostatStatusData.sort((lhs, rhs): number =>
-      lhs.configuration.name.localeCompare(rhs.configuration.name)
-    );
-
-    return thermostatStatusData;
-  }
-
   public render(): React.ReactElement {
+    // TODO: Polling
+    const latestThermostatValuesStore = RootStore.latestThermostatValuesStore;
+    const thermostatConfigurationStore = RootStore.thermostatConfigurationStore;
+
+    const storeDependencies = [latestThermostatValuesStore, thermostatConfigurationStore];
+
+    // TODO: suppress loading indicator on !this.isFirstFetch
+    if (!StoreChecks.areStoresAvailable(storeDependencies)) {
+      return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
+    }
+
+    this.isFirstFetch = false;
+
+    // Project data
+    const values = latestThermostatValuesStore.data
+      .map(
+        (value): ThermostatValue => {
+          // Cast away findById() potentially returning unknown - we'll filter for it next
+          return {
+            ...value,
+            configuration: thermostatConfigurationStore.findById(
+              value.id
+            ) as ThermostatConfiguration,
+          };
+        }
+      )
+      .filter(
+        // Only display devices for which we could find a configuration record
+        value => value.configuration
+      )
+      .filter(
+        value =>
+          // Don't display devices that don't have available actions, i.e. aren't controlling thermostats
+          // (may be reporting-only devices)
+          value.configuration.availableActions && value.configuration.availableActions.length
+      )
+      .sort((lhs, rhs): number => lhs.configuration.name.localeCompare(rhs.configuration.name));
+
     return (
-      <LatestThermostatValuesComponent pollInterval={60 * 1000}>
-        {({ loading, error, data, refetch }): React.ReactElement => {
-          if (error) {
-            return (
+      <FlatList<ThermostatValue>
+        data={values}
+        extraData={this.state.latestRenderTime}
+        keyExtractor={(item): string => item.id}
+        //refreshing={loading} // TODO
+        //onRefresh={() => refetch()} // TODO
+        renderItem={({ item }): React.ReactElement => (
+          <TouchableOpacity
+            onPress={() => {
+              const params: ThermostatNavigationParams = { thermostatId: item.id };
+              this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
+            }}
+            style={styles.containingListItem}
+          >
+            {/* Top row */}
+            <View style={styles.primaryRow}>
+              {/* Device name */}
+              <Text style={styles.thermostatName}>{item.configuration.name}</Text>
+
+              {/* Details */}
               <>
-                <Title>Error</Title>
-                <Text>{JSON.stringify(error)}</Text>
+                {/* Thermometer icon */}
+                <IconMDC
+                  name="thermometer"
+                  size={iconSizes.default}
+                  color={this.props.theme.colors.accent}
+                  style={styles.detailsIconPadding}
+                />
+
+                {/* Reported temperature */}
+                <ThemedText.Accent style={styles.detailsText}>
+                  {item.temperature}&deg;C
+                </ThemedText.Accent>
+
+                {/* Actions: heat */}
+                {item.currentActions.includes(ThermostatAction.Heat) && (
+                  <>
+                    <IconMDC
+                      name="arrow-collapse-up"
+                      size={iconSizes.arrows}
+                      color={ColorCodes[ThermostatAction.Heat]}
+                      style={styles.detailsIconPadding}
+                    />
+                    <ThemedText.Heat style={styles.detailsText}>
+                      {item.configuration.setPointHeat} &deg;C
+                    </ThemedText.Heat>
+                  </>
+                )}
+
+                {/* Actions: cool */}
+                {item.currentActions.includes(ThermostatAction.Cool) && (
+                  <>
+                    <IconMDC
+                      name="arrow-collapse-down"
+                      size={iconSizes.arrows}
+                      color={ColorCodes[ThermostatAction.Cool]}
+                      style={styles.detailsIconPadding}
+                    />
+                    <ThemedText.Cool style={styles.detailsText}>
+                      {item.configuration.setPointCool} &deg;C
+                    </ThemedText.Cool>
+                  </>
+                )}
+
+                {/* Actions: circulate */}
+                {item.currentActions.includes(ThermostatAction.Circulate) && (
+                  <IconMDC
+                    name="autorenew"
+                    size={iconSizes.default}
+                    color={ColorCodes[ThermostatAction.Circulate]}
+                    style={styles.detailsIconPadding}
+                  />
+                )}
+
+                {/* Reported humidity */}
+                <IconMDC
+                  name="water"
+                  size={iconSizes.default}
+                  color={this.props.theme.colors.accent}
+                  style={styles.detailsIconPadding}
+                />
+                <ThemedText.Accent style={styles.detailsText}>{item.humidity}%</ThemedText.Accent>
               </>
-            );
-          }
+            </View>
 
-          if (loading) {
-            if (this.isFirstFetch) {
-              return <ActivityIndicator animating={true} />;
-            }
-          } else {
-            // We've succeeded at (at least) our first fetch so don't show the ActivityIndicator again
-            this.isFirstFetch = false;
-          }
-
-          const thermostatStatusData = data
-            ? this.prepareData(data)
-            : new Array<ThermostatStatus>();
-
-          return (
-            <FlatList<ThermostatStatus>
-              data={thermostatStatusData}
-              extraData={this.state.latestRenderTime}
-              keyExtractor={(item): string => item.id}
-              refreshing={loading}
-              onRefresh={() => refetch()}
-              renderItem={({ item }): React.ReactElement => (
-                <TouchableOpacity
-                  onPress={() => {
-                    const params: ThermostatNavigationParams = { thermostatId: item.id };
-                    this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
-                  }}
-                  style={styles.containingListItem}
-                >
-                  {/* Top row */}
-                  <View style={styles.primaryRow}>
-                    {/* Device name */}
-                    <Text style={styles.thermostatName}>{item.configuration.name}</Text>
-
-                    {/* Details */}
-                    <>
-                      {/* Thermometer icon */}
-                      <IconMDC
-                        name="thermometer"
-                        size={iconSizes.default}
-                        color={this.props.theme.colors.accent}
-                        style={styles.detailsIconPadding}
-                      />
-
-                      {/* Reported temperature */}
-                      <ThemedText.Accent style={styles.detailsText}>
-                        {item.temperature}&deg;C
-                      </ThemedText.Accent>
-
-                      {/* Actions: heat */}
-                      {item.currentActions.includes(ThermostatAction.Heat) && (
-                        <>
-                          <IconMDC
-                            name="arrow-collapse-up"
-                            size={iconSizes.arrows}
-                            color={ColorCodes[ThermostatAction.Heat]}
-                            style={styles.detailsIconPadding}
-                          />
-                          <ThemedText.Heat style={styles.detailsText}>
-                            {item.configuration.setPointHeat} &deg;C
-                          </ThemedText.Heat>
-                        </>
-                      )}
-
-                      {/* Actions: cool */}
-                      {item.currentActions.includes(ThermostatAction.Cool) && (
-                        <>
-                          <IconMDC
-                            name="arrow-collapse-down"
-                            size={iconSizes.arrows}
-                            color={ColorCodes[ThermostatAction.Cool]}
-                            style={styles.detailsIconPadding}
-                          />
-                          <ThemedText.Cool style={styles.detailsText}>
-                            {item.configuration.setPointCool} &deg;C
-                          </ThemedText.Cool>
-                        </>
-                      )}
-
-                      {/* Actions: circulate */}
-                      {item.currentActions.includes(ThermostatAction.Circulate) && (
-                        <IconMDC
-                          name="autorenew"
-                          size={iconSizes.default}
-                          color={ColorCodes[ThermostatAction.Circulate]}
-                          style={styles.detailsIconPadding}
-                        />
-                      )}
-
-                      {/* Reported humidity */}
-                      <IconMDC
-                        name="water"
-                        size={iconSizes.default}
-                        color={this.props.theme.colors.accent}
-                        style={styles.detailsIconPadding}
-                      />
-                      <ThemedText.Accent style={styles.detailsText}>
-                        {item.humidity}%
-                      </ThemedText.Accent>
-                    </>
-                  </View>
-
-                  {/* Bottom row: last updated time */}
-                  <View style={styles.secondaryRow}>
-                    <ThemedText.Accent style={styles.lastUpdatedText}>
-                      Last updated {moment(item.deviceTime).from(this.state.latestRenderTime)}
-                    </ThemedText.Accent>
-                  </View>
-                </TouchableOpacity>
-              )}
-            />
-          );
-        }}
-      </LatestThermostatValuesComponent>
+            {/* Bottom row: last updated time */}
+            <View style={styles.secondaryRow}>
+              <ThemedText.Accent style={styles.lastUpdatedText}>
+                Last updated {moment(item.deviceTime).from(this.state.latestRenderTime)}
+              </ThemedText.Accent>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
     );
   }
 }
 
-export default withTheme(withNavigation(ThermostatStatusTable));
+export default withTheme(withNavigation(observer(ThermostatStatusTable)));

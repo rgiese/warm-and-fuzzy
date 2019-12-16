@@ -3,6 +3,7 @@ import JwtDecode from "jwt-decode";
 import * as Keychain from "react-native-keychain";
 
 import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
+import { AuthStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 interface AuthResult {
   accessToken: string;
@@ -25,9 +26,10 @@ class Auth {
     clientId: AuthenticationConfiguration.ClientId,
   });
 
-  private accessToken?: string;
-  private idToken?: string;
-  private expiresAt?: number;
+  private authStore?: AuthStore = undefined;
+  private accessToken?: string = undefined;
+  private idToken?: string = undefined;
+  private expiresAt?: number = undefined;
 
   //
   // Note: refresh logic (timers) won't work in React Native since long-running timers
@@ -35,16 +37,13 @@ class Auth {
   //       Compared to webapp/services/Auth, rely on callers to use EnsureLoggedIn().
   //
 
-  public constructor() {
-    this.accessToken = undefined;
-    this.idToken = undefined;
-    this.expiresAt = undefined;
-  }
+  public async initialize(authStore: AuthStore): Promise<void> {
+    this.authStore = authStore;
 
-  public async initialize(): Promise<void> {
     const savedTokens = await Keychain.getGenericPassword();
 
     if (!savedTokens || savedTokens.username !== KeychainUserName) {
+      // No work left to do, remain in unauthorized state
       return;
     }
 
@@ -55,6 +54,10 @@ class Auth {
     this.expiresAt = Number.parseInt(expiresAt);
 
     await this.EnsureLoggedIn();
+
+    if (this.IsAuthenticated) {
+      this.authStore?.onUserLoggedIn();
+    }
   }
 
   //
@@ -171,6 +174,8 @@ class Auth {
   //
 
   public async logout(): Promise<void> {
+    this.authStore?.onUserLoggedOut();
+
     // Remove tokens and expiry time
     this.accessToken = undefined;
     this.idToken = undefined;
@@ -203,6 +208,8 @@ class Auth {
       KeychainUserName,
       [this.accessToken, this.idToken, this.expiresAt.toString()].join(KeychainTokenSeparator)
     );
+
+    this.authStore?.onUserLoggedIn();
   }
 }
 

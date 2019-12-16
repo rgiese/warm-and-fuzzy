@@ -4,6 +4,7 @@ import { ActivityIndicator, Title } from "react-native-paper";
 import { NavigationScreenProp, NavigationState } from "react-navigation";
 
 import { GlobalAuth } from "../services/Auth";
+import RootStore from "../stores/RootStore";
 
 import BaseView from "../components/BaseView";
 
@@ -25,7 +26,7 @@ class AuthLoadingScreen extends React.Component<Props, State> {
   }
 
   private async bootstrapAsync(): Promise<void> {
-    await GlobalAuth.initialize();
+    await GlobalAuth.initialize(RootStore.authStore);
 
     if (GlobalAuth.IsAuthenticated) {
       // If we believe we're still logged in, make sure our tokens are up-to-date,

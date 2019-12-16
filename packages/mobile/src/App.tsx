@@ -2,12 +2,17 @@ import React from "react";
 import { Provider as PaperProvider } from "react-native-paper";
 
 import { ApolloProvider } from "react-apollo";
+import { configure as MobxConfigure } from "mobx";
+
 import ApolloClient from "./services/ApolloClient";
 
 import ScreenProps from "./screens/ScreenProps";
 import Screens from "./screens";
 
 import AppTheme from "./Theme";
+
+// App-wide MobX configuration
+MobxConfigure({ enforceActions: "observed" });
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}

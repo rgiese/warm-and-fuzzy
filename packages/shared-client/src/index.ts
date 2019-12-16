@@ -1,5 +1,7 @@
 export * from "./services/ApolloClientBase";
 
+export * from "./stores/auth";
+
 export * from "./stores/StoreBase";
 export * from "./stores/GraphqlStoreBase";
 export * from "./stores/GraphqlMutableStoreBase";

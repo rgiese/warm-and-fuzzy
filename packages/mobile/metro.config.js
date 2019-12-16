@@ -1,6 +1,7 @@
 const { getDefaultConfig } = require("metro-config");
 
 const fs = require("fs");
+const path = require("path");
 const getDevPaths = require("get-dev-paths");
 
 module.exports = (async () => {
@@ -13,6 +14,14 @@ module.exports = (async () => {
       // https://github.com/kristerkari/react-native-svg-transformer
       assetExts: assetExts.filter(ext => ext !== "svg"),
       sourceExts: [...sourceExts, "svg"],
+      // Completely bananas work-around for https://github.com/facebook/metro/issues/1
+      // courtesy of https://github.com/facebook/metro/issues/1#issuecomment-453450709
+      extraNodeModules: new Proxy(
+        {},
+        {
+          get: (target, name) => path.join(process.cwd(), `node_modules/${name}`),
+        }
+      ),
     },
     transformer: {
       babelTransformerPath: require.resolve("react-native-svg-transformer"),

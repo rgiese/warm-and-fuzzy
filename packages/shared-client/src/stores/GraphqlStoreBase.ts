@@ -1,4 +1,4 @@
-import { flow, observable } from "mobx";
+import { flow, observable, autorun } from "mobx";
 import { computedFn } from "mobx-utils";
 import { ApolloQueryResult } from "apollo-client";
 import { DocumentNode } from "graphql";
@@ -6,6 +6,7 @@ import { DocumentNode } from "graphql";
 import { ApolloClient } from "../services/ApolloClientBase";
 
 import { StoreBase } from "./StoreBase";
+import { AuthStore } from "./auth";
 
 export interface GraphqlStoreItem {
   id: string;
@@ -30,6 +31,7 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
   private queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>;
 
   public constructor(
+    authStore: AuthStore,
     apolloClient: ApolloClient.ApolloClientBase,
     queryDocument: DocumentNode,
     queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
@@ -42,10 +44,16 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
     this.queryResultDataExtractor = queryResultDataExtractor;
     this.queryResultDataItemPatcher = queryResultDataItemPatcher;
 
-    this.fetchData();
+    autorun(() => {
+      if (authStore.isUserAuthenticated) {
+        this.fetchData();
+      } else {
+        this.data.clear();
+      }
+    });
   }
 
-  fetchData = flow(function*(this: GraphqlStoreBase<T, TQuery>) {
+  private fetchData = flow(function*(this: GraphqlStoreBase<T, TQuery>) {
     this.state = "fetching";
 
     try {
@@ -79,7 +87,10 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
     }
   });
 
-  findById = computedFn(function(this: GraphqlStoreBase<T, TQuery>, id: string): T | undefined {
+  public findById = computedFn(function(
+    this: GraphqlStoreBase<T, TQuery>,
+    id: string
+  ): T | undefined {
     // For now we're going to assume that our datasets are small enough
     // that a linear search is good enough.
     return this.data.find(item => item.id === id);
