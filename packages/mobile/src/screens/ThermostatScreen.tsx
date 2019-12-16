@@ -1,9 +1,6 @@
 import React from "react";
-import {
-  NavigationScreenProp,
-  NavigationState,
-  NavigationStackScreenOptions,
-} from "react-navigation";
+import { NavigationScreenProp, NavigationState } from "react-navigation";
+import { NavigationStackOptions } from "react-navigation-stack";
 
 import BaseView from "../components/BaseView";
 import ThermostatConfiguration from "../components/ThermostatConfiguration";
@@ -25,14 +22,16 @@ class ThermostatScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  static navigationOptions: NavigationStackScreenOptions = {
+  static navigationOptions: NavigationStackOptions = {
     title: "Thermostat settings",
   };
 
   public render(): React.ReactElement {
     return (
       <BaseView>
-        <ThermostatConfiguration thermostatId={this.props.navigation.state.params.thermostatId} />
+        <ThermostatConfiguration
+          thermostatId={this.props.navigation.state.params?.thermostatId || "0"}
+        />
       </BaseView>
     );
   }

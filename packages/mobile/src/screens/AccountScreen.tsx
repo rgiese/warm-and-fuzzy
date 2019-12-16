@@ -1,10 +1,7 @@
 import React from "react";
 import { Button, Divider, List } from "react-native-paper";
-import {
-  NavigationScreenProp,
-  NavigationState,
-  NavigationStackScreenOptions,
-} from "react-navigation";
+import { NavigationScreenProp, NavigationState } from "react-navigation";
+import { NavigationStackOptions } from "react-navigation-stack";
 
 import { GlobalAuth } from "../services/Auth";
 import ApolloClient from "../services/ApolloClient";
@@ -28,7 +25,7 @@ class AccountScreen extends React.Component<Props, State> {
     this.state = new State();
   }
 
-  static navigationOptions: NavigationStackScreenOptions = {
+  static navigationOptions: NavigationStackOptions = {
     title: "Account",
   };
 
