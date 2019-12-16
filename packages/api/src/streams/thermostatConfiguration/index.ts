@@ -41,7 +41,7 @@ export const dynamoStream: DynamoDBStreamHandler = async (
     // - accumulate in a map so multiple updates to a single device don't result in multiple deliveries
     //
 
-    let updatesMap = new Map<string, ThermostatConfigurationAdapter.FirmwareConfiguration>();
+    const updatesMap = new Map<string, ThermostatConfigurationAdapter.FirmwareConfiguration>();
 
     event.Records.forEach((record): void => {
       if (record.eventName != "MODIFY") {

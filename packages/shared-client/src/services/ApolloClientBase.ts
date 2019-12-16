@@ -1,10 +1,11 @@
-import { ApolloClient as ApolloClient_Official } from "apollo-client";
+import { ApolloClient as ApolloClientCore } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ApolloLink } from "apollo-link";
 
 export namespace ApolloClient {
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   export function buildApolloClient(link?: ApolloLink) {
-    return new ApolloClient_Official({
+    return new ApolloClientCore({
       cache: new InMemoryCache(),
       link,
     });
