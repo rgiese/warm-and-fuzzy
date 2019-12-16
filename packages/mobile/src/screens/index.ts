@@ -1,10 +1,16 @@
 import {
   createAppContainer,
-  createStackNavigator,
   createSwitchNavigator,
   NavigationScreenConfigProps,
-  NavigationScreenOptions,
+  NavigationRoute,
+  NavigationParams,
 } from "react-navigation";
+
+import {
+  createStackNavigator,
+  NavigationStackOptions,
+  NavigationStackProp,
+} from "react-navigation-stack";
 
 import ScreenProps from "./ScreenProps";
 
@@ -26,8 +32,10 @@ const AppNavigator = createStackNavigator(
   {
     initialRouteName: ScreenRoutes.Home,
     defaultNavigationOptions: (
-      navigationOptionsContainer: NavigationScreenConfigProps
-    ): NavigationScreenOptions => {
+      navigationOptionsContainer: NavigationScreenConfigProps<
+        NavigationStackProp<NavigationRoute<NavigationParams>>
+      >
+    ): NavigationStackOptions => {
       const screenProps = navigationOptionsContainer.screenProps as ScreenProps;
       const colors = screenProps.theme.colors;
 

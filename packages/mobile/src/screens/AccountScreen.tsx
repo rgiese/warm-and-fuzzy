@@ -44,11 +44,11 @@ class AccountScreen extends React.Component<Props, State> {
       <BaseView>
         <List.Section title="Your account">
           <List.Item
-            left={props => <List.Icon {...props} icon="person" />}
+            left={props => <List.Icon {...props} icon="account" />}
             title={GlobalAuth.UserName}
           />
           <List.Item
-            left={props => <List.Icon {...props} icon="mail" />}
+            left={props => <List.Icon {...props} icon="at" />}
             title={GlobalAuth.UserEmail}
           />
           <Button mode="outlined" onPress={this.handleLogout}>
@@ -58,7 +58,7 @@ class AccountScreen extends React.Component<Props, State> {
         <List.Section title="Your permissions">
           {GlobalAuth.Permissions.map(permission => (
             <List.Item
-              left={props => <List.Icon {...props} icon="done" />}
+              left={props => <List.Icon {...props} icon="check" />}
               title={permission}
               key={permission}
             />
@@ -73,7 +73,10 @@ class AccountScreen extends React.Component<Props, State> {
         </List.Section>
         <Divider />
         <List.Section title="API">
-          <List.Item left={props => <List.Icon {...props} icon="http" />} title={ConfigStageName} />
+          <List.Item
+            left={props => <List.Icon {...props} icon="server" />}
+            title={ConfigStageName}
+          />
         </List.Section>
       </BaseView>
     );

@@ -1,11 +1,7 @@
 import React from "react";
 import { IconButton } from "react-native-paper";
-import {
-  NavigationScreenProp,
-  NavigationState,
-  NavigationStackScreenOptions,
-  NavigationRoute,
-} from "react-navigation";
+import { NavigationScreenProp, NavigationState, NavigationRoute } from "react-navigation";
+import { NavigationStackOptions } from "react-navigation-stack";
 
 import BaseView from "../components/BaseView";
 import ThermostatStatusTable from "../components/ThermostatStatusTable";
@@ -33,14 +29,16 @@ class HomeScreen extends React.Component<Props, State> {
     screenProps,
   }: {
     navigation: NavigationScreenProp<NavigationRoute<Params>, Params>;
-    screenProps: ScreenProps;
-  }): NavigationStackScreenOptions => ({
+    screenProps: any;
+  }): NavigationStackOptions => ({
     title: "Home",
     headerRight: (
       <IconButton
-        onPress={() => navigation.navigate(ScreenRoutes.Account)}
-        color={screenProps.theme.colors.text}
-        icon="person"
+        onPress={(): void => {
+          navigation.navigate(ScreenRoutes.Account);
+        }}
+        color={(screenProps as ScreenProps).theme.colors.text}
+        icon="account"
       />
     ),
   });

@@ -15,7 +15,7 @@
     "decrypt-secrets": "lerna run decrypt-secrets --parallel",
     "encrypt-secrets": "lerna run encrypt-secrets --parallel",
     "format:fix": "lerna run format:fix --parallel",
-    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint:fix --parallel",
     "ci:frontend": "lerna bootstrap && lerna run build --ignore @grumpycorp/warm-and-fuzzy-api --stream",
     "deploy:dev": "lerna run deploy:dev --stream",
     "deploy:prod": "lerna run deploy:prod --stream",
@@ -33,8 +33,8 @@
     "publish-mobile:internal": "lerna run publish-mobile:internal --stream"
   },
   "devDependencies": {
-    "@babel/core": "7.5.5",
-    "@babel/runtime": "7.5.5",
+    "@babel/core": "^7.7.5",
+    "@babel/runtime": "^7.7.6",
     "@graphql-codegen/add": "^1.9.1",
     "@graphql-codegen/cli": "^1.9.1",
     "@graphql-codegen/typescript": "^1.9.1",
@@ -64,7 +64,7 @@
     "node-sass": "^4.13.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
-    "react-scripts": "3.3.0",
+    "react-scripts": "^3.3.0",
     "run-script-os": "^1.0.7",
     "serverless": "^1.59.3",
     "serverless-domain-manager": "^3.3.0",
@@ -73,7 +73,7 @@
     "serverless-webpack": "^5.2.0",
     "ts-loader": "^5.3.3",
     "typescript": "^3.7.3",
-    "webpack": "4.41.2",
+    "webpack": "^4.41.2",
     "yup": "^0.27.0"
   }
 }
