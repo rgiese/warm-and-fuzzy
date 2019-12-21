@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { observer } from "mobx-react";
 
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
@@ -6,7 +6,7 @@ import { SensorConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import { GlobalAuth } from "../services/Auth";
 
-import { RootStore } from "../stores/stores";
+import RootStoreContext from "../stores/RootStoreContext";
 import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
@@ -19,9 +19,9 @@ const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
   { field: "streamName", label: "Stream Name" },
 ];
 
-const SensorConfigs: React.FunctionComponent<{ rootStore: RootStore }> = ({
-  rootStore,
-}): React.ReactElement => {
+const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
+  const rootStore = useContext(RootStoreContext).rootStore;
+
   const storeDependencies = [rootStore.sensorConfigurationStore];
 
   if (!StoreChecks.areStoresAvailable(storeDependencies)) {

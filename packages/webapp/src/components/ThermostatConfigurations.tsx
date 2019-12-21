@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { observer } from "mobx-react";
 
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
@@ -6,7 +6,7 @@ import { ThermostatConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-clien
 
 import { GlobalAuth } from "../services/Auth";
 
-import { RootStore } from "../stores/stores";
+import RootStoreContext from "../stores/RootStoreContext";
 import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
@@ -26,9 +26,9 @@ const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "availableActions", label: "Available actions" },
 ];
 
-const ThermostatConfigs: React.FunctionComponent<{ rootStore: RootStore }> = ({
-  rootStore,
-}): React.ReactElement => {
+const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
+  const rootStore = useContext(RootStoreContext).rootStore;
+
   const storeDependencies = [rootStore.thermostatConfigurationStore];
 
   if (!StoreChecks.areStoresAvailable(storeDependencies)) {

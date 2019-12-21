@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { observer } from "mobx-react";
 
 import { LatestSensorValue } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import { RootStore } from "../stores/stores";
+import RootStoreContext from "../stores/RootStoreContext";
 import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
@@ -16,9 +16,9 @@ const tableDefinition: TableFieldDefinition<SensorValue>[] = [
   { field: "temperature", label: "Temperature", units: <>&deg;C</> },
 ];
 
-const LatestSensorValues: React.FunctionComponent<{ rootStore: RootStore }> = ({
-  rootStore,
-}): React.ReactElement => {
+const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement => {
+  const rootStore = useContext(RootStoreContext).rootStore;
+
   const latestSensorValuesStore = rootStore.latestSensorValuesStore;
   const sensorConfigurationStore = rootStore.sensorConfigurationStore;
 

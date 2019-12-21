@@ -3,14 +3,11 @@ import { Container, Divider, Header } from "semantic-ui-react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
-import { RootStore } from "../stores/stores";
-
 import LatestThermostatValues from "../components/LatestThermostatValues";
 import LatestSensorValues from "../components/LatestSensorValues";
 
-interface Props extends AuthStateProps {
-  rootStore: RootStore;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface Props extends AuthStateProps {}
 
 class State {}
 
@@ -30,12 +27,12 @@ class Home extends React.Component<Props, State> {
         <Divider horizontal>
           <Header as="h4">Thermostats</Header>
         </Divider>
-        <LatestThermostatValues rootStore={this.props.rootStore} />
+        <LatestThermostatValues />
 
         <Divider horizontal style={{ paddingTop: "2em" }}>
           <Header as="h4">Sensors</Header>
         </Divider>
-        <LatestSensorValues rootStore={this.props.rootStore} />
+        <LatestSensorValues />
       </Container>
     );
   }

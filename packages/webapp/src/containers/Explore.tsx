@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Container, Dropdown, DropdownProps, Segment } from "semantic-ui-react";
 import { observer } from "mobx-react";
@@ -10,11 +10,11 @@ import { SeriesInstanceDateFormat } from "../stores/explore/SeriesInstanceProps"
 import Timezone, { Timezones } from "../stores/explore/Timezone";
 import ViewSpan, { ViewSpans, viewSpanToDays } from "../stores/explore/ViewSpan";
 
-import { RootStore, ExploreStore, ExplorePlotDataStore } from "../stores/stores";
+import { ExploreStore, ExplorePlotDataStore } from "../stores/stores";
+import RootStoreContext from "../stores/RootStoreContext";
 import * as StoreChecks from "../components/StoreChecks";
 
 interface Props extends RouteComponentProps {
-  rootStore: RootStore;
   exploreStore: ExploreStore;
   explorePlotDataStore: ExplorePlotDataStore;
 }
@@ -76,8 +76,10 @@ class Explore extends React.Component<Props, State> {
   };
 
   public render(): React.ReactElement {
+    const rootStore = useContext(RootStoreContext).rootStore;
+
     const exploreStore = this.props.exploreStore;
-    const thermostatConfigurationStore = this.props.rootStore.thermostatConfigurationStore;
+    const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
 
     const storeDependencies = [thermostatConfigurationStore];
 

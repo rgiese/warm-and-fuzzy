@@ -2,7 +2,6 @@ import React from "react";
 import { Route, Router, Switch } from "react-router-dom";
 import { Container } from "semantic-ui-react";
 
-import { ApolloProvider } from "react-apollo";
 import { configure as MobxConfigure } from "mobx";
 
 import AuthStateProps from "./common/AuthStateProps";
@@ -24,6 +23,7 @@ import Header from "./containers/Header";
 import Footer from "./containers/Footer";
 
 import { RootStore, ExploreStore, ExplorePlotDataStore } from "./stores/stores";
+import RootStoreContext from "./stores/RootStoreContext";
 
 // App-wide MobX configuration
 MobxConfigure({ enforceActions: "observed" });
@@ -66,20 +66,15 @@ class App extends React.Component<Props, State> {
   };
 
   public render(): React.ReactElement {
-    const childAuthStateProps: AuthStateProps = {
+    const childProps: AuthStateProps = {
       isAuthenticated: this.state.isAuthenticated,
       setIsAuthenticated: this.setIsAuthenticated,
-    };
-
-    const childProps = {
-      ...childAuthStateProps,
-      rootStore,
     };
 
     // Documentation for Router:
     // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
     return (
-      <ApolloProvider client={ApolloClient}>
+      <RootStoreContext.Provider value={{ rootStore }}>
         <Router history={History}>
           {/* Always show Nav (alternative: reference component directly using withRouter()) */}
           <AppliedRoute path="/" component={Header} props={childProps} />
@@ -109,7 +104,7 @@ class App extends React.Component<Props, State> {
           </Container>
           <AppliedRoute path="/" component={Footer} props={childProps} />
         </Router>
-      </ApolloProvider>
+      </RootStoreContext.Provider>
     );
   }
 }

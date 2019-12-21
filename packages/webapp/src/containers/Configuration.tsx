@@ -4,14 +4,11 @@ import { observer } from "mobx-react";
 
 import AuthStateProps from "../common/AuthStateProps";
 
-import { RootStore } from "../stores/stores";
-
 import SensorConfigurations from "../components/SensorConfigurations";
 import ThermostatConfigurations from "../components/ThermostatConfigurations";
 
-interface Props extends AuthStateProps {
-  rootStore: RootStore;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface Props extends AuthStateProps {}
 
 class State {}
 
@@ -28,12 +25,12 @@ class Configuration extends React.Component<Props, State> {
         <Divider horizontal>
           <Header as="h4">Thermostats</Header>
         </Divider>
-        <ThermostatConfigurations rootStore={this.props.rootStore} />
+        <ThermostatConfigurations />
 
         <Divider horizontal style={{ paddingTop: "2em" }}>
           <Header as="h4">Sensors</Header>
         </Divider>
-        <SensorConfigurations rootStore={this.props.rootStore} />
+        <SensorConfigurations />
       </>
     );
   }
