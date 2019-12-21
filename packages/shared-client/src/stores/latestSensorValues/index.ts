@@ -29,6 +29,7 @@ export class LatestSensorValuesStore extends GraphqlStoreBase<
 > {
   public constructor(authStore: AuthStore, apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      "LatestSensorValues",
       authStore,
       apolloClient,
       latestSensorValuesStoreDocument,

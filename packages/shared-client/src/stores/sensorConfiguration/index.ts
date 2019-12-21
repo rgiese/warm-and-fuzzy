@@ -51,6 +51,7 @@ export class SensorConfigurationStore extends GraphqlMutableStoreBase<
 > {
   public constructor(authStore: AuthStore, apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      "SensorConfiguration",
       authStore,
       apolloClient,
       // Mutation

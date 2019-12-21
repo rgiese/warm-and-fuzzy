@@ -31,13 +31,14 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
   private queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>;
 
   public constructor(
+    name: string,
     authStore: AuthStore,
     apolloClient: ApolloClient.ApolloClientBase,
     queryDocument: DocumentNode,
     queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
     queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
   ) {
-    super();
+    super(name);
 
     this.apolloClient = apolloClient;
     this.queryDocument = queryDocument;
@@ -54,7 +55,7 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
   }
 
   private fetchData = flow(function*(this: GraphqlStoreBase<T, TQuery>) {
-    this.state = "fetching";
+    this.setState("fetching");
 
     try {
       // TypeScript clowning around for MobX/flow requiring yield vs. await
@@ -80,10 +81,9 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
         this.data.replace(data.map(this.queryResultDataItemPatcher));
       }
 
-      this.state = "ready";
+      this.setState("ready");
     } catch (error) {
-      this.error = JSON.stringify(error); // stringify exception
-      this.state = "error";
+      this.setError(JSON.stringify(error)); // stringify exception
     }
   });
 

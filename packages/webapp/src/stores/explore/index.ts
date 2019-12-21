@@ -43,7 +43,7 @@ export class ExploreStore {
   ) {
     const thermostatConfigurationStore = this.rootStore.thermostatConfigurationStore;
 
-    if (thermostatConfigurationStore.state !== "ready") {
+    if (!thermostatConfigurationStore.isReady) {
       if (!shouldFailSilently) {
         throw new Error(`Unexpected: available series should be loaded`);
       }

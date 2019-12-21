@@ -19,8 +19,8 @@ export function renderStoreWorkingOrErrorComponent(stores: StoreBase[]) {
       <Title>Error</Title>
       {stores
         .filter(store => store.hasErrors)
-        .map((store, storeIndex) => (
-          <Text key={storeIndex}>{store.error}</Text>
+        .map(store => (
+          <Text key={store.name}>{store.error}</Text>
         ))}
     </>
   );

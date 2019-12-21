@@ -60,6 +60,7 @@ export class ThermostatConfigurationStore extends GraphqlMutableStoreBase<
 > {
   public constructor(authStore: AuthStore, apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      "ThermostatConfiguration",
       authStore,
       apolloClient,
       // Mutation

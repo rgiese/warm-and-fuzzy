@@ -31,6 +31,7 @@ export class LatestThermostatValuesStore extends GraphqlStoreBase<
 > {
   public constructor(authStore: AuthStore, apolloClient: ApolloClient.ApolloClientBase) {
     super(
+      "LatestThermostatValues",
       authStore,
       apolloClient,
       latestThermostatValuesStoreDocument,

@@ -26,6 +26,7 @@ export class GraphqlMutableStoreBase<
   private mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>;
 
   public constructor(
+    name: string,
     authStore: AuthStore,
     apolloClient: ApolloClient.ApolloClientBase,
     mutationDocument: DocumentNode,
@@ -35,6 +36,7 @@ export class GraphqlMutableStoreBase<
     queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
   ) {
     super(
+      name,
       authStore,
       apolloClient,
       queryDocument,
@@ -50,7 +52,7 @@ export class GraphqlMutableStoreBase<
     this: GraphqlMutableStoreBase<T, TQuery, TMutation, TMutationVariables>,
     item: T
   ) {
-    this.state = "updating";
+    this.setState("updating");
 
     try {
       const updatedItemIndex = this.data.findIndex(existingItem => existingItem.id === item.id);
@@ -80,10 +82,9 @@ export class GraphqlMutableStoreBase<
 
       this.data[updatedItemIndex] = item;
 
-      this.state = "ready";
+      this.setState("ready");
     } catch (error) {
-      this.error = JSON.stringify(error); // stringify exception
-      this.state = "error";
+      this.setError(JSON.stringify(error)); // stringify exception
     }
   });
 }
