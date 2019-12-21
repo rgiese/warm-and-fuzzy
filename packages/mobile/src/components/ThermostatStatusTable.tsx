@@ -13,7 +13,7 @@ import {
   ThermostatConfiguration,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import RootStore from "../stores/RootStore";
+import RootStoreContext from "../stores/RootStoreContext";
 import * as StoreChecks from "./StoreChecks";
 
 import { ThermostatAction } from "../../generated/graphqlClient";
@@ -79,6 +79,9 @@ class State {
 type ThermostatValue = LatestThermostatValue & { configuration: ThermostatConfiguration };
 
 class ThermostatStatusTable extends React.Component<Props, State> {
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
+
   private intervalRefreshTimeSince: any;
   private isFirstFetch: boolean;
 
@@ -106,8 +109,10 @@ class ThermostatStatusTable extends React.Component<Props, State> {
 
   public render(): React.ReactElement {
     // TODO: Polling
-    const latestThermostatValuesStore = RootStore.latestThermostatValuesStore;
-    const thermostatConfigurationStore = RootStore.thermostatConfigurationStore;
+    const rootStore = this.context.rootStore;
+
+    const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
+    const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
 
     const storeDependencies = [latestThermostatValuesStore, thermostatConfigurationStore];
 

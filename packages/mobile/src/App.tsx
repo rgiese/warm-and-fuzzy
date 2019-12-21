@@ -1,10 +1,12 @@
 import React from "react";
 import { Provider as PaperProvider } from "react-native-paper";
 
-import { ApolloProvider } from "react-apollo";
 import { configure as MobxConfigure } from "mobx";
 
-import ApolloClient from "./services/ApolloClient";
+import { GlobalAuth } from "./services/Auth";
+
+import { RootStore } from "./stores/RootStore";
+import RootStoreContext from "./stores/RootStoreContext";
 
 import ScreenProps from "./screens/ScreenProps";
 import Screens from "./screens";
@@ -18,6 +20,9 @@ MobxConfigure({ enforceActions: "observed" });
 interface Props {}
 
 class State {}
+
+const rootStore = new RootStore();
+GlobalAuth.setAuthStore(rootStore.authStore);
 
 class App extends React.Component<Props, State> {
   public constructor(props: Props) {
@@ -33,9 +38,9 @@ class App extends React.Component<Props, State> {
 
     return (
       <PaperProvider theme={screenProps.theme}>
-        <ApolloProvider client={ApolloClient}>
+        <RootStoreContext.Provider value={{ rootStore }}>
           <Screens screenProps={screenProps} />
-        </ApolloProvider>
+        </RootStoreContext.Provider>
       </PaperProvider>
     );
   }

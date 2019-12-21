@@ -37,10 +37,12 @@ class Auth {
   //       Compared to webapp/services/Auth, rely on callers to use EnsureLoggedIn().
   //
 
-  public async initialize(authStore: AuthStore): Promise<void> {
+  public setAuthStore(authStore: AuthStore) {
     this.authStore = authStore;
+  }
 
-    const savedTokens = await Keychain.getGenericPassword();
+  public async initialize(): Promise<void> {
+     const savedTokens = await Keychain.getGenericPassword();
 
     if (!savedTokens || savedTokens.username !== KeychainUserName) {
       // No work left to do, remain in unauthorized state

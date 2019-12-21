@@ -18,7 +18,7 @@ import { ThermostatConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-clien
 
 import { ThermostatAction } from "../../generated/graphqlClient";
 
-import RootStore from "../stores/RootStore";
+import RootStoreContext from "../stores/RootStoreContext";
 
 import { ColorCodes } from "../Theme";
 import * as ThemedText from "./ThemedText";
@@ -82,12 +82,15 @@ class State {
 }
 
 class ThermostatConfigurationComponent extends React.Component<Props, State> {
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
+
   public constructor(props: Props) {
     super(props);
   }
 
   async componentDidMount(): Promise<any> {
-    const thermostatConfiguration = RootStore.thermostatConfigurationStore.findById(
+    const thermostatConfiguration = this.context.rootStore.thermostatConfigurationStore.findById(
       this.props.thermostatId
     );
 
@@ -120,11 +123,13 @@ class ThermostatConfigurationComponent extends React.Component<Props, State> {
     }
 
     // Errors
-    if (RootStore.thermostatConfigurationStore.hasErrors) {
+    const thermostatConfigurationStore = this.context.rootStore.thermostatConfigurationStore;
+
+    if (thermostatConfigurationStore.hasErrors) {
       return (
         <>
           <Title>Error</Title>
-          <Text>{RootStore.thermostatConfigurationStore.error}</Text>
+          <Text>{thermostatConfigurationStore.error}</Text>
         </>
       );
     }
@@ -239,9 +244,7 @@ class ThermostatConfigurationComponent extends React.Component<Props, State> {
               if (this.state.thermostatConfiguration) {
                 this.setState({ isSaving: true });
 
-                await RootStore.thermostatConfigurationStore.updateItem(
-                  this.state.thermostatConfiguration
-                );
+                await thermostatConfigurationStore.updateItem(this.state.thermostatConfiguration);
 
                 this.setState({
                   isSaving: false,
