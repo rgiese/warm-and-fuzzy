@@ -2,6 +2,8 @@ import { GraphQLScalarType, Kind } from "graphql";
 
 import * as GraphQL from "../../generated/graphqlTypes";
 
+import thermostatSettingsResolver from "./resolvers/ThermostatSettingsResolver";
+
 import thermostatConfigurationResolver from "./resolvers/ThermostatConfigurationResolver";
 import sensorConfigurationResolver from "./resolvers/SensorConfigurationResolver";
 
@@ -38,6 +40,12 @@ const resolvers: GraphQL.Resolvers = {
 
   /* eslint-disable @typescript-eslint/explicit-function-return-type */
   Query: {
+    getThermostatSettings: async (_parent, _args, context) => {
+      return thermostatSettingsResolver.getAll(context.AuthorizedTenant);
+    },
+    getThermostatSetting: async (_parent, args, context) => {
+      return thermostatSettingsResolver.getOne(context.AuthorizedTenant, args);
+    },
     getThermostatConfigurations: async (_parent, _args, context) => {
       return thermostatConfigurationResolver.getAll(context.AuthorizedTenant);
     },
@@ -75,6 +83,12 @@ const resolvers: GraphQL.Resolvers = {
   //
 
   Mutation: {
+    createThermostatSettings: async (_parent, args, context) => {
+      return thermostatSettingsResolver.create(context.AuthorizedTenant, args.thermostatSettings);
+    },
+    updateThermostatSettings: async (_parent, args, context) => {
+      return thermostatSettingsResolver.update(context.AuthorizedTenant, args.thermostatSettings);
+    },
     createThermostatConfiguration: async (_parent, args, context) => {
       return thermostatConfigurationResolver.create(
         context.AuthorizedTenant,
