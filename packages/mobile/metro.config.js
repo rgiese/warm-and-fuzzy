@@ -9,7 +9,17 @@ module.exports = (async () => {
     resolver: { sourceExts, assetExts },
   } = await getDefaultConfig();
 
+  const isCircleCI = !!process.env["CIRCLE_BRANCH"];
+
+  const ciOverrides = isCircleCI
+    ? {
+        // https://stackoverflow.com/questions/56002938/reactnative-0-59-x-build-fails-on-circleci-with-exit-value-137/56027775#56027775
+        maxWorkers: 2,
+      }
+    : {};
+
   return {
+    ...ciOverrides,
     resolver: {
       // https://github.com/kristerkari/react-native-svg-transformer
       assetExts: assetExts.filter(ext => ext !== "svg"),
@@ -35,7 +45,5 @@ module.exports = (async () => {
     // Completely bananas work-around for https://github.com/facebook/metro/issues/1
     // courtesy of https://github.com/facebook/metro/issues/1#issuecomment-421628147
     watchFolders: Array.from(new Set(getDevPaths(__dirname).map($ => fs.realpathSync($)))),
-    // https://stackoverflow.com/questions/56002938/reactnative-0-59-x-build-fails-on-circleci-with-exit-value-137/56027775#56027775
-    maxWorkers: 2,
   };
 })();
