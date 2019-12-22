@@ -35,5 +35,7 @@ module.exports = (async () => {
     // Completely bananas work-around for https://github.com/facebook/metro/issues/1
     // courtesy of https://github.com/facebook/metro/issues/1#issuecomment-421628147
     watchFolders: Array.from(new Set(getDevPaths(__dirname).map($ => fs.realpathSync($)))),
+    // https://stackoverflow.com/questions/56002938/reactnative-0-59-x-build-fails-on-circleci-with-exit-value-137/56027775#56027775
+    maxWorkers: 2,
   };
 })();
