@@ -2,6 +2,7 @@ import { ApolloClient as ApolloClientBase } from "apollo-client";
 import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
 import { createHttpLink } from "apollo-link-http";
 import { setContext } from "apollo-link-context";
+import { reaction } from "mobx";
 
 import { AuthStore } from "../stores/auth";
 
@@ -19,5 +20,14 @@ export class ApolloClient extends ApolloClientBase<NormalizedCacheObject> {
     });
 
     super({ cache: new InMemoryCache(), link: apolloAuthContextLink.concat(apolloHttpLink) });
+
+    reaction(
+      () => authStore.isUserAuthenticated,
+      isUserAuthenticated => {
+        if (!isUserAuthenticated) {
+          this.clearStore();
+        }
+      }
+    );
   }
 }
