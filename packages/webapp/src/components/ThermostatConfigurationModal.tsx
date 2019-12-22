@@ -4,8 +4,8 @@ import { ValidationError } from "yup";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import {
+  RootStoreContext,
   ThermostatConfiguration,
-  ThermostatConfigurationStore,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
@@ -13,7 +13,6 @@ import * as EditFormTools from "./EditFormTools";
 
 interface Props {
   values: ThermostatConfiguration;
-  store: ThermostatConfigurationStore;
 }
 
 class State {
@@ -28,6 +27,9 @@ class State {
 }
 
 class ThermostatConfigurationModal extends React.Component<Props, State> {
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
+
   public constructor(props: Props) {
     super(props);
     this.state = new State(props);
@@ -57,7 +59,7 @@ class ThermostatConfigurationModal extends React.Component<Props, State> {
       <EditFormModal
         canSave={this.state.validationError !== undefined}
         onSave={async (): Promise<void> => {
-          await this.props.store.updateItem(this.state.values);
+          await this.context.rootStore.thermostatConfigurationStore.updateItem(this.state.values);
         }}
         header={
           <>

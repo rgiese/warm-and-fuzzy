@@ -24,7 +24,7 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
   );
 
   const fnBuildEditControl = (value: SensorConfiguration): React.ReactElement => (
-    <SensorConfigurationModal values={value} store={rootStore.sensorConfigurationStore} />
+    <SensorConfigurationModal values={value} />
   );
 
   return (

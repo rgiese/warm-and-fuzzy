@@ -3,17 +3,13 @@ import { Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 
 import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import {
-  SensorConfiguration,
-  SensorConfigurationStore,
-} from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { RootStoreContext, SensorConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";
 
 interface Props {
   values: SensorConfiguration;
-  store: SensorConfigurationStore;
 }
 
 class State {
@@ -26,6 +22,9 @@ class State {
 }
 
 class SensorConfigurationModal extends React.Component<Props, State> {
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
+
   public constructor(props: Props) {
     super(props);
     this.state = new State(props);
@@ -55,7 +54,7 @@ class SensorConfigurationModal extends React.Component<Props, State> {
       <EditFormModal
         canSave={this.state.validationError !== undefined}
         onSave={async (): Promise<void> => {
-          await this.props.store.updateItem(this.state.values);
+          await this.context.rootStore.sensorConfigurationStore.updateItem(this.state.values);
         }}
         header={
           <>

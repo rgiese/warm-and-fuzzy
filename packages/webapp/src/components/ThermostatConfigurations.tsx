@@ -34,7 +34,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
   );
 
   const fnBuildEditControl = (value: ThermostatConfiguration): React.ReactElement => (
-    <ThermostatConfigurationModal values={value} store={rootStore.thermostatConfigurationStore} />
+    <ThermostatConfigurationModal values={value} />
   );
 
   return (
