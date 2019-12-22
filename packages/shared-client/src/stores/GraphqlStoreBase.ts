@@ -5,7 +5,7 @@ import { DocumentNode } from "graphql";
 
 import { ApolloClient } from "../services/ApolloClient";
 
-import { StoreBase, StoreState } from "./StoreBase";
+import { StoreBase } from "./StoreBase";
 import { AuthStore } from "./auth";
 
 export interface GraphqlStoreItem {
