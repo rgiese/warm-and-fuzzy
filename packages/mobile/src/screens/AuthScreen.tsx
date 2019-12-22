@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Button, Caption, Surface, Text, Title } from "react-native-paper";
-import { NavigationScreenProp, NavigationState } from "react-navigation";
+import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { observer } from "mobx-react";
 
 import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
@@ -13,9 +13,7 @@ import { ConfigStageName } from "../config";
 
 import ScreenRoutes from "./ScreenRoutes";
 
-const AuthScreen: React.FunctionComponent<{
-  navigation: NavigationScreenProp<NavigationState>;
-}> = ({ navigation }): React.ReactElement => {
+const AuthScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.ReactElement => {
   const authStore = useContext(RootStoreContext).rootStore.authStore;
 
   if (authStore.state === "initializing" || authStore.state === "authenticating") {

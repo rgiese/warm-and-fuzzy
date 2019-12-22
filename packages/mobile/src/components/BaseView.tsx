@@ -2,18 +2,10 @@ import React from "react";
 import { View } from "react-native";
 import { Theme, withTheme } from "react-native-paper";
 
-interface Props {
+const BaseView: React.FunctionComponent<{
   theme: Theme;
-}
-
-class BaseView extends React.Component<Props> {
-  public render(): React.ReactElement {
-    return (
-      <View style={{ backgroundColor: this.props.theme.colors.background, flex: 1 }}>
-        {this.props.children}
-      </View>
-    );
-  }
-}
+}> = ({ children, theme }): React.ReactElement => {
+  return <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>{children}</View>;
+};
 
 export default withTheme(BaseView);
