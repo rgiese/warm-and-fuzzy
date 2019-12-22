@@ -9,7 +9,7 @@ import ThermostatStatusTable from "../components/ThermostatStatusTable";
 import ScreenProps from "./ScreenProps";
 import ScreenRoutes from "./ScreenRoutes";
 
-const HomeScreen: NavigationStackScreenComponent<{}> = ({}): React.ReactElement => {
+const HomeScreen: NavigationStackScreenComponent<{}> = (): React.ReactElement => {
   return (
     <BaseView>
       <ThermostatStatusTable />
