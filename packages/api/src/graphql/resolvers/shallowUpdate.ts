@@ -2,7 +2,7 @@ export default function shallowUpdate<TBase extends object, TUpdate extends obje
   base: TBase,
   update: TUpdate
 ): TBase {
-  let merged = base;
+  const merged = base;
 
   for (const key in base) {
     if (update.hasOwnProperty(key)) {

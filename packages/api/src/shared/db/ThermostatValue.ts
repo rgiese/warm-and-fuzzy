@@ -6,67 +6,51 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 @table("LatestThermostatValues")
 export default class ThermostatValue {
-  public constructor() {
-    this.tenant = "";
-    this.id = "";
-
-    this.publishedTime = new Date();
-    this.deviceTime = new Date();
-    this.deviceLocalSerial = 0;
-    this.currentActions = undefined;
-    this.temperature = 0.0;
-    this.humidity = 0.0;
-    this.setPointHeat = NaN;
-    this.setPointCool = NaN;
-    this.threshold = NaN;
-    this.allowedActions = undefined;
-  }
-
   // Tenant (assigned by WarmAndFuzzy)
   @hashKey()
-  public tenant: string;
+  public tenant = "";
 
   // Device ID (assigned by Particle)
   @rangeKey()
-  public id: string;
+  public id = "";
 
   // Timestamp attached by Particle OS when event was published
   @attribute()
-  public publishedTime: Date;
+  public publishedTime: Date = new Date();
 
   // Timestamp attached by firmware when event was created
   @attribute()
-  public deviceTime: Date;
+  public deviceTime: Date = new Date();
 
   // Serial number (scoped to power cycle) attached by firmware when event was created
   @attribute()
-  public deviceLocalSerial: number;
+  public deviceLocalSerial = 0;
 
   // @see ThermostatConfiguration#allowedActions
   @attribute({ memberType: "String" })
-  public currentActions?: Set<GraphQL.ThermostatAction>;
+  public currentActions?: Set<GraphQL.ThermostatAction> = undefined;
 
   // Units: Celsius
   @attribute()
-  public temperature: number;
+  public temperature = 0.0;
 
   // Units: %RH [0-100]
   @attribute()
-  public humidity: number;
+  public humidity = 0.0;
 
   // Target temperature for heating [Celsius]
   @attribute()
-  public setPointHeat: number;
+  public setPointHeat = NaN;
 
   // Target temperature for cooling [Celsius]
   @attribute()
-  public setPointCool: number;
+  public setPointCool = NaN;
 
   // Hysteresis threshold around targets [Celsius]
   @attribute()
-  public threshold: number;
+  public threshold = NaN;
 
   // @see ThermostatConfiguration#allowedActions
   @attribute({ memberType: "String" })
-  public allowedActions?: Set<GraphQL.ThermostatAction>;
+  public allowedActions?: Set<GraphQL.ThermostatAction> = undefined;
 }

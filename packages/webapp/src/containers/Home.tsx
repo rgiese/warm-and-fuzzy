@@ -1,27 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Container, Divider, Header } from "semantic-ui-react";
+import { observer } from "mobx-react";
 
-import AuthStateProps from "../common/AuthStateProps";
+import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import LatestThermostatValues from "../components/LatestThermostatValues";
 import LatestSensorValues from "../components/LatestSensorValues";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props extends AuthStateProps {}
+const Home: React.FunctionComponent<{}> = (): React.ReactElement => {
+  const authStore = useContext(RootStoreContext).rootStore.authStore;
 
-class State {}
-
-class Home extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
-    this.state = new State();
-  }
-
-  private renderLander(): React.ReactElement {
-    return <div>Please log in via nav bar.</div>;
-  }
-
-  private renderContent(): React.ReactElement {
+  if (authStore.isUserAuthenticated) {
     return (
       <Container text>
         <Divider horizontal>
@@ -35,11 +24,10 @@ class Home extends React.Component<Props, State> {
         <LatestSensorValues />
       </Container>
     );
+  } else {
+    // TODO: Make this a live link.
+    return <div>Please log in via nav bar.</div>;
   }
+};
 
-  public render(): React.ReactElement {
-    return <div>{this.props.isAuthenticated ? this.renderContent() : this.renderLander()}</div>;
-  }
-}
-
-export default Home;
+export default observer(Home);

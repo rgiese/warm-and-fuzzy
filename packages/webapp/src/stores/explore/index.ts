@@ -1,13 +1,13 @@
 import { action, observable } from "mobx";
 
-import { RootStore } from "../stores";
+import { RootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import SeriesIdentifier from "./SeriesIdentifier";
 import SeriesInstanceProps from "./SeriesInstanceProps";
 import Timezone, { Timezones } from "./Timezone";
 import ViewSpan, { ViewSpans } from "./ViewSpan";
 
-export class ExploreStore {
+export default class ExploreStore {
   private rootStore: RootStore;
   private nextSeriesInstanceId: number;
 
@@ -43,7 +43,7 @@ export class ExploreStore {
   ) {
     const thermostatConfigurationStore = this.rootStore.thermostatConfigurationStore;
 
-    if (thermostatConfigurationStore.state !== "ready") {
+    if (!thermostatConfigurationStore.isReady) {
       if (!shouldFailSilently) {
         throw new Error(`Unexpected: available series should be loaded`);
       }
@@ -53,7 +53,7 @@ export class ExploreStore {
     const instanceId = this.nextSeriesInstanceId;
     ++this.nextSeriesInstanceId;
 
-    const seriesIdentifier = thermostatConfigurationStore.thermostatConfigurations.find(
+    const seriesIdentifier = thermostatConfigurationStore.data.find(
       series => series.streamName === streamName
     );
 

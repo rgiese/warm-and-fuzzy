@@ -2,16 +2,18 @@ import React from "react";
 import { Route, Router, Switch } from "react-router-dom";
 import { Container } from "semantic-ui-react";
 
-import { ApolloProvider } from "react-apollo";
-import { configure } from "mobx";
+import { configure as MobxConfigure } from "mobx";
 
-import AuthStateProps from "./common/AuthStateProps";
+import {
+  ApolloClient,
+  AuthStore,
+  RootStore,
+  RootStoreContext,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import { GlobalAuth } from "./services/Auth";
-import ApolloClient from "./services/ApolloClient";
+import Auth from "./services/Auth";
 import History from "./services/History";
 
-import AppliedRoute from "./components/AppliedRoute";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 import AuthCallback from "./containers/AuthCallback";
@@ -23,85 +25,56 @@ import NotFound from "./containers/NotFound";
 import Header from "./containers/Header";
 import Footer from "./containers/Footer";
 
-import { RootStore, ExploreStore, ExplorePlotDataStore } from "./stores/stores";
+import ExploreStore from "./stores/explore";
+import ExplorePlotDataStore from "./stores/explore-plot-data";
+
+import config from "./config";
 
 // App-wide MobX configuration
-configure({ enforceActions: "observed" });
+MobxConfigure({ enforceActions: "observed" });
 
-const rootStore = new RootStore();
+const authProvider = new Auth();
+const authStore = new AuthStore(authProvider);
+
+authProvider.initializeStore(authStore);
+
+const apolloClient = new ApolloClient(authStore, config.apiGateway.URL);
+
+const rootStore = new RootStore(authStore, apolloClient);
 const exploreStore = new ExploreStore(rootStore); // for the top-level Explore page
-const explorePlotDataStore = new ExplorePlotDataStore(exploreStore);
+const explorePlotDataStore = new ExplorePlotDataStore(exploreStore, apolloClient);
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props {}
-
-class State {
-  public isAuthenticated: boolean;
-
-  public constructor() {
-    this.isAuthenticated = GlobalAuth.IsAuthenticated;
-  }
-}
-
-class App extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
-
-    this.state = new State();
-  }
-
-  private setIsAuthenticated = (isAuthenticated: boolean): void => {
-    const justLoggedOut = this.state.isAuthenticated && !isAuthenticated;
-
-    if (justLoggedOut) {
-      ApolloClient.resetStore();
-    }
-
-    this.setState({ isAuthenticated: isAuthenticated });
-  };
-
-  public render(): React.ReactElement {
-    const childProps: AuthStateProps = {
-      isAuthenticated: this.state.isAuthenticated,
-      setIsAuthenticated: this.setIsAuthenticated,
-    };
-
-    // Documentation for Router:
-    // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
-    return (
-      <ApolloProvider client={ApolloClient}>
-        <Router history={History}>
-          {/* Always show Nav (alternative: reference component directly using withRouter()) */}
-          <AppliedRoute path="/" component={Header} props={childProps} />
-          <Container
-            style={{ marginTop: "4em" /* for top menu */, marginBottom: "4em" /* for footer */ }}
-          >
-            <Switch>
-              {/* Utility routes */}
-              <AppliedRoute path="/callback" component={AuthCallback} props={childProps} />
-              {/* Actual pages */}
-              <AppliedRoute path="/" exact component={Home} props={childProps} />
-              <AuthenticatedRoute
-                path="/configuration"
-                exact
-                component={Configuration}
-                props={childProps}
-              />
-              <AuthenticatedRoute
-                path="/explore"
-                exact
-                component={Explore}
-                props={{ ...childProps, rootStore, exploreStore, explorePlotDataStore }}
-              />
-              {/* Finally, catch all unmatched routes */}
-              <Route component={NotFound} />
-            </Switch>
-          </Container>
-          <AppliedRoute path="/" component={Footer} props={childProps} />
-        </Router>
-      </ApolloProvider>
-    );
-  }
-}
+const App: React.FunctionComponent<{}> = (): React.ReactElement => {
+  // Documentation for Router:
+  // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
+  return (
+    <RootStoreContext.Provider value={{ rootStore }}>
+      <Router history={History}>
+        {/* Always show Nav (alternative: reference component directly using withRouter()) */}
+        <Route path="/" component={Header} />
+        <Container
+          style={{ marginTop: "4em" /* for top menu */, marginBottom: "4em" /* for footer */ }}
+        >
+          <Switch>
+            {/* Utility routes */}
+            <Route path="/callback" component={AuthCallback} />
+            {/* Actual pages */}
+            <Route path="/" exact component={Home} />
+            <AuthenticatedRoute path="/configuration" exact component={Configuration} />
+            <AuthenticatedRoute
+              path="/explore"
+              exact
+              component={Explore}
+              props={{ exploreStore, explorePlotDataStore }}
+            />
+            {/* Finally, catch all unmatched routes */}
+            <Route component={NotFound} />
+          </Switch>
+        </Container>
+        <Route path="/" component={Footer} />
+      </Router>
+    </RootStoreContext.Provider>
+  );
+};
 
 export default App;

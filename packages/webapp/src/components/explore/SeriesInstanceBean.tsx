@@ -9,7 +9,7 @@ import SeriesInstanceProps, {
 } from "../../stores/explore/SeriesInstanceProps";
 import ViewSpan from "../../stores/explore/ViewSpan";
 
-import { ExploreStore } from "../../stores/stores";
+import ExploreStore from "../../stores/explore";
 
 interface Props {
   store: ExploreStore;
@@ -18,14 +18,9 @@ interface Props {
 }
 
 class State {
-  public constructor() {
-    // Control states of respective popups so we can dismiss them once a new value has been selected
-    this.isColorPickerOpen = false;
-    this.isDatePickerOpen = false;
-  }
-
-  isColorPickerOpen: boolean;
-  isDatePickerOpen: boolean;
+  // Control states of respective popups so we can dismiss them once a new value has been selected
+  isColorPickerOpen: boolean = false;
+  isDatePickerOpen: boolean = false;
 }
 
 class SeriesInstanceBean extends React.Component<Props, State> {

@@ -23,7 +23,7 @@ import { StatusEvent, StatusEventSchema } from "./statusEvent";
 // Support functions
 //
 
-var deviceTenancyCache = new Map();
+const deviceTenancyCache = new Map();
 
 async function getTenant(id: string): Promise<string> {
   // Tenancy values should be immutable so we can just cache them without any invalidation
@@ -74,7 +74,7 @@ async function getSensorConfigurations(
     }
   );
 
-  let sensorConfigurations = new Map<string, SensorConfiguration>();
+  const sensorConfigurations = new Map<string, SensorConfiguration>();
 
   for await (const sensorConfiguration of DbMapper.batchGet(sensorConfigurationConditions)) {
     sensorConfigurations.set(sensorConfiguration.id, sensorConfiguration);

@@ -1,39 +1,48 @@
 import React from "react";
 import { Provider as PaperProvider } from "react-native-paper";
 
-import { ApolloProvider } from "react-apollo";
-import ApolloClient from "./services/ApolloClient";
+import { configure as MobxConfigure } from "mobx";
+
+import {
+  ApolloClient,
+  AuthStore,
+  RootStore,
+  RootStoreContext,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import Auth from "./services/Auth";
 
 import ScreenProps from "./screens/ScreenProps";
 import Screens from "./screens";
 
 import AppTheme from "./Theme";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props {}
+import config from "./config";
 
-class State {}
+// App-wide MobX configuration
+MobxConfigure({ enforceActions: "observed" });
 
-class App extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
+const authProvider = new Auth();
+const authStore = new AuthStore(authProvider, "initializing");
 
-    this.state = new State();
-  }
+authProvider.initializeStore(authStore);
 
-  public render(): React.ReactElement {
-    const screenProps: ScreenProps = {
-      theme: AppTheme,
-    };
+const apolloClient = new ApolloClient(authStore, config.apiGateway.URL);
 
-    return (
-      <PaperProvider theme={screenProps.theme}>
-        <ApolloProvider client={ApolloClient}>
-          <Screens screenProps={screenProps} />
-        </ApolloProvider>
-      </PaperProvider>
-    );
-  }
-}
+const rootStore = new RootStore(authStore, apolloClient);
+
+const App: React.FunctionComponent<{}> = (): React.ReactElement => {
+  const screenProps: ScreenProps = {
+    theme: AppTheme,
+  };
+
+  return (
+    <PaperProvider theme={screenProps.theme}>
+      <RootStoreContext.Provider value={{ rootStore }}>
+        <Screens screenProps={screenProps} />
+      </RootStoreContext.Provider>
+    </PaperProvider>
+  );
+};
 
 export default App;

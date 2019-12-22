@@ -37,7 +37,7 @@ export default class MappedResolver<
   }
 
   public async getAll(tenant: string): Promise<TGraphQL[]> {
-    let items: TGraphQL[] = [];
+    const items: TGraphQL[] = [];
 
     for await (const modelItem of DbMapper.query(this._modelConstructor, { tenant })) {
       items.push(this._mapper.graphqlFromModel(modelItem));

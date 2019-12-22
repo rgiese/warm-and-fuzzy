@@ -20,6 +20,15 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
 # Dev setup
 
 - Getting started
+  - For Android development:
+    - Install [Android Studio](https://developer.android.com/studio)
+    - [Windows-specific](https://docs.microsoft.com/en-us/xamarin/android/get-started/installation/android-emulator/hardware-acceleration?pivots=windows):
+      - Enable `Hyper-V` and `Windows Hypervisor Platform` Windows features
+      - Download [Visual Studio](https://visualstudio.microsoft.com/) 2019+ Community Edition and install the `Mobile development with .NET` workload and `Android SDK setup` individual component.
+      - Open Tools > Android > Android Device Manager to create and start a new device.
+    - make sure `JAVA_HOME` is set in the environment, pointing at the root (not `bin`) directory of a Java install.
+    - make sure `ANDROID_SDK_ROOT` is set in the environment, pointing to (e.g.) `../android-sdk`.
+    - make sure `%ANDROID_SDK_ROOT%/platform-tools` is on the system path so that `adb` is available.
   - `npm install`
   - `lerna bootstrap`
   - `lerna run decrypt-secrets` (make sure `WAF_GIT_SECRETS_KEY` is present in the environment)
@@ -27,9 +36,9 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
   - `lerna run build`
 - Pre-commit
   - `npm run format:fix`
-  - `lerna run lint:fix`
+  - `npm run lint:fix`
 - Deploy (dev API only, if needed - everything should run through CI)
-  - `lerna run deploy:dev --stream`
+  - `npm run deploy:dev`
 
 # Running the web app locally
 
@@ -53,6 +62,9 @@ All commands below start the mobile app server locally, varying which API it cal
 | `npm run start-mobile:remote:dev`  | Cloud (Dev)  | Dev      |
 | `npm run start-mobile:remote:prod` | Cloud (Prod) | Prod     |
 
+If the JS server fails to start (the window just closes), try running a full mobile build with `lerna run bundle-mobile --stream`,
+or `cd packages/mobile`, `npx react-native start`.
+
 ## Dev tooling tricks
 
 ### Lerna
@@ -60,6 +72,11 @@ All commands below start the mobile app server locally, varying which API it cal
 - `lerna clean` to wipe all `node_modules` from packages (though not the root)
 - `lerna link convert` to move a new package's dev dependencies up to the root `package.json`
 - `npx sort-package-json` to clean up `package.json` files
+- Updating packages (run in repo root):
+  - `npm update`
+  - `lerna exec npm update --stream`
+  - `lerna bootstrap`
+  - `npm run build` to verify
 
 ### Android
 

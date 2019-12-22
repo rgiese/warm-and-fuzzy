@@ -1,28 +1,19 @@
 import React from "react";
 
-import AuthStateProps from "../common/AuthStateProps";
-import { GlobalAuth } from "../services/Auth";
+import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
 import History from "../services/History";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props extends AuthStateProps {}
-
-class State {}
-
 // Instantiated for the /callback route that Auth0's universal login page will redirect to after logging in
-class AuthCallback extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
-
-    this.state = new State();
-  }
+class AuthCallback extends React.Component<{}> {
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
 
   public async componentDidMount(): Promise<void> {
-    // Asynchronously verify that authentication succeeded
-    const isAuthenticated = await GlobalAuth.handleAuthentication();
+    const authStore = this.context.rootStore.authStore;
 
-    // Notify app so state is applied appropriately
-    this.props.setIsAuthenticated(isAuthenticated);
+    // Asynchronously verify that authentication succeeded
+    await authStore.authProvider.completeLogin();
 
     // Reload the main app page
     History.replace("/");

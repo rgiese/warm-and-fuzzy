@@ -1,13 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
+import { ScrollView } from "react-native";
 import { Button, Divider, List } from "react-native-paper";
-import {
-  NavigationScreenProp,
-  NavigationState,
-  NavigationStackScreenOptions,
-} from "react-navigation";
+import { NavigationStackScreenComponent } from "react-navigation-stack";
 
-import { GlobalAuth } from "../services/Auth";
-import ApolloClient from "../services/ApolloClient";
+import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import BaseView from "../components/BaseView";
 
@@ -15,50 +11,30 @@ import { ConfigStageName } from "../config";
 
 import ScreenRoutes from "./ScreenRoutes";
 
-interface Props {
-  navigation: NavigationScreenProp<NavigationState>;
-}
+const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.ReactElement => {
+  const authStore = useContext(RootStoreContext).rootStore.authStore;
 
-class State {}
-
-class AccountScreen extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
-
-    this.state = new State();
-  }
-
-  static navigationOptions: NavigationStackScreenOptions = {
-    title: "Account",
-  };
-
-  private handleLogout = async (): Promise<void> => {
-    await GlobalAuth.logout();
-    ApolloClient.resetStore();
-
-    this.props.navigation.navigate(ScreenRoutes.Auth);
-  };
-
-  public render(): React.ReactElement {
-    return (
-      <BaseView>
+  return (
+    <BaseView>
+      <ScrollView>
         <List.Section title="Your account">
-          <List.Item
-            left={props => <List.Icon {...props} icon="person" />}
-            title={GlobalAuth.UserName}
-          />
-          <List.Item
-            left={props => <List.Icon {...props} icon="mail" />}
-            title={GlobalAuth.UserEmail}
-          />
-          <Button mode="outlined" onPress={this.handleLogout}>
+          <List.Item left={_props => <List.Icon icon="account" />} title={authStore.userName} />
+          <List.Item left={_props => <List.Icon icon="at" />} title={authStore.userEmail} />
+          <Button
+            mode="outlined"
+            onPress={async (): Promise<void> => {
+              await authStore.authProvider.requestLogout();
+
+              navigation.navigate(ScreenRoutes.Auth);
+            }}
+          >
             Sign out
           </Button>
         </List.Section>
         <List.Section title="Your permissions">
-          {GlobalAuth.Permissions.map(permission => (
+          {authStore.userPermissions.map(permission => (
             <List.Item
-              left={props => <List.Icon {...props} icon="done" />}
+              left={_props => <List.Icon icon="check" />}
               title={permission}
               key={permission}
             />
@@ -66,18 +42,19 @@ class AccountScreen extends React.Component<Props, State> {
         </List.Section>
         <Divider />
         <List.Section title="Tenant">
-          <List.Item
-            left={props => <List.Icon {...props} icon="home" />}
-            title={GlobalAuth.Tenant}
-          />
+          <List.Item left={_props => <List.Icon icon="home" />} title={authStore.tenant} />
         </List.Section>
         <Divider />
         <List.Section title="API">
-          <List.Item left={props => <List.Icon {...props} icon="http" />} title={ConfigStageName} />
+          <List.Item left={_props => <List.Icon icon="server" />} title={ConfigStageName} />
         </List.Section>
-      </BaseView>
-    );
-  }
-}
+      </ScrollView>
+    </BaseView>
+  );
+};
+
+AccountScreen.navigationOptions = {
+  title: "Account",
+};
 
 export default AccountScreen;

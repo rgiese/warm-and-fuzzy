@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "./build",
+    "allowJs": false,
+    "declaration": true
+  },
+  "include": ["./src"],
+  "exclude": ["node_modules"]
+}

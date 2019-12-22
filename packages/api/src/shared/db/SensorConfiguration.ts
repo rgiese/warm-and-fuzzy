@@ -4,27 +4,19 @@ import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-a
 
 @table("SensorConfiguration")
 export default class SensorConfiguration {
-  public constructor() {
-    this.tenant = "";
-    this.id = "";
-
-    this.name = "";
-    this.streamName = "";
-  }
-
   // Tenant (assigned by WarmAndFuzzy)
   @hashKey()
-  public tenant: string;
+  public tenant = "";
 
   // Device ID (assigned by Particle or OneWire/DalSemi)
   @rangeKey()
-  public id: string;
+  public id = "";
 
   // User-facing name
   @attribute()
-  public name: string;
+  public name = "";
 
   // Stream (historical data) name
   @attribute()
-  public streamName: string;
+  public streamName = "";
 }

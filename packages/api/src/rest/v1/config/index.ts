@@ -40,15 +40,9 @@ const sensorConfigurationMapper = new SensorConfigurationMapper();
 const thermostatConfigurationMapper = new ThermostatConfigurationMapper();
 
 class SystemConfiguration {
-  public deviceTenancy: DeviceTenancy[];
-  public sensors: GraphQL.SensorConfiguration[];
-  public thermostats: GraphQL.ThermostatConfiguration[];
-
-  public constructor() {
-    this.deviceTenancy = [];
-    this.sensors = [];
-    this.thermostats = [];
-  }
+  public deviceTenancy: DeviceTenancy[] = [];
+  public sensors: GraphQL.SensorConfiguration[] = [];
+  public thermostats: GraphQL.ThermostatConfiguration[] = [];
 }
 
 export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
@@ -63,7 +57,7 @@ export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
   }
 
   // Get data
-  let systemConfiguration = new SystemConfiguration();
+  const systemConfiguration = new SystemConfiguration();
   {
     for await (const item of DbMapper.scan(DeviceTenancy)) {
       systemConfiguration.deviceTenancy.push(item);
@@ -97,7 +91,7 @@ export const put: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
     return Responses.badRequest("Missing body.");
   }
 
-  let systemConfiguration = JSON.parse(event.body) as SystemConfiguration;
+  const systemConfiguration = JSON.parse(event.body) as SystemConfiguration;
   {
     if (
       !systemConfiguration.deviceTenancy ||

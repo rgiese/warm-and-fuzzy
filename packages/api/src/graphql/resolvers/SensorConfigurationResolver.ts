@@ -5,9 +5,7 @@ import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { SensorConfiguration } from "../../shared/db";
 import SensorConfigurationMapper from "../mappers/SensorConfigurationMapper";
 
-const sensorConfigurationModelConstructor: ZeroArgumentsConstructor<
-  SensorConfiguration
-> = SensorConfiguration;
+const sensorConfigurationModelConstructor: ZeroArgumentsConstructor<SensorConfiguration> = SensorConfiguration;
 
 const sensorConfigurationResolver = new MappedResolver<
   // GraphQL types

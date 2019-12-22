@@ -1,23 +1,11 @@
 import React from "react";
-import { ScrollView, ViewStyle } from "react-native";
+import { View } from "react-native";
 import { Theme, withTheme } from "react-native-paper";
 
-interface Props {
+const BaseView: React.FunctionComponent<{
   theme: Theme;
-  contentContainerStyle?: ViewStyle;
-}
-
-class BaseView extends React.Component<Props> {
-  public render(): React.ReactElement {
-    return (
-      <ScrollView
-        style={{ backgroundColor: this.props.theme.colors.background, flex: 1 }}
-        contentContainerStyle={this.props.contentContainerStyle}
-      >
-        {this.props.children}
-      </ScrollView>
-    );
-  }
-}
+}> = ({ children, theme }): React.ReactElement => {
+  return <View style={{ backgroundColor: theme.colors.background, flex: 1 }}>{children}</View>;
+};
 
 export default withTheme(BaseView);

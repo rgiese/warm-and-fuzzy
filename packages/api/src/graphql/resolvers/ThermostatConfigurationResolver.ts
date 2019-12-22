@@ -5,9 +5,7 @@ import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared
 import { ThermostatConfiguration } from "../../shared/db";
 import ThermostatConfigurationMapper from "../mappers/ThermostatConfigurationMapper";
 
-const thermostatConfigurationModelConstructor: ZeroArgumentsConstructor<
-  ThermostatConfiguration
-> = ThermostatConfiguration;
+const thermostatConfigurationModelConstructor: ZeroArgumentsConstructor<ThermostatConfiguration> = ThermostatConfiguration;
 
 const thermostatConfigurationResolver = new MappedResolver<
   // GraphQL types

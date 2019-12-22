@@ -1,34 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
+import { observer } from "mobx-react";
 
-import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+import { LatestThermostatValue, RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
-import gql from "graphql-tag";
-import {
-  LatestThermostatValuesComponent,
-  LatestThermostatValuesQuery,
-} from "../generated/graphqlClient";
-
-gql`
-  query LatestThermostatValues {
-    getLatestThermostatValues {
-      id
-      deviceTime
-      currentActions
-      temperature
-      humidity
-    }
-    getThermostatConfigurations {
-      id
-      name
-    }
-  }
-`;
-
-type ThermostatValue = TypeTools.ArrayElementType<
-  TypeTools.PropType<LatestThermostatValuesQuery, "getLatestThermostatValues">
-> & { name: string };
+type ThermostatValue = LatestThermostatValue & { name: string };
 
 const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
   { field: "name", label: "Thermostat" },
@@ -39,50 +18,29 @@ const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
 ];
 
 const LatestThermostatValues: React.FunctionComponent<{}> = (): React.ReactElement => {
+  const rootStore = useContext(RootStoreContext).rootStore;
+
+  const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
+  const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
+
+  // Project data
+  const values = latestThermostatValuesStore.data.map(
+    (value): ThermostatValue => {
+      return { ...value, name: thermostatConfigurationStore.findById(value.id)?.name || value.id };
+    }
+  );
+
   return (
-    <LatestThermostatValuesComponent>
-      {({ loading, error, data }): React.ReactElement => {
-        if (loading) {
-          return <p>Loading...</p>;
-        }
-
-        if (error || !data || !data.getLatestThermostatValues) {
-          return (
-            <p>
-              Error: <pre>{JSON.stringify(error)}</pre>
-            </p>
-          );
-        }
-
-        // Rehydrate custom types
-        data.getLatestThermostatValues.forEach((v): void => {
-          v.deviceTime = new Date(v.deviceTime);
-        });
-
-        // Build maps
-        const thermostatNames = new Map(
-          data.getThermostatConfigurations.map((c): [string, string] => [c.id, c.name])
-        );
-
-        // Project data
-        const values = data.getLatestThermostatValues.map(
-          (value): ThermostatValue => {
-            return { ...value, name: thermostatNames.get(value.id) || value.id };
-          }
-        );
-
-        return (
-          <SortableTable
-            tableProps={{ basic: "very", collapsing: true, compact: true, size: "small" }}
-            data={values}
-            fieldDefinitions={tableDefinition}
-            keyField="id"
-            defaultSortField="name"
-          />
-        );
-      }}
-    </LatestThermostatValuesComponent>
+    <StoreChecks requiredStores={[latestThermostatValuesStore, thermostatConfigurationStore]}>
+      <SortableTable
+        tableProps={{ basic: "very", collapsing: true, compact: true, size: "small" }}
+        data={values}
+        fieldDefinitions={tableDefinition}
+        keyField="id"
+        defaultSortField="name"
+      />
+    </StoreChecks>
   );
 };
 
-export default LatestThermostatValues;
+export default observer(LatestThermostatValues);

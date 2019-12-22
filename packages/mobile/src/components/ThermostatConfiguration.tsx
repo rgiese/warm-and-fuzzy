@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, View, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import {
   ActivityIndicator,
   Button,
@@ -11,47 +11,18 @@ import {
 } from "react-native-paper";
 import Slider from "@react-native-community/slider";
 
-import gql from "graphql-tag";
-import ApolloClient from "../services/ApolloClient";
 import fastCompare from "react-fast-compare";
 
-import { ThermostatConfigurationSchema, TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
-
+import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import {
-  UpdateThermostatConfigurationComponent,
-  ThermostatAction,
-  ThermostatConfigurationDocument,
-  ThermostatConfigurationQuery,
-  ThermostatConfigurationQueryVariables,
-} from "../../generated/graphqlClient";
+  ThermostatConfiguration,
+  RootStoreContext,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import { ThermostatAction } from "../../generated/graphqlClient";
 
 import { ColorCodes } from "../Theme";
 import * as ThemedText from "./ThemedText";
-
-gql`
-  fragment ThermostatConfigurationFields on ThermostatConfiguration {
-    id
-    name
-    availableActions
-    allowedActions
-    setPointHeat
-    setPointCool
-  }
-
-  query ThermostatConfiguration($id: ID!) {
-    getThermostatConfiguration(id: $id) {
-      ...ThermostatConfigurationFields
-    }
-  }
-
-  mutation UpdateThermostatConfiguration(
-    $thermostatConfiguration: ThermostatConfigurationUpdateInput!
-  ) {
-    updateThermostatConfiguration(thermostatConfiguration: $thermostatConfiguration) {
-      ...ThermostatConfigurationFields
-    }
-  }
-`;
 
 const styles = StyleSheet.create({
   // Top-level view
@@ -105,60 +76,29 @@ interface Props {
 }
 
 class State {
-  errors?: string;
-  thermostatConfiguration?: TypeTools.PropType<
-    ThermostatConfigurationQuery,
-    "getThermostatConfiguration"
-  >;
+  thermostatConfiguration?: ThermostatConfiguration;
+  savedThermostatConfiguration?: ThermostatConfiguration;
 
-  savedThermostatConfiguration?: TypeTools.PropType<
-    ThermostatConfigurationQuery,
-    "getThermostatConfiguration"
-  >;
-
-  isSaving: boolean;
-
-  constructor() {
-    this.isSaving = false;
-  }
+  isSaving: boolean = false;
 }
 
-class ThermostatConfiguration extends React.Component<Props, State> {
+class ThermostatConfigurationComponent extends React.Component<Props, State> {
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
+
   public constructor(props: Props) {
     super(props);
   }
 
   async componentDidMount(): Promise<any> {
-    try {
-      const queryResult = await ApolloClient.query<
-        ThermostatConfigurationQuery,
-        ThermostatConfigurationQueryVariables
-      >({
-        query: ThermostatConfigurationDocument,
-        variables: { id: this.props.thermostatId },
-        fetchPolicy: "network-only",
-      });
+    const thermostatConfiguration = this.context.rootStore.thermostatConfigurationStore.findById(
+      this.props.thermostatId
+    );
 
-      if (queryResult.errors) {
-        this.setState({ errors: JSON.stringify(queryResult.errors) });
-      }
-
-      if (!queryResult.data || !queryResult.data.getThermostatConfiguration) {
-        this.setState({ errors: "No data returned" });
-      }
-
-      let thermostatConfiguration = queryResult.data.getThermostatConfiguration;
-
-      // Remove GraphQL-injected fields that won't be accepted in a GraphQL update
-      delete thermostatConfiguration.__typename;
-
-      this.setState({
-        thermostatConfiguration,
-        savedThermostatConfiguration: thermostatConfiguration,
-      });
-    } catch (error) {
-      this.setState({ errors: JSON.stringify(error) });
-    }
+    this.setState({
+      thermostatConfiguration,
+      savedThermostatConfiguration: thermostatConfiguration,
+    });
   }
 
   private updateAllowedAction(action: ThermostatAction, allowed: boolean): void {
@@ -184,11 +124,13 @@ class ThermostatConfiguration extends React.Component<Props, State> {
     }
 
     // Errors
-    if (this.state.errors) {
+    const thermostatConfigurationStore = this.context.rootStore.thermostatConfigurationStore;
+
+    if (thermostatConfigurationStore.hasErrors) {
       return (
         <>
           <Title>Error</Title>
-          <Text>{this.state.errors}</Text>
+          <Text>{thermostatConfigurationStore.error}</Text>
         </>
       );
     }
@@ -202,142 +144,122 @@ class ThermostatConfiguration extends React.Component<Props, State> {
     const thermostatConfiguration = this.state.thermostatConfiguration;
 
     return (
-      <UpdateThermostatConfigurationComponent>
-        {(mutateFn): React.ReactElement => {
-          return (
-            <View style={styles.componentView}>
-              {/* Name */}
-              <Text style={styles.thermostatLabel}>{thermostatConfiguration.name}</Text>
+      <View style={styles.componentView}>
+        {/* Name */}
+        <Text style={styles.thermostatLabel}>{thermostatConfiguration.name}</Text>
 
-              {/* Set point: Heat */}
-              {thermostatConfiguration.availableActions.includes(ThermostatAction.Heat) && (
-                <View style={styles.setPointRow}>
-                  <Text style={styles.setPointText}>
-                    <ThemedText.Heat>Heat</ThemedText.Heat> to{" "}
-                    {thermostatConfiguration.setPointHeat} &deg;C
-                  </Text>
-                  <Slider
-                    style={styles.setPointSlider}
-                    value={thermostatConfiguration.setPointHeat}
-                    onValueChange={(value): void =>
-                      this.setState({
-                        thermostatConfiguration: {
-                          ...thermostatConfiguration,
-                          setPointHeat: value,
-                        },
-                      })
-                    }
-                    minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-                    maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                    step={1}
-                    minimumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
-                    maximumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
-                    thumbTintColor={ColorCodes[ThermostatAction.Heat]}
-                  />
-                  <Switch
-                    style={styles.setPointSwitch}
-                    value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Heat)}
-                    onValueChange={value => this.updateAllowedAction(ThermostatAction.Heat, value)}
-                    color={ColorCodes[ThermostatAction.Heat]}
-                  />
-                </View>
-              )}
+        {/* Set point: Heat */}
+        {thermostatConfiguration.availableActions.includes(ThermostatAction.Heat) && (
+          <View style={styles.setPointRow}>
+            <Text style={styles.setPointText}>
+              <ThemedText.Heat>Heat</ThemedText.Heat> to {thermostatConfiguration.setPointHeat}{" "}
+              &deg;C
+            </Text>
+            <Slider
+              style={styles.setPointSlider}
+              value={thermostatConfiguration.setPointHeat}
+              onValueChange={(value): void =>
+                this.setState({
+                  thermostatConfiguration: {
+                    ...thermostatConfiguration,
+                    setPointHeat: value,
+                  },
+                })
+              }
+              minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
+              maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+              step={1}
+              minimumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
+              maximumTrackTintColor={ColorCodes[ThermostatAction.Heat]}
+              thumbTintColor={ColorCodes[ThermostatAction.Heat]}
+            />
+            <Switch
+              style={styles.setPointSwitch}
+              value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Heat)}
+              onValueChange={value => this.updateAllowedAction(ThermostatAction.Heat, value)}
+              color={ColorCodes[ThermostatAction.Heat]}
+            />
+          </View>
+        )}
 
-              {/* Set point: Cool */}
-              {thermostatConfiguration.availableActions.includes(ThermostatAction.Cool) && (
-                <View style={styles.setPointRow}>
-                  <Text style={styles.setPointText}>
-                    <ThemedText.Cool>Cool</ThemedText.Cool> to{" "}
-                    {thermostatConfiguration.setPointCool} &deg;C
-                  </Text>
-                  <Slider
-                    style={styles.setPointSlider}
-                    value={thermostatConfiguration.setPointCool}
-                    onValueChange={(value): void =>
-                      this.setState({
-                        thermostatConfiguration: {
-                          ...thermostatConfiguration,
-                          setPointCool: value,
-                        },
-                      })
-                    }
-                    minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-                    maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
-                    step={1}
-                    minimumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
-                    maximumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
-                    thumbTintColor={ColorCodes[ThermostatAction.Cool]}
-                  />
-                  <Switch
-                    style={styles.setPointSwitch}
-                    value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Cool)}
-                    onValueChange={value => this.updateAllowedAction(ThermostatAction.Cool, value)}
-                    color={ColorCodes[ThermostatAction.Cool]}
-                  />
-                </View>
-              )}
+        {/* Set point: Cool */}
+        {thermostatConfiguration.availableActions.includes(ThermostatAction.Cool) && (
+          <View style={styles.setPointRow}>
+            <Text style={styles.setPointText}>
+              <ThemedText.Cool>Cool</ThemedText.Cool> to {thermostatConfiguration.setPointCool}{" "}
+              &deg;C
+            </Text>
+            <Slider
+              style={styles.setPointSlider}
+              value={thermostatConfiguration.setPointCool}
+              onValueChange={(value): void =>
+                this.setState({
+                  thermostatConfiguration: {
+                    ...thermostatConfiguration,
+                    setPointCool: value,
+                  },
+                })
+              }
+              minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
+              maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+              step={1}
+              minimumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
+              maximumTrackTintColor={ColorCodes[ThermostatAction.Cool]}
+              thumbTintColor={ColorCodes[ThermostatAction.Cool]}
+            />
+            <Switch
+              style={styles.setPointSwitch}
+              value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Cool)}
+              onValueChange={value => this.updateAllowedAction(ThermostatAction.Cool, value)}
+              color={ColorCodes[ThermostatAction.Cool]}
+            />
+          </View>
+        )}
 
-              {/* Set point: Circulate */}
-              {thermostatConfiguration.availableActions.includes(ThermostatAction.Circulate) && (
-                <View style={styles.setPointRow}>
-                  <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
-                  <View style={styles.setPointSlider}>{/* Empty */}</View>
-                  <Switch
-                    style={styles.setPointSwitch}
-                    value={thermostatConfiguration.allowedActions.includes(
-                      ThermostatAction.Circulate
-                    )}
-                    onValueChange={value =>
-                      this.updateAllowedAction(ThermostatAction.Circulate, value)
-                    }
-                    color={ColorCodes[ThermostatAction.Circulate]}
-                  />
-                </View>
-              )}
+        {/* Set point: Circulate */}
+        {thermostatConfiguration.availableActions.includes(ThermostatAction.Circulate) && (
+          <View style={styles.setPointRow}>
+            <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
+            <View style={styles.setPointSlider}>{/* Empty */}</View>
+            <Switch
+              style={styles.setPointSwitch}
+              value={thermostatConfiguration.allowedActions.includes(ThermostatAction.Circulate)}
+              onValueChange={value => this.updateAllowedAction(ThermostatAction.Circulate, value)}
+              color={ColorCodes[ThermostatAction.Circulate]}
+            />
+          </View>
+        )}
 
-              {/* Save button */}
-              <View style={styles.saveButtonRow}>
-                <Button
-                  mode="outlined"
-                  disabled={fastCompare(
-                    this.state.thermostatConfiguration,
-                    this.state.savedThermostatConfiguration
-                  )}
-                  loading={this.state.isSaving}
-                  color={this.props.theme.colors.text}
-                  onPress={async (): Promise<void> => {
-                    // Null check for TypeScript happiness
-                    if (this.state.thermostatConfiguration) {
-                      this.setState({ isSaving: true });
+        {/* Save button */}
+        <View style={styles.saveButtonRow}>
+          <Button
+            mode="outlined"
+            disabled={fastCompare(
+              this.state.thermostatConfiguration,
+              this.state.savedThermostatConfiguration
+            )}
+            loading={this.state.isSaving}
+            color={this.props.theme.colors.text}
+            onPress={async (): Promise<void> => {
+              // Null check for TypeScript happiness
+              if (this.state.thermostatConfiguration) {
+                this.setState({ isSaving: true });
 
-                      try {
-                        await mutateFn({
-                          variables: {
-                            thermostatConfiguration: this.state.thermostatConfiguration,
-                          },
-                        });
-                      } catch (error) {
-                        Alert.alert("Couldn't update", JSON.stringify(error), [
-                          { text: "Well then", style: "cancel" },
-                        ]);
-                      }
+                await thermostatConfigurationStore.updateItem(this.state.thermostatConfiguration);
 
-                      this.setState({
-                        isSaving: false,
-                        savedThermostatConfiguration: this.state.thermostatConfiguration,
-                      });
-                    }
-                  }}
-                >
-                  {this.state.isSaving ? "Saving" : "Save"}
-                </Button>
-              </View>
-            </View>
-          );
-        }}
-      </UpdateThermostatConfigurationComponent>
+                this.setState({
+                  isSaving: false,
+                  savedThermostatConfiguration: this.state.thermostatConfiguration,
+                });
+              }
+            }}
+          >
+            {this.state.isSaving ? "Saving" : "Save"}
+          </Button>
+        </View>
+      </View>
     );
   }
 }
 
-export default withTheme(ThermostatConfiguration);
+export default withTheme(ThermostatConfigurationComponent);

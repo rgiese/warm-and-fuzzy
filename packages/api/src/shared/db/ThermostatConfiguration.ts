@@ -6,62 +6,47 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 @table("ThermostatConfiguration")
 export default class ThermostatConfiguration {
-  public constructor() {
-    this.tenant = "";
-    this.id = "";
-
-    this.name = "";
-    this.streamName = "";
-    this.setPointHeat = NaN;
-    this.setPointCool = NaN;
-    this.externalSensorId = undefined;
-    this.threshold = NaN;
-    this.cadence = NaN;
-    this.allowedActions = undefined;
-    this.availableActions = undefined;
-  }
-
   // Tenant (assigned by WarmAndFuzzy)
   @hashKey()
-  public tenant: string;
+  public tenant = "";
 
   // Device ID (assigned by Particle)
   @rangeKey()
-  public id: string;
+  public id = "";
 
   // User-facing name
   @attribute()
-  public name: string;
+  public name = "";
 
   // Stream (historical data) name
   @attribute()
-  public streamName: string;
+  public streamName = "";
 
   // Target temperature for heating [Celsius]
   @attribute()
-  public setPointHeat: number;
+  public setPointHeat = NaN;
 
   // Target temperature for cooling [Celsius]
   @attribute()
-  public setPointCool: number;
+  public setPointCool = NaN;
 
   // External sensor ID (if provided, prefer this over onboard sensor) [OneWire 64-bit hex ID]
   @attribute()
-  public externalSensorId?: string;
+  public externalSensorId?: string = undefined;
 
   // Hysteresis threshold around targets [Celsius]
   @attribute()
-  public threshold: number;
+  public threshold = NaN;
 
   // Operational cadence [sec]
   @attribute()
-  public cadence: number;
+  public cadence = NaN;
 
   // Allowed actions: GraphQL.ThermostatAction (may be `undefined` if no actions are allowed)
   @attribute({ memberType: "String" })
-  public allowedActions?: Set<GraphQL.ThermostatAction>;
+  public allowedActions?: Set<GraphQL.ThermostatAction> = undefined;
 
   // Available actions: GraphQL.ThermostatAction (may be `undefined` if no actions are available)
   @attribute({ memberType: "String" })
-  public availableActions?: Set<GraphQL.ThermostatAction>;
+  public availableActions?: Set<GraphQL.ThermostatAction> = undefined;
 }
