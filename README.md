@@ -29,6 +29,9 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
     - make sure `JAVA_HOME` is set in the environment, pointing at the root (not `bin`) directory of a Java install.
     - make sure `ANDROID_SDK_ROOT` is set in the environment, pointing to (e.g.) `../android-sdk`.
     - make sure `%ANDROID_SDK_ROOT%/platform-tools` is on the system path so that `adb` is available.
+  - For API development:
+    - Windows: `choco install awscli`
+    - `aws configure` with `AWS Access Key ID` = `AKIA...`, `AWW Secret Access Key` = password on file, `Default region name` = `us-west-2`
   - `npm install`
   - `lerna bootstrap`
   - `lerna run decrypt-secrets` (make sure `WAF_GIT_SECRETS_KEY` is present in the environment)
