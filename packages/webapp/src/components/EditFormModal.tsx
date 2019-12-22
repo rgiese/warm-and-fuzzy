@@ -9,13 +9,8 @@ interface Props {
 }
 
 class State {
-  constructor() {
-    this.isModalOpen = false;
-    this.isSaving = false;
-  }
-
-  isModalOpen: boolean;
-  isSaving: boolean;
+  isModalOpen: boolean = false;
+  isSaving: boolean = false;
 }
 
 class EditFormModal extends React.Component<Props, State> {

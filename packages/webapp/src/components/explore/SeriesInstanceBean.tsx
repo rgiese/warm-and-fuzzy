@@ -18,14 +18,9 @@ interface Props {
 }
 
 class State {
-  public constructor() {
-    // Control states of respective popups so we can dismiss them once a new value has been selected
-    this.isColorPickerOpen = false;
-    this.isDatePickerOpen = false;
-  }
-
-  isColorPickerOpen: boolean;
-  isDatePickerOpen: boolean;
+  // Control states of respective popups so we can dismiss them once a new value has been selected
+  isColorPickerOpen: boolean = false;
+  isDatePickerOpen: boolean = false;
 }
 
 class SeriesInstanceBean extends React.Component<Props, State> {

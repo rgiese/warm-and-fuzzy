@@ -40,15 +40,9 @@ const sensorConfigurationMapper = new SensorConfigurationMapper();
 const thermostatConfigurationMapper = new ThermostatConfigurationMapper();
 
 class SystemConfiguration {
-  public deviceTenancy: DeviceTenancy[];
-  public sensors: GraphQL.SensorConfiguration[];
-  public thermostats: GraphQL.ThermostatConfiguration[];
-
-  public constructor() {
-    this.deviceTenancy = [];
-    this.sensors = [];
-    this.thermostats = [];
-  }
+  public deviceTenancy: DeviceTenancy[] = [];
+  public sensors: GraphQL.SensorConfiguration[] = [];
+  public thermostats: GraphQL.ThermostatConfiguration[] = [];
 }
 
 export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {

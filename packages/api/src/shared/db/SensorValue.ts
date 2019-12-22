@@ -4,37 +4,27 @@ import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-a
 
 @table("LatestSensorValues")
 export default class SensorValue {
-  public constructor() {
-    this.tenant = "";
-    this.id = "";
-
-    this.publishedTime = new Date();
-    this.deviceTime = new Date();
-    this.deviceLocalSerial = 0;
-    this.temperature = 0.0;
-  }
-
   // Tenant (assigned by WarmAndFuzzy)
   @hashKey()
-  public tenant: string;
+  public tenant = "";
 
   // Sensor ID (assigned by Particle/OneWire)
   @rangeKey()
-  public id: string;
+  public id = "";
 
   // Timestamp attached by Particle OS when event was published
   @attribute()
-  public publishedTime: Date;
+  public publishedTime: Date = new Date();
 
   // Timestamp attached by firmware when event was created
   @attribute()
-  public deviceTime: Date;
+  public deviceTime: Date = new Date();
 
   // Serial number (scoped to power cycle) attached by firmware when event was created
   @attribute()
-  public deviceLocalSerial: number;
+  public deviceLocalSerial = 0;
 
   // Units: Celsius
   @attribute()
-  public temperature: number;
+  public temperature = 0.0;
 }

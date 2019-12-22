@@ -69,11 +69,7 @@ interface Props extends NavigationInjectedProps {
 }
 
 class State {
-  latestRenderTime: Date;
-
-  constructor() {
-    this.latestRenderTime = new Date();
-  }
+  latestRenderTime: Date = new Date();
 }
 
 type ThermostatValue = LatestThermostatValue & { configuration: ThermostatConfiguration };
