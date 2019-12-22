@@ -14,7 +14,7 @@ export default class SensorValueStream {
 
   // Timestamp attached by firmware when event was created
   @rangeKey()
-  public ts: number = "";
+  public ts: number = 0;
 
   // Timestamp attached by Particle OS when event was published
   @attribute()
