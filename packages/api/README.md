@@ -8,10 +8,11 @@
   - Connections: user-path auth only (no social)
 - Provide `api.warmandfuzzy.house` API (identifier `https://api.warmandfuzzy.house`)
   - Enable RBAC and Add Permissions in Access Token
-  - Create permissions: `read:config`, `write:config`
+  - Create permissions: `read:config`, `write:config` ,`read:settings`, `write:settings`, `read:data`, `xtenant`
 - Provide roles
-  - Administrator: `read:config`, `write:config`
-  - Viewer: `read:config`
+  - Cross-Tenant Administrator: all permissions
+  - Member: `read:config`, `write:config`, `read:settings`, `write:settings`, `read:data`
+  - Viewer: `read:config`, `read:settings`, `read:data`
 - Provide rules
 
   - `Add tenant to access token`
