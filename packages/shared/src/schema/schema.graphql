@@ -29,6 +29,11 @@ schema {
 }
 
 type Query {
+  # ThermostatSettings
+  getThermostatSettings: [ThermostatSettings!]! @requiresPermission(permission: READ_SETTINGS)
+
+  getThermostatSetting(id: ID!): ThermostatSettings! @requiresPermission(permission: READ_SETTINGS)
+
   # ThermostatConfiguration
   getThermostatConfigurations: [ThermostatConfiguration!]!
     @requiresPermission(permission: READ_CONFIG)
@@ -66,6 +71,13 @@ type Query {
 }
 
 type Mutation {
+  # ThermostatSettings
+  createThermostatSettings(thermostatSettings: ThermostatSettingsCreateInput!): ThermostatSettings!
+    @requiresPermission(permission: WRITE_SETTINGS)
+
+  updateThermostatSettings(thermostatSettings: ThermostatSettingsUpdateInput!): ThermostatSettings!
+    @requiresPermission(permission: WRITE_SETTINGS)
+
   # ThermostatConfiguration
   createThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationCreateInput!
@@ -83,6 +95,50 @@ type Mutation {
   updateSensorConfiguration(
     sensorConfiguration: SensorConfigurationUpdateInput!
   ): SensorConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+}
+
+#
+# ThermostatSettings
+#
+
+enum ThermostatAction {
+  Heat
+  Cool
+  Circulate
+}
+
+type ThermostatSetting {
+  allowedActions: [ThermostatAction!]!
+  setPointHeat: Float!
+  setPointCool: Float!
+}
+
+input ThermostatSettingCreateInput {
+  allowedActions: [ThermostatAction!]!
+  setPointHeat: Float!
+  setPointCool: Float!
+}
+
+input ThermostatSettingUpdateInput {
+  allowedActions: [ThermostatAction!]!
+  setPointHeat: Float!
+  setPointCool: Float!
+}
+
+type ThermostatSettings {
+  tenant: String!
+  id: ID!
+  settings: [ThermostatSetting!]!
+}
+
+input ThermostatSettingsCreateInput {
+  id: ID!
+  settings: [ThermostatSettingCreateInput!]!
+}
+
+input ThermostatSettingsUpdateInput {
+  id: ID!
+  settings: [ThermostatSettingUpdateInput!]!
 }
 
 #
@@ -136,12 +192,6 @@ type ThermostatConfiguration {
   externalSensorId: String
   threshold: Float!
   cadence: Int!
-}
-
-enum ThermostatAction {
-  Heat
-  Cool
-  Circulate
 }
 
 #
