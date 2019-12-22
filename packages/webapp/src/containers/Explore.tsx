@@ -15,7 +15,7 @@ import ViewSpan, { ViewSpans, viewSpanToDays } from "../stores/explore/ViewSpan"
 import ExploreStore from "../stores/explore";
 import ExplorePlotDataStore from "../stores/explore-plot-data";
 
-import * as StoreChecks from "../components/StoreChecks";
+import StoreChecks from "../components/StoreChecks";
 
 interface Props extends RouteComponentProps {
   exploreStore: ExploreStore;
@@ -87,72 +87,68 @@ class Explore extends React.Component<Props, State> {
     const exploreStore = this.props.exploreStore;
     const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
 
-    const storeDependencies = [thermostatConfigurationStore];
-
-    if (!StoreChecks.areStoresAvailable(storeDependencies)) {
-      return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
-    }
-
     return (
-      <Container>
-        <Segment>
-          {/* View settings */}
-          Show data for a{` `}
-          <Dropdown
-            inline
-            header="Choose time span"
-            options={ViewSpans.map(v => {
-              return { key: v, value: v, text: v };
-            })}
-            value={exploreStore.viewSpan}
-            onChange={(_event, data) => exploreStore.setViewSpan(data.value as ViewSpan)}
-          />
-          by{` `}
-          <Dropdown
-            inline
-            header="Choose time zone"
-            options={Timezones.map(tz => {
-              return { key: tz, value: tz, text: tz };
-            })}
-            value={exploreStore.timezone}
-            onChange={(_event, data) => exploreStore.setTimezone(data.value as Timezone)}
-          />
-          time.
-        </Segment>
-        <Container style={{ height: "60vh" }}>
-          <Plot
-            exploreStore={exploreStore}
-            explorePlotDataStore={this.props.explorePlotDataStore}
-          />
-        </Container>
+      <StoreChecks requiredStores={[thermostatConfigurationStore]}>
         <Container>
-          {/* Series instance beans */}
-          {exploreStore.seriesInstanceProps.map(series => (
-            <SeriesInstanceBean
-              key={series.instanceId}
-              store={exploreStore}
-              seriesInstanceProps={series}
-              padding={6}
+          <Segment>
+            {/* View settings */}
+            Show data for a{` `}
+            <Dropdown
+              inline
+              header="Choose time span"
+              options={ViewSpans.map(v => {
+                return { key: v, value: v, text: v };
+              })}
+              value={exploreStore.viewSpan}
+              onChange={(_event, data) => exploreStore.setViewSpan(data.value as ViewSpan)}
             />
-          ))}
-          {/* Add series instance button */}
-          <Dropdown
-            style={{ padding: 12 }}
-            button
-            className="icon"
-            icon="add"
-            labeled
-            loading={thermostatConfigurationStore.isWorking}
-            text="Add series"
-            search
-            options={thermostatConfigurationStore.data.map(config => {
-              return { key: config.streamName, value: config.streamName, text: config.name };
-            })}
-            onChange={this.handleSeriesInstanceAdded}
-            value="" // Control component so selecting the same item twice in a row still triggers `onChange`
-          />
+            by{` `}
+            <Dropdown
+              inline
+              header="Choose time zone"
+              options={Timezones.map(tz => {
+                return { key: tz, value: tz, text: tz };
+              })}
+              value={exploreStore.timezone}
+              onChange={(_event, data) => exploreStore.setTimezone(data.value as Timezone)}
+            />
+            time.
+          </Segment>
+          <Container style={{ height: "60vh" }}>
+            <Plot
+              exploreStore={exploreStore}
+              explorePlotDataStore={this.props.explorePlotDataStore}
+            />
+          </Container>
+          <Container>
+            {/* Series instance beans */}
+            {exploreStore.seriesInstanceProps.map(series => (
+              <SeriesInstanceBean
+                key={series.instanceId}
+                store={exploreStore}
+                seriesInstanceProps={series}
+                padding={6}
+              />
+            ))}
+            {/* Add series instance button */}
+            <Dropdown
+              style={{ padding: 12 }}
+              button
+              className="icon"
+              icon="add"
+              labeled
+              loading={thermostatConfigurationStore.isWorking}
+              text="Add series"
+              search
+              options={thermostatConfigurationStore.data.map(config => {
+                return { key: config.streamName, value: config.streamName, text: config.name };
+              })}
+              onChange={this.handleSeriesInstanceAdded}
+              value="" // Control component so selecting the same item twice in a row still triggers `onChange`
+            />
+          </Container>
         </Container>
-      </Container>
+      </StoreChecks>
     );
   }
 }

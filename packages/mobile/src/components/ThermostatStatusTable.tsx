@@ -14,7 +14,7 @@ import {
   RootStoreContext,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import * as StoreChecks from "./StoreChecks";
+import StoreChecks from "./StoreChecks";
 
 import { ThermostatAction } from "../../generated/graphqlClient";
 
@@ -114,13 +114,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
     const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
 
-    const storeDependencies = [latestThermostatValuesStore, thermostatConfigurationStore];
-
     // TODO: suppress loading indicator on !this.isFirstFetch
-    if (!StoreChecks.areStoresAvailable(storeDependencies)) {
-      return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
-    }
-
     this.isFirstFetch = false;
 
     // Project data
@@ -149,100 +143,102 @@ class ThermostatStatusTable extends React.Component<Props, State> {
       .sort((lhs, rhs): number => lhs.configuration.name.localeCompare(rhs.configuration.name));
 
     return (
-      <FlatList<ThermostatValue>
-        data={values}
-        extraData={this.state.latestRenderTime}
-        keyExtractor={(item): string => item.id}
-        //refreshing={loading} // TODO
-        //onRefresh={() => refetch()} // TODO
-        renderItem={({ item }): React.ReactElement => (
-          <TouchableOpacity
-            onPress={() => {
-              const params: ThermostatNavigationParams = { thermostatId: item.id };
-              this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
-            }}
-            style={styles.containingListItem}
-          >
-            {/* Top row */}
-            <View style={styles.primaryRow}>
-              {/* Device name */}
-              <Text style={styles.thermostatName}>{item.configuration.name}</Text>
+      <StoreChecks requiredStores={[latestThermostatValuesStore, thermostatConfigurationStore]}>
+        <FlatList<ThermostatValue>
+          data={values}
+          extraData={this.state.latestRenderTime}
+          keyExtractor={(item): string => item.id}
+          //refreshing={loading} // TODO
+          //onRefresh={() => refetch()} // TODO
+          renderItem={({ item }): React.ReactElement => (
+            <TouchableOpacity
+              onPress={() => {
+                const params: ThermostatNavigationParams = { thermostatId: item.id };
+                this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
+              }}
+              style={styles.containingListItem}
+            >
+              {/* Top row */}
+              <View style={styles.primaryRow}>
+                {/* Device name */}
+                <Text style={styles.thermostatName}>{item.configuration.name}</Text>
 
-              {/* Details */}
-              <>
-                {/* Thermometer icon */}
-                <IconMDC
-                  name="thermometer"
-                  size={iconSizes.default}
-                  color={this.props.theme.colors.accent}
-                  style={styles.detailsIconPadding}
-                />
-
-                {/* Reported temperature */}
-                <ThemedText.Accent style={styles.detailsText}>
-                  {item.temperature}&deg;C
-                </ThemedText.Accent>
-
-                {/* Actions: heat */}
-                {item.currentActions.includes(ThermostatAction.Heat) && (
-                  <>
-                    <IconMDC
-                      name="arrow-collapse-up"
-                      size={iconSizes.arrows}
-                      color={ColorCodes[ThermostatAction.Heat]}
-                      style={styles.detailsIconPadding}
-                    />
-                    <ThemedText.Heat style={styles.detailsText}>
-                      {item.configuration.setPointHeat} &deg;C
-                    </ThemedText.Heat>
-                  </>
-                )}
-
-                {/* Actions: cool */}
-                {item.currentActions.includes(ThermostatAction.Cool) && (
-                  <>
-                    <IconMDC
-                      name="arrow-collapse-down"
-                      size={iconSizes.arrows}
-                      color={ColorCodes[ThermostatAction.Cool]}
-                      style={styles.detailsIconPadding}
-                    />
-                    <ThemedText.Cool style={styles.detailsText}>
-                      {item.configuration.setPointCool} &deg;C
-                    </ThemedText.Cool>
-                  </>
-                )}
-
-                {/* Actions: circulate */}
-                {item.currentActions.includes(ThermostatAction.Circulate) && (
+                {/* Details */}
+                <>
+                  {/* Thermometer icon */}
                   <IconMDC
-                    name="autorenew"
+                    name="thermometer"
                     size={iconSizes.default}
-                    color={ColorCodes[ThermostatAction.Circulate]}
+                    color={this.props.theme.colors.accent}
                     style={styles.detailsIconPadding}
                   />
-                )}
 
-                {/* Reported humidity */}
-                <IconMDC
-                  name="water"
-                  size={iconSizes.default}
-                  color={this.props.theme.colors.accent}
-                  style={styles.detailsIconPadding}
-                />
-                <ThemedText.Accent style={styles.detailsText}>{item.humidity}%</ThemedText.Accent>
-              </>
-            </View>
+                  {/* Reported temperature */}
+                  <ThemedText.Accent style={styles.detailsText}>
+                    {item.temperature}&deg;C
+                  </ThemedText.Accent>
 
-            {/* Bottom row: last updated time */}
-            <View style={styles.secondaryRow}>
-              <ThemedText.Accent style={styles.lastUpdatedText}>
-                Last updated {moment(item.deviceTime).from(this.state.latestRenderTime)}
-              </ThemedText.Accent>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+                  {/* Actions: heat */}
+                  {item.currentActions.includes(ThermostatAction.Heat) && (
+                    <>
+                      <IconMDC
+                        name="arrow-collapse-up"
+                        size={iconSizes.arrows}
+                        color={ColorCodes[ThermostatAction.Heat]}
+                        style={styles.detailsIconPadding}
+                      />
+                      <ThemedText.Heat style={styles.detailsText}>
+                        {item.configuration.setPointHeat} &deg;C
+                      </ThemedText.Heat>
+                    </>
+                  )}
+
+                  {/* Actions: cool */}
+                  {item.currentActions.includes(ThermostatAction.Cool) && (
+                    <>
+                      <IconMDC
+                        name="arrow-collapse-down"
+                        size={iconSizes.arrows}
+                        color={ColorCodes[ThermostatAction.Cool]}
+                        style={styles.detailsIconPadding}
+                      />
+                      <ThemedText.Cool style={styles.detailsText}>
+                        {item.configuration.setPointCool} &deg;C
+                      </ThemedText.Cool>
+                    </>
+                  )}
+
+                  {/* Actions: circulate */}
+                  {item.currentActions.includes(ThermostatAction.Circulate) && (
+                    <IconMDC
+                      name="autorenew"
+                      size={iconSizes.default}
+                      color={ColorCodes[ThermostatAction.Circulate]}
+                      style={styles.detailsIconPadding}
+                    />
+                  )}
+
+                  {/* Reported humidity */}
+                  <IconMDC
+                    name="water"
+                    size={iconSizes.default}
+                    color={this.props.theme.colors.accent}
+                    style={styles.detailsIconPadding}
+                  />
+                  <ThemedText.Accent style={styles.detailsText}>{item.humidity}%</ThemedText.Accent>
+                </>
+              </View>
+
+              {/* Bottom row: last updated time */}
+              <View style={styles.secondaryRow}>
+                <ThemedText.Accent style={styles.lastUpdatedText}>
+                  Last updated {moment(item.deviceTime).from(this.state.latestRenderTime)}
+                </ThemedText.Accent>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </StoreChecks>
     );
   }
 }

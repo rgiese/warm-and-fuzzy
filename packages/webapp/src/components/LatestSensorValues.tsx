@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 
 import { LatestSensorValue, RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import * as StoreChecks from "./StoreChecks";
+import StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
@@ -21,12 +21,6 @@ const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement =
   const latestSensorValuesStore = rootStore.latestSensorValuesStore;
   const sensorConfigurationStore = rootStore.sensorConfigurationStore;
 
-  const storeDependencies = [latestSensorValuesStore, sensorConfigurationStore];
-
-  if (!StoreChecks.areStoresAvailable(storeDependencies)) {
-    return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
-  }
-
   // Project data
   const values = latestSensorValuesStore.data.map(
     (value): SensorValue => {
@@ -35,13 +29,15 @@ const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement =
   );
 
   return (
-    <SortableTable
-      tableProps={{ basic: "very", collapsing: true, compact: true, size: "small" }}
-      data={values}
-      fieldDefinitions={tableDefinition}
-      keyField="id"
-      defaultSortField="name"
-    />
+    <StoreChecks requiredStores={[latestSensorValuesStore, sensorConfigurationStore]}>
+      <SortableTable
+        tableProps={{ basic: "very", collapsing: true, compact: true, size: "small" }}
+        data={values}
+        fieldDefinitions={tableDefinition}
+        keyField="id"
+        defaultSortField="name"
+      />
+    </StoreChecks>
   );
 };
 

@@ -3,12 +3,17 @@ import { ActivityIndicator, Text, Title } from "react-native-paper";
 
 import { StoreBase } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-export function areStoresAvailable(stores: StoreBase[]) {
-  return stores.every(store => store.isReady || store.isUpdating);
-}
+const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
+  requiredStores,
+  children,
+}): React.ReactElement => {
+  const allStoresAvailable = requiredStores.every(store => store.isReady || store.isUpdating);
 
-export function renderStoreWorkingOrErrorComponent(stores: StoreBase[]) {
-  const anyStoresWorking = stores.some(store => store.isWorking);
+  if (allStoresAvailable) {
+    return <>{children}</>;
+  }
+
+  const anyStoresWorking = requiredStores.some(store => store.isWorking);
 
   if (anyStoresWorking) {
     return <ActivityIndicator animating={true} />;
@@ -17,11 +22,13 @@ export function renderStoreWorkingOrErrorComponent(stores: StoreBase[]) {
   return (
     <>
       <Title>Error</Title>
-      {stores
+      {requiredStores
         .filter(store => store.hasErrors)
         .map(store => (
           <Text key={store.name}>{store.error}</Text>
         ))}
     </>
   );
-}
+};
+
+export default StoreChecks;

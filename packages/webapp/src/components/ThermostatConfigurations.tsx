@@ -7,7 +7,7 @@ import {
   RootStoreContext,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import * as StoreChecks from "./StoreChecks";
+import StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
@@ -29,12 +29,6 @@ const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
 const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
   const rootStore = useContext(RootStoreContext).rootStore;
 
-  const storeDependencies = [rootStore.thermostatConfigurationStore];
-
-  if (!StoreChecks.areStoresAvailable(storeDependencies)) {
-    return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
-  }
-
   const canEdit = rootStore.authStore.userPermissions.includes(
     Authorization.Permissions.WriteConfig
   );
@@ -44,14 +38,16 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
   );
 
   return (
-    <SortableTable
-      tableProps={{ basic: "very", compact: true, size: "small" }}
-      data={rootStore.thermostatConfigurationStore.data}
-      fieldDefinitions={tableDefinition}
-      keyField="id"
-      defaultSortField="name"
-      right={canEdit ? fnBuildEditControl : undefined}
-    />
+    <StoreChecks requiredStores={[rootStore.thermostatConfigurationStore]}>
+      <SortableTable
+        tableProps={{ basic: "very", compact: true, size: "small" }}
+        data={rootStore.thermostatConfigurationStore.data}
+        fieldDefinitions={tableDefinition}
+        keyField="id"
+        defaultSortField="name"
+        right={canEdit ? fnBuildEditControl : undefined}
+      />
+    </StoreChecks>
   );
 };
 
