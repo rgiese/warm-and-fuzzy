@@ -79,13 +79,12 @@ class ThermostatStatusTable extends React.Component<Props, State> {
   context!: React.ContextType<typeof RootStoreContext>;
 
   private intervalRefreshTimeSince: any;
-  private isFirstFetch: boolean;
+  private intervalRefreshStores: any;
 
   public constructor(props: Props) {
     super(props);
 
     this.state = new State();
-    this.isFirstFetch = true;
   }
 
   componentDidMount(): void {
@@ -97,21 +96,25 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     this.intervalRefreshTimeSince = setInterval(() => {
       this.setState({ latestRenderTime: new Date() });
     }, 10 * 1000);
+
+    this.intervalRefreshStores = setInterval(() => this.refreshStores(), 60 * 1000);
   }
 
   componentWillUnmount(): void {
     clearInterval(this.intervalRefreshTimeSince);
+    clearInterval(this.intervalRefreshStores);
+  }
+
+  refreshStores(): void {
+    this.context.rootStore.latestThermostatValuesStore.update();
+    this.context.rootStore.thermostatConfigurationStore.update();
   }
 
   public render(): React.ReactElement {
-    // TODO: Polling
     const rootStore = this.context.rootStore;
 
     const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
     const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
-
-    // TODO: suppress loading indicator on !this.isFirstFetch
-    this.isFirstFetch = false;
 
     // Project data
     const values = latestThermostatValuesStore.data
@@ -144,8 +147,10 @@ class ThermostatStatusTable extends React.Component<Props, State> {
           data={values}
           extraData={this.state.latestRenderTime}
           keyExtractor={(item): string => item.id}
-          //refreshing={loading} // TODO
-          //onRefresh={() => refetch()} // TODO
+          refreshing={
+            latestThermostatValuesStore.isWorking || thermostatConfigurationStore.isWorking
+          }
+          onRefresh={() => this.refreshStores()}
           renderItem={({ item }): React.ReactElement => (
             <TouchableOpacity
               onPress={() => {

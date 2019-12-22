@@ -1,6 +1,6 @@
 import { action, computed, observable } from "mobx";
 
-type StoreState = "fetching" | "updating" | "ready" | "error";
+export type StoreState = "fetching" | "updating" | "ready" | "error";
 
 export class StoreBase {
   readonly name: string;
@@ -14,7 +14,6 @@ export class StoreBase {
 
   @action setState(state: StoreState): void {
     //console.log(`${this.name}: ${this.state} -> ${state}`);
-
     this.state = state;
   }
 

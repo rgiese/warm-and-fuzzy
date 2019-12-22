@@ -5,7 +5,7 @@ import { DocumentNode } from "graphql";
 
 import { ApolloClient } from "../services/ApolloClient";
 
-import { StoreBase } from "./StoreBase";
+import { StoreBase, StoreState } from "./StoreBase";
 import { AuthStore } from "./auth";
 
 export interface GraphqlStoreItem {
@@ -47,20 +47,25 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
 
     autorun(() => {
       if (authStore.isUserAuthenticated) {
-        this.fetchData();
+        this.fetchData(false);
       } else {
         this.clear();
       }
     });
   }
 
-  private fetchData = flow(function*(this: GraphqlStoreBase<T, TQuery>) {
-    this.setState("fetching");
+  public async update(): Promise<void> {
+    await this.fetchData(true);
+  }
+
+  private fetchData = flow(function*(this: GraphqlStoreBase<T, TQuery>, isUpdate: boolean) {
+    this.setState(isUpdate ? "updating" : "fetching");
 
     try {
       // TypeScript clowning around for MobX/flow requiring yield vs. await
       const yieldedQueryResult = yield this.apolloClient.query<TQuery>({
         query: this.queryDocument,
+        fetchPolicy: isUpdate ? "network-only" : "cache-first",
       });
 
       const queryResult = (yieldedQueryResult as unknown) as ApolloQueryResult<TQuery>;
