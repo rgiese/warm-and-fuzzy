@@ -2,7 +2,7 @@ import { flow } from "mobx";
 import { FetchResult } from "apollo-link";
 import { DocumentNode } from "graphql";
 
-import { ApolloClient } from "../services/ApolloClientBase";
+import { ApolloClient } from "../services/ApolloClient";
 import { AuthStore } from "./auth";
 
 import {
@@ -28,7 +28,7 @@ export class GraphqlMutableStoreBase<
   public constructor(
     name: string,
     authStore: AuthStore,
-    apolloClient: ApolloClient.ApolloClientBase,
+    apolloClient: ApolloClient,
     mutationDocument: DocumentNode,
     mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>,
     queryDocument: DocumentNode,

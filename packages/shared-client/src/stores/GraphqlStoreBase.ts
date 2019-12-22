@@ -1,9 +1,9 @@
-import { flow, observable, autorun } from "mobx";
+import { action, flow, observable, autorun } from "mobx";
 import { computedFn } from "mobx-utils";
 import { ApolloQueryResult } from "apollo-client";
 import { DocumentNode } from "graphql";
 
-import { ApolloClient } from "../services/ApolloClientBase";
+import { ApolloClient } from "../services/ApolloClient";
 
 import { StoreBase } from "./StoreBase";
 import { AuthStore } from "./auth";
@@ -24,7 +24,7 @@ export interface QueryResultDataItemPatcher<TResult> {
 export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreBase {
   readonly data = observable.array<T>([]);
 
-  protected apolloClient: ApolloClient.ApolloClientBase;
+  protected apolloClient: ApolloClient;
 
   private queryDocument: DocumentNode;
   private queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>;
@@ -33,7 +33,7 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
   public constructor(
     name: string,
     authStore: AuthStore,
-    apolloClient: ApolloClient.ApolloClientBase,
+    apolloClient: ApolloClient,
     queryDocument: DocumentNode,
     queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>,
     queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>
@@ -49,7 +49,7 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
       if (authStore.isUserAuthenticated) {
         this.fetchData();
       } else {
-        this.data.clear();
+        this.clear();
       }
     });
   }
@@ -95,4 +95,8 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
     // that a linear search is good enough.
     return this.data.find(item => item.id === id);
   });
+
+  @action clear(): void {
+    this.data.clear();
+  }
 }

@@ -1,13 +1,13 @@
 import { action, observable } from "mobx";
 
-import { RootStore } from "../stores";
+import { RootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import SeriesIdentifier from "./SeriesIdentifier";
 import SeriesInstanceProps from "./SeriesInstanceProps";
 import Timezone, { Timezones } from "./Timezone";
 import ViewSpan, { ViewSpans } from "./ViewSpan";
 
-export class ExploreStore {
+export default class ExploreStore {
   private rootStore: RootStore;
   private nextSeriesInstanceId: number;
 

@@ -14,11 +14,12 @@ import Slider from "@react-native-community/slider";
 import fastCompare from "react-fast-compare";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { ThermostatConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import {
+  ThermostatConfiguration,
+  RootStoreContext,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import { ThermostatAction } from "../../generated/graphqlClient";
-
-import RootStoreContext from "../stores/RootStoreContext";
 
 import { ColorCodes } from "../Theme";
 import * as ThemedText from "./ThemedText";

@@ -11,9 +11,9 @@ import moment from "moment";
 import {
   LatestThermostatValue,
   ThermostatConfiguration,
+  RootStoreContext,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import RootStoreContext from "../stores/RootStoreContext";
 import * as StoreChecks from "./StoreChecks";
 
 import { ThermostatAction } from "../../generated/graphqlClient";

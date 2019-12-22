@@ -14,7 +14,6 @@ import {
 
 import ScreenProps from "./ScreenProps";
 
-import AuthLoadingScreen from "./AuthLoadingScreen";
 import AuthScreen from "./AuthScreen";
 import AccountScreen from "./AccountScreen";
 import HomeScreen from "./HomeScreen";
@@ -64,12 +63,11 @@ const AuthNavigator = createStackNavigator(
 // Stitch together app and auth flow
 const RootNavigator = createSwitchNavigator(
   {
-    [ScreenRoutes.AuthLoading]: AuthLoadingScreen,
     App: AppNavigator,
     Auth: AuthNavigator,
   },
   {
-    initialRouteName: ScreenRoutes.AuthLoading,
+    initialRouteName: ScreenRoutes.Auth,
   }
 );
 

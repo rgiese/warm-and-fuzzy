@@ -9,7 +9,7 @@ import SeriesInstanceProps, {
 } from "../../stores/explore/SeriesInstanceProps";
 import ViewSpan from "../../stores/explore/ViewSpan";
 
-import { ExploreStore } from "../../stores/stores";
+import ExploreStore from "../../stores/explore";
 
 interface Props {
   store: ExploreStore;

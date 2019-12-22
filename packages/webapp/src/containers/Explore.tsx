@@ -1,8 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Container, Dropdown, DropdownProps, Segment } from "semantic-ui-react";
 import { observer } from "mobx-react";
 import moment from "moment";
+
+import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import Plot from "../components/explore/Plot";
 import SeriesInstanceBean from "../components/explore/SeriesInstanceBean";
@@ -10,8 +12,9 @@ import { SeriesInstanceDateFormat } from "../stores/explore/SeriesInstanceProps"
 import Timezone, { Timezones } from "../stores/explore/Timezone";
 import ViewSpan, { ViewSpans, viewSpanToDays } from "../stores/explore/ViewSpan";
 
-import { ExploreStore, ExplorePlotDataStore } from "../stores/stores";
-import RootStoreContext from "../stores/RootStoreContext";
+import ExploreStore from "../stores/explore";
+import ExplorePlotDataStore from "../stores/explore-plot-data";
+
 import * as StoreChecks from "../components/StoreChecks";
 
 interface Props extends RouteComponentProps {
@@ -23,6 +26,9 @@ class State {}
 
 @observer
 class Explore extends React.Component<Props, State> {
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
+
   private haveParsedURLParams: boolean = false;
   private lastURLParams: string = "";
 
@@ -76,7 +82,7 @@ class Explore extends React.Component<Props, State> {
   };
 
   public render(): React.ReactElement {
-    const rootStore = useContext(RootStoreContext).rootStore;
+    const rootStore = this.context.rootStore;
 
     const exploreStore = this.props.exploreStore;
     const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
@@ -151,4 +157,11 @@ class Explore extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(Explore);
+// https://github.com/facebook/react/issues/14061
+function withRouterWorkaround<P extends RouteComponentProps<any>>(Inner: React.ComponentType<P>) {
+  const Wrapped: React.FunctionComponent<P> = (props: P) => <Inner {...props} />;
+  Wrapped.displayName = `WithRouterWorkaround(${Inner.displayName || Inner.name || "?"})`;
+  return withRouter(Wrapped);
+}
+
+export default withRouterWorkaround(Explore);

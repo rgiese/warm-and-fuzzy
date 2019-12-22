@@ -10,7 +10,9 @@ import SeriesColorPalette from "./SeriesColorPalette";
 import PlotTooltip from "./PlotTooltip";
 import ViewSpan from "../../stores/explore/ViewSpan";
 
-import { ExploreStore, ExplorePlotDataStore } from "../../stores/stores";
+import ExploreStore from "../../stores/explore";
+import ExplorePlotDataStore from "../../stores/explore-plot-data";
+
 import SeriesInstanceDataDefinition from "../../stores/explore-plot-data/SeriesInstanceDataDefinition";
 
 interface Props {

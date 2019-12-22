@@ -2,11 +2,8 @@ import React, { useContext } from "react";
 import { observer } from "mobx-react";
 
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
-import { SensorConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { SensorConfiguration, RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import { GlobalAuth } from "../services/Auth";
-
-import RootStoreContext from "../stores/RootStoreContext";
 import * as StoreChecks from "./StoreChecks";
 
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
@@ -28,7 +25,9 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
     return StoreChecks.renderStoreWorkingOrErrorComponent(storeDependencies);
   }
 
-  const canEdit = GlobalAuth.Permissions.includes(Authorization.Permissions.WriteConfig);
+  const canEdit = rootStore.authStore.userPermissions.includes(
+    Authorization.Permissions.WriteConfig
+  );
 
   const fnBuildEditControl = (value: SensorConfiguration): React.ReactElement => (
     <SensorConfigurationModal values={value} store={rootStore.sensorConfigurationStore} />

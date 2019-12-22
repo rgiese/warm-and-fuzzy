@@ -3,47 +3,46 @@ import { Provider as PaperProvider } from "react-native-paper";
 
 import { configure as MobxConfigure } from "mobx";
 
-import { GlobalAuth } from "./services/Auth";
+import {
+  ApolloClient,
+  AuthStore,
+  RootStore,
+  RootStoreContext,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import { RootStore } from "./stores/RootStore";
-import RootStoreContext from "./stores/RootStoreContext";
+import Auth from "./services/Auth";
 
 import ScreenProps from "./screens/ScreenProps";
 import Screens from "./screens";
 
 import AppTheme from "./Theme";
 
+import config from "./config";
+
 // App-wide MobX configuration
 MobxConfigure({ enforceActions: "observed" });
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props {}
+const authProvider = new Auth();
+const authStore = new AuthStore(authProvider, "initializing");
 
-class State {}
+authProvider.initializeStore(authStore);
 
-const rootStore = new RootStore();
-GlobalAuth.setAuthStore(rootStore.authStore);
+const apolloClient = new ApolloClient(authStore, config.apiGateway.URL);
 
-class App extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
+const rootStore = new RootStore(authStore, apolloClient);
 
-    this.state = new State();
-  }
+const App: React.FunctionComponent<{}> = (): React.ReactElement => {
+  const screenProps: ScreenProps = {
+    theme: AppTheme,
+  };
 
-  public render(): React.ReactElement {
-    const screenProps: ScreenProps = {
-      theme: AppTheme,
-    };
-
-    return (
-      <PaperProvider theme={screenProps.theme}>
-        <RootStoreContext.Provider value={{ rootStore }}>
-          <Screens screenProps={screenProps} />
-        </RootStoreContext.Provider>
-      </PaperProvider>
-    );
-  }
-}
+  return (
+    <PaperProvider theme={screenProps.theme}>
+      <RootStoreContext.Provider value={{ rootStore }}>
+        <Screens screenProps={screenProps} />
+      </RootStoreContext.Provider>
+    </PaperProvider>
+  );
+};
 
 export default App;

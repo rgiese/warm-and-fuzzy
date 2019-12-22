@@ -1,13 +1,14 @@
 import { observable, computed, action, reaction, runInAction } from "mobx";
 import moment from "moment";
 
-import { ExploreStore } from "../stores";
+import { ApolloClient } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import ExploreStore from "../explore";
+
 import SeriesInstanceData from "./SeriesInstanceData";
 import SeriesInstanceDataDefinition from "./SeriesInstanceDataDefinition";
 import Timezone from "../explore/Timezone";
 import { viewSpanToDays } from "../explore/ViewSpan";
-
-import ApolloClient from "../../services/ApolloClient";
 
 import gql from "graphql-tag";
 import { PlotSeriesQuery, PlotSeriesQueryVariables } from "../../generated/graphqlClient";
@@ -21,11 +22,13 @@ const plotSeriesDocument = gql`
   }
 `;
 
-export class ExplorePlotDataStore {
+export default class ExplorePlotDataStore {
   private exploreStore: ExploreStore;
+  private apolloClient: ApolloClient;
 
-  constructor(exploreStore: ExploreStore) {
+  constructor(exploreStore: ExploreStore, apolloClient: ApolloClient) {
     this.exploreStore = exploreStore;
+    this.apolloClient = apolloClient;
 
     reaction(
       () => this.seriesInstanceDataDefinitions.map(d => d),
@@ -108,16 +111,17 @@ export class ExplorePlotDataStore {
             const fromDate = fromMoment.toDate();
             const toDate = fromMoment.add(viewSpanToDays(definition.viewSpan), "day").toDate();
 
-            const queryResult = await ApolloClient.query<PlotSeriesQuery, PlotSeriesQueryVariables>(
-              {
-                query: plotSeriesDocument,
-                variables: {
-                  streamName: definition.streamName,
-                  fromDate,
-                  toDate,
-                },
-              }
-            );
+            const queryResult = await this.apolloClient.query<
+              PlotSeriesQuery,
+              PlotSeriesQueryVariables
+            >({
+              query: plotSeriesDocument,
+              variables: {
+                streamName: definition.streamName,
+                fromDate,
+                toDate,
+              },
+            });
 
             if (queryResult.errors) {
               errors = JSON.stringify(queryResult.errors);

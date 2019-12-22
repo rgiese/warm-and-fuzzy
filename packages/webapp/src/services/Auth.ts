@@ -1,7 +1,7 @@
 import Auth0 from "auth0-js";
-import JwtDecode from "jwt-decode";
 
 import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
+import { AuthProvider, AuthStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 const localStorageKeys = {
   expiresAt: "auth.expiresAt",
@@ -9,7 +9,7 @@ const localStorageKeys = {
   idToken: "auth.idToken",
 };
 
-class Auth {
+export default class Auth implements AuthProvider {
   private tokenRenewalTimeout: any;
 
   private auth0 = new Auth0.WebAuth({
@@ -21,20 +21,37 @@ class Auth {
     scope: "openid",
   });
 
-  public constructor() {
-    // Schedule token renewal if we're still logged in from localStorage
-    this.scheduleRenewal();
+  private authStore?: AuthStore = undefined;
+
+  public initializeStore(authStore: AuthStore) {
+    this.authStore = authStore;
+
+    // Apply state from localStorage
+    const accessToken = localStorage.getItem(localStorageKeys.accessToken);
+    const idToken = localStorage.getItem(localStorageKeys.idToken);
+    const expiresAt = localStorage.getItem(localStorageKeys.expiresAt);
+
+    if (accessToken && idToken && expiresAt) {
+      this.authStore?.onUserLoggedIn(accessToken, idToken);
+
+      // Schedule token renewal
+      this.scheduleRenewal(Number.parseInt(expiresAt));
+    } else {
+      // Clear out any remaining local storage items
+      this.clearTimeout();
+    }
   }
 
   //
-  // Login
+  // AuthProvider implementation
   //
 
-  public login(): void {
+  public async requestLogin(): Promise<boolean | undefined> {
     this.auth0.authorize();
+    return undefined;
   }
 
-  public async handleAuthentication(): Promise<boolean> {
+  public async completeLogin(): Promise<boolean> {
     // Called in response to the universal auth page redirecting to our /callback
 
     return new Promise((resolve, reject): void => {
@@ -42,7 +59,7 @@ class Auth {
       this.auth0.parseHash((err, authResult): void => {
         if (authResult && authResult.accessToken && authResult.idToken) {
           this.setSession(authResult);
-          resolve(this.IsAuthenticated);
+          resolve(true);
         } else if (err) {
           console.log(err);
           alert(`HandleAuthentication error: ${err.error}. Check the console for further details.`);
@@ -57,108 +74,34 @@ class Auth {
     });
   }
 
-  //
-  // Accessors
-  //
-
-  public get ExpiresAt(): number {
-    const storedValue = localStorage.getItem(localStorageKeys.expiresAt);
-
-    if (storedValue === null) {
-      return 0;
-    }
-
-    return Number(storedValue);
-  }
-
-  public get IsAuthenticated(): boolean {
-    // Check whether the current time is past the
-    // access token's expiry time
-    return new Date().getTime() < this.ExpiresAt;
-  }
-
-  public get AccessToken(): string | null {
-    return localStorage.getItem(localStorageKeys.accessToken);
-  }
-
-  public get IdToken(): string | null {
-    return localStorage.getItem(localStorageKeys.idToken);
-  }
-
-  public get UserName(): string | undefined {
-    const idToken = this.IdToken;
-
-    if (idToken === null) {
-      return undefined;
-    }
-
-    const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[
-      AuthenticationConfiguration.CustomClaimsNamespace +
-        AuthenticationConfiguration.CustomClaims.UserName
-    ];
-  }
-
-  public get UserEmail(): string | undefined {
-    const idToken = this.IdToken;
-
-    if (idToken === null) {
-      return undefined;
-    }
-
-    const decodedIdToken = JwtDecode(idToken) as any;
-    return decodedIdToken[
-      AuthenticationConfiguration.CustomClaimsNamespace +
-        AuthenticationConfiguration.CustomClaims.UserEmail
-    ];
-  }
-
-  public get Tenant(): string | undefined {
-    const accessToken = this.AccessToken;
-
-    if (accessToken === null) {
-      return undefined;
-    }
-
-    const decodedAccessToken = JwtDecode(accessToken) as any;
-    return decodedAccessToken[
-      AuthenticationConfiguration.CustomClaimsNamespace +
-        AuthenticationConfiguration.CustomClaims.Tenant
-    ];
-  }
-
-  public get Permissions(): string[] {
-    const accessToken = this.AccessToken;
-
-    if (accessToken === null) {
-      return [];
-    }
-
-    const decodedAccessToken = JwtDecode(accessToken) as any;
-    return decodedAccessToken["permissions"];
-  }
-
-  //
-  // Logout
-  //
-
-  public logout(): void {
-    // Clear token renewal
-    clearTimeout(this.tokenRenewalTimeout);
-
-    // Remove tokens and expiry time
-    localStorage.removeItem(localStorageKeys.accessToken);
-    localStorage.removeItem(localStorageKeys.idToken);
-    localStorage.removeItem(localStorageKeys.expiresAt);
+  public async requestLogout(): Promise<void> {
+    this.clear();
 
     this.auth0.logout({
       returnTo: window.location.origin,
     });
+
+    this.authStore?.onUserLoggedOut();
   }
 
   //
   // Internals
   //
+
+  private clearTimeout(): void {
+    if (this.tokenRenewalTimeout) {
+      clearTimeout(this.tokenRenewalTimeout);
+      this.tokenRenewalTimeout = undefined;
+    }
+  }
+
+  private clear(): void {
+    this.clearTimeout();
+
+    localStorage.removeItem(localStorageKeys.accessToken);
+    localStorage.removeItem(localStorageKeys.idToken);
+    localStorage.removeItem(localStorageKeys.expiresAt);
+  }
 
   private setSession(authResult: any): void {
     // Set the time that the access token will expire at
@@ -169,15 +112,16 @@ class Auth {
     localStorage.setItem(localStorageKeys.expiresAt, expiresAt.toString());
 
     // Schedule token renewal
-    this.scheduleRenewal();
+    this.scheduleRenewal(expiresAt);
+
+    // Update store
+    this.authStore?.onUserLoggedIn(authResult.accessToken, authResult.idToken);
   }
 
-  private scheduleRenewal(): void {
-    if (this.tokenRenewalTimeout) {
-      clearTimeout(this.tokenRenewalTimeout);
-    }
+  private scheduleRenewal(expiresAt: number): void {
+    this.clearTimeout();
 
-    const timeout = this.ExpiresAt - Date.now();
+    const timeout = expiresAt - Date.now();
 
     if (timeout > 0) {
       this.tokenRenewalTimeout = setTimeout((): void => {
@@ -191,12 +135,10 @@ class Auth {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
       } else if (err) {
-        this.logout();
+        this.requestLogout();
         console.log(err);
         alert(`Could not get a new token (${err.error}: ${err.error_description}).`);
       }
     });
   }
 }
-
-export let GlobalAuth = new Auth();
