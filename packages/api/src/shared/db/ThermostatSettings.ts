@@ -12,10 +12,44 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 export class ThermostatSetting {
   public constructor() {
+    this.type = GraphQL.ThermostatSettingType.Hold;
+
+    this.holdUntil = undefined;
+
+    this.daysOfWeek = undefined;
+    this.atMinutesSinceMidnight = undefined;
+
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
     this.allowedActions = undefined;
   }
+
+  // Setting type (discriminated union)
+  @attribute()
+  public type: GraphQL.ThermostatSettingType;
+
+  //
+  // For Hold settings
+  //
+
+  @attribute()
+  public holdUntil?: Date;
+
+  //
+  // For Scheduled settings
+  //
+
+  // Days of week the scheduled setting is applicable to
+  @attribute({ memberType: "String" })
+  public daysOfWeek?: Set<GraphQL.DayOfWeek>;
+
+  // Time of day the scheduled setting becomes applicable at [minutes since midnight]
+  @attribute()
+  public atMinutesSinceMidnight?: number;
+
+  //
+  // For all types
+  //
 
   // Target temperature for heating [Celsius]
   @attribute()

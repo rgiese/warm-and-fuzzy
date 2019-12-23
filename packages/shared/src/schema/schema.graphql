@@ -107,19 +107,64 @@ enum ThermostatAction {
   Circulate
 }
 
+enum ThermostatSettingType {
+  Hold
+  Scheduled
+}
+
+enum DayOfWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
 type ThermostatSetting {
+  type: ThermostatSettingType!
+
+  # For Hold settings
+  holdUntil: DateTime
+
+  # For Scheduled settings
+  daysOfWeek: [DayOfWeek!]
+  atMinutesSinceMidnight: Int
+
+  # For all types
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
 }
 
 input ThermostatSettingCreateInput {
+  type: ThermostatSettingType!
+
+  # For Hold settings
+  holdUntil: DateTime
+
+  # For Scheduled settings
+  daysOfWeek: [DayOfWeek!]
+  atMinutesSinceMidnight: Int
+
+  # For all types
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
 }
 
 input ThermostatSettingUpdateInput {
+  type: ThermostatSettingType!
+
+  # For Hold settings
+  holdUntil: DateTime
+
+  # For Scheduled settings
+  daysOfWeek: [DayOfWeek!]
+  atMinutesSinceMidnight: Int
+
+  # For all types
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
