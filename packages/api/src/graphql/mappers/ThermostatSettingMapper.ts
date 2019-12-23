@@ -17,10 +17,11 @@ class ThermostatSettingMapper
       ThermostatSetting
     > {
   public graphqlFromModel(rhs: ThermostatSetting): GraphQL.ThermostatSetting {
-    const { allowedActions, ...remainder } = rhs;
+    const { daysOfWeek, allowedActions, ...remainder } = rhs;
 
     return {
       ...remainder,
+      daysOfWeek: daysOfWeek ? Array.from(daysOfWeek) : [],
       allowedActions: allowedActions ? Array.from(allowedActions) : [],
     };
   }
@@ -29,11 +30,12 @@ class ThermostatSettingMapper
     tenant: string,
     rhs: GraphQL.ThermostatSettingCreateInput
   ): ThermostatSetting {
-    const { allowedActions, ...remainder } = rhs;
+    const { daysOfWeek, allowedActions, ...remainder } = rhs;
 
     return Object.assign(new ThermostatSetting(), {
       tenant,
       ...remainder,
+      daysOfWeek: daysOfWeek?.length ? new Set(daysOfWeek) : undefined,
       allowedActions: allowedActions.length > 0 ? new Set(allowedActions) : undefined,
     });
   }
