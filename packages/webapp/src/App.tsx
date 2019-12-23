@@ -21,6 +21,7 @@ import Configuration from "./containers/Configuration";
 import Explore from "./containers/Explore";
 import Home from "./containers/Home";
 import NotFound from "./containers/NotFound";
+import ThermostatSettings from "./components/ThermostatSettings";
 
 import Header from "./containers/Header";
 import Footer from "./containers/Footer";
@@ -60,6 +61,7 @@ const App: React.FunctionComponent<{}> = (): React.ReactElement => {
             <Route path="/callback" component={AuthCallback} />
             {/* Actual pages */}
             <Route path="/" exact component={Home} />
+            <Route path="/settings" exact component={ThermostatSettings} />
             <AuthenticatedRoute path="/configuration" exact component={Configuration} />
             <AuthenticatedRoute
               path="/explore"
