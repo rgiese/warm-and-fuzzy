@@ -50,6 +50,10 @@ export type ThermostatSettings = TypeTools.ArrayElementType<
   TypeTools.PropType<ThermostatSettingsStoreQuery, "getThermostatSettings">
 >;
 
+export type ThermostatSetting = TypeTools.ArrayElementType<
+  TypeTools.PropType<ThermostatSettings, "settings">
+>;
+
 export class ThermostatSettingsStore extends GraphqlMutableStoreBase<
   ThermostatSettings,
   ThermostatSettingsStoreQuery,
@@ -70,6 +74,18 @@ export class ThermostatSettingsStore extends GraphqlMutableStoreBase<
       thermostatSettingsStoreDocument,
       (queryData: ThermostatSettingsStoreQuery) => {
         return queryData.getThermostatSettings;
+      },
+      (thermostatSettings: ThermostatSettings) => {
+        // Rehydrate Date types
+        return {
+          ...thermostatSettings,
+          settings: thermostatSettings.settings.map(setting => {
+            return {
+              ...setting,
+              holdUntil: setting.holdUntil ? new Date(setting.holdUntil) : undefined,
+            };
+          }),
+        };
       }
     );
   }
