@@ -24,7 +24,9 @@ class ThermostatSettingsMapper
     return {
       ...remainder,
       settings: settings
-        ? Array.from(settings.map(setting => this.thermostatSettingMapper.graphqlFromModel(setting)))
+        ? Array.from(
+            settings.map(setting => this.thermostatSettingMapper.graphqlFromModel(setting))
+          )
         : [],
     };
   }
