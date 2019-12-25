@@ -1,24 +1,134 @@
-import React from "react";
-import { Button, Icon } from "semantic-ui-react";
+import React, { useState } from "react";
+import {
+  Button,
+  Checkbox,
+  Form,
+  Icon,
+  Input,
+  InputOnChangeData,
+  Popup,
+  SemanticCOLORS,
+  SemanticICONS,
+} from "semantic-ui-react";
 import { observer } from "mobx-react";
 import moment from "moment";
 
 import * as GraphQL from "../generated/graphqlClient";
 
+import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSetting } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+const interiorPadding = 10;
+
+const getSetpointFromSetting = (
+  thermostatSetting: ThermostatSetting,
+  action: GraphQL.ThermostatAction
+): number => {
+  if (action === GraphQL.ThermostatAction.Heat) {
+    return thermostatSetting.setPointHeat;
+  }
+
+  if (action === GraphQL.ThermostatAction.Cool) {
+    return thermostatSetting.setPointCool;
+  }
+
+  return 0;
+};
+
+const SetpointPopup: React.FunctionComponent<{
+  thermostatSetting: ThermostatSetting;
+  action: GraphQL.ThermostatAction;
+  availableActions: GraphQL.ThermostatAction[];
+  iconColor: SemanticCOLORS;
+  iconName: SemanticICONS;
+}> = ({ thermostatSetting, action, availableActions, iconColor, iconName }): React.ReactElement => {
+  // Derived values
+  const isCirculate = action === GraphQL.ThermostatAction.Circulate;
+  const isActionAllowed = thermostatSetting.allowedActions.includes(action);
+  const setpointValue = getSetpointFromSetting(thermostatSetting, action);
+
+  // State about popup
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+
+  // State inside popup
+  const [popupIsActionAllowed, setPopupIsActionAllowed] = useState<boolean>(isActionAllowed);
+
+  const [popupSetpoint, setPopupSetpoint] = useState<number>(setpointValue);
+
+  const isPopupDirty = popupIsActionAllowed !== isActionAllowed || popupSetpoint !== setpointValue;
+
+  return availableActions.includes(action) ? (
+    <Popup
+      position="top center"
+      wide="very"
+      on="click"
+      trigger={
+        <Button style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}>
+          <Icon name={iconName} color={iconColor} />
+          {thermostatSetting.allowedActions.includes(action) ? (
+            isCirculate ? (
+              <Icon name="check" />
+            ) : (
+              <>{setpointValue} &deg;C</>
+            )
+          ) : (
+            <Icon name="window minimize outline" />
+          )}
+        </Button>
+      }
+      open={isPopupOpen}
+      onOpen={() => setIsPopupOpen(true)}
+      onClose={() => setIsPopupOpen(false)}
+    >
+      <Popup.Content>
+        <Form>
+          <Form.Group inline>
+            <Form.Field>
+              <Checkbox
+                label={`${action} ${!isCirculate ? "to" : ""}`}
+                checked={popupIsActionAllowed}
+                onChange={() => setPopupIsActionAllowed(!popupIsActionAllowed)}
+              />
+            </Form.Field>
+            {!isCirculate && (
+              <Form.Field>
+                <Input
+                  disabled={!popupIsActionAllowed}
+                  label={{ content: <>&deg; C</> }}
+                  labelPosition="right"
+                  value={popupSetpoint}
+                  type="number"
+                  min={ThermostatSettingSchema.SetPointRange.min}
+                  max={ThermostatSettingSchema.SetPointRange.max}
+                  step={1}
+                  onChange={(
+                    _event: React.ChangeEvent<HTMLInputElement>,
+                    data: InputOnChangeData
+                  ) => setPopupSetpoint(Number.parseFloat(data.value))}
+                />
+              </Form.Field>
+            )}
+            <Button
+              color="green"
+              icon="save"
+              disabled={!isPopupDirty}
+              onClick={() => {
+                setIsPopupOpen(false);
+              }}
+            />
+          </Form.Group>
+        </Form>
+      </Popup.Content>
+    </Popup>
+  ) : (
+    <></>
+  );
+};
 
 const ThermostatSettingBean: React.FunctionComponent<{
   thermostatSetting: ThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
 }> = ({ thermostatSetting, availableActions }): React.ReactElement => {
-  const interiorPadding = 10;
-
-  const isHeatAllowed = thermostatSetting.allowedActions.includes(GraphQL.ThermostatAction.Heat);
-  const isCoolAllowed = thermostatSetting.allowedActions.includes(GraphQL.ThermostatAction.Cool);
-  const isCirculateAllowed = thermostatSetting.allowedActions.includes(
-    GraphQL.ThermostatAction.Circulate
-  );
-
   const isHoldExpired = (holdUntil?: Date | null): boolean =>
     holdUntil ? holdUntil.valueOf() < Date.now() : true;
 
@@ -29,36 +139,33 @@ const ThermostatSettingBean: React.FunctionComponent<{
       <span style={{ fontStyle: "italic" }}>(expired)</span>
     );
 
-  const formatTemperature = (temperature: number): React.ReactFragment => <>{temperature} &deg;C</>;
-
-  const inactiveIcon = <Icon name="window minimize outline" />;
-
   return (
     <Button.Group style={{ padding: 4 }}>
       <Button style={{ paddingLeft: interiorPadding / 2, paddingRight: 0 }}>
         {/* Just to provide left padding and equalize padding for remaining buttons */}
       </Button>
 
-      {availableActions.includes(GraphQL.ThermostatAction.Heat) && (
-        <Button style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}>
-          <Icon name="arrow up" color="red" />
-          {isHeatAllowed ? formatTemperature(thermostatSetting.setPointHeat) : inactiveIcon}
-        </Button>
-      )}
-
-      {availableActions.includes(GraphQL.ThermostatAction.Cool) && (
-        <Button style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}>
-          <Icon name="arrow down" color="blue" />
-          {isCoolAllowed ? formatTemperature(thermostatSetting.setPointCool) : inactiveIcon}
-        </Button>
-      )}
-
-      {availableActions.includes(GraphQL.ThermostatAction.Circulate) && (
-        <Button style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}>
-          <Icon name="sync alternate" color="purple" />
-          {isCirculateAllowed ? <Icon name="check" /> : inactiveIcon}
-        </Button>
-      )}
+      <SetpointPopup
+        action={GraphQL.ThermostatAction.Heat}
+        iconColor="red"
+        iconName="arrow up"
+        thermostatSetting={thermostatSetting}
+        availableActions={availableActions}
+      />
+      <SetpointPopup
+        action={GraphQL.ThermostatAction.Cool}
+        iconColor="blue"
+        iconName="arrow down"
+        thermostatSetting={thermostatSetting}
+        availableActions={availableActions}
+      />
+      <SetpointPopup
+        action={GraphQL.ThermostatAction.Circulate}
+        iconColor="purple"
+        iconName="sync alternate"
+        thermostatSetting={thermostatSetting}
+        availableActions={availableActions}
+      />
 
       {thermostatSetting.type === GraphQL.ThermostatSettingType.Hold && (
         <Button
