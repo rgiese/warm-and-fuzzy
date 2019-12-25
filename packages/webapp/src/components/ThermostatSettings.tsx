@@ -48,7 +48,12 @@ const ThermostatSettingsComponent: React.FunctionComponent<{}> = (): React.React
                     {thermostatConfiguration?.name || thermostatSettings.id}
                   </Table.Cell>
                   <Table.Cell collapsing rowSpan={7} verticalAlign="top">
-                    {holdSetting && <ThermostatSettingBean thermostatSetting={holdSetting} />}
+                    {holdSetting && (
+                      <ThermostatSettingBean
+                        thermostatSetting={holdSetting}
+                        availableActions={thermostatConfiguration?.availableActions || []}
+                      />
+                    )}
                   </Table.Cell>
                   <Table.Cell collapsing>{ThermostatSettingSchema.DaysOfWeek[0]}</Table.Cell>
                   <Table.Cell>
@@ -59,6 +64,7 @@ const ThermostatSettingsComponent: React.FunctionComponent<{}> = (): React.React
                       .map(setting => (
                         <ThermostatSettingBean
                           thermostatSetting={setting}
+                          availableActions={thermostatConfiguration?.availableActions || []}
                           key={setting.atMinutesSinceMidnight?.toString()}
                         />
                       ))}
@@ -73,6 +79,7 @@ const ThermostatSettingsComponent: React.FunctionComponent<{}> = (): React.React
                         .map(setting => (
                           <ThermostatSettingBean
                             thermostatSetting={setting}
+                            availableActions={thermostatConfiguration?.availableActions || []}
                             key={setting.atMinutesSinceMidnight?.toString()}
                           />
                         ))}
