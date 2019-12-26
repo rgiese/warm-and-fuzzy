@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import fastCompare from "react-fast-compare";
 import {
   Button,
   Checkbox,
@@ -18,44 +19,34 @@ import * as GraphQL from "../generated/graphqlClient";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSetting } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
+export type IndexedThermostatSetting = ThermostatSetting & { index: number };
+
+type OnSave = (updatedThermostatSetting: IndexedThermostatSetting) => Promise<void>;
+
 const interiorPadding = 10;
 
-const getSetpointFromSetting = (
-  thermostatSetting: ThermostatSetting,
-  action: GraphQL.ThermostatAction
-): number => {
-  if (action === GraphQL.ThermostatAction.Heat) {
-    return thermostatSetting.setPointHeat;
-  }
-
-  if (action === GraphQL.ThermostatAction.Cool) {
-    return thermostatSetting.setPointCool;
-  }
-
-  return 0;
-};
+//
+// SetpointPopup
+//
 
 const SetpointPopup: React.FunctionComponent<{
-  thermostatSetting: ThermostatSetting;
+  mutableSetting: IndexedThermostatSetting;
+  updateMutableSetting: React.Dispatch<React.SetStateAction<IndexedThermostatSetting>>;
   action: GraphQL.ThermostatAction;
   availableActions: GraphQL.ThermostatAction[];
   iconColor: SemanticCOLORS;
   iconName: SemanticICONS;
-}> = ({ thermostatSetting, action, availableActions, iconColor, iconName }): React.ReactElement => {
-  // Derived values
+}> = ({
+  mutableSetting,
+  updateMutableSetting,
+  action,
+  availableActions,
+  iconColor,
+  iconName,
+}): React.ReactElement => {
   const isCirculate = action === GraphQL.ThermostatAction.Circulate;
-  const isActionAllowed = thermostatSetting.allowedActions.includes(action);
-  const setpointValue = getSetpointFromSetting(thermostatSetting, action);
 
-  // State about popup
-  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
-
-  // State inside popup
-  const [popupIsActionAllowed, setPopupIsActionAllowed] = useState<boolean>(isActionAllowed);
-
-  const [popupSetpoint, setPopupSetpoint] = useState<number>(setpointValue);
-
-  const isPopupDirty = popupIsActionAllowed !== isActionAllowed || popupSetpoint !== setpointValue;
+  const isActionAllowed = mutableSetting.allowedActions.includes(action);
 
   return availableActions.includes(action) ? (
     <Popup
@@ -65,20 +56,22 @@ const SetpointPopup: React.FunctionComponent<{
       trigger={
         <Button style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}>
           <Icon name={iconName} color={iconColor} />
-          {thermostatSetting.allowedActions.includes(action) ? (
+          {mutableSetting.allowedActions.includes(action) ? (
             isCirculate ? (
               <Icon name="check" />
             ) : (
-              <>{setpointValue} &deg;C</>
+              <>
+                {action === GraphQL.ThermostatAction.Heat
+                  ? mutableSetting.setPointHeat
+                  : mutableSetting.setPointCool}{" "}
+                &deg;C
+              </>
             )
           ) : (
             <Icon name="window minimize outline" />
           )}
         </Button>
       }
-      open={isPopupOpen}
-      onOpen={() => setIsPopupOpen(true)}
-      onClose={() => setIsPopupOpen(false)}
     >
       <Popup.Content>
         <Form>
@@ -86,17 +79,29 @@ const SetpointPopup: React.FunctionComponent<{
             <Form.Field>
               <Checkbox
                 label={`${action} ${!isCirculate ? "to" : ""}`}
-                checked={popupIsActionAllowed}
-                onChange={() => setPopupIsActionAllowed(!popupIsActionAllowed)}
+                checked={isActionAllowed}
+                onChange={() => {
+                  const allowedActions = isActionAllowed
+                    ? mutableSetting.allowedActions.filter(
+                        allowedAction => allowedAction !== action
+                      )
+                    : mutableSetting.allowedActions.concat(action);
+
+                  updateMutableSetting({ ...mutableSetting, allowedActions });
+                }}
               />
             </Form.Field>
             {!isCirculate && (
               <Form.Field>
                 <Input
-                  disabled={!popupIsActionAllowed}
+                  disabled={!isActionAllowed}
                   label={{ content: <>&deg; C</> }}
                   labelPosition="right"
-                  value={popupSetpoint}
+                  value={
+                    action === GraphQL.ThermostatAction.Heat
+                      ? mutableSetting.setPointHeat
+                      : mutableSetting.setPointCool
+                  }
                   type="number"
                   min={ThermostatSettingSchema.SetPointRange.min}
                   max={ThermostatSettingSchema.SetPointRange.max}
@@ -104,18 +109,21 @@ const SetpointPopup: React.FunctionComponent<{
                   onChange={(
                     _event: React.ChangeEvent<HTMLInputElement>,
                     data: InputOnChangeData
-                  ) => setPopupSetpoint(Number.parseFloat(data.value))}
+                  ) => {
+                    const setpoint = Number.parseFloat(data.value);
+                    const updatedSetpoints =
+                      action === GraphQL.ThermostatAction.Heat
+                        ? { setPointHeat: setpoint }
+                        : { setPointCool: setpoint };
+
+                    updateMutableSetting({
+                      ...mutableSetting,
+                      ...updatedSetpoints,
+                    });
+                  }}
                 />
               </Form.Field>
             )}
-            <Button
-              color="green"
-              icon="save"
-              disabled={!isPopupDirty}
-              onClick={() => {
-                setIsPopupOpen(false);
-              }}
-            />
           </Form.Group>
         </Form>
       </Popup.Content>
@@ -125,19 +133,21 @@ const SetpointPopup: React.FunctionComponent<{
   );
 };
 
+//
+// ThermostatSettingBean
+//
+
 const ThermostatSettingBean: React.FunctionComponent<{
-  thermostatSetting: ThermostatSetting;
+  thermostatSetting: IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
-}> = ({ thermostatSetting, availableActions }): React.ReactElement => {
+  onSave: OnSave;
+  isSaving: boolean;
+}> = ({ thermostatSetting, availableActions, onSave, isSaving }): React.ReactElement => {
+  const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
+  const isDirty = !fastCompare(mutableSetting, thermostatSetting);
+
   const isHoldExpired = (holdUntil?: Date | null): boolean =>
     holdUntil ? holdUntil.valueOf() < Date.now() : true;
-
-  const formatHoldUntil = (holdUntil?: Date | null): React.ReactFragment =>
-    !isHoldExpired(holdUntil) ? (
-      `until ${moment(holdUntil || Date.now()).fromNow(true)} from now`
-    ) : (
-      <span style={{ fontStyle: "italic" }}>(expired)</span>
-    );
 
   return (
     <Button.Group style={{ padding: 4 }}>
@@ -145,46 +155,79 @@ const ThermostatSettingBean: React.FunctionComponent<{
         {/* Just to provide left padding and equalize padding for remaining buttons */}
       </Button>
 
-      <SetpointPopup
-        action={GraphQL.ThermostatAction.Heat}
-        iconColor="red"
-        iconName="arrow up"
-        thermostatSetting={thermostatSetting}
-        availableActions={availableActions}
-      />
-      <SetpointPopup
-        action={GraphQL.ThermostatAction.Cool}
-        iconColor="blue"
-        iconName="arrow down"
-        thermostatSetting={thermostatSetting}
-        availableActions={availableActions}
-      />
-      <SetpointPopup
-        action={GraphQL.ThermostatAction.Circulate}
-        iconColor="purple"
-        iconName="sync alternate"
-        thermostatSetting={thermostatSetting}
-        availableActions={availableActions}
-      />
-
-      {thermostatSetting.type === GraphQL.ThermostatSettingType.Hold && (
+      {mutableSetting.type === GraphQL.ThermostatSettingType.Hold && (
         <Button
-          content={formatHoldUntil(thermostatSetting.holdUntil)}
+          content={
+            !isHoldExpired(mutableSetting.holdUntil) ? (
+              `Hold until ${moment(mutableSetting.holdUntil || Date.now()).fromNow(true)} from now`
+            ) : (
+              <span style={{ fontStyle: "italic" }}>Hold expired</span>
+            )
+          }
           style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}
         />
       )}
 
-      {thermostatSetting.type === GraphQL.ThermostatSettingType.Scheduled &&
-        thermostatSetting.atMinutesSinceMidnight && (
-          <Button
-            content={`at ${String(
-              Math.floor(thermostatSetting.atMinutesSinceMidnight / 60)
-            ).padStart(2, "0")}:${String(
-              Math.round(thermostatSetting.atMinutesSinceMidnight % 60)
-            ).padStart(2, "0")}`}
-            style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}
-          />
+      {mutableSetting.type === GraphQL.ThermostatSettingType.Scheduled &&
+        mutableSetting.atMinutesSinceMidnight && (
+          <>
+            <Button
+              content={mutableSetting.daysOfWeek?.map(day => day.substr(0, 3)).join(", ")}
+              style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}
+            />
+            <Button
+              content={`at ${String(
+                Math.floor(mutableSetting.atMinutesSinceMidnight / 60)
+              ).padStart(2, "0")}:${String(
+                Math.round(mutableSetting.atMinutesSinceMidnight % 60)
+              ).padStart(2, "0")}`}
+              style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding / 2 }}
+            />
+          </>
         )}
+
+      <SetpointPopup
+        action={GraphQL.ThermostatAction.Heat}
+        availableActions={availableActions}
+        iconColor="red"
+        iconName="arrow up"
+        mutableSetting={mutableSetting}
+        updateMutableSetting={updateMutableSetting}
+      />
+      <SetpointPopup
+        action={GraphQL.ThermostatAction.Cool}
+        availableActions={availableActions}
+        iconColor="blue"
+        iconName="arrow down"
+        mutableSetting={mutableSetting}
+        updateMutableSetting={updateMutableSetting}
+      />
+      <SetpointPopup
+        action={GraphQL.ThermostatAction.Circulate}
+        availableActions={availableActions}
+        iconColor="purple"
+        iconName="sync alternate"
+        mutableSetting={mutableSetting}
+        updateMutableSetting={updateMutableSetting}
+      />
+
+      {isDirty && (
+        <>
+          <Button
+            color="green"
+            icon="save"
+            loading={isSaving}
+            onClick={async (): Promise<void> => {
+              await onSave(mutableSetting);
+            }}
+          />
+          <Button
+            color="grey"
+            icon="undo"
+            onClick={() => updateMutableSetting(thermostatSetting)}
+          />
+        </>
+      )}
 
       <Button
         style={{
