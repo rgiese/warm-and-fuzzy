@@ -11,6 +11,7 @@ import InteriorPadding from "./InteriorPadding";
 import OnSave from "./OnSave";
 import SetpointPopup from "./SetpointPopup";
 import DaysOfWeekPopup from "./DaysOfWeekPopup";
+import TimeOfDayPopup from "./TimeOfDayPopup";
 
 const ThermostatSettingBean: React.FunctionComponent<{
   thermostatSetting: IndexedThermostatSetting;
@@ -50,13 +51,9 @@ const ThermostatSettingBean: React.FunctionComponent<{
               mutableSetting={mutableSetting}
               updateMutableSetting={updateMutableSetting}
             />
-            <Button
-              content={`at ${String(
-                Math.floor(mutableSetting.atMinutesSinceMidnight / 60)
-              ).padStart(2, "0")}:${String(
-                Math.round(mutableSetting.atMinutesSinceMidnight % 60)
-              ).padStart(2, "0")}`}
-              style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 2 }}
+            <TimeOfDayPopup
+              mutableSetting={mutableSetting}
+              updateMutableSetting={updateMutableSetting}
             />
           </>
         )}
