@@ -21,7 +21,7 @@ import Configuration from "./containers/Configuration";
 import Explore from "./containers/Explore";
 import Home from "./containers/Home";
 import NotFound from "./containers/NotFound";
-import ThermostatSettings from "./components/ThermostatSettings";
+import ThermostatSettings from "./containers/ThermostatSettings";
 
 import Header from "./containers/Header";
 import Footer from "./containers/Footer";

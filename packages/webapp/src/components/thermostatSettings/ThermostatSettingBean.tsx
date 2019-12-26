@@ -7,6 +7,7 @@ import * as GraphQL from "../../generated/graphqlClient";
 
 import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import InteriorPadding from "./InteriorPadding";
+import OnRemove from "./OnRemove";
 import OnSave from "./OnSave";
 
 import HoldUntilPopup from "./HoldUntilPopup";
@@ -17,9 +18,18 @@ import TimeOfDayPopup from "./TimeOfDayPopup";
 const ThermostatSettingBean: React.FunctionComponent<{
   thermostatSetting: IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
+  onRemove?: OnRemove;
   onSave: OnSave;
   isSaving: boolean;
-}> = ({ thermostatSetting, availableActions, onSave, isSaving }): React.ReactElement => {
+  onAfterRevert?: () => void;
+}> = ({
+  thermostatSetting,
+  availableActions,
+  onRemove,
+  onSave,
+  isSaving,
+  onAfterRevert,
+}): React.ReactElement => {
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
   const isDirty = !fastCompare(mutableSetting, thermostatSetting);
 
@@ -36,19 +46,18 @@ const ThermostatSettingBean: React.FunctionComponent<{
         />
       )}
 
-      {mutableSetting.type === GraphQL.ThermostatSettingType.Scheduled &&
-        mutableSetting.atMinutesSinceMidnight && (
-          <>
-            <DaysOfWeekPopup
-              mutableSetting={mutableSetting}
-              updateMutableSetting={updateMutableSetting}
-            />
-            <TimeOfDayPopup
-              mutableSetting={mutableSetting}
-              updateMutableSetting={updateMutableSetting}
-            />
-          </>
-        )}
+      {mutableSetting.type === GraphQL.ThermostatSettingType.Scheduled && (
+        <>
+          <DaysOfWeekPopup
+            mutableSetting={mutableSetting}
+            updateMutableSetting={updateMutableSetting}
+          />
+          <TimeOfDayPopup
+            mutableSetting={mutableSetting}
+            updateMutableSetting={updateMutableSetting}
+          />
+        </>
+      )}
 
       <SetpointPopup
         action={GraphQL.ThermostatAction.Heat}
@@ -81,26 +90,32 @@ const ThermostatSettingBean: React.FunctionComponent<{
             color="green"
             icon="save"
             loading={isSaving}
-            onClick={async (): Promise<void> => {
-              await onSave(mutableSetting);
-            }}
+            onClick={() => onSave(mutableSetting)}
           />
           <Button
             color="grey"
             icon="undo"
-            onClick={() => updateMutableSetting(thermostatSetting)}
+            onClick={() => {
+              updateMutableSetting(thermostatSetting);
+              if (onAfterRevert) {
+                onAfterRevert();
+              }
+            }}
           />
         </>
       )}
 
-      <Button
-        style={{
-          paddingLeft: InteriorPadding,
-          paddingRight: InteriorPadding,
-          opacity: 0.8,
-        }}
-        icon="remove"
-      />
+      {onRemove && (
+        <Button
+          style={{
+            paddingLeft: InteriorPadding,
+            paddingRight: InteriorPadding,
+            opacity: 0.8,
+          }}
+          icon="remove"
+          onClick={() => onRemove(mutableSetting)}
+        />
+      )}
     </Button.Group>
   );
 };
