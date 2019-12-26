@@ -30,11 +30,12 @@ class ThermostatSettingMapper
     tenant: string,
     rhs: GraphQL.ThermostatSettingCreateInput
   ): ThermostatSetting {
-    const { daysOfWeek, allowedActions, ...remainder } = rhs;
+    const { atMinutesSinceMidnight, daysOfWeek, allowedActions, ...remainder } = rhs;
 
     return Object.assign(new ThermostatSetting(), {
       tenant,
       ...remainder,
+      atMinutesSinceMidnight: atMinutesSinceMidnight || undefined,
       daysOfWeek: daysOfWeek?.length ? new Set(daysOfWeek) : undefined,
       allowedActions: allowedActions.length > 0 ? new Set(allowedActions) : undefined,
     });

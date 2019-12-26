@@ -80,8 +80,12 @@ export class ThermostatSettingsStore extends GraphqlMutableStoreBase<
         return {
           ...thermostatSettings,
           settings: thermostatSettings.settings.map(setting => {
+            // Remove GraphQL-injected fields that won't be accepted in a GraphQL mutation
+            // (done automatically for us for top-level types but not for interior arrays)
+            const { __typename, ...rest } = setting;
+
             return {
-              ...setting,
+              ...rest,
               holdUntil: setting.holdUntil ? new Date(setting.holdUntil) : undefined,
             };
           }),

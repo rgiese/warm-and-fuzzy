@@ -50,6 +50,7 @@ export namespace ThermostatSettingSchema {
         .required()
         .min(0)
         .lessThan(24 * 60),
+      otherwise: yup.number().nullable(),
     }),
 
     // For all types
