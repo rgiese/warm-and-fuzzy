@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import fastCompare from "react-fast-compare";
 import { Button } from "semantic-ui-react";
 import { observer } from "mobx-react";
-import moment from "moment";
 
 import * as GraphQL from "../../generated/graphqlClient";
 
 import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import InteriorPadding from "./InteriorPadding";
 import OnSave from "./OnSave";
+
+import HoldUntilPopup from "./HoldUntilPopup";
 import SetpointPopup from "./SetpointPopup";
 import DaysOfWeekPopup from "./DaysOfWeekPopup";
 import TimeOfDayPopup from "./TimeOfDayPopup";
@@ -22,9 +23,6 @@ const ThermostatSettingBean: React.FunctionComponent<{
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
   const isDirty = !fastCompare(mutableSetting, thermostatSetting);
 
-  const isHoldExpired = (holdUntil?: Date | null): boolean =>
-    holdUntil ? holdUntil.valueOf() < Date.now() : true;
-
   return (
     <Button.Group style={{ padding: 4 }}>
       <Button style={{ paddingLeft: InteriorPadding / 2, paddingRight: 0 }}>
@@ -32,15 +30,9 @@ const ThermostatSettingBean: React.FunctionComponent<{
       </Button>
 
       {mutableSetting.type === GraphQL.ThermostatSettingType.Hold && (
-        <Button
-          content={
-            !isHoldExpired(mutableSetting.holdUntil) ? (
-              `Hold until ${moment(mutableSetting.holdUntil || Date.now()).fromNow(true)} from now`
-            ) : (
-              <span style={{ fontStyle: "italic" }}>Hold expired</span>
-            )
-          }
-          style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 2 }}
+        <HoldUntilPopup
+          mutableSetting={mutableSetting}
+          updateMutableSetting={updateMutableSetting}
         />
       )}
 
