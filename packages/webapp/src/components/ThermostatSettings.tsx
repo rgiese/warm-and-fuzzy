@@ -9,7 +9,9 @@ import { RootStoreContext, ThermostatSettings } from "@grumpycorp/warm-and-fuzzy
 import * as GraphQL from "../generated/graphqlClient";
 
 import StoreChecks from "./StoreChecks";
-import ThermostatSettingBean, { IndexedThermostatSetting } from "./ThermostatSettingBean";
+
+import ThermostatSettingBean from "./thermostatSettings/ThermostatSettingBean";
+import IndexedThermostatSetting from "./thermostatSettings/IndexedThermostatSetting";
 
 const ThermostatSettingsComponent: React.FunctionComponent<{}> = (): React.ReactElement => {
   const rootStore = useContext(RootStoreContext).rootStore;
