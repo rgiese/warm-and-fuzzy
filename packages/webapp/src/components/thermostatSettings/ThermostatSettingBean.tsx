@@ -10,6 +10,7 @@ import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import InteriorPadding from "./InteriorPadding";
 import OnSave from "./OnSave";
 import SetpointPopup from "./SetpointPopup";
+import DaysOfWeekPopup from "./DaysOfWeekPopup";
 
 const ThermostatSettingBean: React.FunctionComponent<{
   thermostatSetting: IndexedThermostatSetting;
@@ -45,9 +46,9 @@ const ThermostatSettingBean: React.FunctionComponent<{
       {mutableSetting.type === GraphQL.ThermostatSettingType.Scheduled &&
         mutableSetting.atMinutesSinceMidnight && (
           <>
-            <Button
-              content={mutableSetting.daysOfWeek?.map(day => day.substr(0, 3)).join(", ")}
-              style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 2 }}
+            <DaysOfWeekPopup
+              mutableSetting={mutableSetting}
+              updateMutableSetting={updateMutableSetting}
             />
             <Button
               content={`at ${String(
