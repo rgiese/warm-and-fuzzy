@@ -4,6 +4,7 @@ import { observer } from "mobx-react";
 
 import cloneDeep from "clone-deep";
 
+import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { RootStoreContext, ThermostatSettings } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import * as GraphQL from "../generated/graphqlClient";
@@ -67,6 +68,40 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
 
   const orderedSettings = holdSettings.concat(scheduledSettings);
 
+  const newHoldSettingTemplate: IndexedThermostatSetting =
+    holdSettings.length > 0
+      ? holdSettings[holdSettings.length - 1]
+      : {
+          type: GraphQL.ThermostatSettingType.Hold,
+          index: -1,
+          // Hold settings
+          holdUntil: new Date(),
+          // Scheduled settings
+          atMinutesSinceMidnight: 0,
+          daysOfWeek: [],
+          // For all types
+          allowedActions: [],
+          setPointHeat: 18,
+          setPointCool: 22,
+        };
+
+  const newScheduledSettingTemplate: IndexedThermostatSetting =
+    scheduledSettings.length > 0
+      ? scheduledSettings[scheduledSettings.length - 1]
+      : {
+          type: GraphQL.ThermostatSettingType.Scheduled,
+          index: -1,
+          // Hold settings
+          holdUntil: new Date(0),
+          // Scheduled settings
+          atMinutesSinceMidnight: 0,
+          daysOfWeek: ThermostatSettingSchema.DaysOfWeek,
+          // For all types
+          allowedActions: [],
+          setPointHeat: 18,
+          setPointCool: 22,
+        };
+
   const onMutate = async (
     mutateFn: (mutatedSettingsArray: IndexedThermostatSetting[]) => void
   ): Promise<void> => {
@@ -118,14 +153,14 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
         {thermostatConfiguration?.name || thermostatSettings.id}
 
         <AddSettingPopup
-          type={GraphQL.ThermostatSettingType.Hold}
+          defaultThermostatSetting={newHoldSettingTemplate}
           availableActions={thermostatConfiguration?.availableActions || []}
           onSave={onAdd}
           isSaving={isSaving}
         />
 
         <AddSettingPopup
-          type={GraphQL.ThermostatSettingType.Scheduled}
+          defaultThermostatSetting={newScheduledSettingTemplate}
           availableActions={thermostatConfiguration?.availableActions || []}
           onSave={onAdd}
           isSaving={isSaving}
