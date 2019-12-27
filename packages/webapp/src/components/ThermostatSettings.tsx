@@ -113,7 +113,7 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
   };
 
   return (
-    <React.Fragment key={thermostatSettings.id}>
+    <>
       <Header as="h3" attached="top">
         {thermostatConfiguration?.name || thermostatSettings.id}
 
@@ -137,7 +137,7 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
             <ThermostatSettingBean
               thermostatSetting={setting}
               availableActions={thermostatConfiguration?.availableActions || []}
-              key={index}
+              key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
               onRemove={onRemove}
               onSave={onSave}
               isSaving={isSaving}
@@ -145,7 +145,7 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
           );
         })}
       </Segment>
-    </React.Fragment>
+    </>
   );
 };
 
