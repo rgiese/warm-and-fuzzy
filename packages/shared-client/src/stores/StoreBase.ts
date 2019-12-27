@@ -4,6 +4,8 @@ export type StoreState = "fetching" | "updating" | "ready" | "error";
 
 export class StoreBase {
   readonly name: string;
+
+  lastUpdated: Date = new Date();
   error?: string;
 
   @observable private state: StoreState = "ready";
@@ -15,6 +17,10 @@ export class StoreBase {
   @action setState(state: StoreState): void {
     //console.log(`${this.name}: ${this.state} -> ${state}`);
     this.state = state;
+
+    if (state === "ready") {
+      this.lastUpdated = new Date();
+    }
   }
 
   setError(error: string): void {
