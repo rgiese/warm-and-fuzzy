@@ -44,7 +44,10 @@ const AddSettingPopup: React.FunctionComponent<{
             holdUntil: new Date(0),
             // Scheduled settings
             atMinutesSinceMidnight: 0,
-            daysOfWeek: ThermostatSettingSchema.DaysOfWeek,
+            daysOfWeek:
+              type === GraphQL.ThermostatSettingType.Scheduled
+                ? ThermostatSettingSchema.DaysOfWeek
+                : [],
             // For all types
             allowedActions: [],
             setPointHeat: 18,
