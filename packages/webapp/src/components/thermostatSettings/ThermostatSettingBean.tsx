@@ -18,6 +18,7 @@ import TimeOfDayPopup from "./TimeOfDayPopup";
 const ThermostatSettingBean: React.FunctionComponent<{
   thermostatSetting: IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
+  isDirty?: boolean;
   onRemove?: OnRemove;
   onSave: OnSave;
   isSaving: boolean;
@@ -25,13 +26,14 @@ const ThermostatSettingBean: React.FunctionComponent<{
 }> = ({
   thermostatSetting,
   availableActions,
+  isDirty: isForcedDirty,
   onRemove,
   onSave,
   isSaving,
   onAfterRevert,
 }): React.ReactElement => {
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
-  const isDirty = !fastCompare(mutableSetting, thermostatSetting);
+  const isDirty = isForcedDirty || !fastCompare(mutableSetting, thermostatSetting);
 
   return (
     <Button.Group style={{ padding: 4 }}>

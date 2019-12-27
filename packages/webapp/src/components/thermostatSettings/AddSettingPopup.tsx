@@ -43,6 +43,7 @@ const AddSettingPopup: React.FunctionComponent<{
         <ThermostatSettingBean
           thermostatSetting={defaultThermostatSetting}
           availableActions={availableActions}
+          isDirty={true}
           onSave={async (updatedThermostatSetting: IndexedThermostatSetting): Promise<void> => {
             await onSave(updatedThermostatSetting);
             setPopupOpen(false);
