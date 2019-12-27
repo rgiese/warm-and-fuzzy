@@ -50,7 +50,7 @@ const DaysOfWeekPopup: React.FunctionComponent<{
       trigger={
         <Button
           content={displayDays()}
-          style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 2 }}
+          style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 4 }}
         />
       }
     >

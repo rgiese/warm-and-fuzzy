@@ -32,7 +32,7 @@ const TimeOfDayPopup: React.FunctionComponent<{
       trigger={
         <Button
           content={`at ${formatTime(timeOfDay)}`}
-          style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 2 }}
+          style={{ paddingLeft: InteriorPadding / 4, paddingRight: InteriorPadding / 2 }}
         />
       }
     >
