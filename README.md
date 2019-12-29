@@ -31,14 +31,14 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
     - make sure `%ANDROID_SDK_ROOT%/platform-tools` is on the system path so that `adb` is available.
   - For API and firmware development:
     - Install dependencies
-      - Windows: 
+      - Windows:
         - `choco install awscli cmake mingw`
         - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
     - Set the environment variable `GRUMPYCORP_ROOT` to point to the parent directory of this repo
     - In that directory, `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
       - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
     - `cd flatbuffers` and build:
-      - Windows: 
+      - Windows:
         - `"\Program Files\CMake\bin\cmake.exe" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release`
         - `mingw32-make`
     - Configure credentials

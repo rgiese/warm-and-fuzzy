@@ -1,16 +1,11 @@
 #include <Particle.h>
-
-#include "PietteTech_DHT.h"
-
 #include <math.h>
 
-#include "inc/CoreDefs.h"
-
+#include "PietteTech_DHT.h"
 #include "inc/Activity.h"
-#include "inc/Thermostat.h"
-
 #include "inc/Configuration.h"
-
+#include "inc/CoreDefs.h"
+#include "inc/Thermostat.h"
 #include "onewire/OneWireGateway2484.h"
 #include "onewire/OneWireTemperatureSensor.h"
 
