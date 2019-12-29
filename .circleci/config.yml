@@ -24,6 +24,9 @@ jobs:
       # Check out source
       - checkout
 
+      # Install external tools
+      - run: apt-get install -y cmake
+
       # Init external dependencies
       - run: git submodule update --init --recursive
 
@@ -251,7 +254,7 @@ workflows:
   cpp:
     jobs:
       - cpptest
-      
+
   api:
     jobs:
       - build
