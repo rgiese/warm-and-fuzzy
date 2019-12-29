@@ -14,7 +14,9 @@
     "./thermostat"
   ],
   "scripts": {
+    "prebuild": "npm-run-all codegen:*",
     "build": "node firmware-build-tool/run.js build -p thermostat",
+    "codegen:flatbuffers": "node firmware-build-tool/run.js codegen -p thermostat",
     "flash": "node firmware-build-tool/run.js flash -p thermostat",
     "format:check": "cross-var prettier --check $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h}",
     "format:fix": "cross-var prettier --write $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h} -i",
@@ -26,7 +28,6 @@
   },
   "devDependencies": {
     "clang-format": "^1.2.4",
-    "cross-var": "^1.1.0",
     "glob": "^7.1.4",
     "oclif": "^1.13.1",
     "particle-api-js": "^7.4.1",
