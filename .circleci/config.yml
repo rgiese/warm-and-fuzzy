@@ -9,6 +9,7 @@ executors:
     docker:
       # c.f. https://github.com/CircleCI-Public/circleci-dockerfiles/tree/master/node/images
       - image: circleci/node:12.6.0-stretch
+      - image: gcc:9.2
     working_directory: ~/warm-and-fuzzy
 
   android-executor:
@@ -17,6 +18,26 @@ executors:
     working_directory: ~/warm-and-fuzzy
 
 jobs:
+  cpptest:
+    executor: node-executor
+    steps:
+      # Check out source
+      - checkout
+
+      # Init external dependencies
+      - run: git submodule update --init --recursive
+
+      # Build external dependencies: flatbuffers
+      - run:
+          name: Build flatbuffers makefiles
+          command: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+          working_directory: ./external/flatbuffers
+
+      - run:
+          name: Build flatbuffers
+          command: make
+          working_directory: ./external/flatbuffers
+
   #
   # API jobs
   #
@@ -227,6 +248,10 @@ jobs:
 workflows:
   version: 2
 
+  cpp:
+    jobs:
+      - cpptest
+      
   api:
     jobs:
       - build
