@@ -5,14 +5,9 @@ orbs:
   aws-cli: circleci/aws-cli@0.1.13
 
 executors:
-  node-executor:
+  grumpy-executor:
     docker:
-      - image: grumpycorp/warm-and-fuzzy-ci:1
-    working_directory: ~/warm-and-fuzzy
-
-  android-executor:
-    docker:
-      - image: circleci/android:api-28-node
+      - image: grumpycorp/warm-and-fuzzy-ci:2
     working_directory: ~/warm-and-fuzzy
 
 jobs:
@@ -21,7 +16,7 @@ jobs:
   #
 
   build:
-    executor: node-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -53,7 +48,7 @@ jobs:
             - packages
 
   api-deploy:
-    executor: node-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -90,7 +85,7 @@ jobs:
             fi
 
   firmware-deploy:
-    executor: node-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -122,7 +117,7 @@ jobs:
   #
 
   mobile-build:
-    executor: android-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -156,7 +151,7 @@ jobs:
             - packages
 
   mobile-publish:
-    executor: android-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
