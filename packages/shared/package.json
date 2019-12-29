@@ -17,9 +17,7 @@
   "scripts": {
     "prebuild": "npm-run-all codegen:*",
     "build": "tsc",
-    "codegen:flatbuffers": "run-script-os",
-    "codegen:flatbuffers:win32": "cross-var copy $GRUMPYCORP_ROOT\\flatbuffers\\js\\flatbuffers.js .\\src\\generated\\flatbuffers.js && cross-var $GRUMPYCORP_ROOT\\flatbuffers\\flatc.exe --ts -o src\\generated\\ src\\schema\\firmware.fbs",
-    "codegen:flatbuffers:default": "cross-var cp $GRUMPYCORP_ROOT/flatbuffers/js/flatbuffers.js ./src/generated/flatbuffers.js && cross-var $GRUMPYCORP_ROOT/flatbuffers/flatc --ts -o ./src/generated/ ./src/schema/firmware.fbs",
+    "codegen:flatbuffers": "node ./codegen-flatbuffers.js",
     "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
     "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,graphql,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
