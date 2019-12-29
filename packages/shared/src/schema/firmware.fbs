@@ -1,0 +1,24 @@
+namespace WarmAndFuzzy.Firmware;
+
+enum ThermostatAction : ubyte (bit_flags) { Heat, Cool, Circulate }
+
+struct Temperature {
+  ///
+  /// Stores a float value multiplied by 100, e.g. a temperature of 16.5 is stored as a 165.
+  /// Given that we're really just dealing with a range of 0-100,
+  /// a multiplied-out range of 0-10000 fits just fine into a uint16.
+  ///
+  x100: uint16;
+}
+
+table ThermostatConfiguration {
+  threshold: Temperature;
+  cadence: uint16;
+  externalSensorId: uint64;
+
+  allowedActions: ThermostatAction = Heat;
+  setPointHeat: Temperature;
+  setPointCool: Temperature;
+}
+
+root_type ThermostatConfiguration;
