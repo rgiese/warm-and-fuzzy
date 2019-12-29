@@ -2,10 +2,14 @@
 #include <math.h>
 
 #include "PietteTech_DHT.h"
-#include "inc/Activity.h"
-#include "inc/Configuration.h"
+
 #include "inc/CoreDefs.h"
+
+#include "inc/Activity.h"
 #include "inc/Thermostat.h"
+
+#include "inc/Configuration.h"
+
 #include "onewire/OneWireGateway2484.h"
 #include "onewire/OneWireTemperatureSensor.h"
 

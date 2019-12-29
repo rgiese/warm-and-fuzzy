@@ -1,10 +1,11 @@
-#include "inc/Thermostat.h"
-
 #include <Particle.h>
 
-#include "inc/Activity.h"
-#include "inc/Configuration.h"
 #include "inc/CoreDefs.h"
+
+#include "inc/Activity.h"
+#include "inc/Thermostat.h"
+
+#include "inc/Configuration.h"
 
 Thermostat::Thermostat()
     : m_CurrentActions()
