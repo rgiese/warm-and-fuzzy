@@ -16,31 +16,6 @@ executors:
     working_directory: ~/warm-and-fuzzy
 
 jobs:
-  cpptest:
-    executor: node-executor
-    steps:
-      # Check out source
-      - checkout
-
-      - run: ls /usr/grumpycorp
-      - run: printenv
-      # Install external tools
-      #- run: sudo apt-get install -y cmake
-
-      # Init external dependencies
-      #- run: git submodule update --init --recursive
-
-      # Build external dependencies: flatbuffers
-      #- run:
-      #    name: Build flatbuffers makefiles
-      #    command: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-      #    working_directory: ./external/flatbuffers
-
-      #- run:
-      #    name: Build flatbuffers
-      #    command: make
-      #    working_directory: ./external/flatbuffers
-
   #
   # API jobs
   #
@@ -250,10 +225,6 @@ jobs:
 
 workflows:
   version: 2
-
-  cpp:
-    jobs:
-      - cpptest
 
   api:
     jobs:
