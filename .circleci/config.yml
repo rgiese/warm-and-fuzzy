@@ -186,7 +186,7 @@ jobs:
 workflows:
   version: 2
 
-  api:
+  api-and-firmware:
     jobs:
       - build:
           context: warm-and-fuzzy-particle
