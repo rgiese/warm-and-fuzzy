@@ -16,7 +16,7 @@
     "encrypt-secrets": "lerna run encrypt-secrets --parallel",
     "format:fix": "lerna run format:fix --parallel",
     "lint:fix": "lerna run lint:fix --parallel",
-    "ci:frontend": "lerna bootstrap && lerna run build --ignore @grumpycorp/warm-and-fuzzy-api --stream",
+    "ci:frontend": "lerna bootstrap && lerna run build --ignore @grumpycorp/warm-and-fuzzy-{api,firmware} --stream",
     "deploy:dev": "lerna run deploy:dev --stream",
     "deploy:prod": "lerna run deploy:prod --stream",
     "deploy-mobile:dev": "lerna run deploy-mobile:dev --stream",
