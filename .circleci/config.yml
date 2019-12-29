@@ -7,9 +7,7 @@ orbs:
 executors:
   node-executor:
     docker:
-      # c.f. https://github.com/CircleCI-Public/circleci-dockerfiles/tree/master/node/images
-      - image: circleci/node:12.6.0-stretch
-      - image: gcc:9.2
+      - image: grumpycorp/warm-and-fuzzy-ci:1
     working_directory: ~/warm-and-fuzzy
 
   android-executor:
@@ -24,22 +22,23 @@ jobs:
       # Check out source
       - checkout
 
+      - run: ls /usr/grumpycorp
       # Install external tools
-      - run: sudo apt-get install -y cmake
+      #- run: sudo apt-get install -y cmake
 
       # Init external dependencies
-      - run: git submodule update --init --recursive
+      #- run: git submodule update --init --recursive
 
       # Build external dependencies: flatbuffers
-      - run:
-          name: Build flatbuffers makefiles
-          command: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-          working_directory: ./external/flatbuffers
+      #- run:
+      #    name: Build flatbuffers makefiles
+      #    command: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+      #    working_directory: ./external/flatbuffers
 
-      - run:
-          name: Build flatbuffers
-          command: make
-          working_directory: ./external/flatbuffers
+      #- run:
+      #    name: Build flatbuffers
+      #    command: make
+      #    working_directory: ./external/flatbuffers
 
   #
   # API jobs
