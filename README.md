@@ -31,7 +31,9 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
     - make sure `%ANDROID_SDK_ROOT%/platform-tools` is on the system path so that `adb` is available.
   - For API and firmware development:
     - Install dependencies
-      - Windows: `choco install awscli cmake mingw`
+      - Windows: 
+        - `choco install awscli cmake mingw`
+        - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
     - Set the environment variable `GRUMPYCORP_ROOT` to point to the parent directory of this repo
     - In that directory, `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
       - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
@@ -41,6 +43,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - `mingw32-make`
     - Configure credentials
       - `aws configure` with `AWS Access Key ID` = `AKIA...`, `AWW Secret Access Key` = password on file, `Default region name` = `us-west-2`
+      - Set the environment variable `PARTICLE_ACCESS_TOKEN` to a Particle API token (generate with `particle token create`)
   - `npm install`
   - `lerna bootstrap`
   - `lerna run decrypt-secrets` (make sure `WAF_GIT_SECRETS_KEY` is present in the environment)
