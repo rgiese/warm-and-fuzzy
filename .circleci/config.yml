@@ -25,7 +25,7 @@ jobs:
       - checkout
 
       # Install external tools
-      - run: apt-get install -y cmake
+      - run: sudo apt-get install -y cmake
 
       # Init external dependencies
       - run: git submodule update --init --recursive
