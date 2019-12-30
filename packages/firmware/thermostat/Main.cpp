@@ -205,7 +205,7 @@ void loop()
             }
 
             // Make sure it has a reported value
-            if (isnan(rgExternalTemperatures[idxAddress]))
+            if (std::isnan(rgExternalTemperatures[idxAddress]))
             {
                 continue;
             }

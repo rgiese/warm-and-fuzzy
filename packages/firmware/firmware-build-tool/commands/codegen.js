@@ -39,30 +39,38 @@ class CodegenCommand extends Command {
 
     const flatbuffersRoot = path.join(grumpycorpRoot, "flatbuffers");
 
+    const fixIncludePathsInFile = fileName => {
+      // Modify include locations from "flatbuffers/{foo.h}" to "{foo.h}"
+      // because we don't get to set additional include roots with the Particle compiler
+      const fileContent = fs.readFileSync(fileName).toString();
+
+      const fixedUpFileContent = fileContent.replace('#include "flatbuffers/', '#include "');
+
+      fs.writeFileSync(fileName, fixedUpFileContent);
+    };
+
     // Run codegen
     ["firmware.fbs"].map(fbs => {
       const flatbuffersSchema = path.join(schemasRoot, fbs);
       this.log(`Processing ${flatbuffersSchema}`);
+
       execSync(`${flatbuffersRoot}/flatc --cpp -o ${projectGeneratedRoot} ${flatbuffersSchema}`, {
         stdio: "inherit",
       });
+
+      fixIncludePathsInFile(path.join(projectGeneratedRoot, fbs.replace(".fbs", "_generated.h")));
     });
 
     // Copy C++ headers
-    const flatbuffersIncludesDestination = path.join(projectGeneratedRoot, "flatbuffers");
-
-    if (!fs.existsSync(flatbuffersIncludesDestination)) {
-      fs.mkdirSync(flatbuffersIncludesDestination);
-    }
-
     const flatbuffersIncludesSource = path.join(flatbuffersRoot, "include/flatbuffers");
 
-    ["flatbuffers.h", "base.h"].map(header => {
+    ["flatbuffers.h", "base.h", "stl_emulation.h"].map(header => {
       const source = path.join(flatbuffersIncludesSource, header);
-      const destination = path.join(flatbuffersIncludesDestination, header);
+      const destination = path.join(projectGeneratedRoot, header);
 
-      this.log(`Copying ${source} -> ${destination}`);
+      this.log(`Rewriting ${source} -> ${destination}`);
       fs.copyFileSync(source, destination);
+      fixIncludePathsInFile(destination);
     });
   }
 }

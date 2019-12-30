@@ -9,6 +9,8 @@
 
 #include "../onewire/OneWireAddress.h"
 
+#include "../generated/firmware_generated.h"
+
 //
 // A note on EEPROM emulation on Particle devices:
 // (c.f. https://github.com/particle-iot/device-os/blob/develop/services/inc/eeprom_emulation.h)

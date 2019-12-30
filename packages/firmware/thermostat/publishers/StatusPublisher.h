@@ -36,14 +36,14 @@ public:
         ++m_SerialNumber;
 
         // Status
-        sb.AppendFormat(",\"t\":%.1f", !isnan(operableTemperature) ? operableTemperature : 0.0f);
+        sb.AppendFormat(",\"t\":%.1f", !std::isnan(operableTemperature) ? operableTemperature : 0.0f);
 
         if (fUsedExternalSensor)
         {
-            sb.AppendFormat(",\"t2\":%.1f", !isnan(onboardTemperature) ? onboardTemperature : 0.0f);
+            sb.AppendFormat(",\"t2\":%.1f", !std::isnan(onboardTemperature) ? onboardTemperature : 0.0f);
         }
 
-        sb.AppendFormat(",\"h\":%.1f", !isnan(onboardHumidity) ? onboardHumidity : 0.0f);
+        sb.AppendFormat(",\"h\":%.1f", !std::isnan(onboardHumidity) ? onboardHumidity : 0.0f);
 
         sb.Append(",\"ca\":\"");
         currentActions.AppendToStringBuilder(sb);
@@ -66,7 +66,7 @@ public:
 
             for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
             {
-                if (isnan(rgExternalTemperatures[idxAddress]))
+                if (std::isnan(rgExternalTemperatures[idxAddress]))
                 {
                     continue;
                 }
