@@ -54,9 +54,12 @@ class CodegenCommand extends Command {
       const flatbuffersSchema = path.join(schemasRoot, fbs);
       this.log(`Processing ${flatbuffersSchema}`);
 
-      execSync(`${flatbuffersRoot}/flatc --cpp -o ${projectGeneratedRoot} ${flatbuffersSchema}`, {
-        stdio: "inherit",
-      });
+      execSync(
+        `${flatbuffersRoot}/flatc --cpp --scoped-enums -o ${projectGeneratedRoot} ${flatbuffersSchema}`,
+        {
+          stdio: "inherit",
+        }
+      );
 
       fixIncludePathsInFile(path.join(projectGeneratedRoot, fbs.replace(".fbs", "_generated.h")));
     });
