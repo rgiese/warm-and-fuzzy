@@ -6,9 +6,9 @@
 #include "inc/CoreDefs.h"
 
 #include "inc/Activity.h"
-#include "inc/Thermostat.h"
-
 #include "inc/Configuration.h"
+
+#include "inc/Thermostat.h"
 
 #include "onewire/OneWireGateway2484.h"
 #include "onewire/OneWireTemperatureSensor.h"
@@ -18,7 +18,7 @@
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(12);  // Increment for each release
+PRODUCT_VERSION(13);  // Increment for each release
 
 
 //
@@ -176,26 +176,13 @@ void loop()
         }
     }
 
-    //
-    // Snap a copy of the configuration so we don't get tearing
-    // if there's a config update on another thread.
-    //
-
-    g_fReceivedConfigurationUpdate = false;
-    Configuration const snappedConfiguration(g_Configuration);
-
-    //
-    // Apply configuration
-    //
-
     // Override onboard temperature if requested and available
+    OneWireAddress const externalSensorId(g_Configuration.rootConfiguration().externalSensorId());
     float operableTemperature = onboardTemperature;
     bool fUsedExternalSensor = false;
 
-    if (!snappedConfiguration.ExternalSensorId().IsEmpty())
+    if (!externalSensorId.IsEmpty())
     {
-        OneWireAddress const& externalSensorId = snappedConfiguration.ExternalSensorId();
-
         for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
         {
             // Find sensor by address
@@ -228,7 +215,7 @@ void loop()
     // Apply data
     //
 
-    g_Thermostat.Apply(snappedConfiguration, operableTemperature);
+    g_Thermostat.Apply(g_Configuration, operableTemperature);
 
     //
     // Publish data
@@ -236,7 +223,7 @@ void loop()
 
     {
         Activity publishActivity("PublishStatus");
-        g_StatusPublisher.Publish(snappedConfiguration,
+        g_StatusPublisher.Publish(g_Configuration,
                                   g_Thermostat.CurrentActions(),
                                   fUsedExternalSensor,
                                   operableTemperature,
@@ -268,7 +255,7 @@ void loop()
             unsigned long const currentTime_msec = millis();
             unsigned long const timeSinceLastLoopStart_msec = currentTime_msec - loopStartTime_msec;
 
-            unsigned long const loopDesiredCadence_msec = snappedConfiguration.Cadence() * 1000;
+            unsigned long const loopDesiredCadence_msec = g_Configuration.rootConfiguration().cadence() * 1000;
 
             if (timeSinceLastLoopStart_msec > loopDesiredCadence_msec)
             {

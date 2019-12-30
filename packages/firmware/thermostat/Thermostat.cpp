@@ -3,12 +3,12 @@
 #include "inc/CoreDefs.h"
 
 #include "inc/Activity.h"
-#include "inc/Thermostat.h"
-
 #include "inc/Configuration.h"
 
+#include "inc/Thermostat.h"
+
 Thermostat::Thermostat()
-    : m_CurrentActions()
+    : m_CurrentActions(ThermostatAction::NONE)
 {
 }
 
@@ -29,43 +29,50 @@ void Thermostat::Initialize()
 void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperature)
 {
     // Compute proposed action, defaulting to continuing the current course of action
-    Thermostat::Actions proposedActions = m_CurrentActions;
+    ThermostatAction proposedActions = m_CurrentActions;
+
+    float const setPointHeat = Configuration::getTemperature(Configuration.rootConfiguration().setPointHeat_x100());
+    float const setPointCool = Configuration::getTemperature(Configuration.rootConfiguration().setPointCool_x100());
+    float const threshold = Configuration::getTemperature(Configuration.rootConfiguration().threshold_x100());
 
     // Heat
-    if (m_CurrentActions.Heat && CurrentTemperature > (Configuration.SetPointHeat() + Configuration.Threshold()))
+    if (!!(m_CurrentActions & ThermostatAction::Heat) && CurrentTemperature > (setPointHeat + threshold))
     {
-        proposedActions.Heat = false;
+        // Turn off heat
+        proposedActions &= ~ThermostatAction::Heat;
     }
-    else if (!m_CurrentActions.Heat && CurrentTemperature < (Configuration.SetPointHeat() - Configuration.Threshold()))
+    else if (!(m_CurrentActions & ThermostatAction::Heat) && CurrentTemperature < (setPointHeat - threshold))
     {
-        proposedActions.Heat = true;
+        // Turn on heat
+        proposedActions |= ThermostatAction::Heat;
     }
 
     // Cool
-    if (m_CurrentActions.Cool && CurrentTemperature < (Configuration.SetPointCool() - Configuration.Threshold()))
+    if (!!(m_CurrentActions & ThermostatAction::Cool) && CurrentTemperature < (setPointCool - threshold))
     {
-        proposedActions.Cool = false;
+        // Turn off cooling
+        proposedActions &= ~ThermostatAction::Cool;
     }
-    else if (!m_CurrentActions.Cool && CurrentTemperature > (Configuration.SetPointCool() + Configuration.Threshold()))
+    else if (!(m_CurrentActions & ThermostatAction::Cool) && CurrentTemperature > (setPointCool + threshold))
     {
-        proposedActions.Cool = true;
+        // Turn on cooling
+        proposedActions |= ThermostatAction::Cool;
     }
 
     // Circulate - whenever allowed
     // FUTURE: circulate up/down to some threshold, or to some delta to another thermostat?
-    proposedActions.Circulate = true;
+    proposedActions |= ThermostatAction::Circulate;
 
     // Intersect with allowed actions
-    proposedActions = proposedActions & Configuration.AllowedActions();
+    proposedActions = proposedActions & Configuration.rootConfiguration().allowedActions();
 
     // Error checks
-    if (proposedActions.Heat && proposedActions.Cool)
+    if (!!(proposedActions & (ThermostatAction::Heat | ThermostatAction::Cool)))
     {
         // This shouldn't ever happen - bail on all actions to be safe.
         Serial.println("Thermostat: simultaneous heat and cool proposed, going inactive.");
 
-        proposedActions.Heat = false;
-        proposedActions.Cool = false;
+        proposedActions &= ~(ThermostatAction::Heat | ThermostatAction::Cool);
     }
 
     // Commit
@@ -73,7 +80,7 @@ void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperat
     ApplyActions(m_CurrentActions);
 }
 
-void Thermostat::ApplyActions(Thermostat::Actions const& Actions)
+void Thermostat::ApplyActions(ThermostatAction const& Actions)
 {
     //
     // Relays are used in the following configuration:
@@ -90,7 +97,8 @@ void Thermostat::ApplyActions(Thermostat::Actions const& Actions)
     // but there's no value in adding the complexity to make this configurable for other setups until needed...
     //
 
-    digitalWrite(sc_RelayPin_Heat, Actions.Heat || Actions.Cool);
-    digitalWrite(sc_RelayPin_SwitchOver, Actions.Cool);
-    digitalWrite(sc_RelayPin_Circulate, Actions.Heat || Actions.Cool || Actions.Circulate);
+    digitalWrite(sc_RelayPin_Heat, !!(Actions & (ThermostatAction::Heat | ThermostatAction::Cool)));
+    digitalWrite(sc_RelayPin_SwitchOver, !!(Actions & ThermostatAction::Cool));
+    digitalWrite(sc_RelayPin_Circulate,
+                 !!(Actions & (ThermostatAction::Heat | ThermostatAction::Cool | ThermostatAction::Circulate)));
 }

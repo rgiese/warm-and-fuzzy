@@ -20,7 +20,7 @@ public:
 
 public:
     void Publish(Configuration const& configuration,
-                 Thermostat::Actions const& currentActions,
+                 ThermostatAction const& currentActions,
                  bool const fUsedExternalSensor,
                  float const operableTemperature,
                  float const onboardTemperature,
@@ -46,17 +46,17 @@ public:
         sb.AppendFormat(",\"h\":%.1f", !std::isnan(onboardHumidity) ? onboardHumidity : 0.0f);
 
         sb.Append(",\"ca\":\"");
-        currentActions.AppendToStringBuilder(sb);
+        appendActionsToStringBuilder(sb, currentActions);
         sb.Append("\"");
 
         // Configuration
         sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"th\":%.2f",
-                        configuration.SetPointHeat(),
-                        configuration.SetPointCool(),
-                        configuration.Threshold());
+                        Configuration::getTemperature(configuration.rootConfiguration().setPointHeat_x100()),
+                        Configuration::getTemperature(configuration.rootConfiguration().setPointCool_x100()),
+                        Configuration::getTemperature(configuration.rootConfiguration().threshold_x100()));
 
         sb.Append(",\"aa\":\"");
-        configuration.AllowedActions().AppendToStringBuilder(sb);
+        appendActionsToStringBuilder(sb, configuration.rootConfiguration().allowedActions());
         sb.Append("\"}");
 
         // Measurements
@@ -102,4 +102,24 @@ private:
 private:
     QueuedPublisher<cchEventData, 8> m_QueuedPublisher;
     uint32_t m_SerialNumber;
+
+private:
+    template <typename T>
+    void appendActionsToStringBuilder(T& stringBuilder, ThermostatAction const& actions) const
+    {
+        if (!!(actions & ThermostatAction::Heat))
+        {
+            stringBuilder.Append("H");
+        }
+
+        if (!!(actions & ThermostatAction::Cool))
+        {
+            stringBuilder.Append("C");
+        }
+
+        if (!!(actions & ThermostatAction::Circulate))
+        {
+            stringBuilder.Append("R");
+        }
+    }
 };
