@@ -9,7 +9,6 @@ import { ThermostatConfiguration } from "../../shared/db";
 import * as ThermostatConfigurationAdapter from "../../shared/firmware/thermostatConfigurationAdapter";
 
 import unmarshall from "../unmarshall";
-import shallowEqual from "../shallowEqual";
 
 const SSM = new AWS.SSM();
 
@@ -41,7 +40,7 @@ export const dynamoStream: DynamoDBStreamHandler = async (
     // - accumulate in a map so multiple updates to a single device don't result in multiple deliveries
     //
 
-    const updatesMap = new Map<string, ThermostatConfigurationAdapter.FirmwareConfiguration>();
+    const updatesMap = new Map<string, string>();
 
     event.Records.forEach((record): void => {
       if (record.eventName != "MODIFY") {
@@ -62,7 +61,7 @@ export const dynamoStream: DynamoDBStreamHandler = async (
       const newFirmwareConfig = ThermostatConfigurationAdapter.firmwareFromModel(newRecord);
 
       // Record updates that need delivering
-      if (!shallowEqual(oldFirmwareConfig, newFirmwareConfig)) {
+      if (oldFirmwareConfig !== newFirmwareConfig) {
         updatesMap.set(newRecord.id, newFirmwareConfig);
       } else {
         console.log(`Ignoring immaterial update for device ${newRecord.id}`);
