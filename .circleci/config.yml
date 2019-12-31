@@ -1,13 +1,10 @@
 # c.f. https://circleci.com/docs/2.0/language-javascript/
 version: 2.1
 
-orbs:
-  aws-cli: circleci/aws-cli@0.1.13
-
 executors:
   grumpy-executor:
     docker:
-      - image: grumpycorp/warm-and-fuzzy-ci:2
+      - image: grumpycorp/warm-and-fuzzy-ci:3
     working_directory: ~/warm-and-fuzzy
 
 jobs:
@@ -70,9 +67,10 @@ jobs:
 
       # (Don't save cache again, we'll just let `build` deal with it)
 
-      # Configure AWS toolchain
-      - aws-cli/install
-      - aws-cli/configure
+      # Configure AWS CLI
+      - run: aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      - run: aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      - run: aws configure set region $AWS_DEFAULT_REGION
 
       # Deploy
       - run:
