@@ -41,7 +41,6 @@ OneWireGateway2484 g_OneWireGateway;
 
 // Configuration
 Configuration g_Configuration;
-bool g_fReceivedConfigurationUpdate;
 
 // Services
 Thermostat g_Thermostat;
@@ -79,7 +78,6 @@ void setup()
 
     // Set up configuration
     g_Configuration.Initialize();
-    g_fReceivedConfigurationUpdate = false;
 
     Serial.print("Current configuration: ");
     g_Configuration.PrintConfiguration();
@@ -123,6 +121,20 @@ void loop()
     }
 
     s_LastLoopEnterTime_msec = loopStartTime_msec;
+
+    //
+    // Ingest any configuration updates submitted by events
+    //
+
+    {
+        bool const fUpdatedConfiguration = g_Configuration.AcceptPendingUpdates();
+
+        if (fUpdatedConfiguration)
+        {
+            Serial.print("Accepted updated configuration: ");
+            g_Configuration.PrintConfiguration();
+        }
+    }
 
     //
     // Acquire data
@@ -263,7 +275,7 @@ void loop()
                 break;
             }
 
-            if (g_fReceivedConfigurationUpdate)
+            if (g_Configuration.HasPendingUpdates())
             {
                 // Skip remaining delay so we can act on the latest configuration changes right away
                 break;
@@ -284,19 +296,58 @@ void loop()
 
 Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, char const* const szSource)
 {
-    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(szData);
+    //
+    // szData should be text-encoded binary data
+    // trailed with a format- and version-identifying magic string ("1Z85")
+    // and enclosed in quotes
+    //
 
-    if (configUpdateResult != Configuration::ConfigUpdateResult::Invalid)
+    static char constexpr rgMagic[] = "1Z85";
+    size_t const cchMagic = strlen(rgMagic);
+
+    // Check for correct header
+    size_t const cchData = strlen(szData);
+    size_t const cchData_Min = cchMagic + 2 /* quotes */;
+
+    if (cchData < cchData_Min)
     {
-        bool const fUpdatedConfig = (configUpdateResult == Configuration::ConfigUpdateResult::Updated);
+        Serial.println("-- Configuration invalid: too short");
+        return Configuration::ConfigUpdateResult::Invalid;
+    }
 
-        if (fUpdatedConfig)
-        {
-            g_fReceivedConfigurationUpdate = true;
-        }
+    if (cchData > static_cast<uint16_t>(-1))
+    {
+        Serial.println("-- Configuration invalid: too long");
+        return Configuration::ConfigUpdateResult::Invalid;
+    }
 
-        Serial.printf("%s configuration from %s: ", fUpdatedConfig ? "Updated" : "Retained", szSource);
-        g_Configuration.PrintConfiguration();
+    if (strncmp(szData + 1 /* quote */, rgMagic, cchMagic) != 0)
+    {
+        Serial.println("-- Configuration invalid: wrong magic");
+        return Configuration::ConfigUpdateResult::Invalid;
+    }
+
+    uint16_t const cbConfigData = cchData - cchMagic - 2 /* quotes */;
+    uint8_t const* const rgConfigData = reinterpret_cast<uint8_t const*>(szData + 1 /* quote */ + cchMagic);
+
+    // Submit update
+    Configuration::ConfigUpdateResult const configUpdateResult =
+        g_Configuration.SubmitUpdate(rgConfigData, cbConfigData);
+
+    // Report results
+    switch (configUpdateResult)
+    {
+        case Configuration::ConfigUpdateResult::Invalid:
+            Serial.printlnf("!! Configuration from %s was invalid, ignoring.", szSource);
+            break;
+
+        case Configuration::ConfigUpdateResult::Retained:
+            Serial.printlnf("Retained existing configuration after %s.", szSource);
+            break;
+
+        case Configuration::ConfigUpdateResult::Accepted:
+            Serial.printlnf("Updating existing configuration from %s.", szSource);
+            break;
     }
 
     return configUpdateResult;

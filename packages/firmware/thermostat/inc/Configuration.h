@@ -6,6 +6,7 @@
 
 #include "../generated/firmware_generated.h"
 #include "../onewire/OneWireAddress.h"
+#include "Z85.h"
 
 //
 // A note on EEPROM emulation on Particle devices:
@@ -42,8 +43,8 @@ public:
         : m_Data()
         , m_pConfiguration()
         , m_cbPendingData()
-        , m_PendingData()
-        , m_Mutex()
+        , m_rgPendingData()
+        , m_UpdateMutex()
     {
     }
 
@@ -78,8 +79,6 @@ public:
         // Load header from EEPROM
         EEPROM.get(sc_EEPROMAddress, m_Data);
 
-        uint16_t const cbFlatbufferData = m_Data.Header.cbData - sizeof(ConfigurationHeader);
-
         // Header checks
         if (m_Data.Header.Signature != ConfigurationHeader::sc_Signature)
         {
@@ -89,15 +88,14 @@ public:
         {
             LoadDefaults();
         }
-        else if ((m_Data.Header.cbData < sizeof(ConfigurationHeader)) ||
-                 (cbFlatbufferData > ConfigurationData::sc_cbFlatbufferData_Max))
+        else if (!m_Data.cbFlatbufferData || (m_Data.cbFlatbufferData > sizeof(m_Data.rgFlatbufferData)))
         {
             LoadDefaults();
         }
 
         // Payload checks
         {
-            flatbuffers::Verifier verifier(m_Data.rgFlatbufferData, cbFlatbufferData);
+            flatbuffers::Verifier verifier(m_Data.rgFlatbufferData, m_Data.cbFlatbufferData);
             if (!Flatbuffers::Firmware::VerifyThermostatConfigurationBuffer(verifier))
             {
                 LoadDefaults();
@@ -111,13 +109,79 @@ public:
     enum class ConfigUpdateResult
     {
         Retained,
-        Updated,
+        Accepted,
         Invalid,
     };
 
-    ConfigUpdateResult UpdateFromString(char const* const szData)
+    ConfigUpdateResult SubmitUpdate(uint8_t const* const rgConfigurationData, uint16_t const cbConfigurationData)
     {
-        return ConfigUpdateResult::Retained;
+        LockGuard autoLock(m_UpdateMutex);
+
+        // Mark buffer as empty
+        m_cbPendingData = 0;
+
+        // Decode into buffer
+        uint16_t const cbPendingData =
+            Z85::DecodeBytes(m_rgPendingData, sizeof(m_rgPendingData), rgConfigurationData, cbConfigurationData);
+
+        if (!cbPendingData)
+        {
+            Serial.println("!! Z85::Decode rejected configuration text");
+            return ConfigUpdateResult::Invalid;
+        }
+
+        // Validate flatbuffer
+        flatbuffers::Verifier verifier(m_rgPendingData, cbPendingData);
+        if (!Flatbuffers::Firmware::VerifyThermostatConfigurationBuffer(verifier))
+        {
+            Serial.println("!! Couldn't verify new configuration flatbuffer");
+            return ConfigUpdateResult::Invalid;
+        }
+
+        // Check if config has changed
+        if (cbPendingData == m_Data.cbFlatbufferData &&
+            memcmp(m_rgPendingData, m_Data.rgFlatbufferData, cbPendingData) == 0)
+        {
+            return ConfigUpdateResult::Retained;
+        }
+
+        // Commit changing buffer
+        m_cbPendingData = cbPendingData;
+
+        return ConfigUpdateResult::Accepted;
+    }
+
+    bool AcceptPendingUpdates()
+    {
+        LockGuard autoLock(m_UpdateMutex);
+
+        if (!HasPendingUpdates())
+        {
+            // Nothing to do
+            return false;
+        }
+
+        // Copy data (should have been pre-verified on all fronts)
+        memcpy(m_Data.rgFlatbufferData, m_rgPendingData, m_cbPendingData);
+        m_Data.cbFlatbufferData = m_cbPendingData;
+
+        // Persist data
+        EEPROM.put(sc_EEPROMAddress, m_Data);
+
+        // Re-mount Flatbuffer data for reading
+        m_pConfiguration = Flatbuffers::Firmware::GetThermostatConfiguration(m_Data.rgFlatbufferData);
+
+        // Clear pending data
+        m_cbPendingData = 0;
+
+        return true;
+    }
+
+    bool HasPendingUpdates() const
+    {
+        LockGuard autoLock(m_UpdateMutex);
+
+        return !!m_cbPendingData;
     }
 
     //
@@ -152,12 +216,10 @@ private:
     {
         uint16_t Signature;
         uint16_t Version;
-        uint16_t cbData;
 
         ConfigurationHeader()
             : Signature()
             , Version()
-            , cbData()
         {
         }
 
@@ -165,12 +227,27 @@ private:
         static constexpr uint16_t sc_CurrentVersion = 3;
     };
 
+    static constexpr uint16_t sc_cbFlatbufferData_Max = 256;
+
     struct ConfigurationData
     {
         ConfigurationHeader Header;
 
-        static constexpr uint16_t sc_cbFlatbufferData_Max = 256;
-        uint8_t rgFlatbufferData[sc_cbFlatbufferData_Max];
+        //
+        // Flatbuffers will lay out their data structures with correct alignment;
+        // we just need to make sure the base of the Flatbuffer data is correctly aligned
+        // -> alignas() below.
+        //
+
+        uint16_t cbFlatbufferData;
+        alignas(alignof(uint64_t)) uint8_t rgFlatbufferData[sc_cbFlatbufferData_Max];
+
+        ConfigurationData()
+            : Header()
+            , cbFlatbufferData()
+            , rgFlatbufferData()
+        {
+        }
     };
 
     static constexpr int sc_EEPROMAddress = 0;
@@ -181,26 +258,30 @@ private:
 
     // Pending (to be ingested and written out) state
     uint16_t m_cbPendingData;
-    uint8_t m_PendingData[ConfigurationData::sc_cbFlatbufferData_Max];
+    uint8_t m_rgPendingData[sc_cbFlatbufferData_Max];
 
     // Protects pending state (readable state is always good to read)
-    Mutex m_Mutex;
+    mutable Mutex m_UpdateMutex;
 
 private:
     void LoadDefaults()
     {
+        Serial.println("-- Resetting configuration to defaults");
+
         // Build flatbuffer with default values
-        flatbuffers::FlatBufferBuilder flatbufferBuilder(ConfigurationData::sc_cbFlatbufferData_Max);
+        flatbuffers::FlatBufferBuilder flatbufferBuilder(sizeof(m_Data.rgFlatbufferData));
         {
             auto const rootConfiguration = Flatbuffers::Firmware::CreateThermostatConfiguration(flatbufferBuilder);
             Flatbuffers::Firmware::FinishThermostatConfigurationBuffer(flatbufferBuilder, rootConfiguration);
         }
 
         // Verify size and casting limits
-        if (flatbufferBuilder.GetSize() > ConfigurationData::sc_cbFlatbufferData_Max)
+        if (flatbufferBuilder.GetSize() > sizeof(m_Data.rgFlatbufferData))
         {
             Serial.printlnf("Default configuration size of %u exceeds limits. Bailing.", flatbufferBuilder.GetSize());
-            // TODO: bail
+
+            delay(60 * 1000);
+            System.reset();
         }
 
         // Commit data to RAM
@@ -208,7 +289,7 @@ private:
         m_Data.Header.Version = ConfigurationHeader::sc_CurrentVersion;
 
         memcpy(m_Data.rgFlatbufferData, flatbufferBuilder.GetBufferPointer(), flatbufferBuilder.GetSize());
-        m_Data.Header.cbData = sizeof(ConfigurationHeader) + static_cast<uint16_t>(flatbufferBuilder.GetSize());
+        m_Data.cbFlatbufferData = static_cast<uint16_t>(flatbufferBuilder.GetSize());
 
         // Don't bother committing default data to EEPROM
         // - we'll just overwrite it when we get an updated configuration or reload defaults on the next power cycle.
