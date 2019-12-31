@@ -67,7 +67,7 @@ void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperat
     proposedActions = proposedActions & Configuration.rootConfiguration().allowedActions();
 
     // Error checks
-    if (!!(proposedActions & (ThermostatAction::Heat | ThermostatAction::Cool)))
+    if (!!(proposedActions & ThermostatAction::Heat) && !!(proposedActions & ThermostatAction::Cool))
     {
         // This shouldn't ever happen - bail on all actions to be safe.
         Serial.println("Thermostat: simultaneous heat and cool proposed, going inactive.");
