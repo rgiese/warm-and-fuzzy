@@ -17,9 +17,9 @@
     "prebuild": "npm-run-all codegen:*",
     "build": "node firmware-build-tool/run.js build -p thermostat",
     "codegen:flatbuffers": "node firmware-build-tool/run.js codegen -p thermostat",
-    "flash": "node firmware-build-tool/run.js flash -p thermostat",
     "format:check": "cross-var prettier --check $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h}",
     "format:fix": "cross-var prettier --write $npm_package_config_prettierglob & clang-format --glob=**/*.{cpp,h} -i",
+    "firmware:flash": "node firmware-build-tool/run.js flash -p thermostat",
     "firmware:upload": "node firmware-build-tool/run.js upload -p thermostat -m Main.cpp",
     "firmware:monitor": "node firmware-build-tool/run.js monitor"
   },
