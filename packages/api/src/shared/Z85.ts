@@ -17,7 +17,7 @@ export function Z85Encode(data: Uint8Array): string {
   let asString = "";
 
   const accumulateByte = (currentValue: number): void => {
-    accumulator = (accumulator << 8) + currentValue;
+    accumulator = ((accumulator << 8) + currentValue) >>> 0; // >>> -> coerce as uint32
     ++bytesAccumulated;
 
     if (bytesAccumulated % 4 === 0) {
@@ -25,7 +25,10 @@ export function Z85Encode(data: Uint8Array): string {
 
       while (divisor >= 1) {
         const encoderRingIndex = Math.floor(accumulator / divisor) % 85;
-        asString = asString.concat(encoderRing[encoderRingIndex]);
+        const encodedCharacter = encoderRing[encoderRingIndex];
+
+        asString = asString.concat(encodedCharacter);
+
         divisor /= 85;
       }
 
