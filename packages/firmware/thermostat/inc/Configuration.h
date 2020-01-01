@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
 #include <mutex>
 
 #include "../generated/firmware_generated.h"

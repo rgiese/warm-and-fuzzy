@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
 //
 // Inspired by https://github.com/zeromq/libzmq/blob/8cda54c52b08005b71f828243f22051cdbc482b4/src/zmq_utils.cpp
 //

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
 #define __in
 #define __out
 #define __out_opt

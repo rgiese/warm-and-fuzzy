@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../inc/CoreDefs.h"
 #include "IOneWireGateway.h"
 
 class OneWireGateway2484 : public IOneWireGateway

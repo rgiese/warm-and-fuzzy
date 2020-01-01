@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
 #include "OneWireAddress.h"
 
 class IOneWireGateway

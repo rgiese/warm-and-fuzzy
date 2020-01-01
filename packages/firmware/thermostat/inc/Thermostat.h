@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
 typedef Flatbuffers::Firmware::ThermostatAction ThermostatAction;
 
 class Thermostat

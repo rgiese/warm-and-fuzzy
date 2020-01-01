@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
 #include "../inc/FixedStringBuffer.h"
 #include "../inc/QueuedPublisher.h"
 

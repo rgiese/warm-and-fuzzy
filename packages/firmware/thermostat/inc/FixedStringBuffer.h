@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
 template <uint16_t cchBuffer>
 class FixedStringBuffer
 {
