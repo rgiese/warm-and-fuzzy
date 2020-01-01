@@ -35,8 +35,10 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - `choco install awscli cmake mingw`
         - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
     - Set the environment variable `GRUMPYCORP_ROOT` to point to the parent directory of this repo
-    - In that directory, `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
-      - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
+    - In that directory:
+      - `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
+        - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
+      - `git clone https://github.com/particle-iot/device-os.git` for firmware headers
     - `cd flatbuffers` and build:
       - Windows:
         - `"\Program Files\CMake\bin\cmake.exe" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release`
