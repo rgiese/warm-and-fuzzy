@@ -79,10 +79,8 @@ export const dynamoStream: DynamoDBStreamHandler = async (
     const particleAPIKey = await getParticleAPIKey();
 
     for (const [deviceId, firmwareConfiguration] of updatesMap) {
-      const packedFirmwareConfiguration = JSON.stringify(firmwareConfiguration, null, 0);
-
       console.log(
-        `Delivering updated configuration to device ${deviceId}: ${packedFirmwareConfiguration}`
+        `Delivering updated configuration to device ${deviceId}: ${firmwareConfiguration}`
       );
 
       try {
@@ -90,7 +88,7 @@ export const dynamoStream: DynamoDBStreamHandler = async (
 
         const postResult = await axios.post(
           `https://api.particle.io/v1/devices/${deviceId}/${configPushFunctionName}`,
-          qs.stringify({ arg: packedFirmwareConfiguration }),
+          qs.stringify({ arg: firmwareConfiguration }),
           {
             headers: {
               authorization: `Bearer ${particleAPIKey}`,
