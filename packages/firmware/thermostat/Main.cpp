@@ -311,7 +311,7 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, 
 
     if (cchData < cchData_Min)
     {
-        Serial.println("-- Configuration invalid: too short");
+        Serial.printlnf("-- Configuration invalid: too short: \"%s\"", szData);
         return Configuration::ConfigUpdateResult::Invalid;
     }
 
@@ -323,7 +323,7 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, 
 
     if (strncmp(szData + 1 /* quote */, rgMagic, cchMagic) != 0)
     {
-        Serial.println("-- Configuration invalid: wrong magic");
+        Serial.printlnf("-- Configuration invalid: wrong magic: \"%s\"", szData);
         return Configuration::ConfigUpdateResult::Invalid;
     }
 
@@ -338,7 +338,8 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, 
     switch (configUpdateResult)
     {
         case Configuration::ConfigUpdateResult::Invalid:
-            Serial.printlnf("!! Configuration from %s was invalid, ignoring.", szSource);
+            Serial.printlnf(
+                "!! Configuration from %s \"%.*s\" invalid, ignoring.", szSource, cbConfigData, rgConfigData);
             break;
 
         case Configuration::ConfigUpdateResult::Retained:
