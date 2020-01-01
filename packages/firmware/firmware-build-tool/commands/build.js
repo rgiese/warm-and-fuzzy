@@ -37,12 +37,14 @@ class BuildCommand extends Command {
 
     let projectFilesObject = {};
 
-    glob.sync(`${projectRoot}/**/*.{c,cpp,h,hpp,properties}`).forEach(fileName => {
-      const relativePath = path.relative(projectRoot, fileName).replace("\\", "/");
-      this.log(`  ${relativePath}`);
+    glob
+      .sync(`${projectRoot}/**/*.{c,cpp,h,hpp,properties}`, { ignore: "**/tests/*" })
+      .forEach(fileName => {
+        const relativePath = path.relative(projectRoot, fileName).replace("\\", "/");
+        this.log(`  ${relativePath}`);
 
-      projectFilesObject[relativePath] = fileName;
-    });
+        projectFilesObject[relativePath] = fileName;
+      });
 
     // Compile
     let compileResult;
