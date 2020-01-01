@@ -21,6 +21,7 @@
     "deploy:prod": "lerna run deploy:prod --stream",
     "deploy-mobile:dev": "lerna run deploy-mobile:dev --stream",
     "deploy-mobile:prod": "lerna run deploy-mobile:prod --stream",
+    "deploy-firmware:prod": "lerna run deploy-firmware:prod --stream",
     "start:local:dev": "lerna run start:local:dev --stream",
     "start:local:prod": "lerna run start:local:prod --stream",
     "start:remote:dev": "lerna run start:remote:dev --stream",
