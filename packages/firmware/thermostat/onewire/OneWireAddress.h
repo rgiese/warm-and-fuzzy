@@ -15,6 +15,12 @@ public:
     {
     }
 
+    OneWireAddress(uint64_t const address)
+    {
+        static_assert(sizeof(address) == sizeof(m_Address), "Type mismatch");
+        memcpy(m_Address, &address, sizeof(address));
+    }
+
     void SetBit(size_t idxBit, bool IsSet)
     {
         if (idxBit >= 8 * countof(m_Address))

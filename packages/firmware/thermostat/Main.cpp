@@ -1,15 +1,14 @@
 #include <Particle.h>
+#include <math.h>
 
 #include "PietteTech_DHT.h"
-
-#include <math.h>
 
 #include "inc/CoreDefs.h"
 
 #include "inc/Activity.h"
-#include "inc/Thermostat.h"
-
 #include "inc/Configuration.h"
+
+#include "inc/Thermostat.h"
 
 #include "onewire/OneWireGateway2484.h"
 #include "onewire/OneWireTemperatureSensor.h"
@@ -19,7 +18,7 @@
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(12);  // Increment for each release
+PRODUCT_VERSION(13);  // Increment for each release
 
 
 //
@@ -42,7 +41,6 @@ OneWireGateway2484 g_OneWireGateway;
 
 // Configuration
 Configuration g_Configuration;
-bool g_fReceivedConfigurationUpdate;
 
 // Services
 Thermostat g_Thermostat;
@@ -80,7 +78,6 @@ void setup()
 
     // Set up configuration
     g_Configuration.Initialize();
-    g_fReceivedConfigurationUpdate = false;
 
     Serial.print("Current configuration: ");
     g_Configuration.PrintConfiguration();
@@ -124,6 +121,20 @@ void loop()
     }
 
     s_LastLoopEnterTime_msec = loopStartTime_msec;
+
+    //
+    // Ingest any configuration updates submitted by events
+    //
+
+    {
+        bool const fUpdatedConfiguration = g_Configuration.AcceptPendingUpdates();
+
+        if (fUpdatedConfiguration)
+        {
+            Serial.print("Accepted updated configuration: ");
+            g_Configuration.PrintConfiguration();
+        }
+    }
 
     //
     // Acquire data
@@ -177,26 +188,13 @@ void loop()
         }
     }
 
-    //
-    // Snap a copy of the configuration so we don't get tearing
-    // if there's a config update on another thread.
-    //
-
-    g_fReceivedConfigurationUpdate = false;
-    Configuration const snappedConfiguration(g_Configuration);
-
-    //
-    // Apply configuration
-    //
-
     // Override onboard temperature if requested and available
+    OneWireAddress const externalSensorId(g_Configuration.rootConfiguration().externalSensorId());
     float operableTemperature = onboardTemperature;
     bool fUsedExternalSensor = false;
 
-    if (!snappedConfiguration.ExternalSensorId().IsEmpty())
+    if (!externalSensorId.IsEmpty())
     {
-        OneWireAddress const& externalSensorId = snappedConfiguration.ExternalSensorId();
-
         for (size_t idxAddress = 0; idxAddress < cAddressesFound; ++idxAddress)
         {
             // Find sensor by address
@@ -206,7 +204,7 @@ void loop()
             }
 
             // Make sure it has a reported value
-            if (isnan(rgExternalTemperatures[idxAddress]))
+            if (std::isnan(rgExternalTemperatures[idxAddress]))
             {
                 continue;
             }
@@ -229,7 +227,7 @@ void loop()
     // Apply data
     //
 
-    g_Thermostat.Apply(snappedConfiguration, operableTemperature);
+    g_Thermostat.Apply(g_Configuration, operableTemperature);
 
     //
     // Publish data
@@ -237,7 +235,7 @@ void loop()
 
     {
         Activity publishActivity("PublishStatus");
-        g_StatusPublisher.Publish(snappedConfiguration,
+        g_StatusPublisher.Publish(g_Configuration,
                                   g_Thermostat.CurrentActions(),
                                   fUsedExternalSensor,
                                   operableTemperature,
@@ -269,7 +267,7 @@ void loop()
             unsigned long const currentTime_msec = millis();
             unsigned long const timeSinceLastLoopStart_msec = currentTime_msec - loopStartTime_msec;
 
-            unsigned long const loopDesiredCadence_msec = snappedConfiguration.Cadence() * 1000;
+            unsigned long const loopDesiredCadence_msec = g_Configuration.rootConfiguration().cadence() * 1000;
 
             if (timeSinceLastLoopStart_msec > loopDesiredCadence_msec)
             {
@@ -277,7 +275,7 @@ void loop()
                 break;
             }
 
-            if (g_fReceivedConfigurationUpdate)
+            if (g_Configuration.HasPendingUpdates())
             {
                 // Skip remaining delay so we can act on the latest configuration changes right away
                 break;
@@ -296,21 +294,65 @@ void loop()
 // Subscriptions
 //
 
-Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, char const* const szSource)
+Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData,
+                                                      bool const fTrimQuotes,
+                                                      char const* const szSource)
 {
-    Configuration::ConfigUpdateResult const configUpdateResult = g_Configuration.UpdateFromString(szData);
+    //
+    // szData should be text-encoded binary data
+    // trailed with a format- and version-identifying magic string ("1Z85")
+    // and may be enclosed in quotes
+    //
 
-    if (configUpdateResult != Configuration::ConfigUpdateResult::Invalid)
+    static char constexpr rgMagic[] = "1Z85";
+    size_t const cchMagic = strlen(rgMagic);
+
+    size_t const cchQuote = fTrimQuotes ? 1 : 0;
+
+    // Check for correct header
+    size_t const cchData = strlen(szData);
+    size_t const cchData_Min = cchMagic + 2 * cchQuote;
+
+    if (cchData < cchData_Min)
     {
-        bool const fUpdatedConfig = (configUpdateResult == Configuration::ConfigUpdateResult::Updated);
+        Serial.printlnf("-- Configuration invalid: too short: \"%s\"", szData);
+        return Configuration::ConfigUpdateResult::Invalid;
+    }
 
-        if (fUpdatedConfig)
-        {
-            g_fReceivedConfigurationUpdate = true;
-        }
+    if (cchData > static_cast<uint16_t>(-1))
+    {
+        Serial.println("-- Configuration invalid: too long");
+        return Configuration::ConfigUpdateResult::Invalid;
+    }
 
-        Serial.printf("%s configuration from %s: ", fUpdatedConfig ? "Updated" : "Retained", szSource);
-        g_Configuration.PrintConfiguration();
+    if (strncmp(szData + cchQuote, rgMagic, cchMagic) != 0)
+    {
+        Serial.printlnf("-- Configuration invalid: wrong magic: \"%s\"", szData);
+        return Configuration::ConfigUpdateResult::Invalid;
+    }
+
+    uint16_t const cbConfigData = cchData - cchMagic - 2 * cchQuote;
+    uint8_t const* const rgConfigData = reinterpret_cast<uint8_t const*>(szData + cchQuote + cchMagic);
+
+    // Submit update
+    Configuration::ConfigUpdateResult const configUpdateResult =
+        g_Configuration.SubmitUpdate(rgConfigData, cbConfigData);
+
+    // Report results
+    switch (configUpdateResult)
+    {
+        case Configuration::ConfigUpdateResult::Invalid:
+            Serial.printlnf(
+                "!! Configuration from %s \"%.*s\" invalid, ignoring.", szSource, cbConfigData, rgConfigData);
+            break;
+
+        case Configuration::ConfigUpdateResult::Retained:
+            Serial.printlnf("Retained existing configuration after %s.", szSource);
+            break;
+
+        case Configuration::ConfigUpdateResult::Accepted:
+            Serial.printlnf("Updating existing configuration from %s.", szSource);
+            break;
     }
 
     return configUpdateResult;
@@ -326,11 +368,11 @@ void onStatusResponse(char const* szEvent, char const* szData)
         return;
     }
 
-    (void)handleUpdatedConfig(szData, "statusResponse");
+    (void)handleUpdatedConfig(szData, true /* trim quotes */, "statusResponse");
 }
 
 int onConfigPush(String configString)
 {
     Activity configPushActivity("ConfigPush");
-    return static_cast<int>(handleUpdatedConfig(configString.c_str(), "push"));
+    return static_cast<int>(handleUpdatedConfig(configString.c_str(), false /* no quotes */, "push"));
 }

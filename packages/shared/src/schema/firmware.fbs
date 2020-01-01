@@ -1,0 +1,21 @@
+namespace Flatbuffers.Firmware;
+
+enum ThermostatAction : ubyte (bit_flags) { Heat, Cool, Circulate }
+
+///
+/// Temperatures are stored multiplied by 100, e.g. a temperature of 16.5 is stored as a 165.
+/// Given that we're really just dealing with a range of 0-100, a multiplied-out range of 0-10000 fits just fine into a uint16.
+///
+/// Defaults are provided so the firmware can reset itself if state got corrupted.
+///
+table ThermostatConfiguration {
+  threshold_x100: uint16 = 50; // 0.5 C
+  cadence: uint16 = 600; // 10 minutes
+  externalSensorId: uint64;
+
+  allowedActions: ThermostatAction = 0;
+  setPointHeat_x100: uint16 = 1800; // 18 C
+  setPointCool_x100: uint16 = 2200; // 22 C
+}
+
+root_type ThermostatConfiguration;

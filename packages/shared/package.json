@@ -17,6 +17,7 @@
   "scripts": {
     "prebuild": "npm-run-all codegen:*",
     "build": "tsc",
+    "codegen:flatbuffers": "node ./codegen-flatbuffers.js",
     "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
     "format:fix": "prettier --write {.,./src/**,./public/**}/*.{css,graphql,html,js,jsx,json,md,scss,ts,tsx,webmanifest}",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Particle.h>
+
 #include "FixedQueue.h"
 
 template <uint16_t cchEvent_Max, uint16_t nEvents_Max, bool fEvictOldest = true>

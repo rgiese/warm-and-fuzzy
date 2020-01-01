@@ -39,4 +39,6 @@ BreakConstructorInitializers: BeforeComma
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 
 MaxEmptyLinesToKeep: 2
+
+IncludeBlocks: Preserve
 ...

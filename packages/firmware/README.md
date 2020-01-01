@@ -11,8 +11,8 @@
 
 # Testing
 
-- To a flash a USB-connected device, run `npm run flash`
-- For a USB-connected device, run `npm run monitor` to monitor it via serial-over-USB. Use `particle serial list` to disambiguate ports and devices if need be.
+- To a flash a USB-connected device, run `npm run firmware:flash`
+- For a USB-connected device, run `npm run firmware:monitor` to monitor it via serial-over-USB. Use `particle serial list` to disambiguate ports and devices if need be.
 
 # Documentation
 

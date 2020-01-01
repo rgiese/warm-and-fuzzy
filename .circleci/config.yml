@@ -1,28 +1,19 @@
 # c.f. https://circleci.com/docs/2.0/language-javascript/
 version: 2.1
 
-orbs:
-  aws-cli: circleci/aws-cli@0.1.13
-
 executors:
-  node-executor:
+  grumpy-executor:
     docker:
-      # c.f. https://github.com/CircleCI-Public/circleci-dockerfiles/tree/master/node/images
-      - image: circleci/node:12.6.0-stretch
-    working_directory: ~/warm-and-fuzzy
-
-  android-executor:
-    docker:
-      - image: circleci/android:api-28-node
+      - image: grumpycorp/warm-and-fuzzy-ci:3
     working_directory: ~/warm-and-fuzzy
 
 jobs:
   #
-  # API jobs
+  # API+firmware jobs
   #
 
   build:
-    executor: node-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -54,7 +45,7 @@ jobs:
             - packages
 
   api-deploy:
-    executor: node-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -76,9 +67,10 @@ jobs:
 
       # (Don't save cache again, we'll just let `build` deal with it)
 
-      # Configure AWS toolchain
-      - aws-cli/install
-      - aws-cli/configure
+      # Configure AWS CLI
+      - run: aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      - run: aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      - run: aws configure set region $AWS_DEFAULT_REGION
 
       # Deploy
       - run:
@@ -90,12 +82,40 @@ jobs:
               npm run deploy:dev
             fi
 
+  firmware-deploy:
+    executor: grumpy-executor
+    steps:
+      # Check out source
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      # Attach to `build` workspace (provides built packages/)
+      - attach_workspace:
+          at: .
+
+      # Install dependencies
+      - run: npm install
+      - run: npm run bootstrap
+
+      # (Don't save cache again, we'll just let `build` deal with it)
+
+      # Upload firmware to Particle cloud
+      - run:
+          name: Upload firmware to Particle
+          command: lerna run firmware:upload
+
   #
   # Mobile jobs
   #
 
   mobile-build:
-    executor: android-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -129,7 +149,7 @@ jobs:
             - packages
 
   mobile-publish:
-    executor: android-executor
+    executor: grumpy-executor
     steps:
       # Check out source
       - checkout
@@ -152,74 +172,6 @@ jobs:
       # Run publish to internal Google Play channel
       - run: npm run publish-mobile:internal
 
-  #
-  # Firmware jobs
-  #
-
-  firmware-build:
-    executor: node-executor
-    steps:
-      # Check out source
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-firmware-dependencies
-
-      # Install dependencies
-      - run:
-          name: Install firmware dependencies
-          command: npm install
-          working_directory: ./firmware
-
-      # Save cache
-      - save_cache:
-          paths:
-            - firmware/node_modules
-          key: v1-firmware-dependencies
-
-      # Run build
-      - run:
-          name: Build firmware
-          command: npm run build
-          working_directory: ./firmware
-
-      # Persist workspace for deployment
-      - persist_to_workspace:
-          root: .
-          paths:
-            - firmware/thermostat/build
-
-  firmware-upload:
-    executor: node-executor
-    steps:
-      # Check out source
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-firmware-dependencies
-
-      # Install dependencies
-      - run:
-          name: Install firmware dependencies
-          command: npm install
-          working_directory: ./firmware
-
-      # (Don't save cache again, we'll just let `firmware-build` deal with it)
-
-      # Attach to `build` workspace (provides built firmware)
-      - attach_workspace:
-          at: .
-
-      # Upload firmware to Particle cloud
-      - run:
-          name: Upload firmware to Particle
-          command: npm run upload
-          working_directory: ./firmware
-
 #
 # Workflows
 #
@@ -227,9 +179,10 @@ jobs:
 workflows:
   version: 2
 
-  api:
+  api-and-firmware:
     jobs:
-      - build
+      - build:
+          context: warm-and-fuzzy-particle
       - hold-to-deploy-api:
           type: approval
           requires:
@@ -238,6 +191,20 @@ workflows:
           context: warm-and-fuzzy-aws
           requires:
             - hold-to-deploy-api
+      - hold-to-deploy-firmware:
+          type: approval
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - firmware-deploy:
+          context: warm-and-fuzzy-particle
+          requires:
+            - hold-to-deploy-firmware
+          filters:
+            branches:
+              only: master
 
   mobile:
     jobs:
@@ -254,25 +221,6 @@ workflows:
           context: warm-and-fuzzy-git-secrets
           requires:
             - hold-to-publish
-          filters:
-            branches:
-              only: master
-
-  firmware:
-    jobs:
-      - firmware-build:
-          context: warm-and-fuzzy-particle
-      - hold-to-upload:
-          type: approval
-          requires:
-            - firmware-build
-          filters:
-            branches:
-              only: master
-      - firmware-upload:
-          context: warm-and-fuzzy-particle
-          requires:
-            - hold-to-upload
           filters:
             branches:
               only: master
