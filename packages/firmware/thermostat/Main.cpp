@@ -294,20 +294,24 @@ void loop()
 // Subscriptions
 //
 
-Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, char const* const szSource)
+Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData,
+                                                      bool const fTrimQuotes,
+                                                      char const* const szSource)
 {
     //
     // szData should be text-encoded binary data
     // trailed with a format- and version-identifying magic string ("1Z85")
-    // and enclosed in quotes
+    // and may be enclosed in quotes
     //
 
     static char constexpr rgMagic[] = "1Z85";
     size_t const cchMagic = strlen(rgMagic);
 
+    size_t const cchQuote = fTrimQuotes ? 1 : 0;
+
     // Check for correct header
     size_t const cchData = strlen(szData);
-    size_t const cchData_Min = cchMagic + 2 /* quotes */;
+    size_t const cchData_Min = cchMagic + 2 * cchQuote;
 
     if (cchData < cchData_Min)
     {
@@ -321,14 +325,14 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData, 
         return Configuration::ConfigUpdateResult::Invalid;
     }
 
-    if (strncmp(szData + 1 /* quote */, rgMagic, cchMagic) != 0)
+    if (strncmp(szData + cchQuote, rgMagic, cchMagic) != 0)
     {
         Serial.printlnf("-- Configuration invalid: wrong magic: \"%s\"", szData);
         return Configuration::ConfigUpdateResult::Invalid;
     }
 
-    uint16_t const cbConfigData = cchData - cchMagic - 2 /* quotes */;
-    uint8_t const* const rgConfigData = reinterpret_cast<uint8_t const*>(szData + 1 /* quote */ + cchMagic);
+    uint16_t const cbConfigData = cchData - cchMagic - 2 * cchQuote;
+    uint8_t const* const rgConfigData = reinterpret_cast<uint8_t const*>(szData + cchQuote + cchMagic);
 
     // Submit update
     Configuration::ConfigUpdateResult const configUpdateResult =
@@ -364,11 +368,11 @@ void onStatusResponse(char const* szEvent, char const* szData)
         return;
     }
 
-    (void)handleUpdatedConfig(szData, "statusResponse");
+    (void)handleUpdatedConfig(szData, true /* trim quotes */, "statusResponse");
 }
 
 int onConfigPush(String configString)
 {
     Activity configPushActivity("ConfigPush");
-    return static_cast<int>(handleUpdatedConfig(configString.c_str(), "push"));
+    return static_cast<int>(handleUpdatedConfig(configString.c_str(), false /* no quotes */, "push"));
 }
