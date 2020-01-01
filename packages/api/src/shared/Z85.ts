@@ -1,7 +1,13 @@
-// Implements http://rfc.zeromq.org/spec:32
+//
+// Implements a slight variant of http://rfc.zeromq.org/spec:32
+// -> Instead of using an ampersand as the 72'nd character, we use a comma
+//    because Particle's function invocation API bails on ampersands in the function argument/payload
+//    even though all other Z85-compliant special characters make it through.
+//    Good times.
+//
 // Inspired by https://github.com/msealand/z85.node/blob/master/index.js
 
-const encoderRing = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#".split(
+const encoderRing = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?,<>()[]{}@%$#".split(
   ""
 );
 
