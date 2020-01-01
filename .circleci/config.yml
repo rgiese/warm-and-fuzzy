@@ -108,7 +108,7 @@ jobs:
       # Upload firmware to Particle cloud
       - run:
           name: Upload firmware to Particle
-          command: lerna run firmware:upload
+          command: npm run deploy-firmware:prod
 
   #
   # Mobile jobs
