@@ -1,11 +1,7 @@
-#include <stdio.h>
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this here
+#include "base.h"
 
-#include <iostream>
-#include <string>
-
-int main()
+TEST_CASE("Tests execute", "[basics]")
 {
-    printf("Hello world.\n");
-
-    return 0;
+    REQUIRE(1 == 1);
 }
