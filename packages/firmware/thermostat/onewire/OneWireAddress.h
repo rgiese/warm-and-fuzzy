@@ -1,9 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
-#include "OneWireCRC.h"
-
 class OneWireAddress
 {
 private:

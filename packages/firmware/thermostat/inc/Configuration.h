@@ -1,10 +1,6 @@
 #pragma once
 
-#include <mutex>
-
-#include "../generated/firmware_generated.h"
-#include "../onewire/OneWireAddress.h"
-#include "Z85.h"
+typedef Flatbuffers::Firmware::ThermostatAction ThermostatAction;
 
 //
 // A note on EEPROM emulation on Particle devices:

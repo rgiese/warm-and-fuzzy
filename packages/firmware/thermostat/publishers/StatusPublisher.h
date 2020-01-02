@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../inc/FixedStringBuffer.h"
-#include "../inc/QueuedPublisher.h"
-
+template <uint8_t c_cOneWireDevices_Max>
 class StatusPublisher
 {
 public:

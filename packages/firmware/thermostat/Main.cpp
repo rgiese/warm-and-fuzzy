@@ -1,17 +1,8 @@
 #include <Particle.h>
-#include <math.h>
+
+#include "inc/stdinc.h"
 
 #include "PietteTech_DHT.h"
-
-#include "inc/CoreDefs.h"
-
-#include "inc/Activity.h"
-#include "inc/Configuration.h"
-
-#include "inc/Thermostat.h"
-
-#include "onewire/OneWireGateway2484.h"
-#include "onewire/OneWireTemperatureSensor.h"
 
 //
 // Particle configuration
@@ -46,8 +37,7 @@ Configuration g_Configuration;
 Thermostat g_Thermostat;
 
 // Publishers
-#include "publishers/StatusPublisher.h"
-StatusPublisher g_StatusPublisher;
+StatusPublisher<c_cOneWireDevices_Max> g_StatusPublisher;
 
 //
 // Declarations

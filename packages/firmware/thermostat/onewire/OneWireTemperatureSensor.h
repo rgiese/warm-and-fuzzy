@@ -1,7 +1,5 @@
 #pragma once
 
-#include "IOneWireGateway.h"
-
 class OneWireTemperatureSensor
 {
 public:

@@ -1,7 +1,5 @@
 #pragma once
 
-typedef Flatbuffers::Firmware::ThermostatAction ThermostatAction;
-
 class Thermostat
 {
 public:
