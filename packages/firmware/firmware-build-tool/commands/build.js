@@ -38,7 +38,7 @@ class BuildCommand extends Command {
     let projectFilesObject = {};
 
     glob
-      .sync(`${projectRoot}/**/*.{c,cpp,h,hpp,properties}`, { ignore: "**/tests/*" })
+      .sync(`${projectRoot}/**/*.{c,cpp,h,hpp,properties}`, { ignore: "**/tests/**/*" })
       .forEach(fileName => {
         const relativePath = path.relative(projectRoot, fileName).replace("\\", "/");
         this.log(`  ${relativePath}`);
