@@ -1,6 +1,7 @@
 const { Command, flags } = require("@oclif/command");
 const { execSync } = require("child_process");
 const fs = require("fs");
+const glob = require("glob");
 const path = require("path");
 
 class TestCommand extends Command {
@@ -24,40 +25,21 @@ class TestCommand extends Command {
       fs.mkdirSync(outputRoot);
     }
 
-    const toolchains =
-      process.platform === "win32"
-        ? {
-            makefileType: "MinGW Makefiles",
-            makeCommand: "mingw32-make",
-          }
-        : {
-            makefileType: "Unix Makefiles",
-            makeCommand: "make",
-          };
-
-    // Generate makefiles
-    this.log(`Generating makefiles for ${testsRoot}...`);
-
-    execSync(
-      `cmake -G "${toolchains.makefileType}" -DCMAKE_BUILD_TYPE=Release -S . -B ${outputRoot}`,
-      {
-        cwd: testsRoot,
-        stdio: "inherit",
-      }
-    );
-
     // Build
     this.log(`Building tests...`);
 
-    execSync(`${toolchains.makeCommand}`, {
-      cwd: outputRoot,
+    const sourceFiles = glob.sync(`${testsRoot}/*.cpp`);
+    const outputFile = "Tests";
+
+    execSync(`gcc -o ${path.join(outputRoot, outputFile)} ${sourceFiles.join(" ")} -lstdc++`, {
+      cwd: testsRoot,
       stdio: "inherit",
     });
 
     // Run
     this.log(`Running tests...`);
 
-    execSync(`Tests`, {
+    execSync(outputFile, {
       cwd: outputRoot,
       stdio: "inherit",
     });
