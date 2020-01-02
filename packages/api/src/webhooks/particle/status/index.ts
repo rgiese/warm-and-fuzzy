@@ -13,6 +13,7 @@ import {
   SensorValue,
   SensorValueStream,
   ThermostatConfiguration,
+  ThermostatSettings,
   ThermostatValue,
   ThermostatValueStream,
 } from "../../../shared/db";
@@ -57,6 +58,19 @@ async function getThermostatConfiguration(
   );
 
   return thermostatConfiguration;
+}
+
+async function getThermostatSettings(tenant: string, id: string): Promise<ThermostatSettings> {
+  const thermostatSettingsCondition: Pick<ThermostatSettings, "tenant" | "id"> = {
+    tenant,
+    id,
+  };
+
+  const thermostatSettings = await DbMapper.get(
+    Object.assign(new ThermostatSettings(), thermostatSettingsCondition)
+  );
+
+  return thermostatSettings;
 }
 
 async function getSensorConfigurations(
@@ -116,6 +130,8 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
   // Retrieve configuration data
   const thermostatConfiguration = await getThermostatConfiguration(tenant, statusEvent.deviceId);
+
+  const thermostatSettings = await getThermostatSettings(tenant, statusEvent.deviceId);
 
   const sensorConfigurations = await getSensorConfigurations(
     tenant,
@@ -221,6 +237,6 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
   // Return current configuration to device
   return Responses.success(
-    ThermostatConfigurationAdapter.firmwareFromModel(thermostatConfiguration)
+    ThermostatConfigurationAdapter.firmwareFromModel(thermostatConfiguration, thermostatSettings)
   );
 };

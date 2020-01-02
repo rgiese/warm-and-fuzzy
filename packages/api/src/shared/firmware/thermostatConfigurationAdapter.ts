@@ -1,10 +1,11 @@
 import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import { ThermostatConfiguration } from "../db";
+import { ThermostatConfiguration, ThermostatSettings } from "../db";
 import { Z85Encode } from "../Z85";
 
 import * as ActionsAdapter from "./actionsAdapter";
 import * as OneWireIdAdapter from "./oneWireIdAdapter";
+import * as ThermostatSettingAdapter from "./thermostatSettingAdapter";
 
 export interface FirmwareConfiguration {
   sh: number;
@@ -15,9 +16,24 @@ export interface FirmwareConfiguration {
   xs: string;
 }
 
-export function firmwareFromModel(thermostatConfiguration: ThermostatConfiguration): string {
+export function firmwareFromModel(
+  thermostatConfiguration: ThermostatConfiguration,
+  thermostatSettings: ThermostatSettings
+): string {
   // Create buffer
-  const firmwareConfigBuilder = new flatbuffers.Builder(128); // ...initial guess at size
+  const firmwareConfigBuilder: flatbuffers.Builder = new flatbuffers.Builder(128); // ...initial guess at size
+
+  // Create settings array
+  Flatbuffers.Firmware.ThermostatConfiguration.startThermostatSettingsVector(
+    firmwareConfigBuilder,
+    thermostatSettings.settings?.length || 0
+  );
+
+  thermostatSettings.settings?.forEach(thermostatSetting =>
+    ThermostatSettingAdapter.createThermostatSetting(firmwareConfigBuilder, thermostatSetting)
+  );
+
+  const thermostatSettingsVector = firmwareConfigBuilder.endVector();
 
   // Start top-level table
   Flatbuffers.Firmware.ThermostatConfiguration.startThermostatConfiguration(firmwareConfigBuilder);
@@ -53,6 +69,11 @@ export function firmwareFromModel(thermostatConfiguration: ThermostatConfigurati
   Flatbuffers.Firmware.ThermostatConfiguration.addSetPointCoolX100(
     firmwareConfigBuilder,
     Math.round(thermostatConfiguration.setPointCool * 100)
+  );
+
+  Flatbuffers.Firmware.ThermostatConfiguration.addThermostatSettings(
+    firmwareConfigBuilder,
+    thermostatSettingsVector
   );
 
   const firmwareConfigOffset = Flatbuffers.Firmware.ThermostatConfiguration.endThermostatConfiguration(
