@@ -21,13 +21,15 @@ void Thermostat::Initialize()
     ApplyActions(m_CurrentActions);
 }
 
-void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperature)
+void Thermostat::Apply(Configuration const& Configuration,
+                       ThermostatSetpoint const& ThermostatSetpoint,
+                       float CurrentTemperature)
 {
     // Compute proposed action, defaulting to continuing the current course of action
     ThermostatAction proposedActions = m_CurrentActions;
 
-    float const setPointHeat = Configuration::getTemperature(Configuration.rootConfiguration().setPointHeat_x100());
-    float const setPointCool = Configuration::getTemperature(Configuration.rootConfiguration().setPointCool_x100());
+    float const setPointHeat = ThermostatSetpoint.SetPointHeat;
+    float const setPointCool = ThermostatSetpoint.SetPointCool;
     float const threshold = Configuration::getTemperature(Configuration.rootConfiguration().threshold_x100());
 
     // Heat
@@ -59,7 +61,7 @@ void Thermostat::Apply(Configuration const& Configuration, float CurrentTemperat
     proposedActions |= ThermostatAction::Circulate;
 
     // Intersect with allowed actions
-    proposedActions = proposedActions & Configuration.rootConfiguration().allowedActions();
+    proposedActions = proposedActions & ThermostatSetpoint.AllowedActions;
 
     // Error checks
     if (!!(proposedActions & ThermostatAction::Heat) && !!(proposedActions & ThermostatAction::Cool))

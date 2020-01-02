@@ -21,4 +21,5 @@ public:
     ~ThermostatSetpointScheduler();
 
 public:
+    ThermostatSetpoint getCurrentThermostatSetpoint(Configuration const& Configuration) const;
 };

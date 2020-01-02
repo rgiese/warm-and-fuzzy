@@ -34,6 +34,7 @@ OneWireGateway2484 g_OneWireGateway;
 Configuration g_Configuration;
 
 // Services
+ThermostatSetpointScheduler g_ThermostatSetpointScheduler;
 Thermostat g_Thermostat;
 
 // Publishers
@@ -217,7 +218,9 @@ void loop()
     // Apply data
     //
 
-    g_Thermostat.Apply(g_Configuration, operableTemperature);
+    ThermostatSetpoint const thermostatSetpoint =
+        g_ThermostatSetpointScheduler.getCurrentThermostatSetpoint(g_Configuration);
+    g_Thermostat.Apply(g_Configuration, thermostatSetpoint, operableTemperature);
 
     //
     // Publish data
@@ -226,6 +229,7 @@ void loop()
     {
         Activity publishActivity("PublishStatus");
         g_StatusPublisher.Publish(g_Configuration,
+                                  thermostatSetpoint,
                                   g_Thermostat.CurrentActions(),
                                   fUsedExternalSensor,
                                   operableTemperature,

@@ -16,6 +16,7 @@ public:
 
 public:
     void Publish(Configuration const& configuration,
+                 ThermostatSetpoint const& thermostatSetpoint,
                  ThermostatAction const& currentActions,
                  bool const fUsedExternalSensor,
                  float const operableTemperature,
@@ -47,12 +48,12 @@ public:
 
         // Configuration
         sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"th\":%.2f",
-                        Configuration::getTemperature(configuration.rootConfiguration().setPointHeat_x100()),
-                        Configuration::getTemperature(configuration.rootConfiguration().setPointCool_x100()),
+                        thermostatSetpoint.SetPointHeat,
+                        thermostatSetpoint.SetPointCool,
                         Configuration::getTemperature(configuration.rootConfiguration().threshold_x100()));
 
         sb.Append(",\"aa\":\"");
-        appendActionsToStringBuilder(sb, configuration.rootConfiguration().allowedActions());
+        appendActionsToStringBuilder(sb, thermostatSetpoint.AllowedActions);
         sb.Append("\"}");
 
         // Measurements

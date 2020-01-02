@@ -9,7 +9,9 @@ public:
 public:
     void Initialize();
 
-    void Apply(Configuration const& Configuration, float CurrentTemperature);
+    void Apply(Configuration const& Configuration,
+               ThermostatSetpoint const& ThermostatSetpoint,
+               float CurrentTemperature);
 
     ThermostatAction CurrentActions() const
     {
