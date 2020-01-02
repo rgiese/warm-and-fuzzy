@@ -31,7 +31,7 @@ class TestCommand extends Command {
     const sourceFiles = glob.sync(`${testsRoot}/*.cpp`);
     const testExecutable = path.join(outputRoot, "tests");
 
-    execSync(`gcc -o ${testExecutable} ${sourceFiles.join(" ")} -lstdc++`, {
+    execSync(`gcc -o ${testExecutable} ${sourceFiles.join(" ")} -lstdc++ -lm`, {
       cwd: testsRoot,
       stdio: "inherit",
     });
