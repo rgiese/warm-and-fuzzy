@@ -38,6 +38,9 @@ jobs:
       # Run builds
       - run: npm run build
 
+      # Run tests
+      - run: npm run test
+
       # Persist workspace for deployment
       - persist_to_workspace:
           root: .
