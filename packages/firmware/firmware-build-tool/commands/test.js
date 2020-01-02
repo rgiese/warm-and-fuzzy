@@ -39,7 +39,7 @@ class TestCommand extends Command {
     this.log(`Generating makefiles for ${testsRoot}...`);
 
     execSync(
-      `cmake -G "${toolchains.makefileType}" -DCMAKE_BUILD_TYPE=Release -S ${testsRoot} -B ${outputRoot}`,
+      `cmake -G "${toolchains.makefileType}" -DCMAKE_BUILD_TYPE=Release -S . -B ${outputRoot}`,
       {
         cwd: testsRoot,
         stdio: "inherit",
