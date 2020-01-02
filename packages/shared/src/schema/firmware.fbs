@@ -1,5 +1,9 @@
 namespace Flatbuffers.Firmware;
 
+// Any breaking changes to this file should also rev the envelope magic signature in
+// - //packages/api/src/shared/firmware/thermostatConfigurationAdapter.ts
+// - //packages/firmware/thermostat/Main.cpp
+
 enum ThermostatAction : ubyte (bit_flags) { Heat, Cool, Circulate }
 
 ///
