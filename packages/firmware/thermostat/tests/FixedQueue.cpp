@@ -1,8 +1,5 @@
 #include "base.h"
 
-#include "../inc/FixedQueue.h"
-
-
 constexpr uint16_t cchItem_Max = 16;
 constexpr uint16_t nItems_Max = 4;
 

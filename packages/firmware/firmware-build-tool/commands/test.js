@@ -31,10 +31,15 @@ class TestCommand extends Command {
     const sourceFiles = glob.sync(`${testsRoot}/*.cpp`);
     const testExecutable = path.join(outputRoot, "tests");
 
-    execSync(`g++ -o ${testExecutable} ${sourceFiles.join(" ")} -lstdc++ -lm`, {
-      cwd: testsRoot,
-      stdio: "inherit",
-    });
+    execSync(
+      `g++ -I${projectRoot} -I${testsRoot} ${sourceFiles.join(
+        " "
+      )} -lstdc++ -lm -o ${testExecutable}`,
+      {
+        cwd: testsRoot,
+        stdio: "inherit",
+      }
+    );
 
     // Run
     this.log(`Running tests...`);
