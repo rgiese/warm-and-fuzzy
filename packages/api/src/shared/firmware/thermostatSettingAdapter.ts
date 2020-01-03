@@ -26,7 +26,7 @@ function thermostatSettingType(
 export function createThermostatSetting(
   firmwareConfigBuilder: flatbuffers.Builder,
   thermostatSetting: ThermostatSetting
-) {
+): void {
   const holdUntil =
     thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
       ? thermostatSetting.holdUntil?.valueOf() || 0
