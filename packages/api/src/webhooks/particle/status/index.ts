@@ -81,7 +81,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   const sensorConfigurations = await DbMapper.getBatch(
     statusEvent.data.v.map(
       (value): SensorConfiguration =>
-        Object.assign(new SensorConfiguration(), { tenant, id: value })
+        Object.assign(new SensorConfiguration(), { tenant, id: value.id })
     )
   );
 
