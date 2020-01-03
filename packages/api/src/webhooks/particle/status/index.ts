@@ -9,6 +9,7 @@ import * as ThermostatConfigurationAdapter from "../../../shared/firmware/thermo
 import {
   DbMapper,
   DeviceTenancy,
+  ObjectWithIdAndTenant,
   SensorConfiguration,
   SensorValue,
   SensorValueStream,
@@ -21,7 +22,7 @@ import {
 import { StatusEvent, StatusEventSchema } from "./statusEvent";
 
 //
-// Support functions
+// Device tenancy cache
 //
 
 const deviceTenancyCache = new Map();
@@ -31,70 +32,13 @@ async function getTenant(id: string): Promise<string> {
   let tenant = deviceTenancyCache.get(id);
 
   if (!tenant) {
-    const deviceTenancyCondition: Pick<DeviceTenancy, "id"> = { id };
-
-    const deviceTenancy = await DbMapper.get(
-      Object.assign(new DeviceTenancy(), deviceTenancyCondition)
-    );
+    const deviceTenancy = await DbMapper.getOne(new DeviceTenancy(), { id });
 
     tenant = deviceTenancy.tenant;
     deviceTenancyCache.set(id, tenant);
   }
 
   return tenant;
-}
-
-async function getThermostatConfiguration(
-  tenant: string,
-  id: string
-): Promise<ThermostatConfiguration> {
-  const thermostatConfigurationCondition: Pick<ThermostatConfiguration, "tenant" | "id"> = {
-    tenant,
-    id,
-  };
-
-  const thermostatConfiguration = await DbMapper.get(
-    Object.assign(new ThermostatConfiguration(), thermostatConfigurationCondition)
-  );
-
-  return thermostatConfiguration;
-}
-
-async function getThermostatSettings(tenant: string, id: string): Promise<ThermostatSettings> {
-  const thermostatSettingsCondition: Pick<ThermostatSettings, "tenant" | "id"> = {
-    tenant,
-    id,
-  };
-
-  const thermostatSettings = await DbMapper.get(
-    Object.assign(new ThermostatSettings(), thermostatSettingsCondition)
-  );
-
-  return thermostatSettings;
-}
-
-async function getSensorConfigurations(
-  tenant: string,
-  ids: string[]
-): Promise<Map<string, SensorConfiguration>> {
-  const sensorConfigurationConditions = ids.map(
-    (id): SensorConfiguration => {
-      const sensorConfigurationCondition: Pick<SensorConfiguration, "tenant" | "id"> = {
-        tenant,
-        id,
-      };
-
-      return Object.assign(new SensorConfiguration(), sensorConfigurationCondition);
-    }
-  );
-
-  const sensorConfigurations = new Map<string, SensorConfiguration>();
-
-  for await (const sensorConfiguration of DbMapper.batchGet(sensorConfigurationConditions)) {
-    sensorConfigurations.set(sensorConfiguration.id, sensorConfiguration);
-  }
-
-  return sensorConfigurations;
 }
 
 //
@@ -128,14 +72,17 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     return Responses.badRequest({ unrecognizedDeviceId: statusEvent.deviceId });
   }
 
+  const deviceKey: ObjectWithIdAndTenant = { tenant, id: statusEvent.deviceId };
+
   // Retrieve configuration data
-  const thermostatConfiguration = await getThermostatConfiguration(tenant, statusEvent.deviceId);
+  const thermostatConfiguration = await DbMapper.getOne(new ThermostatConfiguration(), deviceKey);
+  const thermostatSettings = await DbMapper.getOne(new ThermostatSettings(), deviceKey);
 
-  const thermostatSettings = await getThermostatSettings(tenant, statusEvent.deviceId);
-
-  const sensorConfigurations = await getSensorConfigurations(
-    tenant,
-    statusEvent.data.v.map((value): string => value.id)
+  const sensorConfigurations = await DbMapper.getBatch(
+    statusEvent.data.v.map(
+      (value): SensorConfiguration =>
+        Object.assign(new SensorConfiguration(), { tenant, id: value })
+    )
   );
 
   // Patch up device time if it's overly out of sync with the "published" time attached by Particle Cloud
@@ -158,8 +105,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   {
     // Thermostat value (latest)
     const thermostatData: ThermostatValue = {
-      tenant: tenant,
-      id: statusEvent.deviceId,
+      ...deviceKey,
 
       publishedTime,
       deviceTime,
@@ -214,7 +160,9 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     }
 
     // Sensor value streams
-    const sensorConfiguration = sensorConfigurations.get(value.id);
+    const sensorConfiguration = sensorConfigurations.find(
+      sensorConfiguration => sensorConfiguration.id === value.id
+    );
 
     if (sensorConfiguration) {
       const sensorStreamData: SensorValueStream = {
