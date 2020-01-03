@@ -130,6 +130,16 @@ functions:
           arn: !GetAtt ThermostatConfigurationTable.StreamArn
           batchSize: 1
           startingPosition: LATEST
+  stream_thermostatSettings:
+    handler: src/streams/thermostatSettings/index.dynamoStream
+    environment:
+      PARTICLE_API_KEY_NAME: ${self:custom.secretNameParticleAPIKey}
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt ThermostatSettingsTable.StreamArn
+          batchSize: 1
+          startingPosition: LATEST
   # Webhooks
   particleStatus:
     handler: src/webhooks/particle/status/index.post

@@ -32,23 +32,23 @@ export const dynamoStream: DynamoDBStreamHandler = async (
         }
 
         // Unmarshall
-        const oldRecord = unmarshall(new ThermostatConfiguration(), record.dynamodb.OldImage);
-        const newRecord = unmarshall(new ThermostatConfiguration(), record.dynamodb.NewImage);
+        const oldRecord = unmarshall(new ThermostatSettings(), record.dynamodb.OldImage);
+        const newRecord = unmarshall(new ThermostatSettings(), record.dynamodb.NewImage);
 
-        // Retrieve thermostat settings
-        const thermostatSettings = await DbMapper.getOne(new ThermostatSettings(), {
+        // Retrieve thermostat configuration
+        const thermostatConfiguration = await DbMapper.getOne(new ThermostatConfiguration(), {
           tenant: newRecord.tenant,
           id: newRecord.id,
         });
 
         // Convert to firmware representation (a subset of what's in the full config record)
         const oldFirmwareConfig = ThermostatConfigurationAdapter.firmwareFromModel(
-          oldRecord,
-          thermostatSettings
+          thermostatConfiguration,
+          oldRecord
         );
         const newFirmwareConfig = ThermostatConfigurationAdapter.firmwareFromModel(
-          newRecord,
-          thermostatSettings
+          thermostatConfiguration,
+          newRecord
         );
 
         // Record updates that need delivering
