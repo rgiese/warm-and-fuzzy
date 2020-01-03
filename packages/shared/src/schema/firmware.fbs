@@ -29,9 +29,9 @@ struct ThermostatSetting {
 
   _padding0: uint16;
 
-  /// For Hold settings, holdUntil{Low,High}: uint64 msec since UTC epoch
-  holdUntil_Low: uint32;
-  holdUntil_High: uint32;
+  /// For Hold settings
+  /// holdUntil: seconds since UTC epoch
+  holdUntil: uint32;
 
   /// For Scheduled settings
   daysOfWeek: DaysOfWeek;

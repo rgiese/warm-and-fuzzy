@@ -6,6 +6,10 @@
 // Generated files
 #include "../generated/firmware_generated.h"
 
+typedef Flatbuffers::Firmware::DaysOfWeek DaysOfWeek;
+typedef Flatbuffers::Firmware::ThermostatAction ThermostatAction;
+typedef Flatbuffers::Firmware::ThermostatSettingType ThermostatSettingType;
+
 // Core definitions
 #include "inc/CoreDefs.h"
 #include "inc/Activity.h"

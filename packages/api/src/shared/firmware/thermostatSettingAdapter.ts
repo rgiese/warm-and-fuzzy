@@ -7,7 +7,6 @@ import { ThermostatSetting } from "../db";
 import * as ActionsAdapter from "./actionsAdapter";
 import * as DaysOfWeekAdapter from "./daysOfWeekAdapter";
 import * as TemperatureAdapter from "./temperatureAdapter";
-import * as UInt64Adapter from "./uint64Adapter";
 
 function thermostatSettingType(
   thermostatSetting: ThermostatSetting
@@ -29,10 +28,8 @@ export function createThermostatSetting(
 ): void {
   const holdUntil =
     thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
-      ? thermostatSetting.holdUntil?.valueOf() || 0
+      ? (thermostatSetting.holdUntil?.valueOf() || 0) / 1000
       : 0;
-
-  const holdUntilLong = UInt64Adapter.firmwareFromModel(holdUntil);
 
   Flatbuffers.Firmware.ThermostatSetting.createThermostatSetting(
     firmwareConfigBuilder,
@@ -41,8 +38,7 @@ export function createThermostatSetting(
     ActionsAdapter.firmwareFromModel(thermostatSetting.allowedActions),
     thermostatSettingType(thermostatSetting),
     0,
-    holdUntilLong.low,
-    holdUntilLong.high,
+    holdUntil,
     DaysOfWeekAdapter.firmwareFromModel(thermostatSetting.daysOfWeek),
     0,
     thermostatSetting.atMinutesSinceMidnight || 0
