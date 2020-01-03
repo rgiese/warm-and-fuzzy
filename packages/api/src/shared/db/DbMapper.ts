@@ -36,7 +36,7 @@ class DataMapper extends DynamoDBDataMapper {
   ): Promise<Array<T>> {
     const items = new Array<T>();
 
-    for await (const item of DbMapper.batchGet(conditions)) {
+    for await (const item of this.batchGet(conditions)) {
       items.push(item);
     }
 
