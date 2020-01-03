@@ -1,4 +1,4 @@
-import DbMapper from "./DbMapper";
+export * from "./DbMapper";
 
 import DeviceTenancy from "./DeviceTenancy";
 import SensorConfiguration from "./SensorConfiguration";
@@ -10,7 +10,6 @@ import ThermostatValue from "./ThermostatValue";
 import ThermostatValueStream from "./ThermostatValueStream";
 
 export {
-  DbMapper,
   DeviceTenancy,
   SensorConfiguration,
   SensorValue,

@@ -1,8 +1,8 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import MappedResolver, { ZeroArgumentsConstructor } from "./MappedResolver";
+import MappedResolver from "./MappedResolver";
 
 import { ThermostatSettingsSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { ThermostatSettings } from "../../shared/db";
+import { ThermostatSettings, ZeroArgumentsConstructor } from "../../shared/db";
 import ThermostatSettingsMapper from "../mappers/ThermostatSettingsMapper";
 
 const thermostatSettingsModelConstructor: ZeroArgumentsConstructor<ThermostatSettings> = ThermostatSettings;

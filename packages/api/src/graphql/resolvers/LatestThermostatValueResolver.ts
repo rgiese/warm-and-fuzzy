@@ -1,7 +1,7 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import MappedResolver, { ZeroArgumentsConstructor } from "./MappedResolver";
+import MappedResolver from "./MappedResolver";
 
-import { ThermostatValue } from "../../shared/db";
+import { ThermostatValue, ZeroArgumentsConstructor } from "../../shared/db";
 import LatestThermostatValueMapper from "../mappers/LatestThermostatValueMapper";
 
 const modelConstructor: ZeroArgumentsConstructor<ThermostatValue> = ThermostatValue;

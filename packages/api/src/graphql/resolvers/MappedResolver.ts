@@ -1,22 +1,14 @@
 import * as yup from "yup";
 
-import { DbMapper } from "../../shared/db";
+import {
+  DbMapper,
+  ObjectWithId,
+  ObjectWithIdAndTenant,
+  ZeroArgumentsConstructor,
+} from "../../shared/db";
 import GraphQLModelMapper from "../mappers/GraphQLModelMapper";
 
 import shallowUpdate from "./shallowUpdate";
-
-interface ObjectWithId {
-  id: string;
-}
-
-interface ObjectWithIdAndTenant {
-  tenant: string;
-  id: string;
-}
-
-export interface ZeroArgumentsConstructor<T> {
-  new (): T;
-}
 
 export default class MappedResolver<
   TGraphQL extends TGraphQLCreateInput,
