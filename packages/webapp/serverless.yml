@@ -112,17 +112,24 @@ resources:
       DependsOn:
         - WebappBucketPolicy          
 
-    DnsRecord:
-      Type: "AWS::Route53::RecordSet"
+    DnsRecords:
+      Type: "AWS::Route53::RecordSetGroup"
       Properties:
-        AliasTarget:
-          DNSName: !GetAtt CloudFrontDistribution.DomainName
-          HostedZoneId: "Z2FDTNDATAQYW2" # c.f. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
-          EvaluateTargetHealth: false
         HostedZoneName: ${self:custom.hostedZone}.
-        Name: ${self:custom.siteName}.
-        Type: 'A'        
-
+        RecordSets:
+        - Name: ${self:custom.siteName}.
+          Type: 'A'        
+          AliasTarget:
+            DNSName: !GetAtt CloudFrontDistribution.DomainName
+            HostedZoneId: "Z2FDTNDATAQYW2" # c.f. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+            EvaluateTargetHealth: false
+        - Name: ${self:custom.siteName}.
+          Type: 'AAAA'        
+          AliasTarget:
+            DNSName: !GetAtt CloudFrontDistribution.DomainName
+            HostedZoneId: "Z2FDTNDATAQYW2" # c.f. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+            EvaluateTargetHealth: false
+      
   Outputs:
     # Somewhat contorted loopback required for serverless-cloudfront-invalidate to get its distributionId
     CloudFrontDistributionId:
