@@ -2,8 +2,8 @@
 #include "base.h"
 
 // Include implementation source files
-#include "Thermostat.cpp"
-#include "ThermostatSetpointScheduler.cpp"
+#include "../Thermostat.cpp"
+#include "../ThermostatSetpointScheduler.cpp"
 
 // Instantiate mock globals
 MockEEPROM EEPROM;

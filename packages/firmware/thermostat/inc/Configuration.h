@@ -62,6 +62,11 @@ public:
         return temperature_x100 / 100.0f;
     }
 
+    static uint16_t buildTemperature(float const temperature)
+    {
+        return static_cast<uint16_t>(temperature * 100);
+    }
+
     //
     // Operations
     //
