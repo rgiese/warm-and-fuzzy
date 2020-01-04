@@ -1,0 +1,136 @@
+service: warm-and-fuzzy-webapp
+
+# Hat tip to https://github.com/ServerlessOpsIO/serverless-zombo.com/blob/master/serverless.yml
+
+plugins:
+  - serverless-s3-sync
+  - serverless-certificate-creator
+  - serverless-cloudfront-invalidate
+
+custom:
+  # Distinguish WarmAndFuzzy webapp resource names from other resources in same AWS account
+  # (needs to be lower-case because of S3 bucket names)
+  prefix: "warmandfuzzy-webapp"
+
+  # Our stage is based on what is passed in when running serverless commands.
+  # Fall back to 'dev' (as set in the provider section below) if not specified.
+  stage: ${opt:stage, self:provider.stage}
+
+  # Configure site
+  hostedZone: "warmandfuzzy.house"
+
+  siteNamePrefixByStage:
+    dev: "app-preview"
+    prod: "app"
+
+  siteName: "${self:custom.siteNamePrefixByStage.${self:custom.stage}}.${self:custom.hostedZone}"
+
+  # Configure site certificate
+  customCertificate:
+    certificateName: "${self:custom.siteName}"
+    hostedZoneName: "${self:custom.hostedZone}."
+
+    # Configure bucket
+  webappBucketName: "${self:custom.prefix}-${self:custom.stage}"
+
+  # Configure serverless-s3-sync
+  s3Sync:
+    - bucketName: "${self:custom.webappBucketName}"
+      localDir: "build"
+
+  # Configure serverless-cloudfront-invalidate
+  cloudfrontInvalidate:
+    distributionIdKey: CloudFrontDistributionId
+    items:
+      - "/*"
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: us-west-2
+  stage: dev
+
+resources:
+  Resources:
+    WebappBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        AccessControl: PublicRead
+        BucketName: ${self:custom.webappBucketName}
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+
+    WebappBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: WebappBucket
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: '*'
+              Action:
+                - s3:GetObject
+              Resource: "arn:aws:s3:::${self:custom.webappBucketName}/*"
+
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - DomainName: !GetAtt WebappBucket.DomainName
+              # Id required for reference in DefaultCacheBehavior.TargetOriginId
+              Id: WebappBucket
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
+          Enabled: 'true'
+          Aliases:
+            - ${self:custom.siteName}
+          DefaultRootObject: index.html
+          CustomErrorResponses:
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+          DefaultCacheBehavior:
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            TargetOriginId: WebappBucket
+            ForwardedValues:
+              QueryString: 'false'
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+          ViewerCertificate:
+            AcmCertificateArn: ${certificate:${self:custom.customCertificate.certificateName}:CertificateArn}
+            SslSupportMethod: sni-only
+      DependsOn:
+        - WebappBucketPolicy          
+
+    DnsRecords:
+      Type: "AWS::Route53::RecordSetGroup"
+      Properties:
+        HostedZoneName: ${self:custom.hostedZone}.
+        RecordSets:
+        - Name: ${self:custom.siteName}.
+          Type: 'A'        
+          AliasTarget:
+            DNSName: !GetAtt CloudFrontDistribution.DomainName
+            HostedZoneId: "Z2FDTNDATAQYW2" # c.f. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+            EvaluateTargetHealth: false
+        - Name: ${self:custom.siteName}.
+          Type: 'AAAA'        
+          AliasTarget:
+            DNSName: !GetAtt CloudFrontDistribution.DomainName
+            HostedZoneId: "Z2FDTNDATAQYW2" # c.f. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
+            EvaluateTargetHealth: false
+      
+  Outputs:
+    # Somewhat contorted loopback required for serverless-cloudfront-invalidate to get its distributionId
+    CloudFrontDistributionId:
+      Value: !Ref CloudFrontDistribution

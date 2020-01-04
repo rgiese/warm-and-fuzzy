@@ -9,7 +9,7 @@ executors:
 
 jobs:
   #
-  # API+firmware jobs
+  # cloud+firmware jobs
   #
 
   build:
@@ -36,7 +36,13 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       # Run builds
-      - run: npm run build
+      - run:
+          name: Build
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              REACT_APP_API_STAGE=prod
+            fi
+            npm run build
 
       # Run tests
       - run: npm run test
@@ -47,7 +53,7 @@ jobs:
           paths:
             - packages
 
-  api-deploy:
+  cloud-deploy:
     executor: grumpy-executor
     steps:
       # Check out source
@@ -182,18 +188,18 @@ jobs:
 workflows:
   version: 2
 
-  api-and-firmware:
+  cloud-and-firmware:
     jobs:
       - build:
           context: warm-and-fuzzy-particle
-      - hold-to-deploy-api:
+      - hold-to-deploy-cloud:
           type: approval
           requires:
             - build
-      - api-deploy:
+      - cloud-deploy:
           context: warm-and-fuzzy-aws
           requires:
-            - hold-to-deploy-api
+            - hold-to-deploy-cloud
       - hold-to-deploy-firmware:
           type: approval
           requires:
