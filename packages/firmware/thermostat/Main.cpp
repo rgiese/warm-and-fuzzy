@@ -325,19 +325,19 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData,
         return Configuration::ConfigUpdateResult::Invalid;
     }
 
-    uint16_t const cbConfigData = cchData - cchMagic - 2 * cchQuote;
-    uint8_t const* const rgConfigData = reinterpret_cast<uint8_t const*>(szData + cchQuote + cchMagic);
+    uint16_t const cchConfigData = cchData - cchMagic - 2 * cchQuote;
+    char const* const rgConfigData = szData + cchQuote + cchMagic;
 
     // Submit update
     Configuration::ConfigUpdateResult const configUpdateResult =
-        g_Configuration.SubmitUpdate(rgConfigData, cbConfigData);
+        g_Configuration.SubmitUpdate(rgConfigData, cchConfigData);
 
     // Report results
     switch (configUpdateResult)
     {
         case Configuration::ConfigUpdateResult::Invalid:
             Serial.printlnf(
-                "!! Configuration from %s \"%.*s\" invalid, ignoring.", szSource, cbConfigData, rgConfigData);
+                "!! Configuration from %s \"%.*s\" invalid, ignoring.", szSource, cchConfigData, rgConfigData);
             break;
 
         case Configuration::ConfigUpdateResult::Retained:

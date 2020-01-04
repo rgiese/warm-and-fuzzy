@@ -105,7 +105,7 @@ public:
         Invalid,
     };
 
-    ConfigUpdateResult SubmitUpdate(uint8_t const* const rgConfigurationData, uint16_t const cbConfigurationData)
+    ConfigUpdateResult SubmitUpdate(char const* const rgConfigurationData, uint16_t const cchConfigurationData)
     {
         LockGuard autoLock(m_UpdateMutex);
 
@@ -114,7 +114,7 @@ public:
 
         // Decode into buffer
         uint16_t const cbPendingData =
-            Z85::DecodeBytes(m_rgPendingData, sizeof(m_rgPendingData), rgConfigurationData, cbConfigurationData);
+            Z85::DecodeBytes(m_rgPendingData, sizeof(m_rgPendingData), rgConfigurationData, cchConfigurationData);
 
         if (!cbPendingData)
         {
