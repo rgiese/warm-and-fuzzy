@@ -40,9 +40,10 @@ jobs:
           name: Build
           command: |
             if [ "$CIRCLE_BRANCH" == "master" ]; then
-              REACT_APP_API_STAGE=prod
+              REACT_APP_API_STAGE=prod npm run build
+            else
+              npm run build
             fi
-            npm run build
 
       # Persist workspace for deployment
       - persist_to_workspace:
