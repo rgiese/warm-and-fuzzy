@@ -1,9 +1,12 @@
 #include <stdio.h>
+
 #include <cstdarg>
 #include <cstring>
-
+#include <ctime>
 #include <iostream>
+#include <iomanip>
 #include <string>
+#include <vector>
 
 // Test framework
 #include "../../external/catch.hpp"
@@ -24,3 +27,6 @@
 
 // Code-under-test
 #include "inc/stdinc.h"
+
+// Helpers
+#include "SyntheticConfiguration.h"

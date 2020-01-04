@@ -14,6 +14,14 @@ MockTime Time;
 MockWiFi WiFi;
 MockWire Wire;
 
+// Statics
+
+// Default values for the (legacy) core configuration (vs. settings)
+ThermostatAction const SyntheticConfiguration::sc_DefaultAllowedActions = ThermostatAction::Cool;
+float const SyntheticConfiguration::sc_DefaultSetPointHeat = 20;
+float const SyntheticConfiguration::sc_DefaultSetPointCool = 24;
+
+
 // Bogus test case
 TEST_CASE("Tests execute", "[basics]")
 {
