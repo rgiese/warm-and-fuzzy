@@ -29,17 +29,28 @@ export default class Auth implements AuthProvider {
     // Apply state from localStorage
     const accessToken = localStorage.getItem(localStorageKeys.accessToken);
     const idToken = localStorage.getItem(localStorageKeys.idToken);
-    const expiresAt = localStorage.getItem(localStorageKeys.expiresAt);
+    const expiresAtAsString = localStorage.getItem(localStorageKeys.expiresAt);
 
-    if (accessToken && idToken && expiresAt) {
-      this.authStore?.onUserLoggedIn(accessToken, idToken);
-
-      // Schedule token renewal
-      this.scheduleRenewal(Number.parseInt(expiresAt));
-    } else {
-      // Clear out any remaining local storage items
-      this.clearTimeout();
+    if (!(accessToken && idToken && expiresAtAsString)) {
+      // Not logged in
+      this.clear();
+      return;
     }
+
+    const expiresAt = Number.parseInt(expiresAtAsString);
+    const isExpired = new Date().getTime() > expiresAt;
+
+    if (isExpired) {
+      // No longer logged in
+      this.clear();
+      return;
+    }
+
+    // Logged in
+    this.authStore?.onUserLoggedIn(accessToken, idToken);
+
+    // Schedule token renewal
+    this.scheduleRenewal(expiresAt);
   }
 
   //
