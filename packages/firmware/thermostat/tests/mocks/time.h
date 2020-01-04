@@ -23,6 +23,21 @@ public:
     {
         return 0;
     }
+
+    int weekday(uint32_t const t) const
+    {
+        return 1;
+    }
+
+    int hour(uint32_t const t) const
+    {
+        return 0;
+    }
+
+    int minute(uint32_t const t) const
+    {
+        return 0;
+    }
 };
 
 extern MockTime Time;
