@@ -3,8 +3,8 @@
 ## Auth0 configuration
 
 - Provide `WarmAndFuzzy` application (Single Page Application)
-  - Allowed callback URLs: `https://*.app.warmandfuzzy.house/callback, house.warmandfuzzy://grumpycorp.auth0.com/android/house.warmandfuzzy/callback, http://localhost:3000/callback`
-  - Allowed web origins, logout URLs: `https://*.app.warmandfuzzy.house, house.warmandfuzzy://grumpycorp.auth0.com/android/house.warmandfuzzy/callback, http://localhost:3000`
+  - Allowed callback URLs: `https://app*.warmandfuzzy.house/callback, house.warmandfuzzy://grumpycorp.auth0.com/android/house.warmandfuzzy/callback, http://localhost:3000/callback`
+  - Allowed web origins, logout URLs: `https://app*.warmandfuzzy.house, house.warmandfuzzy://grumpycorp.auth0.com/android/house.warmandfuzzy/callback, http://localhost:3000`
   - Connections: user-path auth only (no social)
 - Provide `api.warmandfuzzy.house` API (identifier `https://api.warmandfuzzy.house`)
   - Enable RBAC and Add Permissions in Access Token

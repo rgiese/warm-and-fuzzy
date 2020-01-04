@@ -18,7 +18,12 @@ custom:
 
   # Configure site
   hostedZone: "warmandfuzzy.house"
-  siteName: "${self:custom.stage}.app.${self:custom.hostedZone}"
+
+  siteNamePrefixByStage:
+    dev: "app-preview"
+    prod: "app"
+
+  siteName: "${self:custom.siteNamePrefixByStage.${self:custom.stage}}.${self:custom.hostedZone}"
 
   # Configure site certificate
   customCertificate:
