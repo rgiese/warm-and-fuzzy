@@ -23,7 +23,13 @@
     "prestart:remote:dev": "npm-run-all codegen:*",
     "start:remote:dev": "cross-env REACT_APP_API_STAGE=dev react-scripts start",
     "prestart:remote:prod": "npm-run-all codegen:*",
-    "start:remote:prod": "cross-env REACT_APP_API_STAGE=prod react-scripts start"
+    "start:remote:prod": "cross-env REACT_APP_API_STAGE=prod react-scripts start",
+    "create-cert:dev": "sls create-cert --verbose",
+    "create-cert:prod": "sls create-cert --stage prod --verbose",
+    "deploy:dev": "sls deploy --verbose --conceal",
+    "postdeploy:dev": "sls cloudfrontInvalidate --verbose",
+    "deploy:prod": "sls deploy --stage prod --verbose --conceal",
+    "postdeploy:prod": "sls cloudfrontInvalidate --stage prod --verbose"
   },
   "browserslist": {
     "production": [

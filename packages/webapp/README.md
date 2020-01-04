@@ -1,12 +1,9 @@
 # Deploy
 
-- Auto-deployed from Netlify
+- Auto-deployed from CircleCI
 
 # Cloud configuration
 
-## Netlify
+## AWS configuration
 
-- Provide site for `warm-and-fuzzy`
-  - Connect to GitHub, enable deploy previews and branch deploys
-  - Add `app.warmandfuzzy.house` as custom domain
-  - Ensure there's an SSL certificate once the custom domain is listed
+- Make sure certificates have been created (`lerna run create-cert:dev`, ...`:prod`)
