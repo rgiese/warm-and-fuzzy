@@ -2,10 +2,12 @@
 
 SCENARIO("Time mocks work correctly with timezone conversions", "[Time]")
 {
-    GIVEN("A global lock")
+    GIVEN("A global time value")
     {
-        WHEN("Left unchanged")
+        WHEN("Time is set to zero")
         {
+            Time.testSetUTCTime(0);
+
             THEN("Time is zero")
             {
                 REQUIRE(Time.now() == 0);
