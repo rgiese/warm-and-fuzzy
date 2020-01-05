@@ -20,6 +20,7 @@ const thermostatConfigurationsFragment = gql`
     streamName
     availableActions
     externalSensorId
+    timezone
     allowedActions
     setPointHeat
     setPointCool

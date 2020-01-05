@@ -29,7 +29,12 @@ export namespace ThermostatConfigurationSchema {
     externalSensorId: yup
       .string()
       .notRequired()
+      .nullable()
       .matches(/^$|^[a-f0-9]{16}$/),
+    timezone: yup
+      .string()
+      .notRequired()
+      .nullable(),
     threshold: yup
       .number()
       .min(ThresholdRange.min)

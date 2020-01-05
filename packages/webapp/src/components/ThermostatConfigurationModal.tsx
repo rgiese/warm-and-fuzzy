@@ -1,6 +1,14 @@
 import React from "react";
-import { Accordion, Checkbox, Form, Icon, InputOnChangeData } from "semantic-ui-react";
+import {
+  Accordion,
+  Checkbox,
+  DropdownProps,
+  Form,
+  Icon,
+  InputOnChangeData,
+} from "semantic-ui-react";
 import { ValidationError } from "yup";
+import moment from "moment-timezone";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import {
@@ -42,7 +50,24 @@ class ThermostatConfigurationModal extends React.Component<Props, State> {
     const handleChangeResult = await EditFormTools.handleChange(
       this.state.values,
       ThermostatConfigurationSchema.Schema,
-      data
+      data as EditFormTools.OnChangeData // name="" defined for each control below
+    );
+
+    if (handleChangeResult) {
+      this.setState(handleChangeResult);
+    }
+  };
+
+  handleDropdownChange = async (
+    _event: React.SyntheticEvent<HTMLElement>,
+    data: DropdownProps
+  ): Promise<void> => {
+    console.log(data);
+
+    const handleChangeResult = await EditFormTools.handleChange(
+      this.state.values,
+      ThermostatConfigurationSchema.Schema,
+      { ...data, type: "select" } as EditFormTools.OnChangeData // name="" defined for each control below
     );
 
     if (handleChangeResult) {
@@ -176,6 +201,18 @@ class ThermostatConfigurationModal extends React.Component<Props, State> {
                 error={this.getFieldError("externalSensorId")}
                 value={this.state.values.externalSensorId}
                 onChange={this.handleChange}
+              />
+
+              <Form.Select
+                fluid
+                label="Timezone"
+                name="timezone"
+                options={moment.tz.names().map(timezone => {
+                  return { text: timezone, value: timezone };
+                })}
+                error={this.getFieldError("timezone")}
+                value={this.state.values.timezone || ""}
+                onChange={this.handleDropdownChange}
               />
             </Form.Group>
 

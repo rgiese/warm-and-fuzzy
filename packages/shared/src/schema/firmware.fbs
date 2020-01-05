@@ -52,6 +52,13 @@ table ThermostatConfiguration {
   setPointHeat_x100: uint16 = 1800; // 18 C
   setPointCool_x100: uint16 = 2200; // 22 C
 
+  /// {current,next}TimezoneUTCOffset: signed IANA UTC offset, e.g. PST = 480
+  currentTimezoneUTCOffset: int16;
+  nextTimezoneUTCOffset: int16;
+
+  /// nextTimezoneChange: seconds since UTC epoch when nextTimezoneUTCOffset becomes applicable
+  nextTimezoneChange: uint32;
+
   thermostatSettings: [ThermostatSetting];
 }
 

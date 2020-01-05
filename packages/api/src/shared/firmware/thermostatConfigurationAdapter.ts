@@ -1,3 +1,5 @@
+import moment from "moment-timezone";
+
 import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import { ThermostatConfiguration, ThermostatSettings } from "../db";
@@ -71,16 +73,48 @@ export function firmwareFromModel(
     Math.round(thermostatConfiguration.setPointCool * 100)
   );
 
+  if (thermostatConfiguration.timezone) {
+    const timezoneInfo = moment.tz.zone(thermostatConfiguration.timezone);
+
+    if (timezoneInfo) {
+      // We rely on the timezoneInfo data being in sorted order
+      const currentTime = Date.now(); // ms since UTC epoch, just like timezoneInfo.untils[]
+      const idxCurrent = timezoneInfo.untils.findIndex(untilTime => untilTime > currentTime);
+
+      if (idxCurrent > 0) {
+        const currentOffset = timezoneInfo.offsets[idxCurrent];
+        const nextOffset = timezoneInfo.offsets[idxCurrent + 1];
+
+        const nextTimezoneChange = timezoneInfo.untils[idxCurrent] / 1000; // -> sec since UTC epoch
+
+        Flatbuffers.Firmware.ThermostatConfiguration.addCurrentTimezoneUTCOffset(
+          firmwareConfigBuilder,
+          currentOffset
+        );
+
+        Flatbuffers.Firmware.ThermostatConfiguration.addNextTimezoneUTCOffset(
+          firmwareConfigBuilder,
+          nextOffset
+        );
+
+        Flatbuffers.Firmware.ThermostatConfiguration.addNextTimezoneChange(
+          firmwareConfigBuilder,
+          nextTimezoneChange
+        );
+      }
+    }
+  }
+
   Flatbuffers.Firmware.ThermostatConfiguration.addThermostatSettings(
     firmwareConfigBuilder,
     thermostatSettingsVector
   );
 
+  // Finish top-level table
   const firmwareConfigOffset = Flatbuffers.Firmware.ThermostatConfiguration.endThermostatConfiguration(
     firmwareConfigBuilder
   );
 
-  // Finish top-level table
   firmwareConfigBuilder.finish(firmwareConfigOffset);
 
   // Extract and encode

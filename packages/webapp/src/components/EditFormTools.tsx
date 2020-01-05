@@ -1,4 +1,3 @@
-import { InputOnChangeData } from "semantic-ui-react";
 import { ValidateOptions, ValidationError } from "yup";
 
 interface Schema {
@@ -14,10 +13,19 @@ interface ChangeResult<T extends Values> {
   validationError?: ValidationError;
 }
 
+export interface OnChangeData {
+  type: string;
+  name: string;
+  value: any;
+
+  // Checkboxes
+  checked?: boolean;
+}
+
 export async function handleChange<T extends Values, TSchema extends Schema>(
   values: T,
   schema: TSchema,
-  data: InputOnChangeData
+  data: OnChangeData
 ): Promise<ChangeResult<T> | undefined> {
   if (!values.hasOwnProperty(data.name)) {
     return undefined;
@@ -27,6 +35,7 @@ export async function handleChange<T extends Values, TSchema extends Schema>(
 
   switch (data.type) {
     case "text":
+    case "select":
       value = data.value;
       break;
 

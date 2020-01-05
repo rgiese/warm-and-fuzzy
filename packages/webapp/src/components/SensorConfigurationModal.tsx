@@ -37,7 +37,7 @@ class SensorConfigurationModal extends React.Component<Props, State> {
     const handleChangeResult = await EditFormTools.handleChange(
       this.state.values,
       SensorConfigurationSchema.Schema,
-      data
+      data as EditFormTools.OnChangeData // name="" defined for each control below
     );
 
     if (handleChangeResult) {

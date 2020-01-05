@@ -20,6 +20,7 @@ const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "setPointCool", label: "Cool to", units: <>&deg;C</> },
   { field: "allowedActions", label: "Allowed actions" },
   { field: "externalSensorId", label: "External sensor" },
+  { field: "timezone", label: "Timezone" },
   { field: "streamName", label: "Stream Name" },
   { field: "threshold", label: "Threshold", units: <>&Delta;&deg;C</> },
   { field: "cadence", label: "Cadence", units: "sec" },

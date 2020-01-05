@@ -202,6 +202,7 @@ input ThermostatConfigurationCreateInput {
   setPointCool: Float!
 
   externalSensorId: String
+  timezone: String
   threshold: Float!
   cadence: Int!
 }
@@ -218,6 +219,7 @@ input ThermostatConfigurationUpdateInput {
   setPointCool: Float
 
   externalSensorId: String
+  timezone: String
   threshold: Float
   cadence: Int
 }
@@ -235,6 +237,7 @@ type ThermostatConfiguration {
   setPointCool: Float!
 
   externalSensorId: String
+  timezone: String
   threshold: Float!
   cadence: Int!
 }
