@@ -14,9 +14,12 @@ ThermostatSetpoint ThermostatSetpointScheduler::getCurrentThermostatSetpoint(Con
 {
     auto const pvThermostatSettings = Configuration.rootConfiguration().thermostatSettings();
 
-    if (!pvThermostatSettings)
+    if (!pvThermostatSettings || pvThermostatSettings->size() == 0)
     {
-        return getDefaultThermostatSetpoint(Configuration);
+        // Return legacy setting
+        return ThermostatSetpoint(Configuration.rootConfiguration().allowedActions(),
+                                  Configuration::getTemperature(Configuration.rootConfiguration().setPointHeat_x100()),
+                                  Configuration::getTemperature(Configuration.rootConfiguration().setPointCool_x100()));
     }
 
     //
@@ -148,21 +151,8 @@ ThermostatSetpoint ThermostatSetpointScheduler::getCurrentThermostatSetpoint(Con
         }
     }
 
-    // Fall back on default
-    return getDefaultThermostatSetpoint(Configuration);
-}
-
-ThermostatSetpoint ThermostatSetpointScheduler::getDefaultThermostatSetpoint(Configuration const& Configuration) const
-{
-    ThermostatSetpoint thermostatSetpoint;
-
-    thermostatSetpoint.SetPointHeat =
-        Configuration::getTemperature(Configuration.rootConfiguration().setPointHeat_x100());
-    thermostatSetpoint.SetPointCool =
-        Configuration::getTemperature(Configuration.rootConfiguration().setPointCool_x100());
-    thermostatSetpoint.AllowedActions = Configuration.rootConfiguration().allowedActions();
-
-    return thermostatSetpoint;
+    // Return empty (inactive) setpoint
+    return ThermostatSetpoint();
 }
 
 uint8_t ThermostatSetpointScheduler::getScalarDayOfWeek(DaysOfWeek const dayOfWeek) const

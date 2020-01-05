@@ -44,6 +44,5 @@ public:
     ThermostatSetpoint getCurrentThermostatSetpoint(Configuration const& Configuration) const;
 
 private:
-    ThermostatSetpoint getDefaultThermostatSetpoint(Configuration const& Configuration) const;
     uint8_t getScalarDayOfWeek(DaysOfWeek const dayOfWeek) const;
 };
