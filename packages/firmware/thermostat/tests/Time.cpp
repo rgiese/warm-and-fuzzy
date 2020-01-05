@@ -23,5 +23,15 @@ SCENARIO("Time mocks work correctly with timezone conversions", "[Time]")
                 REQUIRE(Time.minute(Time.now()) == 0);
             }
         }
+
+        WHEN("Time is set to Sunday midnight")
+        {
+            Time.testSetLocalTime(ParticleDayOfWeek::Sunday, 0, 0);
+
+            THEN("It is still far ahead of the first hundred thousand UTC seconds we use for basic UTC-only tests")
+            {
+                REQUIRE(Time.now() > 100000);
+            }
+        }
     }
 }
