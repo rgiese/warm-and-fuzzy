@@ -44,6 +44,7 @@ StatusPublisher<c_cOneWireDevices_Max> g_StatusPublisher;
 // Declarations
 //
 
+void applyTimezoneConfiguration();
 void onStatusResponse(char const* szEvent, char const* szData);
 int onConfigPush(String configString);
 
@@ -73,6 +74,8 @@ void setup()
     Serial.print("Current configuration: ");
     g_Configuration.PrintConfiguration();
 
+    applyTimezoneConfiguration();
+
     // Configure I/O
     g_OnboardSensor.begin();
     g_OneWireGateway.Initialize();
@@ -101,6 +104,10 @@ void setup()
 
 void loop()
 {
+    //
+    // Set up loop time tracking
+    //
+
     static unsigned long s_LastLoopEnterTime_msec = 0;
 
     unsigned long const loopStartTime_msec = millis();
@@ -125,6 +132,21 @@ void loop()
             Serial.print("Accepted updated configuration: ");
             g_Configuration.PrintConfiguration();
         }
+    }
+
+    applyTimezoneConfiguration();  // Apply whether configuration has changed or not (e.g. we may have changed DST)
+
+    {
+        char const* rgDaysOfWeek[] = {"n/a", "Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur"};
+
+        uint32_t const timeNow = Time.now();
+        int const idxDayOfWeek = Time.weekday(timeNow);
+
+        Serial.printlnf("-- It is currently %02d:%02d on a %sday (%u Unix time)",
+                        Time.hour(timeNow),
+                        Time.minute(timeNow),
+                        idxDayOfWeek < countof(rgDaysOfWeek) ? rgDaysOfWeek[idxDayOfWeek] : "<unexpected>",
+                        timeNow);
     }
 
     //
@@ -369,4 +391,32 @@ int onConfigPush(String configString)
 {
     Activity configPushActivity("ConfigPush");
     return static_cast<int>(handleUpdatedConfig(configString.c_str(), false /* no quotes */, "push"));
+}
+
+
+//
+// Helpers
+//
+
+void applyTimezoneConfiguration()
+{
+    //
+    // We don't bother telling Particle about DST, we'll just change zones (e.g. PST to PDT)
+    // so the above is sufficient. We just need the math to work, we don't need nice formatting.
+    //
+    // Our configuration tells us the current timezone's offset as well as
+    // the next one and when to switch over, in case we don't update frequently.
+    //
+
+    bool const inNextTimezone = g_Configuration.rootConfiguration().nextTimezoneChange() <= Time.now();
+
+    // {current,next}TimezoneUTCOffset: signed IANA UTC offset, e.g. PST = 480
+    int16_t const timezoneUTCOffset = inNextTimezone ? g_Configuration.rootConfiguration().nextTimezoneUTCOffset()
+                                                     : g_Configuration.rootConfiguration().currentTimezoneUTCOffset();
+
+    // particleTimezone: signed fractional hours, e.g. PST = -8.0
+    float const particleTimezone = -1.0f * (timezoneUTCOffset / 60.0f);
+
+    // Apply
+    Time.zone(particleTimezone);
 }

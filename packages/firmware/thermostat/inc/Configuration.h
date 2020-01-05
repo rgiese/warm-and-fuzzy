@@ -194,7 +194,7 @@ public:
 
         Serial.printlnf(
             "SetPoints = %.1f C (heat) / %.1f C (cool), Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = "
-            "[%c%c%c], ExternalSensorId = %s",
+            "[%c%c%c], ExternalSensorId = %s, Timezone UTC offset %d/%d pre/post %u",
             Configuration::getTemperature(rootConfiguration().setPointHeat_x100()),
             Configuration::getTemperature(rootConfiguration().setPointCool_x100()),
             Configuration::getTemperature(rootConfiguration().threshold_x100()),
@@ -202,7 +202,10 @@ public:
             !!(rootConfiguration().allowedActions() & Flatbuffers::Firmware::ThermostatAction::Heat) ? 'H' : '_',
             !!(rootConfiguration().allowedActions() & Flatbuffers::Firmware::ThermostatAction::Cool) ? 'C' : '_',
             !!(rootConfiguration().allowedActions() & Flatbuffers::Firmware::ThermostatAction::Circulate) ? 'R' : '_',
-            szExternalSensorId);
+            szExternalSensorId,
+            rootConfiguration().currentTimezoneUTCOffset(),
+            rootConfiguration().nextTimezoneUTCOffset(),
+            rootConfiguration().nextTimezoneChange());
 
         auto const pvThermostatSettings = rootConfiguration().thermostatSettings();
 
