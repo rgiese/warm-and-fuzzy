@@ -42,9 +42,27 @@ SCENARIO("Thermostat setpoints scheduler works", "[ThermostatSetpointScheduler]"
 
             THEN("The Hold setting is returned")
             {
-                ThermostatSetpoint const setpoint = scheduler.getCurrentThermostatSetpoint(configuration);
+                REQUIRE(scheduler.getCurrentThermostatSetpoint(configuration) == setpointHold);
+            }
+        }
 
-                REQUIRE(setpoint == setpointHold);
+        WHEN("It is after the hold expiration time and after the scheduled time")
+        {
+            Time.testSetLocalTime(ParticleDayOfWeek::Wednesday, 10, 0);
+
+            THEN("The Scheduled setting is returned")
+            {
+                REQUIRE(scheduler.getCurrentThermostatSetpoint(configuration) == setpointScheduled);
+            }
+        }
+
+        WHEN("It is after the hold expiration time and before the scheduled time")
+        {
+            Time.testSetLocalTime(ParticleDayOfWeek::Monday, 0, 0);
+
+            THEN("The Scheduled setting is still returned since it's the only scheduled setting")
+            {
+                REQUIRE(scheduler.getCurrentThermostatSetpoint(configuration) == setpointScheduled);
             }
         }
     }
