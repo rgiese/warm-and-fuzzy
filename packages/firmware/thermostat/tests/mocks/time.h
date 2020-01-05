@@ -70,11 +70,13 @@ public:
         // Use Sunday Jan 5 2020 as our arbitrary anchor
         // Also recall ParticleDayOfWeek::Sunday == 1
 
-        std::tm time = {.tm_min = minute,
-                        .tm_hour = hour,
-                        .tm_mday = 4 + static_cast<int>(dayOfWeek),
-                        .tm_mon = 1 - 1,
-                        .tm_year = 2020 - 1900};
+        std::tm time = {
+            tm_min : minute,
+            tm_hour : hour,
+            tm_mday : 4 + static_cast<int>(dayOfWeek),
+            tm_mon : 1 - 1,
+            tm_year : 2020 - 1900
+        };
 
         // std::mktime takes local time and returns UTC
         time_t const now = std::mktime(&time);
