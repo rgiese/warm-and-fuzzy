@@ -28,5 +28,8 @@
 // Code-under-test
 #include "inc/stdinc.h"
 
+// Test helpers
+#include "test_streams.h"
+
 // Helpers
 #include "SyntheticConfiguration.h"
