@@ -63,6 +63,9 @@ public:
             sc_DefaultAllowedActions,
             Configuration::buildTemperature(sc_DefaultSetPointHeat),
             Configuration::buildTemperature(sc_DefaultSetPointCool),
+            0,
+            0,
+            0,
             &m_ThermostatSettings);
 
         m_FlatbufferBuilder.Finish(configurationRoot);
