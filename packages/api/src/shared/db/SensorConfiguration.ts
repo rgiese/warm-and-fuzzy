@@ -1,4 +1,6 @@
-import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
+import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
+
+import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 //
 // See https://github.com/awslabs/dynamodb-data-mapper-js
@@ -8,22 +10,13 @@ import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-a
 //
 
 @table("SensorConfiguration")
-export default class SensorConfiguration {
+export default class SensorConfiguration extends DeviceWithTenantAndId {
   public constructor() {
-    this.tenant = "";
-    this.id = "";
+    super();
 
     this.name = "";
     this.streamName = "";
   }
-
-  // Tenant (assigned by WarmAndFuzzy)
-  @hashKey()
-  public tenant: string;
-
-  // Device ID (assigned by Particle or OneWire/DalSemi)
-  @rangeKey()
-  public id: string;
 
   // User-facing name
   @attribute()

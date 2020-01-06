@@ -1,6 +1,8 @@
-import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
+import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
 
 import * as GraphQL from "../../../generated/graphqlTypes";
+
+import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 //
 // See https://github.com/awslabs/dynamodb-data-mapper-js
@@ -10,10 +12,9 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 //
 
 @table("LatestThermostatValues")
-export default class ThermostatValue {
+export default class ThermostatValue extends DeviceWithTenantAndId {
   public constructor() {
-    this.tenant = "";
-    this.id = "";
+    super();
 
     this.publishedTime = new Date();
     this.deviceTime = new Date();
@@ -26,14 +27,6 @@ export default class ThermostatValue {
     this.threshold = NaN;
     this.allowedActions = undefined;
   }
-
-  // Tenant (assigned by WarmAndFuzzy)
-  @hashKey()
-  public tenant: string;
-
-  // Device ID (assigned by Particle)
-  @rangeKey()
-  public id: string;
 
   // Timestamp attached by Particle OS when event was published
   @attribute()
