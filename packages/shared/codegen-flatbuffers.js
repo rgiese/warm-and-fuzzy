@@ -44,9 +44,8 @@ const flatbuffersDependenciesSource = path.join(flatbuffersRoot, "js");
   fs.copyFileSync(source, destination);
 });
 
-// Copy local TypeScript definitions into `generated` directory
-const flatbuffersDefinitions = "flatbuffers.d.ts";
+// Copy @types/flatbuffers definition into `generated` directory
 fs.copyFileSync(
-  path.join(packageRoot, `external/${flatbuffersDefinitions}`),
-  path.join(projectGeneratedRoot, flatbuffersDefinitions)
+  path.join(packageRoot, "node_modules/@types/flatbuffers/index.d.ts"),
+  path.join(projectGeneratedRoot, "flatbuffers.d.ts")
 );
