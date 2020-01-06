@@ -28,7 +28,9 @@
     "predeploy:dev": "npm-run-all codegen:*",
     "deploy:dev": "sls deploy --verbose --conceal",
     "predeploy:prod": "npm-run-all codegen:*",
-    "deploy:prod": "sls deploy --stage prod --verbose --conceal"
+    "deploy:prod": "sls deploy --stage prod --verbose --conceal",
+    "create-domain:dev": "sls create_domain --verbose",
+    "create-domain:prod": "sls create_domain --stage prod --verbose"
   },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
