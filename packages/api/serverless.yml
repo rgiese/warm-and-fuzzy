@@ -12,7 +12,7 @@ custom:
   # Our stage is based on what is passed in when running serverless commands.
   # Fall back to 'dev' (as set in the provider section below) if not specified.
   stage: ${opt:stage, self:provider.stage}
-  # API domain management (run `serverless create_domain` once per stage to create domain in Route53)
+  # API domain management (run `lerna run create-domain:{dev,prod} --stream` once per stage to create domain in Route53)
   customDomain:
     stage: ${self:custom.stage}
     domainName: ${self:custom.stage}.api.warmandfuzzy.house
@@ -120,8 +120,8 @@ functions:
           cors: true
           authorizer: auth0Authorizer
   # DynamoDB Stream handlers
-  stream_thermostatConfiguration:
-    handler: src/streams/thermostatConfiguration/index.dynamoStream
+  stream_thermostatConfigurationAndSettings:
+    handler: src/streams/thermostatConfigurationAndSettings/index.dynamoStream
     environment:
       PARTICLE_API_KEY_NAME: ${self:custom.secretNameParticleAPIKey}
     events:
@@ -130,11 +130,6 @@ functions:
           arn: !GetAtt ThermostatConfigurationTable.StreamArn
           batchSize: 1
           startingPosition: LATEST
-  stream_thermostatSettings:
-    handler: src/streams/thermostatSettings/index.dynamoStream
-    environment:
-      PARTICLE_API_KEY_NAME: ${self:custom.secretNameParticleAPIKey}
-    events:
       - stream:
           type: dynamodb
           arn: !GetAtt ThermostatSettingsTable.StreamArn

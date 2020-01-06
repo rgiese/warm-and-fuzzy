@@ -1,6 +1,8 @@
-import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
+import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
 
 import * as GraphQL from "../../../generated/graphqlTypes";
+
+import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 //
 // See https://github.com/awslabs/dynamodb-data-mapper-js
@@ -10,10 +12,9 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 //
 
 @table("ThermostatConfiguration")
-export default class ThermostatConfiguration {
+export default class ThermostatConfiguration extends DeviceWithTenantAndId {
   public constructor() {
-    this.tenant = "";
-    this.id = "";
+    super();
 
     this.name = "";
     this.streamName = "";
@@ -26,14 +27,6 @@ export default class ThermostatConfiguration {
     this.availableActions = undefined;
     this.timezone = undefined;
   }
-
-  // Tenant (assigned by WarmAndFuzzy)
-  @hashKey()
-  public tenant: string;
-
-  // Device ID (assigned by Particle)
-  @rangeKey()
-  public id: string;
 
   // User-facing name
   @attribute()

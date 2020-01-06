@@ -1,7 +1,9 @@
 import { embed } from "@aws/dynamodb-data-mapper";
-import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
+import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
 
 import * as GraphQL from "../../../generated/graphqlTypes";
+
+import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 //
 // See https://github.com/awslabs/dynamodb-data-mapper-js
@@ -65,20 +67,12 @@ export class ThermostatSetting {
 }
 
 @table("ThermostatSettings")
-export default class ThermostatSettings {
+export default class ThermostatSettings extends DeviceWithTenantAndId {
   public constructor() {
-    this.tenant = "";
-    this.id = "";
+    super();
+
     this.settings = new Array<ThermostatSetting>();
   }
-
-  // Tenant (assigned by WarmAndFuzzy)
-  @hashKey()
-  public tenant: string;
-
-  // Device ID (assigned by Particle)
-  @rangeKey()
-  public id: string;
 
   @attribute({ memberType: embed(ThermostatSetting) })
   public settings?: Array<ThermostatSetting>;
