@@ -27,7 +27,7 @@ HomeScreen.navigationOptions = ({
   screenProps: any;
 }): NavigationStackOptions => ({
   title: "Home",
-  headerRight: (
+  headerRight: () => (
     <IconButton
       onPress={(): void => {
         navigation.navigate(ScreenRoutes.Account);

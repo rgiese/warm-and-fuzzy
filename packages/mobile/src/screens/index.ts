@@ -55,7 +55,7 @@ const AuthNavigator = createStackNavigator(
   },
   {
     defaultNavigationOptions: {
-      header: null,
+      headerShown: false,
     },
   }
 );
