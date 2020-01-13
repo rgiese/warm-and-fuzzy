@@ -5,36 +5,18 @@ import { observer } from "mobx-react";
 import cloneDeep from "clone-deep";
 
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { RootStoreContext, ThermostatSettings } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import {
+  RootStoreContext,
+  ThermostatSettings,
+  compareMaybeDate,
+  compareMaybeNumber,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import * as GraphQL from "../generated/graphqlClient";
 
 import AddSettingPopup from "./thermostatSettings/AddSettingPopup";
 import ThermostatSettingBean from "./thermostatSettings/ThermostatSettingBean";
 import IndexedThermostatSetting from "./thermostatSettings/IndexedThermostatSetting";
-
-const compareMaybeDate = (lhs: Date | undefined | null, rhs: Date | undefined | null): number => {
-  if ((lhs?.valueOf() || 0) < (rhs?.valueOf() || 0)) {
-    return -1;
-  }
-  if ((lhs?.valueOf() || 0) > (rhs?.valueOf() || 0)) {
-    return 1;
-  }
-  return 0;
-};
-
-const compareMaybeNumber = (
-  lhs: number | null | undefined,
-  rhs: number | null | undefined
-): number => {
-  if ((lhs || 0) < (rhs || 0)) {
-    return -1;
-  }
-  if ((lhs || 0) > (rhs || 0)) {
-    return 1;
-  }
-  return 0;
-};
 
 const ThermostatSettingsComponent: React.FunctionComponent<{
   thermostatSettings: ThermostatSettings;

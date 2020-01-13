@@ -13,3 +13,5 @@ export * from "./stores/latestThermostatValues";
 export * from "./stores/sensorConfiguration";
 export * from "./stores/thermostatConfiguration";
 export * from "./stores/thermostatSettings";
+
+export * from "./compareHelpers";
