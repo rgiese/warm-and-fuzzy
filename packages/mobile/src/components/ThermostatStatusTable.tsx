@@ -18,7 +18,7 @@ import StoreChecks from "./StoreChecks";
 
 import { ThermostatAction } from "../../generated/graphqlClient";
 
-import { ColorCodes } from "../Theme";
+import { ColorCodes, IconNames } from "../Theme";
 import * as ThemedText from "./ThemedText";
 
 import ScreenRoutes from "../screens/ScreenRoutes";
@@ -183,7 +183,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {item.currentActions.includes(ThermostatAction.Heat) && (
                     <>
                       <IconMDC
-                        name="arrow-collapse-up"
+                        name={IconNames[ThermostatAction.Heat]}
                         size={iconSizes.arrows}
                         color={ColorCodes[ThermostatAction.Heat]}
                         style={styles.detailsIconPadding}
@@ -198,7 +198,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {item.currentActions.includes(ThermostatAction.Cool) && (
                     <>
                       <IconMDC
-                        name="arrow-collapse-down"
+                        name={IconNames[ThermostatAction.Cool]}
                         size={iconSizes.arrows}
                         color={ColorCodes[ThermostatAction.Cool]}
                         style={styles.detailsIconPadding}
@@ -212,7 +212,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {/* Actions: circulate */}
                   {item.currentActions.includes(ThermostatAction.Circulate) && (
                     <IconMDC
-                      name="autorenew"
+                      name={IconNames[ThermostatAction.Circulate]}
                       size={iconSizes.default}
                       color={ColorCodes[ThermostatAction.Circulate]}
                       style={styles.detailsIconPadding}
