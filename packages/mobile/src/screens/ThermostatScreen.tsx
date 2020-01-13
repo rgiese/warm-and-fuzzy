@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { ScrollView, Text } from "react-native";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
+import { observer } from "mobx-react";
 
 import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
@@ -38,4 +39,4 @@ ThermostatScreen.navigationOptions = {
   title: "Thermostat settings",
 };
 
-export default ThermostatScreen;
+export default observer(ThermostatScreen);
