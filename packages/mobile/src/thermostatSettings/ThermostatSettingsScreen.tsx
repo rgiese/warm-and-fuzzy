@@ -31,7 +31,7 @@ export interface ThermostatNavigationParams extends NavigationParams {
   thermostatName: string;
 }
 
-const ThermostatScreen: NavigationStackScreenComponent<ThermostatNavigationParams> = ({
+const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigationParams> = ({
   navigation,
 }): React.ReactElement => {
   //
@@ -131,10 +131,10 @@ const ThermostatScreen: NavigationStackScreenComponent<ThermostatNavigationParam
   );
 };
 
-ThermostatScreen.navigationOptions = ({ navigation }) => {
+ThermostatSettingsScreen.navigationOptions = ({ navigation }) => {
   return {
     title: `${navigation.state.params?.thermostatName || "Thermostat"} settings`,
   };
 };
 
-export default observer(ThermostatScreen);
+export default observer(ThermostatSettingsScreen);
