@@ -7,6 +7,7 @@ import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { observer } from "mobx-react";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import * as GraphQL from "../../generated/graphqlClient";
 
@@ -15,8 +16,6 @@ import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 
 import * as ThemedText from "../components/ThemedText";
 import { ColorCodes } from "../Theme";
-
-import IndexedThermostatSetting from "./IndexedThermostatSetting";
 
 const styles = StyleSheet.create({
   // One row per set point
@@ -52,16 +51,18 @@ const styles = StyleSheet.create({
 });
 
 export interface ThermostatSettingNavigationParams extends NavigationParams {
-  thermostatSetting: IndexedThermostatSetting;
+  thermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
 }
 
 const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingNavigationParams> = ({
   navigation,
 }): React.ReactElement => {
-  const [mutableSetting, updateMutableSetting] = useState(
-    navigation.state.params?.thermostatSetting || ({} as IndexedThermostatSetting)
-  );
+  const thermostatSetting =
+    navigation.state.params?.thermostatSetting ||
+    ({} as ThermostatSettingsHelpers.IndexedThermostatSetting);
+
+  const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
 
   if (!navigation.state.params) {
     return <Text>Error: parameters missing.</Text>;
