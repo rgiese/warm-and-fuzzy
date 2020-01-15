@@ -59,13 +59,13 @@ export interface ThermostatSettingNavigationParams extends NavigationParams {
 const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingNavigationParams> = ({
   navigation,
 }): React.ReactElement => {
+  const [mutableSetting, updateMutableSetting] = useState(
+    navigation.state.params?.thermostatSetting || ({} as IndexedThermostatSetting)
+  );
+
   if (!navigation.state.params) {
     return <Text>Error: parameters missing.</Text>;
   }
-
-  const [mutableSetting, updateMutableSetting] = useState(
-    navigation.state.params.thermostatSetting
-  );
 
   const availableActions = navigation.state.params.availableActions;
 
