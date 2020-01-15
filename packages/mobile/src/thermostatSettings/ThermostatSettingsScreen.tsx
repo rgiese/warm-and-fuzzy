@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { ScrollView, Text } from "react-native";
 import { List } from "react-native-paper";
 import { NavigationParams } from "react-navigation";
@@ -31,12 +31,6 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
   navigation,
 }): React.ReactElement => {
   //
-  // State
-  //
-
-  const [isSaving, setIsSaving] = useState(false);
-
-  //
   // Parse parameters
   //
 
@@ -59,7 +53,9 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
   const mutableSettingsStore = new ThermostatSettingsHelpers.MutableSettingsStore(
     rootStore.thermostatSettingsStore,
     thermostatSettings,
-    setIsSaving
+    (_isSaving: boolean) => {
+      /* managed inside ThermostatSettingScreen */
+    }
   );
 
   return (
@@ -71,8 +67,9 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
               key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
               onPress={() => {
                 const params: ThermostatSettingNavigationParams = {
-                  availableActions,
+                  mutableSettingsStore,
                   thermostatSetting,
+                  availableActions,
                 };
                 navigation.navigate(ScreenRoutes.ThermostatSetting, params);
               }}

@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Switch, Text } from "react-native-paper";
+import { ThemeContext } from "react-native-elements";
+import { Button, Switch, Text } from "react-native-paper";
 import Slider from "@react-native-community/slider";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
+import fastCompare from "react-fast-compare";
 import { observer } from "mobx-react";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
@@ -51,24 +53,33 @@ const styles = StyleSheet.create({
 });
 
 export interface ThermostatSettingNavigationParams extends NavigationParams {
+  mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
   thermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
+  isNewSetting?: boolean;
 }
 
 const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingNavigationParams> = ({
   navigation,
 }): React.ReactElement => {
+  const theme = useContext(ThemeContext).theme;
+
   const thermostatSetting =
     navigation.state.params?.thermostatSetting ||
     ({} as ThermostatSettingsHelpers.IndexedThermostatSetting);
 
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!navigation.state.params) {
     return <Text>Error: parameters missing.</Text>;
   }
 
+  const mutableSettingsStore = navigation.state.params.mutableSettingsStore;
   const availableActions = navigation.state.params.availableActions;
+
+  const isDirty =
+    navigation.state.params.isNewSetting || !fastCompare(mutableSetting, thermostatSetting);
 
   //
   // Functions to change in-flight (editing) state
@@ -158,6 +169,23 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             />
           </View>
         )}
+
+        {/* Save button */}
+        <View style={styles.saveButtonRow}>
+          <Button
+            mode="outlined"
+            disabled={!isDirty}
+            loading={isSaving}
+            color={theme?.colors?.primary}
+            onPress={async (): Promise<void> => {
+              setIsSaving(true);
+              await mutableSettingsStore.onSave(mutableSetting);
+              navigation.goBack();
+            }}
+          >
+            {isSaving ? "Saving" : "Save"}
+          </Button>
+        </View>
       </ScrollView>
     </BaseView>
   );
