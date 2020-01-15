@@ -4,12 +4,13 @@ import { TimeInput } from "semantic-ui-calendar-react";
 
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import InteriorPadding from "./InteriorPadding";
 
 const TimeOfDayPopup: React.FunctionComponent<{
-  mutableSetting: IndexedThermostatSetting;
-  updateMutableSetting: React.Dispatch<React.SetStateAction<IndexedThermostatSetting>>;
+  mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
+  updateMutableSetting: React.Dispatch<
+    React.SetStateAction<ThermostatSettingsHelpers.IndexedThermostatSetting>
+  >;
 }> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
   const timeOfDay = mutableSetting.atMinutesSinceMidnight || 0;
 

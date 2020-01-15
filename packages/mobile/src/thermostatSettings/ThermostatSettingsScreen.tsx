@@ -1,16 +1,13 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { ScrollView, Text } from "react-native";
 import { List } from "react-native-paper";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { observer } from "mobx-react";
-import cloneDeep from "clone-deep";
 
 import {
   RootStoreContext,
-  compareMaybeDate,
-  compareMaybeNumber,
   ThermostatSettingsHelpers,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
@@ -23,7 +20,6 @@ import { IconNames } from "../Theme";
 import { ThermostatSettingNavigationParams } from "./ThermostatSettingScreen";
 import ScreenRoutes from "../screens/ScreenRoutes";
 
-import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import SetpointDisplay from "./SetpointDisplay";
 
 export interface ThermostatNavigationParams extends NavigationParams {
@@ -34,6 +30,12 @@ export interface ThermostatNavigationParams extends NavigationParams {
 const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigationParams> = ({
   navigation,
 }): React.ReactElement => {
+  //
+  // State
+  //
+
+  const [isSaving, setIsSaving] = useState(false);
+
   //
   // Parse parameters
   //
@@ -54,35 +56,16 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
 
   const availableActions = thermostatConfiguration?.availableActions || [];
 
-  //
-  // Prep data
-  //
-
-  // Deep-clone settings array so we can sort it here and mutate it in child components;
-  // also inject indexes to map settings back to store definition.
-  // (Deep-cloning may be overkill, but we want to be sure not to mutate the store directly at any point.)
-  const localSettingsArray = cloneDeep(thermostatSettings.settings).map(
-    (thermostatSetting, index): IndexedThermostatSetting => {
-      return { ...thermostatSetting, index };
-    }
+  const mutableSettingsStore = new ThermostatSettingsHelpers.MutableSettingsStore(
+    rootStore.thermostatSettingsStore,
+    thermostatSettings,
+    setIsSaving
   );
-
-  const holdSettings = localSettingsArray
-    .filter(setting => setting.type === GraphQL.ThermostatSettingType.Hold)
-    .sort((lhs, rhs): number => compareMaybeDate(lhs.holdUntil, rhs.holdUntil));
-
-  const scheduledSettings = localSettingsArray
-    .filter(setting => setting.type === GraphQL.ThermostatSettingType.Scheduled)
-    .sort((lhs, rhs): number =>
-      compareMaybeNumber(lhs.atMinutesSinceMidnight, rhs.atMinutesSinceMidnight)
-    );
-
-  const orderedSettings = holdSettings.concat(scheduledSettings);
 
   return (
     <BaseView>
       <ScrollView style={ScreenBaseStyles.topLevelView}>
-        {orderedSettings.map((thermostatSetting, index) => {
+        {mutableSettingsStore.orderedSettings.map((thermostatSetting, index) => {
           return (
             <TouchableOpacity
               key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}

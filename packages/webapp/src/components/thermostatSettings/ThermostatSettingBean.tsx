@@ -3,12 +3,11 @@ import fastCompare from "react-fast-compare";
 import { Button } from "semantic-ui-react";
 import { observer } from "mobx-react";
 
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
 import * as GraphQL from "../../generated/graphqlClient";
 
-import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import InteriorPadding from "./InteriorPadding";
-import OnRemove from "./OnRemove";
-import OnSave from "./OnSave";
 
 import HoldUntilPopup from "./HoldUntilPopup";
 import SetpointPopup from "./SetpointPopup";
@@ -16,21 +15,23 @@ import DaysOfWeekPopup from "./DaysOfWeekPopup";
 import TimeOfDayPopup from "./TimeOfDayPopup";
 
 const ThermostatSettingBean: React.FunctionComponent<{
-  thermostatSetting: IndexedThermostatSetting;
+  mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
+  thermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
+  allowRemove: boolean;
   isDirty?: boolean;
-  onRemove?: OnRemove;
-  onSave: OnSave;
   isSaving: boolean;
   onAfterRevert?: () => void;
+  onAfterSave?: () => void;
 }> = ({
+  mutableSettingsStore,
   thermostatSetting,
   availableActions,
+  allowRemove,
   isDirty: isForcedDirty,
-  onRemove,
-  onSave,
   isSaving,
   onAfterRevert,
+  onAfterSave,
 }): React.ReactElement => {
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
   const isDirty = isForcedDirty || !fastCompare(mutableSetting, thermostatSetting);
@@ -92,7 +93,12 @@ const ThermostatSettingBean: React.FunctionComponent<{
             color="green"
             icon="save"
             loading={isSaving}
-            onClick={() => onSave(mutableSetting)}
+            onClick={async (): Promise<void> => {
+              await mutableSettingsStore.onSave(mutableSetting);
+              if (onAfterSave) {
+                onAfterSave();
+              }
+            }}
           />
           <Button
             color="grey"
@@ -107,7 +113,7 @@ const ThermostatSettingBean: React.FunctionComponent<{
         </>
       )}
 
-      {onRemove && (
+      {allowRemove && (
         <Button
           style={{
             paddingLeft: InteriorPadding,
@@ -115,7 +121,7 @@ const ThermostatSettingBean: React.FunctionComponent<{
             opacity: 0.8,
           }}
           icon="remove"
-          onClick={() => onRemove(mutableSetting)}
+          onClick={() => mutableSettingsStore.onRemove(mutableSetting)}
         />
       )}
     </Button.Group>

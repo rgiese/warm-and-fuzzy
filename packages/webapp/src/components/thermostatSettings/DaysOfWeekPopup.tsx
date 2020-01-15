@@ -4,12 +4,13 @@ import { Button, Checkbox, Form, Message, Popup } from "semantic-ui-react";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import InteriorPadding from "./InteriorPadding";
 
 const DaysOfWeekPopup: React.FunctionComponent<{
-  mutableSetting: IndexedThermostatSetting;
-  updateMutableSetting: React.Dispatch<React.SetStateAction<IndexedThermostatSetting>>;
+  mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
+  updateMutableSetting: React.Dispatch<
+    React.SetStateAction<ThermostatSettingsHelpers.IndexedThermostatSetting>
+  >;
 }> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
   return (
     <Popup
