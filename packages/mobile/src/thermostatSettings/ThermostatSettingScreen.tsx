@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ThemeContext } from "react-native-elements";
-import { Button, Switch, Text } from "react-native-paper";
+import { Button, Switch, Text, Theme } from "react-native-paper";
 import Slider from "@react-native-community/slider";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
@@ -175,9 +175,9 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
           {/* Remove button */}
           <Button
             mode="outlined"
-            disabled={isSaving}
+            disabled={isDirty}
             loading={isRemoving}
-            color={theme?.colors?.secondary}
+            color={ColorCodes[GraphQL.ThermostatAction.Heat]}
             onPress={async (): Promise<void> => {
               setIsRemoving(true);
               await mutableSettingsStore.onRemove(mutableSetting);
@@ -192,7 +192,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             mode="outlined"
             disabled={!isDirty}
             loading={isSaving}
-            color={theme?.colors?.primary}
+            color={(theme as Theme)?.colors?.text}
             onPress={async (): Promise<void> => {
               setIsSaving(true);
               await mutableSettingsStore.onSave(mutableSetting);
