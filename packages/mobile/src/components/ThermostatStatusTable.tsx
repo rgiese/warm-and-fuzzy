@@ -14,23 +14,18 @@ import {
   RootStoreContext,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import StoreChecks from "./StoreChecks";
-
 import { ThermostatAction } from "../../generated/graphqlClient";
 
 import { ColorCodes, IconNames } from "../Theme";
 import * as ThemedText from "./ThemedText";
 
+import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import ScreenRoutes from "../screens/ScreenRoutes";
 import { ThermostatNavigationParams } from "../thermostatSettings/ThermostatSettingsScreen";
 
+import StoreChecks from "./StoreChecks";
+
 const styles = StyleSheet.create({
-  containingListItem: {
-    flex: 1,
-    flexDirection: "column",
-    paddingLeft: 20,
-    paddingBottom: 20,
-  },
   // Primary row (e.g. "Sensor [temp] [hum]")
   primaryRow: {
     flex: 1,
@@ -160,7 +155,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                 };
                 this.props.navigation.navigate(ScreenRoutes.ThermostatSettings, params);
               }}
-              style={styles.containingListItem}
+              style={ScreenBaseStyles.topLevelView}
             >
               {/* Top row */}
               <View style={styles.primaryRow}>

@@ -7,6 +7,7 @@ import { observer } from "mobx-react";
 import IndexedThermostatSetting from "./IndexedThermostatSetting";
 
 import BaseView from "../components/BaseView";
+import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 
 export interface ThermostatSettingNavigationParams extends NavigationParams {
   thermostatSetting: IndexedThermostatSetting;
@@ -23,7 +24,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
 
   return (
     <BaseView>
-      <ScrollView>
+      <ScrollView style={ScreenBaseStyles.topLevelView}>
         <Text>Florp.</Text>
       </ScrollView>
     </BaseView>

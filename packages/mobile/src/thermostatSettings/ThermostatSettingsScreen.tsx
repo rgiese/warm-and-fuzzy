@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { ScrollView, StyleSheet, Text } from "react-native";
+import { ScrollView, Text } from "react-native";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { observer } from "mobx-react";
@@ -14,19 +14,10 @@ import {
 import * as GraphQL from "../../generated/graphqlClient";
 
 import BaseView from "../components/BaseView";
+import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 
 import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import ThermostatSettingsListItem from "./ThermostatSettingsListItem";
-
-const styles = StyleSheet.create({
-  // Top-level view
-  componentView: {
-    flex: 1,
-    flexDirection: "column",
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-});
 
 export interface ThermostatNavigationParams extends NavigationParams {
   thermostatId: string;
@@ -81,7 +72,7 @@ const ThermostatScreen: NavigationStackScreenComponent<ThermostatNavigationParam
 
   return (
     <BaseView>
-      <ScrollView style={styles.componentView}>
+      <ScrollView style={ScreenBaseStyles.topLevelView}>
         {orderedSettings.map((setting, index) => {
           return (
             <ThermostatSettingsListItem
