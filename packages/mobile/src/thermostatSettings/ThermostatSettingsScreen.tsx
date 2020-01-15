@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
 import { ScrollView, Text } from "react-native";
+import { List } from "react-native-paper";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { observer } from "mobx-react";
 import cloneDeep from "clone-deep";
 
@@ -9,15 +11,20 @@ import {
   RootStoreContext,
   compareMaybeDate,
   compareMaybeNumber,
+  ThermostatSettingsHelpers,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import * as GraphQL from "../../generated/graphqlClient";
 
 import BaseView from "../components/BaseView";
 import ScreenBaseStyles from "../screens/ScreenBaseStyles";
+import { IconNames } from "../Theme";
+
+import { ThermostatSettingNavigationParams } from "./ThermostatSettingScreen";
+import ScreenRoutes from "../screens/ScreenRoutes";
 
 import IndexedThermostatSetting from "./IndexedThermostatSetting";
-import ThermostatSettingsListItem from "./ThermostatSettingsListItem";
+import SetpointDisplay from "./SetpointDisplay";
 
 export interface ThermostatNavigationParams extends NavigationParams {
   thermostatId: string;
@@ -44,6 +51,8 @@ const ThermostatScreen: NavigationStackScreenComponent<ThermostatNavigationParam
   const thermostatConfiguration = rootStore.thermostatConfigurationStore.findById(
     thermostatSettings.id
   );
+
+  const availableActions = thermostatConfiguration?.availableActions || [];
 
   //
   // Prep data
@@ -73,13 +82,48 @@ const ThermostatScreen: NavigationStackScreenComponent<ThermostatNavigationParam
   return (
     <BaseView>
       <ScrollView style={ScreenBaseStyles.topLevelView}>
-        {orderedSettings.map((setting, index) => {
+        {orderedSettings.map((thermostatSetting, index) => {
           return (
-            <ThermostatSettingsListItem
-              thermostatSetting={setting}
-              availableActions={thermostatConfiguration?.availableActions || []}
+            <TouchableOpacity
               key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
-            />
+              onPress={() => {
+                const params: ThermostatSettingNavigationParams = {
+                  availableActions,
+                  thermostatSetting,
+                };
+                navigation.navigate(ScreenRoutes.ThermostatSetting, params);
+              }}
+            >
+              <List.Item
+                left={props => <List.Icon {...props} icon={IconNames[thermostatSetting.type]} />}
+                title={
+                  <>
+                    {[
+                      GraphQL.ThermostatAction.Heat,
+                      GraphQL.ThermostatAction.Cool,
+                      GraphQL.ThermostatAction.Circulate,
+                    ].map(action => (
+                      <SetpointDisplay
+                        action={action}
+                        thermostatSetting={thermostatSetting}
+                        key={action}
+                      />
+                    ))}
+                  </>
+                }
+                description={
+                  thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
+                    ? ThermostatSettingsHelpers.FormatHoldUntil(
+                        thermostatSetting.holdUntil || new Date(0)
+                      )
+                    : `${ThermostatSettingsHelpers.FormatDaysOfWeekList(
+                        thermostatSetting.daysOfWeek || []
+                      )} at ${ThermostatSettingsHelpers.FormatMinutesSinceMidnight(
+                        thermostatSetting.atMinutesSinceMidnight || 0
+                      )}`
+                }
+              />
+            </TouchableOpacity>
           );
         })}
       </ScrollView>
