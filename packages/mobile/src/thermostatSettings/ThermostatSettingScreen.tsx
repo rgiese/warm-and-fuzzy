@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   saveButtonRow: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-around",
     paddingTop: 16,
   },
 });
@@ -70,6 +70,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
 
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   if (!navigation.state.params) {
     return <Text>Error: parameters missing.</Text>;
@@ -170,8 +171,23 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
           </View>
         )}
 
-        {/* Save button */}
         <View style={styles.saveButtonRow}>
+          {/* Remove button */}
+          <Button
+            mode="outlined"
+            disabled={isSaving}
+            loading={isRemoving}
+            color={theme?.colors?.secondary}
+            onPress={async (): Promise<void> => {
+              setIsRemoving(true);
+              await mutableSettingsStore.onRemove(mutableSetting);
+              navigation.goBack();
+            }}
+          >
+            {isRemoving ? "Removing" : "Remove"}
+          </Button>
+
+          {/* Save button */}
           <Button
             mode="outlined"
             disabled={!isDirty}
