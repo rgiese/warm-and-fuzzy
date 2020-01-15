@@ -49,8 +49,7 @@ const AddSettingPopup: React.FunctionComponent<{
           mutableSettingsStore={mutableSettingsStore}
           thermostatSetting={defaultThermostatSetting}
           availableActions={availableActions}
-          allowRemove={false}
-          isDirty={true}
+          isNewSetting
           isSaving={isSaving}
           onAfterRevert={() => setPopupOpen(false)}
           onAfterSave={() => setPopupOpen(false)}

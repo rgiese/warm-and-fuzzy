@@ -18,8 +18,7 @@ const ThermostatSettingBean: React.FunctionComponent<{
   mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
   thermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
-  allowRemove: boolean;
-  isDirty?: boolean;
+  isNewSetting?: boolean;
   isSaving: boolean;
   onAfterRevert?: () => void;
   onAfterSave?: () => void;
@@ -27,14 +26,13 @@ const ThermostatSettingBean: React.FunctionComponent<{
   mutableSettingsStore,
   thermostatSetting,
   availableActions,
-  allowRemove,
-  isDirty: isForcedDirty,
+  isNewSetting,
   isSaving,
   onAfterRevert,
   onAfterSave,
 }): React.ReactElement => {
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
-  const isDirty = isForcedDirty || !fastCompare(mutableSetting, thermostatSetting);
+  const isDirty = isNewSetting || !fastCompare(mutableSetting, thermostatSetting);
 
   return (
     <Button.Group style={{ padding: 4 }}>
@@ -113,7 +111,7 @@ const ThermostatSettingBean: React.FunctionComponent<{
         </>
       )}
 
-      {allowRemove && (
+      {!isNewSetting && (
         <Button
           style={{
             paddingLeft: InteriorPadding,

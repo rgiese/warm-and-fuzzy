@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import { Header, Segment } from "semantic-ui-react";
 import { observer } from "mobx-react";
 
-
 import {
   RootStoreContext,
   ThermostatSettings,
@@ -56,7 +55,6 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
               thermostatSetting={setting}
               availableActions={thermostatConfiguration?.availableActions || []}
               key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
-              allowRemove={true}
               isSaving={isSaving}
             />
           );
