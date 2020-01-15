@@ -5,9 +5,9 @@ import { observer } from "mobx-react";
 
 import { ThermostatSetting } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import * as GraphQL from "../../../generated/graphqlClient";
+import * as GraphQL from "../../generated/graphqlClient";
 
-import { ColorCodes, IconNames } from "../../Theme";
+import { ColorCodes, IconNames } from "../Theme";
 
 const iconSize = 14;
 

@@ -1,20 +1,22 @@
 import React, { useContext } from "react";
-import { StyleSheet, View } from "react-native";
-import { Text, Theme, withTheme } from "react-native-paper";
+import { ScrollView, StyleSheet, Text } from "react-native";
+import { NavigationParams } from "react-navigation";
+import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { observer } from "mobx-react";
 import cloneDeep from "clone-deep";
 
 import {
   RootStoreContext,
-  ThermostatSettings,
   compareMaybeDate,
   compareMaybeNumber,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import * as GraphQL from "../../generated/graphqlClient";
 
-import IndexedThermostatSetting from "./thermostatSettings/IndexedThermostatSetting";
-import ThermostatSettingBean from "./thermostatSettings/ThermostatSettingBean";
+import BaseView from "../components/BaseView";
+
+import IndexedThermostatSetting from "./IndexedThermostatSetting";
+import ThermostatSettingsListItem from "./ThermostatSettingsListItem";
 
 const styles = StyleSheet.create({
   // Top-level view
@@ -24,23 +26,37 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
-  // Thermostat label
-  thermostatLabel: {
-    fontSize: 20,
-    paddingBottom: 4,
-    paddingTop: 4,
-  },
 });
 
-const ThermostatSettingsComponent: React.FunctionComponent<{
-  thermostatSettings: ThermostatSettings;
-  theme: Theme;
-}> = ({ thermostatSettings }): React.ReactElement => {
+export interface ThermostatNavigationParams extends NavigationParams {
+  thermostatId: string;
+  thermostatName: string;
+}
+
+const ThermostatScreen: NavigationStackScreenComponent<ThermostatNavigationParams> = ({
+  navigation,
+}): React.ReactElement => {
+  //
+  // Parse parameters
+  //
+
   const rootStore = useContext(RootStoreContext).rootStore;
+
+  const thermostatSettings = rootStore.thermostatSettingsStore.findById(
+    navigation.state.params?.thermostatId || "0"
+  );
+
+  if (!thermostatSettings) {
+    return <Text>Error: thermostat settings not found.</Text>;
+  }
 
   const thermostatConfiguration = rootStore.thermostatConfigurationStore.findById(
     thermostatSettings.id
   );
+
+  //
+  // Prep data
+  //
 
   // Deep-clone settings array so we can sort it here and mutate it in child components;
   // also inject indexes to map settings back to store definition.
@@ -64,23 +80,26 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
   const orderedSettings = holdSettings.concat(scheduledSettings);
 
   return (
-    <View style={styles.componentView}>
-      {/* Name */}
-      <Text style={styles.thermostatLabel}>
-        {thermostatConfiguration?.name || thermostatSettings.id}
-      </Text>
-
-      {orderedSettings.map((setting, index) => {
-        return (
-          <ThermostatSettingBean
-            thermostatSetting={setting}
-            availableActions={thermostatConfiguration?.availableActions || []}
-            key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
-          />
-        );
-      })}
-    </View>
+    <BaseView>
+      <ScrollView style={styles.componentView}>
+        {orderedSettings.map((setting, index) => {
+          return (
+            <ThermostatSettingsListItem
+              thermostatSetting={setting}
+              availableActions={thermostatConfiguration?.availableActions || []}
+              key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
+            />
+          );
+        })}
+      </ScrollView>
+    </BaseView>
   );
 };
 
-export default withTheme(observer(ThermostatSettingsComponent));
+ThermostatScreen.navigationOptions = ({ navigation }) => {
+  return {
+    title: `${navigation.state.params?.thermostatName || "Thermostat"} settings`,
+  };
+};
+
+export default observer(ThermostatScreen);

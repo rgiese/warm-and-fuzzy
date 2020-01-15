@@ -1,22 +1,27 @@
 import React from "react";
 import { List } from "react-native-paper";
+import { withNavigation, NavigationInjectedProps } from "react-navigation";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import fastCompare from "react-fast-compare";
 import { observer } from "mobx-react";
 import moment from "moment";
 
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { ThermostatSetting } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import * as GraphQL from "../../../generated/graphqlClient";
+import * as GraphQL from "../../generated/graphqlClient";
 
-import { IconNames } from "../../Theme";
+import { IconNames } from "../Theme";
+
+import IndexedThermostatSetting from "./IndexedThermostatSetting";
+import { ThermostatSettingNavigationParams } from "./ThermostatSettingScreen";
+import ScreenRoutes from "../screens/ScreenRoutes";
 
 import SetpointDisplay from "./SetpointDisplay";
 
-const ThermostatSettingsBean: React.FunctionComponent<{
-  thermostatSetting: ThermostatSetting;
+const ThermostatSettingsListItem: React.FunctionComponent<{
+  thermostatSetting: IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
-}> = ({ thermostatSetting }): React.ReactElement => {
+} & NavigationInjectedProps> = ({ thermostatSetting, navigation }): React.ReactElement => {
   //
   // Derive description for Hold settings
   //
@@ -74,32 +79,33 @@ const ThermostatSettingsBean: React.FunctionComponent<{
     String(Math.round(value % 60)).padStart(2, "0");
 
   return (
-    <List.Item
-      left={props => <List.Icon {...props} icon={IconNames[thermostatSetting.type]} />}
-      right={props => (
-        <>
-          <List.Icon {...props} icon="pencil" />
-          <List.Icon {...props} icon="delete" />
-        </>
-      )}
-      title={
-        <>
-          {[
-            GraphQL.ThermostatAction.Heat,
-            GraphQL.ThermostatAction.Cool,
-            GraphQL.ThermostatAction.Circulate,
-          ].map(action => (
-            <SetpointDisplay action={action} thermostatSetting={thermostatSetting} key={action} />
-          ))}
-        </>
-      }
-      description={
-        thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
-          ? currentExpirationText()
-          : `${displayDays()} at ${formatTime(thermostatSetting.atMinutesSinceMidnight || 0)}`
-      }
-    />
+    <TouchableOpacity
+      onPress={() => {
+        const params: ThermostatSettingNavigationParams = { thermostatSetting };
+        navigation.navigate(ScreenRoutes.ThermostatSetting, params);
+      }}
+    >
+      <List.Item
+        left={props => <List.Icon {...props} icon={IconNames[thermostatSetting.type]} />}
+        title={
+          <>
+            {[
+              GraphQL.ThermostatAction.Heat,
+              GraphQL.ThermostatAction.Cool,
+              GraphQL.ThermostatAction.Circulate,
+            ].map(action => (
+              <SetpointDisplay action={action} thermostatSetting={thermostatSetting} key={action} />
+            ))}
+          </>
+        }
+        description={
+          thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
+            ? currentExpirationText()
+            : `${displayDays()} at ${formatTime(thermostatSetting.atMinutesSinceMidnight || 0)}`
+        }
+      />
+    </TouchableOpacity>
   );
 };
 
-export default observer(ThermostatSettingsBean);
+export default withNavigation(observer(ThermostatSettingsListItem));

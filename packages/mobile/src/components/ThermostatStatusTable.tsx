@@ -22,7 +22,7 @@ import { ColorCodes, IconNames } from "../Theme";
 import * as ThemedText from "./ThemedText";
 
 import ScreenRoutes from "../screens/ScreenRoutes";
-import { ThermostatNavigationParams } from "../screens/ThermostatScreen";
+import { ThermostatNavigationParams } from "../thermostatSettings/ThermostatSettingsScreen";
 
 const styles = StyleSheet.create({
   containingListItem: {
@@ -154,8 +154,11 @@ class ThermostatStatusTable extends React.Component<Props, State> {
           renderItem={({ item }): React.ReactElement => (
             <TouchableOpacity
               onPress={() => {
-                const params: ThermostatNavigationParams = { thermostatId: item.id };
-                this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
+                const params: ThermostatNavigationParams = {
+                  thermostatId: item.id,
+                  thermostatName: item.configuration.name,
+                };
+                this.props.navigation.navigate(ScreenRoutes.ThermostatSettings, params);
               }}
               style={styles.containingListItem}
             >
