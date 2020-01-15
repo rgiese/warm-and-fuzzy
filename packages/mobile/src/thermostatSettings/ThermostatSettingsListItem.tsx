@@ -21,7 +21,11 @@ import SetpointDisplay from "./SetpointDisplay";
 const ThermostatSettingsListItem: React.FunctionComponent<{
   thermostatSetting: IndexedThermostatSetting;
   availableActions: GraphQL.ThermostatAction[];
-} & NavigationInjectedProps> = ({ thermostatSetting, navigation }): React.ReactElement => {
+} & NavigationInjectedProps> = ({
+  thermostatSetting,
+  availableActions,
+  navigation,
+}): React.ReactElement => {
   //
   // Derive description for Hold settings
   //
@@ -81,7 +85,7 @@ const ThermostatSettingsListItem: React.FunctionComponent<{
   return (
     <TouchableOpacity
       onPress={() => {
-        const params: ThermostatSettingNavigationParams = { thermostatSetting };
+        const params: ThermostatSettingNavigationParams = { availableActions, thermostatSetting };
         navigation.navigate(ScreenRoutes.ThermostatSetting, params);
       }}
     >
