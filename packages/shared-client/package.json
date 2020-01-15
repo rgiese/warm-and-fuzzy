@@ -32,6 +32,7 @@
     "graphql-tag": "^2.10.1",
     "mobx": "^5.15.1",
     "mobx-react": "^6.1.4",
-    "mobx-utils": "^5.5.2"
+    "mobx-utils": "^5.5.2",
+    "react-fast-compare": "^2.0.4"
   }
 }

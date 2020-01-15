@@ -2,6 +2,8 @@ import React from "react";
 import { Button, Popup } from "semantic-ui-react";
 import { TimeInput } from "semantic-ui-calendar-react";
 
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
 import IndexedThermostatSetting from "./IndexedThermostatSetting";
 import InteriorPadding from "./InteriorPadding";
 
@@ -10,16 +12,6 @@ const TimeOfDayPopup: React.FunctionComponent<{
   updateMutableSetting: React.Dispatch<React.SetStateAction<IndexedThermostatSetting>>;
 }> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
   const timeOfDay = mutableSetting.atMinutesSinceMidnight || 0;
-
-  const formatTime = (value: number): string =>
-    String(Math.floor(value / 60)).padStart(2, "0") +
-    ":" +
-    String(Math.round(value % 60)).padStart(2, "0");
-
-  const parseTime = (value: string): number => {
-    const [hours, minutes] = value.split(":");
-    return Number.parseInt(hours) * 60 + Number.parseInt(minutes);
-  };
 
   return (
     // We use a Popup to house an inline (always displayed) TimeInput because the TimeInput
@@ -31,7 +23,7 @@ const TimeOfDayPopup: React.FunctionComponent<{
       on="click"
       trigger={
         <Button
-          content={`at ${formatTime(timeOfDay)}`}
+          content={`at ${ThermostatSettingsHelpers.FormatMinutesSinceMidnight(timeOfDay)}`}
           style={{ paddingLeft: InteriorPadding / 4, paddingRight: InteriorPadding / 2 }}
         />
       }
@@ -41,11 +33,11 @@ const TimeOfDayPopup: React.FunctionComponent<{
         <TimeInput
           inline
           animation={"none" as any}
-          value={formatTime(timeOfDay)}
+          value={ThermostatSettingsHelpers.FormatMinutesSinceMidnight(timeOfDay)}
           onChange={(_event, { value }) =>
             updateMutableSetting({
               ...mutableSetting,
-              atMinutesSinceMidnight: parseTime(value),
+              atMinutesSinceMidnight: ThermostatSettingsHelpers.ParseMinutesSinceMidnight(value),
             })
           }
         />
