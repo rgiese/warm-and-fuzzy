@@ -28,7 +28,7 @@ const HoldUntilPopup: React.FunctionComponent<{
     },
   ];
 
-  const hourlyDropdownOptions: DropdownItemProps[] = [1, 2, 4, 8, 12, 24].map(
+  const hourlyDropdownOptions: DropdownItemProps[] = ThermostatSettingsHelpers.HoldUntilHoursFromNowOptions.map(
     (hour): DropdownItemProps => {
       return {
         key: hour,

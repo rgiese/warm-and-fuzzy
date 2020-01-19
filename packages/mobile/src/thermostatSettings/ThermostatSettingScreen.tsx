@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Picker, ScrollView, StyleSheet, View } from "react-native";
 import { ThemeContext } from "react-native-elements";
 import { Button, Switch, Text, Theme } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -8,6 +8,8 @@ import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 import fastCompare from "react-fast-compare";
 import { observer } from "mobx-react";
+
+import moment from "moment";
 
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
@@ -21,6 +23,10 @@ import * as ThemedText from "../components/ThemedText";
 import { ColorCodes, IconNames } from "../Theme";
 
 const styles = StyleSheet.create({
+  // Hold row
+  holdPicker: {
+    marginLeft: -6,
+  },
   // Schedule row
   scheduleRow: {
     flex: 1,
@@ -143,9 +149,51 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
     );
   };
 
+  const capitalizeString = (str: string): string => {
+    return str.charAt(0).toLocaleUpperCase() + str.substring(1);
+  };
+
   return (
     <BaseView>
       <ScrollView style={ScreenBaseStyles.topLevelView}>
+        {// Hold settings
+        mutableSetting.type === GraphQL.ThermostatSettingType.Hold && (
+          <View>
+            <Picker
+              style={styles.holdPicker}
+              mode="dropdown"
+              selectedValue={mutableSetting.holdUntil?.valueOf()}
+              onValueChange={value =>
+                updateMutableSetting({ ...mutableSetting, holdUntil: new Date(value as number) })
+              }
+            >
+              <Picker.Item
+                value={mutableSetting.holdUntil?.valueOf()}
+                label={capitalizeString(
+                  ThermostatSettingsHelpers.FormatHoldUntil(mutableSetting.holdUntil || new Date())
+                )}
+              />
+              <Picker.Item
+                value={ThermostatSettingsHelpers.HoldUntilForeverSentinel.valueOf()}
+                label="Forever"
+              />
+              {ThermostatSettingsHelpers.HoldUntilHoursFromNowOptions.map(
+                (hour): React.ReactElement => {
+                  return (
+                    <Picker.Item
+                      key={hour}
+                      value={moment()
+                        .add(hour, "hours")
+                        .toDate()
+                        .valueOf()}
+                      label={`Until ${hour} hours from now`}
+                    />
+                  );
+                }
+              )}
+            </Picker>
+          </View>
+        )}
         {// Scheduled settings
         mutableSetting.type === GraphQL.ThermostatSettingType.Scheduled && (
           <>

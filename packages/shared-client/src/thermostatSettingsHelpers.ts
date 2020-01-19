@@ -165,6 +165,8 @@ export namespace ThermostatSettingsHelpers {
 
   export const HoldUntilForeverSentinel = new Date(Math.pow(2, 31) * 1000); // cheap sentinel value - close enough...
 
+  export const HoldUntilHoursFromNowOptions = [1, 2, 4, 8, 12, 24];
+
   export const FormatHoldUntil = (holdUntil: Date): string => {
     if (holdUntil.valueOf() < Date.now()) {
       return "(expired)";
