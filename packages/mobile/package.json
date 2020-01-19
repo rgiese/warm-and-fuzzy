@@ -45,6 +45,7 @@
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
     "@grumpycorp/warm-and-fuzzy-shared-client": "^1.0.0",
+    "@react-native-community/datetimepicker": "^2.1.0",
     "@react-native-community/masked-view": "^0.1.5",
     "@react-native-community/slider": "^2.0.8",
     "@types/clone-deep": "^4.0.1",

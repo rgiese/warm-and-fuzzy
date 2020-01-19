@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ThemeContext } from "react-native-elements";
 import { Button, Switch, Text, Theme } from "react-native-paper";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Slider from "@react-native-community/slider";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
@@ -17,7 +18,7 @@ import BaseView from "../components/BaseView";
 import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 
 import * as ThemedText from "../components/ThemedText";
-import { ColorCodes } from "../Theme";
+import { ColorCodes, IconNames } from "../Theme";
 
 const styles = StyleSheet.create({
   // One row per set point
@@ -72,6 +73,8 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   const [isSaving, setIsSaving] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
+  const [isShowingTimePicker, setShowingTimePicker] = useState(false);
+
   if (!navigation.state.params) {
     return <Text>Error: parameters missing.</Text>;
   }
@@ -96,9 +99,51 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
     updateMutableSetting({ ...mutableSetting, allowedActions: actions });
   };
 
+  const onScheduledTimeChange = (_e: Event, time?: Date) => {
+    const atMinutesSinceMidnight = time ? time.getHours() * 60 + time.getMinutes() : 0;
+
+    setShowingTimePicker(false);
+    updateMutableSetting({ ...mutableSetting, atMinutesSinceMidnight });
+  };
+
   return (
     <BaseView>
       <ScrollView style={ScreenBaseStyles.topLevelView}>
+        {// Scheduled settings
+        mutableSetting.type === GraphQL.ThermostatSettingType.Scheduled && (
+          <>
+            <View style={styles.setPointRow}>
+              <Button
+                icon={IconNames[mutableSetting.type]}
+                mode="contained"
+                onPress={() => setShowingTimePicker(true)}
+              >
+                At{" "}
+                {ThermostatSettingsHelpers.FormatMinutesSinceMidnight(
+                  mutableSetting.atMinutesSinceMidnight || 0
+                )}
+              </Button>
+              {isShowingTimePicker && (
+                <DateTimePicker
+                  value={
+                    new Date(
+                      2000,
+                      1,
+                      1,
+                      Math.floor((mutableSetting.atMinutesSinceMidnight || 0) / 60),
+                      Math.round((mutableSetting.atMinutesSinceMidnight || 0) % 60)
+                    )
+                  }
+                  mode="time"
+                  is24Hour
+                  display="default"
+                  minuteInterval={5}
+                  onChange={onScheduledTimeChange}
+                />
+              )}
+            </View>
+          </>
+        )}
         {/* Set point: Heat */}
         {availableActions.includes(GraphQL.ThermostatAction.Heat) && (
           <View style={styles.setPointRow}>
