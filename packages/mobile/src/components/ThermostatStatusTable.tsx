@@ -103,6 +103,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
   refreshStores(): void {
     this.context.rootStore.latestThermostatValuesStore.update();
     this.context.rootStore.thermostatConfigurationStore.update();
+    this.context.rootStore.thermostatSettingsStore.update();
   }
 
   public render(): React.ReactElement {
