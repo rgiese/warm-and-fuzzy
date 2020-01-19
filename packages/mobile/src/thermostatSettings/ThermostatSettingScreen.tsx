@@ -9,7 +9,7 @@ import { NavigationStackScreenComponent } from "react-navigation-stack";
 import fastCompare from "react-fast-compare";
 import { observer } from "mobx-react";
 
-import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import * as GraphQL from "../../generated/graphqlClient";
@@ -21,6 +21,19 @@ import * as ThemedText from "../components/ThemedText";
 import { ColorCodes, IconNames } from "../Theme";
 
 const styles = StyleSheet.create({
+  // Schedule row
+  scheduleRow: {
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingTop: 8,
+    paddingBottom: 8,
+    alignContent: "space-around",
+  },
+  scheduleDayButton: {
+    marginRight: 10,
+    marginTop: 8,
+  },
   // One row per set point
   setPointRow: {
     flex: 1,
@@ -106,15 +119,41 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
     updateMutableSetting({ ...mutableSetting, atMinutesSinceMidnight });
   };
 
+  //
+  // Helpers
+  //
+
+  const generateDayOfWeekButton = (dayOfWeek: GraphQL.DayOfWeek): React.ReactElement => {
+    return (
+      <Button
+        key={dayOfWeek}
+        style={styles.scheduleDayButton}
+        uppercase={false}
+        mode={mutableSetting.daysOfWeek?.includes(dayOfWeek) ? "contained" : "outlined"}
+        onPress={() => {
+          const daysOfWeek = mutableSetting.daysOfWeek?.includes(dayOfWeek)
+            ? mutableSetting.daysOfWeek?.filter(allowedDay => allowedDay !== dayOfWeek)
+            : mutableSetting.daysOfWeek?.concat(dayOfWeek);
+
+          updateMutableSetting({ ...mutableSetting, daysOfWeek });
+        }}
+      >
+        {dayOfWeek.substring(0, 3)}
+      </Button>
+    );
+  };
+
   return (
     <BaseView>
       <ScrollView style={ScreenBaseStyles.topLevelView}>
         {// Scheduled settings
         mutableSetting.type === GraphQL.ThermostatSettingType.Scheduled && (
           <>
-            <View style={styles.setPointRow}>
+            <View style={styles.scheduleRow}>
               <Button
                 icon={IconNames[mutableSetting.type]}
+                style={styles.scheduleDayButton}
+                uppercase={false}
                 mode="contained"
                 onPress={() => setShowingTimePicker(true)}
               >
@@ -142,6 +181,16 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
                 />
               )}
             </View>
+            <View style={styles.scheduleRow}>
+              {ThermostatSettingsHelpers.WeekdayDays.map(dayOfWeek =>
+                generateDayOfWeekButton(dayOfWeek)
+              )}
+            </View>
+            <View style={styles.scheduleRow}>
+              {ThermostatSettingsHelpers.WeekendDays.map(dayOfWeek =>
+                generateDayOfWeekButton(dayOfWeek)
+              )}
+            </View>
           </>
         )}
         {/* Set point: Heat */}
@@ -156,8 +205,8 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               onValueChange={(value): void =>
                 updateMutableSetting({ ...mutableSetting, setPointHeat: value })
               }
-              minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-              maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+              minimumValue={ThermostatSettingSchema.SetPointRange.min}
+              maximumValue={ThermostatSettingSchema.SetPointRange.max}
               step={1}
               minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
               maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
@@ -184,8 +233,8 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               onValueChange={(value): void =>
                 updateMutableSetting({ ...mutableSetting, setPointCool: value })
               }
-              minimumValue={ThermostatConfigurationSchema.SetPointRange.min}
-              maximumValue={ThermostatConfigurationSchema.SetPointRange.max}
+              minimumValue={ThermostatSettingSchema.SetPointRange.min}
+              maximumValue={ThermostatSettingSchema.SetPointRange.max}
               step={1}
               minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
               maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
