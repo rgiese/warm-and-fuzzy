@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import { observer } from "mobx-react";
 
-import { LatestSensorValue, RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { LatestSensorValue, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import StoreChecks from "./StoreChecks";
 
@@ -16,7 +16,7 @@ const tableDefinition: TableFieldDefinition<SensorValue>[] = [
 ];
 
 const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement => {
-  const rootStore = useContext(RootStoreContext).rootStore;
+  const rootStore = useRootStore();
 
   const latestSensorValuesStore = rootStore.latestSensorValuesStore;
   const sensorConfigurationStore = rootStore.sensorConfigurationStore;

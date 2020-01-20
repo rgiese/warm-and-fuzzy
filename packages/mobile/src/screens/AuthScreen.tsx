@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Button, Caption, Surface, Text, Title } from "react-native-paper";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { observer } from "mobx-react";
 
-import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import BaseView from "../components/BaseView";
 import GrumpyRobin from "../assets/grumpy-robin.svg";
@@ -14,7 +14,7 @@ import { ConfigStageName } from "../config";
 import ScreenRoutes from "./ScreenRoutes";
 
 const AuthScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.ReactElement => {
-  const authStore = useContext(RootStoreContext).rootStore.authStore;
+  const authStore = useRootStore().authStore;
 
   if (authStore.state === "initializing" || authStore.state === "authenticating") {
     return (

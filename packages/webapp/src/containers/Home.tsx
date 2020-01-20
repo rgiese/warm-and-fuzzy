@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Container, Divider, Header } from "semantic-ui-react";
 import { observer } from "mobx-react";
 
-import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import LatestThermostatValues from "../components/LatestThermostatValues";
 import LatestSensorValues from "../components/LatestSensorValues";
 
 const Home: React.FunctionComponent<{}> = (): React.ReactElement => {
-  const authStore = useContext(RootStoreContext).rootStore.authStore;
+  const authStore = useRootStore().authStore;
 
   if (authStore.isUserAuthenticated) {
     return (

@@ -1,13 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Checkbox, DropdownProps, Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 import moment from "moment-timezone";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import {
-  RootStoreContext,
-  ThermostatConfiguration,
-} from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore, ThermostatConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";
@@ -18,7 +15,7 @@ const ThermostatConfigurationModal: React.FunctionComponent<{
   const [mutableValues, setMutableValues] = useState(values);
   const [validationError, setValidationError] = useState<ValidationError | undefined>(undefined);
 
-  const rootStore = useContext(RootStoreContext).rootStore;
+  const rootStore = useRootStore();
 
   const handleChange = async (
     _event: React.ChangeEvent<HTMLInputElement>,

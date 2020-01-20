@@ -1,13 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import { observer } from "mobx-react";
 
-import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import StoreChecks from "../components/StoreChecks";
 import ThermostatSettings from "../components/ThermostatSettings";
 
 const ThermostatSettingsContainer: React.FunctionComponent<{}> = (): React.ReactElement => {
-  const rootStore = useContext(RootStoreContext).rootStore;
+  const rootStore = useRootStore();
 
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
   const thermostatSettingsStore = rootStore.thermostatSettingsStore;

@@ -1,9 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 
 import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { RootStoreContext, SensorConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore, SensorConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";
@@ -14,7 +14,7 @@ const SensorConfigurationModal: React.FunctionComponent<{
   const [mutableValues, setMutableValues] = useState(values);
   const [validationError, setValidationError] = useState<ValidationError | undefined>(undefined);
 
-  const rootStore = useContext(RootStoreContext).rootStore;
+  const rootStore = useRootStore();
 
   const handleChange = async (
     _event: React.ChangeEvent<HTMLInputElement>,

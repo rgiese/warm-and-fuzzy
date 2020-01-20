@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
 import { ScrollView } from "react-native";
 import { Button, Divider, List } from "react-native-paper";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 
-import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import BaseView from "../components/BaseView";
 
@@ -12,7 +12,7 @@ import { ConfigStageName } from "../config";
 import ScreenRoutes from "./ScreenRoutes";
 
 const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.ReactElement => {
-  const authStore = useContext(RootStoreContext).rootStore.authStore;
+  const authStore = useRootStore().authStore;
 
   return (
     <BaseView>

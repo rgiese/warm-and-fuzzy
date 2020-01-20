@@ -1,18 +1,18 @@
-import React, { useContext } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import { Menu } from "semantic-ui-react";
 
 import { observer } from "mobx-react";
 
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
-import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import Config, { ConfigStageName } from "../config";
 
 import { ReactComponent as GrumpyBird } from "../assets/grumpy-robin.svg";
 
 const Header: React.FunctionComponent<{}> = (): React.ReactElement => {
-  const authStore = useContext(RootStoreContext).rootStore.authStore;
+  const authStore = useRootStore().authStore;
 
   return (
     <Menu fixed="top" pointing secondary style={{ backgroundColor: "white" }}>

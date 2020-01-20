@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import { RootStore } from "./RootStore";
 
@@ -10,3 +10,7 @@ export type RootStoreContextType = {
 export const RootStoreContext = React.createContext<RootStoreContextType>({
   rootStore: (undefined as unknown) as RootStore,
 });
+
+export function useRootStore(): RootStore {
+  return useContext(RootStoreContext).rootStore;
+}

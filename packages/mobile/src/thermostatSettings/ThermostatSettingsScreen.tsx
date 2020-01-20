@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, List } from "react-native-paper";
 import { NavigationParams } from "react-navigation";
@@ -6,10 +6,7 @@ import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { observer } from "mobx-react";
 
-import {
-  RootStoreContext,
-  ThermostatSettingsHelpers,
-} from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { useRootStore, ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import * as GraphQL from "../../generated/graphqlClient";
 
@@ -43,7 +40,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
   // Parse parameters
   //
 
-  const rootStore = useContext(RootStoreContext).rootStore;
+  const rootStore = useRootStore();
 
   const thermostatSettings = rootStore.thermostatSettingsStore.findById(
     navigation.state.params?.thermostatId || "0"

@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import { observer } from "mobx-react";
 
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
-import { SensorConfiguration, RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { SensorConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import StoreChecks from "./StoreChecks";
 
@@ -17,7 +17,7 @@ const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
 ];
 
 const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
-  const rootStore = useContext(RootStoreContext).rootStore;
+  const rootStore = useRootStore();
 
   const canEdit = rootStore.authStore.userPermissions.includes(
     Authorization.Permissions.WriteConfig
