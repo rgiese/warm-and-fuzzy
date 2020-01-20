@@ -55,7 +55,7 @@ export namespace ThermostatSettingsHelpers {
 
       this.orderedSettings = holdSettings.concat(scheduledSettings);
 
-      this.newHoldSettingTemplate =
+      const newHoldSettingTemplateBase =
         holdSettings.length > 0
           ? holdSettings[holdSettings.length - 1]
           : {
@@ -71,6 +71,14 @@ export namespace ThermostatSettingsHelpers {
               setPointHeat: 18,
               setPointCool: 22,
             };
+
+      // Whichever source the new hold setting comes from, default to expiring four hours from now
+      this.newHoldSettingTemplate = {
+        ...newHoldSettingTemplateBase,
+        holdUntil: moment()
+          .add(4, "hours")
+          .toDate(),
+      };
 
       this.newScheduledSettingTemplate =
         scheduledSettings.length > 0
@@ -105,20 +113,20 @@ export namespace ThermostatSettingsHelpers {
     //
 
     private async onMutate(
-      mutateFn: (mutatedSettingsArray: IndexedThermostatSetting[]) => void
+      mutateFn: (mutatedSettingsArray: IndexedThermostatSetting[]) => IndexedThermostatSetting[]
     ): Promise<void> {
       this.setIsSaving(true);
 
       // Create local copy of settings array to update
       const mutatedSettingsArray = this.indexedSettings.slice();
 
-      // Swap in changed element
-      mutateFn(mutatedSettingsArray);
+      // Mutate array
+      const updatedSettingsArray = mutateFn(mutatedSettingsArray);
 
       // Project array of IndexedThermostatSetting back to ThermostatSetting
       const mutatedSettings: ThermostatSettings = {
         ...this.thermostatSettings,
-        settings: mutatedSettingsArray.map(setting => {
+        settings: updatedSettingsArray.map(setting => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { index, ...rest } = setting;
           return { ...rest };
@@ -135,8 +143,12 @@ export namespace ThermostatSettingsHelpers {
       updatedThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting
     ): Promise<void> {
       return this.onMutate(
-        (mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]) =>
-          (mutatedSettingsArray[updatedThermostatSetting.index] = updatedThermostatSetting)
+        (
+          mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]
+        ): IndexedThermostatSetting[] => {
+          mutatedSettingsArray[updatedThermostatSetting.index] = updatedThermostatSetting;
+          return mutatedSettingsArray;
+        }
       );
     }
 
@@ -144,8 +156,23 @@ export namespace ThermostatSettingsHelpers {
       addedThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting
     ): Promise<void> {
       return this.onMutate(
-        (mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]) =>
-          mutatedSettingsArray.push(addedThermostatSetting)
+        (
+          mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]
+        ): IndexedThermostatSetting[] => {
+          if (addedThermostatSetting.type === GraphQL.ThermostatSettingType.Hold) {
+            // Adding a new Hold -> remove any existing expired Hold settings
+            mutatedSettingsArray = mutatedSettingsArray.filter(
+              setting =>
+                // Keep all non-Hold settings
+                setting.type !== GraphQL.ThermostatSettingType.Hold ||
+                // Keep Hold settings that expire in the future
+                (setting.holdUntil && setting.holdUntil.valueOf() >= Date.now())
+            );
+          }
+
+          mutatedSettingsArray.push(addedThermostatSetting);
+          return mutatedSettingsArray;
+        }
       );
     }
 
@@ -153,8 +180,12 @@ export namespace ThermostatSettingsHelpers {
       removedThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting
     ): Promise<void> {
       return this.onMutate(
-        (mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]) =>
-          mutatedSettingsArray.splice(removedThermostatSetting.index, 1)
+        (
+          mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]
+        ): IndexedThermostatSetting[] => {
+          mutatedSettingsArray.splice(removedThermostatSetting.index, 1);
+          return mutatedSettingsArray;
+        }
       );
     }
   }
