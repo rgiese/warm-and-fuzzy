@@ -16,10 +16,9 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
             THEN("A default setpoint is returned")
             {
                 ThermostatSetpoint const setpoint = scheduler.getCurrentThermostatSetpoint(configuration);
+                ThermostatSetpoint const emptySetpoint;
 
-                REQUIRE(setpoint.SetPointHeat == SyntheticConfiguration::sc_DefaultSetPointHeat);
-                REQUIRE(setpoint.SetPointCool == SyntheticConfiguration::sc_DefaultSetPointCool);
-                REQUIRE(setpoint.AllowedActions == SyntheticConfiguration::sc_DefaultAllowedActions);
+                REQUIRE(setpoint == emptySetpoint);
             }
         }
     }
@@ -31,8 +30,8 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
         ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);
         configuration.AddHoldSetting(1000, setpointHold);
 
-        ThermostatSetpoint setPointscheduled(ThermostatAction::Cool, 30, 40);
-        configuration.AddScheduledSetting(DaysOfWeek::Monday | DaysOfWeek::Tuesday, 120, setPointscheduled);
+        ThermostatSetpoint setPointScheduled(ThermostatAction::Cool, 30, 40);
+        configuration.AddScheduledSetting(DaysOfWeek::Monday | DaysOfWeek::Tuesday, 120, setPointScheduled);
 
         configuration.Build();
 
@@ -52,7 +51,7 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
 
             THEN("The Scheduled setpoint is returned")
             {
-                REQUIRE(scheduler.getCurrentThermostatSetpoint(configuration) == setPointscheduled);
+                REQUIRE(scheduler.getCurrentThermostatSetpoint(configuration) == setPointScheduled);
             }
         }
 
@@ -62,7 +61,7 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
 
             THEN("The Scheduled setpoint is still returned since it's the only scheduled setting")
             {
-                REQUIRE(scheduler.getCurrentThermostatSetpoint(configuration) == setPointscheduled);
+                REQUIRE(scheduler.getCurrentThermostatSetpoint(configuration) == setPointScheduled);
             }
         }
     }

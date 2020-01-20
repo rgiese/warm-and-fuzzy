@@ -103,43 +103,45 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   const entitiesToStore = new Array<any>();
 
   {
-    // Thermostat value (latest)
-    const thermostatData: ThermostatValue = {
-      ...deviceKey,
-
-      publishedTime,
-      deviceTime,
-      deviceLocalSerial,
-
-      currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
-
+    const baseThermostatData = {
       temperature: statusEvent.data.t,
       humidity: statusEvent.data.h,
-
-      ...ThermostatConfigurationAdapter.partialModelFromFirmware(statusEvent.data.cc),
-    };
-
-    entitiesToStore.push(Object.assign(new ThermostatValue(), thermostatData));
-  }
-
-  {
-    // Thermostat value stream
-    const thermostatStreamData: ThermostatValueStream = {
-      stream: ThermostatValueStream.getStreamKey(tenant, thermostatConfiguration.streamName),
-      ts: deviceTime.getTime(),
-
-      publishedTime,
-      deviceLocalSerial,
-
       currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
-
-      temperature: statusEvent.data.t,
-      humidity: statusEvent.data.h,
-
-      ...ThermostatConfigurationAdapter.partialModelFromFirmware(statusEvent.data.cc),
+      setPointHeat: statusEvent.data.cc.sh,
+      setPointCool: statusEvent.data.cc.sc,
+      threshold: statusEvent.data.cc.th,
+      currentTimezoneUTCOffset: statusEvent.data.cc.tz,
     };
 
-    entitiesToStore.push(Object.assign(new ThermostatValueStream(), thermostatStreamData));
+    {
+      // Thermostat value (latest)
+      const thermostatData: ThermostatValue = {
+        ...deviceKey,
+
+        publishedTime,
+        deviceTime,
+        deviceLocalSerial,
+
+        ...baseThermostatData,
+      };
+
+      entitiesToStore.push(Object.assign(new ThermostatValue(), thermostatData));
+    }
+
+    {
+      // Thermostat value stream
+      const thermostatStreamData: ThermostatValueStream = {
+        stream: ThermostatValueStream.getStreamKey(tenant, thermostatConfiguration.streamName),
+        ts: deviceTime.getTime(),
+
+        publishedTime,
+        deviceLocalSerial,
+
+        ...baseThermostatData,
+      };
+
+      entitiesToStore.push(Object.assign(new ThermostatValueStream(), thermostatStreamData));
+    }
   }
 
   statusEvent.data.v.forEach((value): void => {

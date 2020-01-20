@@ -16,10 +16,8 @@ ThermostatSetpoint ThermostatSetpointScheduler::getCurrentThermostatSetpoint(Con
 
     if (!pvThermostatSettings || pvThermostatSettings->size() == 0)
     {
-        // Return legacy setting
-        return ThermostatSetpoint(Configuration.rootConfiguration().allowedActions(),
-                                  Configuration::getTemperature(Configuration.rootConfiguration().setPointHeat_x100()),
-                                  Configuration::getTemperature(Configuration.rootConfiguration().setPointCool_x100()));
+        // Return empty (inactive) setpoint
+        return ThermostatSetpoint();
     }
 
     //

@@ -17,6 +17,8 @@ const latestThermostatValuesStoreDocument = gql`
       currentActions
       temperature
       humidity
+      setPointHeat
+      setPointCool
     }
   }
 `;

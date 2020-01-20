@@ -6,21 +6,6 @@ SCENARIO("Synthetic configuration", "[SyntheticConfiguration]")
     {
         SyntheticConfiguration configuration;
 
-        WHEN("The configuration is built")
-        {
-            configuration.Build();
-
-            THEN("The default values are propagated")
-            {
-                REQUIRE(configuration.rootConfiguration().allowedActions() ==
-                        SyntheticConfiguration::sc_DefaultAllowedActions);
-                REQUIRE(Configuration::getTemperature(configuration.rootConfiguration().setPointHeat_x100()) ==
-                        SyntheticConfiguration::sc_DefaultSetPointHeat);
-                REQUIRE(Configuration::getTemperature(configuration.rootConfiguration().setPointCool_x100()) ==
-                        SyntheticConfiguration::sc_DefaultSetPointCool);
-            }
-        }
-
         WHEN("The configuration is built with settings")
         {
             ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);

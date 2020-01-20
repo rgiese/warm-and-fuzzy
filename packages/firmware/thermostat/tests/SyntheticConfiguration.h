@@ -4,12 +4,6 @@
 class SyntheticConfiguration
 {
 public:
-    // Default values for the (legacy) core configuration (vs. settings)
-    static ThermostatAction const sc_DefaultAllowedActions;
-    static float const sc_DefaultSetPointHeat;
-    static float const sc_DefaultSetPointCool;
-
-public:
     SyntheticConfiguration()
         : m_Configuration()
         , m_fIsBuilt()
@@ -57,15 +51,12 @@ public:
 
         auto const configurationRoot = Flatbuffers::Firmware::CreateThermostatConfigurationDirect(
             m_FlatbufferBuilder,
-            Configuration::buildTemperature(0.5f),
-            600,
-            0,
-            sc_DefaultAllowedActions,
-            Configuration::buildTemperature(sc_DefaultSetPointHeat),
-            Configuration::buildTemperature(sc_DefaultSetPointCool),
-            0,
-            0,
-            0,
+            0 /* external sensor ID */,
+            Configuration::buildTemperature(0.5f) /* threshold */,
+            600 /* cadence */,
+            0 /* currentTimezoneUTCOffset */,
+            0 /* nextTimezoneUTCOffset */,
+            0 /* nextTimezoneChange */,
             &m_ThermostatSettings);
 
         m_FlatbufferBuilder.Finish(configurationRoot);

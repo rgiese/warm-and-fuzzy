@@ -9,7 +9,7 @@
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(13);  // Increment for each release
+PRODUCT_VERSION(14);  // Increment for each release
 
 
 //
@@ -316,11 +316,12 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData,
 {
     //
     // szData should be text-encoded binary data
-    // trailed with a format- and version-identifying magic string ("1Z85")
+    // trailed with a format- and version-identifying magic string ("2Z85")
+    // (c.f. //packages/api/src/shared/firmware/thermostatConfigurationAdapter.ts)
     // and may be enclosed in quotes
     //
 
-    static char constexpr rgMagic[] = "1Z85";
+    static char constexpr rgMagic[] = "2Z85";
     size_t const cchMagic = strlen(rgMagic);
 
     size_t const cchQuote = fTrimQuotes ? 1 : 0;

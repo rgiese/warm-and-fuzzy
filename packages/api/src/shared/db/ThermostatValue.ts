@@ -25,6 +25,7 @@ export default class ThermostatValue extends DeviceWithTenantAndId {
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
     this.threshold = NaN;
+    this.currentTimezoneUTCOffset = undefined;
     this.allowedActions = undefined;
   }
 
@@ -63,6 +64,10 @@ export default class ThermostatValue extends DeviceWithTenantAndId {
   // Hysteresis threshold around targets [Celsius]
   @attribute()
   public threshold: number;
+
+  /// Signed IANA UTC offset, e.g. PST = 480
+  @attribute()
+  public currentTimezoneUTCOffset?: number;
 
   // @see ThermostatConfiguration#allowedActions
   @attribute({ memberType: "String" })

@@ -102,7 +102,6 @@ class ThermostatStatusTable extends React.Component<Props, State> {
 
   refreshStores(): void {
     this.context.rootStore.latestThermostatValuesStore.update();
-    this.context.rootStore.thermostatConfigurationStore.update();
     this.context.rootStore.thermostatSettingsStore.update();
   }
 
@@ -188,7 +187,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                         style={styles.detailsIconPadding}
                       />
                       <ThemedText.Heat style={styles.detailsText}>
-                        {item.configuration.setPointHeat} &deg;C
+                        {item.setPointHeat} &deg;C
                       </ThemedText.Heat>
                     </>
                   )}
@@ -203,7 +202,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                         style={styles.detailsIconPadding}
                       />
                       <ThemedText.Cool style={styles.detailsText}>
-                        {item.configuration.setPointCool} &deg;C
+                        {item.setPointCool} &deg;C
                       </ThemedText.Cool>
                     </>
                   )}

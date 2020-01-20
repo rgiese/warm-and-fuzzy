@@ -197,10 +197,6 @@ input ThermostatConfigurationCreateInput {
 
   availableActions: [ThermostatAction!]!
 
-  allowedActions: [ThermostatAction!]!
-  setPointHeat: Float!
-  setPointCool: Float!
-
   externalSensorId: String
   timezone: String
   threshold: Float!
@@ -213,10 +209,6 @@ input ThermostatConfigurationUpdateInput {
   streamName: String
 
   availableActions: [ThermostatAction!]!
-
-  allowedActions: [ThermostatAction!]
-  setPointHeat: Float
-  setPointCool: Float
 
   externalSensorId: String
   timezone: String
@@ -231,10 +223,6 @@ type ThermostatConfiguration {
   streamName: String!
 
   availableActions: [ThermostatAction!]!
-
-  allowedActions: [ThermostatAction!]!
-  setPointHeat: Float!
-  setPointCool: Float!
 
   externalSensorId: String
   timezone: String

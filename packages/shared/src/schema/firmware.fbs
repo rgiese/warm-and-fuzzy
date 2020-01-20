@@ -44,13 +44,10 @@ struct ThermostatSetting {
 /// Defaults are provided so the firmware can reset itself if state got corrupted.
 ///
 table ThermostatConfiguration {
-  threshold_x100: uint16 = 50; // 0.5 C
-  cadence: uint16 = 600; // 10 minutes
   externalSensorId: uint64;
 
-  allowedActions: ThermostatAction = 0;
-  setPointHeat_x100: uint16 = 1800; // 18 C
-  setPointCool_x100: uint16 = 2200; // 22 C
+  threshold_x100: uint16 = 50; // 0.5 C
+  cadence: uint16 = 600; // 10 minutes
 
   /// {current,next}TimezoneUTCOffset: signed IANA UTC offset, e.g. PST = 480
   currentTimezoneUTCOffset: int16;
