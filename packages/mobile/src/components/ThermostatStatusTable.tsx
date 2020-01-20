@@ -47,10 +47,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    height: 10,
+    height: 14,
+    marginBottom: 6,
   },
   lastUpdatedText: {
-    fontSize: 12,
+    fontSize: 14,
   },
 });
 
