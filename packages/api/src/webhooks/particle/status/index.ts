@@ -107,6 +107,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
       temperature: statusEvent.data.t,
       humidity: statusEvent.data.h,
       currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
+      allowedActions: ActionsAdapter.modelFromFirmware(statusEvent.data.cc.aa),
       setPointHeat: statusEvent.data.cc.sh,
       setPointCool: statusEvent.data.cc.sc,
       threshold: statusEvent.data.cc.th,
