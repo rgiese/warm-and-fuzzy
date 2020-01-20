@@ -90,7 +90,10 @@ export function firmwareFromModel(
     firmwareConfigBuilder
   );
 
-  firmwareConfigBuilder.finish(firmwareConfigOffset);
+  Flatbuffers.Firmware.ThermostatConfiguration.finishThermostatConfigurationBuffer(
+    firmwareConfigBuilder,
+    firmwareConfigOffset
+  );
 
   // Extract and encode
   const firmwareConfigBytes = firmwareConfigBuilder.asUint8Array();

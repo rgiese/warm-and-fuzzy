@@ -59,4 +59,5 @@ table ThermostatConfiguration {
   thermostatSettings: [ThermostatSetting];
 }
 
+file_identifier "WAF2";
 root_type ThermostatConfiguration;

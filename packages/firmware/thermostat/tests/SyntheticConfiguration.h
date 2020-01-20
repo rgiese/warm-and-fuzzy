@@ -59,7 +59,7 @@ public:
             0 /* nextTimezoneChange */,
             &m_ThermostatSettings);
 
-        m_FlatbufferBuilder.Finish(configurationRoot);
+        Flatbuffers::Firmware::FinishThermostatConfigurationBuffer(m_FlatbufferBuilder, configurationRoot);
 
         char rgEncodedConfiguration[1024];
         uint16_t cchEncodedConfiguration = Z85::EncodeBytes(rgEncodedConfiguration,
