@@ -92,7 +92,12 @@ const ThermostatSettingBean: React.FunctionComponent<{
             icon="save"
             loading={isSaving}
             onClick={async (): Promise<void> => {
-              await mutableSettingsStore.onSave(mutableSetting);
+              if (isNewSetting) {
+                await mutableSettingsStore.onAdd(mutableSetting);
+              } else {
+                await mutableSettingsStore.onSave(mutableSetting);
+              }
+
               if (onAfterSave) {
                 onAfterSave();
               }
