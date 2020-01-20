@@ -100,9 +100,9 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
 
   const mutableSettingsStore = navigation.state.params.mutableSettingsStore;
   const availableActions = navigation.state.params.availableActions;
+  const isNewSetting = !!navigation.state.params.isNewSetting;
 
-  const isDirty =
-    navigation.state.params.isNewSetting || !fastCompare(mutableSetting, thermostatSetting);
+  const isDirty = isNewSetting || !fastCompare(mutableSetting, thermostatSetting);
 
   //
   // Functions to change in-flight (editing) state
@@ -314,20 +314,35 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         )}
 
         <View style={styles.saveButtonRow}>
+          {/* Cancel button */}
+          {isNewSetting && (
+            <Button
+              mode="outlined"
+              color={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              onPress={async (): Promise<void> => {
+                navigation.goBack();
+              }}
+            >
+              Cancel
+            </Button>
+          )}
+
           {/* Remove button */}
-          <Button
-            mode="outlined"
-            disabled={isDirty}
-            loading={isRemoving}
-            color={ColorCodes[GraphQL.ThermostatAction.Heat]}
-            onPress={async (): Promise<void> => {
-              setIsRemoving(true);
-              await mutableSettingsStore.onRemove(mutableSetting);
-              navigation.goBack();
-            }}
-          >
-            {isRemoving ? "Removing" : "Remove"}
-          </Button>
+          {!isNewSetting && (
+            <Button
+              mode="outlined"
+              disabled={isDirty}
+              loading={isRemoving}
+              color={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              onPress={async (): Promise<void> => {
+                setIsRemoving(true);
+                await mutableSettingsStore.onRemove(mutableSetting);
+                navigation.goBack();
+              }}
+            >
+              {isRemoving ? "Removing" : "Remove"}
+            </Button>
+          )}
 
           {/* Save button */}
           <Button
@@ -337,7 +352,13 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             color={(theme as Theme)?.colors?.text}
             onPress={async (): Promise<void> => {
               setIsSaving(true);
-              await mutableSettingsStore.onSave(mutableSetting);
+
+              if (isNewSetting) {
+                await mutableSettingsStore.onAdd(mutableSetting);
+              } else {
+                await mutableSettingsStore.onSave(mutableSetting);
+              }
+
               navigation.goBack();
             }}
           >

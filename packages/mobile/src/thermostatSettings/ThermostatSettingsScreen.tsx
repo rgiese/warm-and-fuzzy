@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { ScrollView, Text } from "react-native";
-import { List } from "react-native-paper";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, List } from "react-native-paper";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -26,6 +26,15 @@ export interface ThermostatNavigationParams extends NavigationParams {
   thermostatId: string;
   thermostatName: string;
 }
+
+const styles = StyleSheet.create({
+  addButtonRow: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 6,
+  },
+});
 
 const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigationParams> = ({
   navigation,
@@ -61,6 +70,42 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
   return (
     <BaseView>
       <ScrollView style={ScreenBaseStyles.topLevelView}>
+        <View style={styles.addButtonRow}>
+          {/* Add Hold button */}
+          <Button
+            mode="contained"
+            icon={IconNames.Hold}
+            onPress={() => {
+              const params: ThermostatSettingNavigationParams = {
+                mutableSettingsStore,
+                thermostatSetting: mutableSettingsStore.newHoldSettingTemplate,
+                availableActions,
+                isNewSetting: true,
+              };
+              navigation.navigate(ScreenRoutes.ThermostatSetting, params);
+            }}
+          >
+            Add Hold
+          </Button>
+
+          {/* Add Schedule button */}
+          <Button
+            mode="outlined"
+            icon={IconNames.Scheduled}
+            onPress={() => {
+              const params: ThermostatSettingNavigationParams = {
+                mutableSettingsStore,
+                thermostatSetting: mutableSettingsStore.newScheduledSettingTemplate,
+                availableActions,
+                isNewSetting: true,
+              };
+              navigation.navigate(ScreenRoutes.ThermostatSetting, params);
+            }}
+          >
+            Add Schedule
+          </Button>
+        </View>
+
         {mutableSettingsStore.orderedSettings.map((thermostatSetting, index) => {
           return (
             <TouchableOpacity
