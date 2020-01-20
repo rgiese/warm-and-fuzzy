@@ -32,8 +32,9 @@ typedef Flatbuffers::Firmware::ThermostatSettingType ThermostatSettingType;
 #include "inc/Configuration.h"
 
 // Components
-#include "inc/ThermostatSetpointScheduler.h"
+#include "inc/ThermostatSetpoint.h"
 #include "inc/Thermostat.h"
+#include "inc/ThermostatSetpointScheduler.h"
 
 // Publishers
 #include "publishers/StatusPublisher.h"
