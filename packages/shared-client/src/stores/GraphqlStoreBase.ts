@@ -1,4 +1,4 @@
-import { action, flow, observable, autorun } from "mobx";
+import { action, autorun, flow, observable } from "mobx";
 import { computedFn } from "mobx-utils";
 import { ApolloQueryResult } from "apollo-client";
 import { DocumentNode } from "graphql";

@@ -22,5 +22,12 @@ module.exports = {
         varsIgnorePattern: "^_",
       },
     ],
+    "sort-imports": [
+      "error",
+      {
+        ignoreCase: true,
+        ignoreDeclarationSort: true,
+      },
+    ],
   },
 };

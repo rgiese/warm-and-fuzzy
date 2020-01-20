@@ -1,4 +1,4 @@
-import { hashKey, attribute, table } from "@aws/dynamodb-data-mapper-annotations";
+import { attribute, hashKey, table } from "@aws/dynamodb-data-mapper-annotations";
 
 //
 // See https://github.com/awslabs/dynamodb-data-mapper-js

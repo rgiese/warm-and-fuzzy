@@ -1,7 +1,7 @@
 import { DynamoDB } from "aws-sdk";
 import {
-  DataMapper as DynamoDBDataMapper,
   DataMapperConfiguration,
+  DataMapper as DynamoDBDataMapper,
 } from "@aws/dynamodb-data-mapper";
 
 export interface ObjectWithId {

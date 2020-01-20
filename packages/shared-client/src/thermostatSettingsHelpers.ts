@@ -7,8 +7,8 @@ import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import * as GraphQL from "./generated/graphqlClient";
 
 import {
-  ThermostatSettings,
   ThermostatSetting,
+  ThermostatSettings,
   ThermostatSettingsStore,
 } from "./stores/thermostatSettings";
 import { compareMaybeDate, compareMaybeNumber } from "./compareHelpers";

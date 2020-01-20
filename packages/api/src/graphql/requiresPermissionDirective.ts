@@ -1,5 +1,5 @@
 import { AuthenticationError } from "apollo-server-core";
-import { GraphQLField, defaultFieldResolver } from "graphql";
+import { defaultFieldResolver, GraphQLField } from "graphql";
 import { SchemaDirectiveVisitor } from "graphql-tools";
 
 import { Context } from "./context";
