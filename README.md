@@ -32,14 +32,18 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
   - For API and firmware development:
     - Install dependencies
       - Windows:
-        - `choco install awscli cmake mingw`
+        - `choco install awscli cmake mingw` and make sure the CMake directory (e.g. `%ProgramFiles%\CMake\bin` is in the system path)
         - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
+      - Mac:
+        - (TBD)
     - Set the environment variable `GRUMPYCORP_ROOT` to point to the parent directory of this repo
-    - In that directory, `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
-      - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
+    - In that directory:
+      - `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
+        - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
+      - `git clone https://github.com/particle-iot/device-os.git` for firmware headers
     - `cd flatbuffers` and build:
       - Windows:
-        - `"\Program Files\CMake\bin\cmake.exe" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release`
+        - `cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release`
         - `mingw32-make`
     - Configure credentials
       - `aws configure` with `AWS Access Key ID` = `AKIA...`, `AWW Secret Access Key` = password on file, `Default region name` = `us-west-2`

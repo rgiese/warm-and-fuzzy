@@ -1,5 +1,6 @@
 import React from "react";
 import { Message } from "semantic-ui-react";
+import { observer } from "mobx-react";
 
 import { StoreBase } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
@@ -30,4 +31,4 @@ const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
   );
 };
 
-export default StoreChecks;
+export default observer(StoreChecks);

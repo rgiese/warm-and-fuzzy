@@ -14,23 +14,18 @@ import {
   RootStoreContext,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-import StoreChecks from "./StoreChecks";
-
 import { ThermostatAction } from "../../generated/graphqlClient";
 
-import { ColorCodes } from "../Theme";
+import { ColorCodes, IconNames } from "../Theme";
 import * as ThemedText from "./ThemedText";
 
+import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import ScreenRoutes from "../screens/ScreenRoutes";
-import { ThermostatNavigationParams } from "../screens/ThermostatScreen";
+import { ThermostatNavigationParams } from "../thermostatSettings/ThermostatSettingsScreen";
+
+import StoreChecks from "./StoreChecks";
 
 const styles = StyleSheet.create({
-  containingListItem: {
-    flex: 1,
-    flexDirection: "column",
-    paddingLeft: 20,
-    paddingBottom: 20,
-  },
   // Primary row (e.g. "Sensor [temp] [hum]")
   primaryRow: {
     flex: 1,
@@ -107,7 +102,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
 
   refreshStores(): void {
     this.context.rootStore.latestThermostatValuesStore.update();
-    this.context.rootStore.thermostatConfigurationStore.update();
+    this.context.rootStore.thermostatSettingsStore.update();
   }
 
   public render(): React.ReactElement {
@@ -154,10 +149,13 @@ class ThermostatStatusTable extends React.Component<Props, State> {
           renderItem={({ item }): React.ReactElement => (
             <TouchableOpacity
               onPress={() => {
-                const params: ThermostatNavigationParams = { thermostatId: item.id };
-                this.props.navigation.navigate(ScreenRoutes.Thermostat, params);
+                const params: ThermostatNavigationParams = {
+                  thermostatId: item.id,
+                  thermostatName: item.configuration.name,
+                };
+                this.props.navigation.navigate(ScreenRoutes.ThermostatSettings, params);
               }}
-              style={styles.containingListItem}
+              style={ScreenBaseStyles.topLevelView}
             >
               {/* Top row */}
               <View style={styles.primaryRow}>
@@ -183,13 +181,13 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {item.currentActions.includes(ThermostatAction.Heat) && (
                     <>
                       <IconMDC
-                        name="arrow-collapse-up"
+                        name={IconNames[ThermostatAction.Heat]}
                         size={iconSizes.arrows}
                         color={ColorCodes[ThermostatAction.Heat]}
                         style={styles.detailsIconPadding}
                       />
                       <ThemedText.Heat style={styles.detailsText}>
-                        {item.configuration.setPointHeat} &deg;C
+                        {item.setPointHeat} &deg;C
                       </ThemedText.Heat>
                     </>
                   )}
@@ -198,13 +196,13 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {item.currentActions.includes(ThermostatAction.Cool) && (
                     <>
                       <IconMDC
-                        name="arrow-collapse-down"
+                        name={IconNames[ThermostatAction.Cool]}
                         size={iconSizes.arrows}
                         color={ColorCodes[ThermostatAction.Cool]}
                         style={styles.detailsIconPadding}
                       />
                       <ThemedText.Cool style={styles.detailsText}>
-                        {item.configuration.setPointCool} &deg;C
+                        {item.setPointCool} &deg;C
                       </ThemedText.Cool>
                     </>
                   )}
@@ -212,7 +210,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   {/* Actions: circulate */}
                   {item.currentActions.includes(ThermostatAction.Circulate) && (
                     <IconMDC
-                      name="autorenew"
+                      name={IconNames[ThermostatAction.Circulate]}
                       size={iconSizes.default}
                       color={ColorCodes[ThermostatAction.Circulate]}
                       style={styles.detailsIconPadding}

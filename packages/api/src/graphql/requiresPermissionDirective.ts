@@ -19,6 +19,8 @@ const mapGraphQLPermissionToUserPermission = new Map<
   [GraphQL.RequiredPermission.ReadData, Authorization.Permissions.ReadData],
   [GraphQL.RequiredPermission.ReadConfig, Authorization.Permissions.ReadConfig],
   [GraphQL.RequiredPermission.WriteConfig, Authorization.Permissions.WriteConfig],
+  [GraphQL.RequiredPermission.ReadSettings, Authorization.Permissions.ReadSettings],
+  [GraphQL.RequiredPermission.WriteSettings, Authorization.Permissions.WriteSettings],
   [GraphQL.RequiredPermission.CrossTenantAdmin, Authorization.Permissions.CrossTenantAdmin],
 ]);
 

@@ -1,21 +1,63 @@
 namespace Flatbuffers.Firmware;
 
+// Any breaking changes to this file should also rev the envelope magic signature in
+// - //packages/api/src/shared/firmware/thermostatConfigurationAdapter.ts
+// - //packages/firmware/thermostat/Main.cpp
+
 enum ThermostatAction : ubyte (bit_flags) { Heat, Cool, Circulate }
 
 ///
 /// Temperatures are stored multiplied by 100, e.g. a temperature of 16.5 is stored as a 165.
 /// Given that we're really just dealing with a range of 0-100, a multiplied-out range of 0-10000 fits just fine into a uint16.
 ///
+
+enum ThermostatSettingType : ubyte { Undefined, Hold, Scheduled }
+
+enum DaysOfWeek : ubyte (bit_flags) { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday }
+
+struct ThermostatSetting {
+  ///
+  /// We won't bother making a formal union out of this since that'll just end up taking more space
+  /// than what we could hope to save.
+  ///
+  
+  setPointHeat_x100: uint16;
+  setPointCool_x100: uint16;
+  allowedActions: ThermostatAction;
+
+  type: ThermostatSettingType;
+
+  _padding0: uint16;
+
+  /// For Hold settings
+  /// holdUntil: seconds since UTC epoch
+  holdUntil: uint32;
+
+  /// For Scheduled settings
+  daysOfWeek: DaysOfWeek;
+  _padding1: uint8;
+  atMinutesSinceMidnight: uint16;
+}
+
+
+///
 /// Defaults are provided so the firmware can reset itself if state got corrupted.
 ///
 table ThermostatConfiguration {
-  threshold_x100: uint16 = 50; // 0.5 C
-  cadence: uint16 = 600; // 10 minutes
   externalSensorId: uint64;
 
-  allowedActions: ThermostatAction = 0;
-  setPointHeat_x100: uint16 = 1800; // 18 C
-  setPointCool_x100: uint16 = 2200; // 22 C
+  threshold_x100: uint16 = 50; // 0.5 C
+  cadence: uint16 = 600; // 10 minutes
+
+  /// {current,next}TimezoneUTCOffset: signed IANA UTC offset, e.g. PST = 480
+  currentTimezoneUTCOffset: int16;
+  nextTimezoneUTCOffset: int16;
+
+  /// nextTimezoneChange: seconds since UTC epoch when nextTimezoneUTCOffset becomes applicable
+  nextTimezoneChange: uint32;
+
+  thermostatSettings: [ThermostatSetting];
 }
 
+file_identifier "WAF2";
 root_type ThermostatConfiguration;

@@ -1,0 +1,22 @@
+Resources:
+  ThermostatSettingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.dynamoDbTablePrefix}ThermostatSettings
+      KeySchema:
+        # Partition key
+        - AttributeName: tenant
+          KeyType: HASH
+        # Sort key
+        - AttributeName: id
+          KeyType: RANGE
+      AttributeDefinitions:
+        # Partition key
+        - AttributeName: tenant
+          AttributeType: S
+        # Sort key
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE

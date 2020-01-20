@@ -1,9 +1,18 @@
 {
     "configurations": [
         {
+            "name": "WarmAndFuzzy-Default",
+            "includePath": [
+                "${workspaceFolder}/**", "${workspaceFolder}/../device-os/**"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64"
+        },
+        {
             "name": "Win32-GrumpyCorp",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**", "${workspaceFolder}/../device-os/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -19,7 +28,7 @@
         {
             "name": "Win32-GrumpyStudio",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**", "${workspaceFolder}/../device-os/user/inc"
             ],
             "defines": [
                 "_DEBUG",

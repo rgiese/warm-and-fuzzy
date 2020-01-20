@@ -6,6 +6,8 @@ export namespace Authorization {
     ReadData = "read:data",
     ReadConfig = "read:config",
     WriteConfig = "write:config",
+    ReadSettings = "read:settings",
+    WriteSettings = "write:settings",
     CrossTenantAdmin = "xtenant",
   }
 }

@@ -1,24 +1,15 @@
 #include <Particle.h>
-#include <math.h>
+
+#include "inc/stdinc.h"
 
 #include "PietteTech_DHT.h"
-
-#include "inc/CoreDefs.h"
-
-#include "inc/Activity.h"
-#include "inc/Configuration.h"
-
-#include "inc/Thermostat.h"
-
-#include "onewire/OneWireGateway2484.h"
-#include "onewire/OneWireTemperatureSensor.h"
 
 //
 // Particle configuration
 //
 
 PRODUCT_ID(8773);
-PRODUCT_VERSION(13);  // Increment for each release
+PRODUCT_VERSION(14);  // Increment for each release
 
 
 //
@@ -43,16 +34,17 @@ OneWireGateway2484 g_OneWireGateway;
 Configuration g_Configuration;
 
 // Services
+ThermostatSetpointScheduler g_ThermostatSetpointScheduler;
 Thermostat g_Thermostat;
 
 // Publishers
-#include "publishers/StatusPublisher.h"
-StatusPublisher g_StatusPublisher;
+StatusPublisher<c_cOneWireDevices_Max> g_StatusPublisher;
 
 //
 // Declarations
 //
 
+void applyTimezoneConfiguration();
 void onStatusResponse(char const* szEvent, char const* szData);
 int onConfigPush(String configString);
 
@@ -82,6 +74,8 @@ void setup()
     Serial.print("Current configuration: ");
     g_Configuration.PrintConfiguration();
 
+    applyTimezoneConfiguration();
+
     // Configure I/O
     g_OnboardSensor.begin();
     g_OneWireGateway.Initialize();
@@ -110,6 +104,10 @@ void setup()
 
 void loop()
 {
+    //
+    // Set up loop time tracking
+    //
+
     static unsigned long s_LastLoopEnterTime_msec = 0;
 
     unsigned long const loopStartTime_msec = millis();
@@ -134,6 +132,21 @@ void loop()
             Serial.print("Accepted updated configuration: ");
             g_Configuration.PrintConfiguration();
         }
+    }
+
+    applyTimezoneConfiguration();  // Apply whether configuration has changed or not (e.g. we may have changed DST)
+
+    {
+        char const* rgDaysOfWeek[] = {"n/a", "Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur"};
+
+        uint32_t const timeNow = Time.now();
+        int const idxDayOfWeek = Time.weekday(timeNow);
+
+        Serial.printlnf("-- It is currently %02d:%02d on a %sday (%u Unix time)",
+                        Time.hour(timeNow),
+                        Time.minute(timeNow),
+                        idxDayOfWeek < countof(rgDaysOfWeek) ? rgDaysOfWeek[idxDayOfWeek] : "<unexpected>",
+                        timeNow);
     }
 
     //
@@ -227,7 +240,9 @@ void loop()
     // Apply data
     //
 
-    g_Thermostat.Apply(g_Configuration, operableTemperature);
+    ThermostatSetpoint const thermostatSetpoint =
+        g_ThermostatSetpointScheduler.getCurrentThermostatSetpoint(g_Configuration);
+    g_Thermostat.Apply(g_Configuration, thermostatSetpoint, operableTemperature);
 
     //
     // Publish data
@@ -236,6 +251,7 @@ void loop()
     {
         Activity publishActivity("PublishStatus");
         g_StatusPublisher.Publish(g_Configuration,
+                                  thermostatSetpoint,
                                   g_Thermostat.CurrentActions(),
                                   fUsedExternalSensor,
                                   operableTemperature,
@@ -300,11 +316,12 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData,
 {
     //
     // szData should be text-encoded binary data
-    // trailed with a format- and version-identifying magic string ("1Z85")
+    // trailed with a format- and version-identifying magic string ("2Z85")
+    // (c.f. //packages/api/src/shared/firmware/thermostatConfigurationAdapter.ts)
     // and may be enclosed in quotes
     //
 
-    static char constexpr rgMagic[] = "1Z85";
+    static char constexpr rgMagic[] = "2Z85";
     size_t const cchMagic = strlen(rgMagic);
 
     size_t const cchQuote = fTrimQuotes ? 1 : 0;
@@ -331,19 +348,19 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData,
         return Configuration::ConfigUpdateResult::Invalid;
     }
 
-    uint16_t const cbConfigData = cchData - cchMagic - 2 * cchQuote;
-    uint8_t const* const rgConfigData = reinterpret_cast<uint8_t const*>(szData + cchQuote + cchMagic);
+    uint16_t const cchConfigData = cchData - cchMagic - 2 * cchQuote;
+    char const* const rgConfigData = szData + cchQuote + cchMagic;
 
     // Submit update
     Configuration::ConfigUpdateResult const configUpdateResult =
-        g_Configuration.SubmitUpdate(rgConfigData, cbConfigData);
+        g_Configuration.SubmitUpdate(rgConfigData, cchConfigData);
 
     // Report results
     switch (configUpdateResult)
     {
         case Configuration::ConfigUpdateResult::Invalid:
             Serial.printlnf(
-                "!! Configuration from %s \"%.*s\" invalid, ignoring.", szSource, cbConfigData, rgConfigData);
+                "!! Configuration from %s \"%.*s\" invalid, ignoring.", szSource, cchConfigData, rgConfigData);
             break;
 
         case Configuration::ConfigUpdateResult::Retained:
@@ -375,4 +392,32 @@ int onConfigPush(String configString)
 {
     Activity configPushActivity("ConfigPush");
     return static_cast<int>(handleUpdatedConfig(configString.c_str(), false /* no quotes */, "push"));
+}
+
+
+//
+// Helpers
+//
+
+void applyTimezoneConfiguration()
+{
+    //
+    // We don't bother telling Particle about DST, we'll just change zones (e.g. PST to PDT)
+    // so the above is sufficient. We just need the math to work, we don't need nice formatting.
+    //
+    // Our configuration tells us the current timezone's offset as well as
+    // the next one and when to switch over, in case we don't update frequently.
+    //
+
+    bool const inNextTimezone = g_Configuration.rootConfiguration().nextTimezoneChange() <= Time.now();
+
+    // {current,next}TimezoneUTCOffset: signed IANA UTC offset, e.g. PST = 480
+    int16_t const timezoneUTCOffset = inNextTimezone ? g_Configuration.rootConfiguration().nextTimezoneUTCOffset()
+                                                     : g_Configuration.rootConfiguration().currentTimezoneUTCOffset();
+
+    // particleTimezone: signed fractional hours, e.g. PST = -8.0
+    float const particleTimezone = -1.0f * (timezoneUTCOffset / 60.0f);
+
+    // Apply
+    Time.zone(particleTimezone);
 }

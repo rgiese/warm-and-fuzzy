@@ -24,29 +24,25 @@ if (!fs.existsSync(projectGeneratedRoot)) {
 const flatbuffersRoot = path.join(grumpycorpRoot, "flatbuffers");
 
 // Run codegen
+const fixIncludePathsInFile = fileName => {
+  // Modify include locations from "flatbuffers/{foo.h}" to "{foo.h}"
+  // because we don't get to set additional include roots with the Particle compiler
+  const fileContent = fs.readFileSync(fileName).toString();
+
+  const fixedUpFileContent = fileContent.replace(
+    'import { flatbuffers } from "./flatbuffers"',
+    'import { flatbuffers } from "../flatbuffers"'
+  );
+
+  fs.writeFileSync(fileName, fixedUpFileContent);
+};
+
 ["firmware.fbs"].map(fbs => {
   const flatbuffersSchema = path.join(projectSchemasRoot, fbs);
   console.log(`Processing ${flatbuffersSchema}`);
   execSync(`${flatbuffersRoot}/flatc --ts -o ${projectGeneratedRoot} ${flatbuffersSchema}`, {
     stdio: "inherit",
   });
+
+  fixIncludePathsInFile(path.join(projectGeneratedRoot, fbs.replace(".fbs", "_generated.ts")));
 });
-
-// Copy JavaScript dependencies
-const flatbuffersDependenciesDestination = projectGeneratedRoot;
-const flatbuffersDependenciesSource = path.join(flatbuffersRoot, "js");
-
-["flatbuffers.js"].map(dependency => {
-  const source = path.join(flatbuffersDependenciesSource, dependency);
-  const destination = path.join(flatbuffersDependenciesDestination, dependency);
-
-  console.log(`Copying ${source} -> ${destination}`);
-  fs.copyFileSync(source, destination);
-});
-
-// Copy local TypeScript definitions into `generated` directory
-const flatbuffersDefinitions = "flatbuffers.d.ts";
-fs.copyFileSync(
-  path.join(packageRoot, `external/${flatbuffersDefinitions}`),
-  path.join(projectGeneratedRoot, flatbuffersDefinitions)
-);

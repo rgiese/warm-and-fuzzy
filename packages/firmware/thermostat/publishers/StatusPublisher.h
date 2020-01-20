@@ -1,10 +1,6 @@
 #pragma once
 
-#include <Particle.h>
-
-#include "../inc/FixedStringBuffer.h"
-#include "../inc/QueuedPublisher.h"
-
+template <uint8_t c_cOneWireDevices_Max>
 class StatusPublisher
 {
 public:
@@ -20,6 +16,7 @@ public:
 
 public:
     void Publish(Configuration const& configuration,
+                 ThermostatSetpoint const& thermostatSetpoint,
                  ThermostatAction const& currentActions,
                  bool const fUsedExternalSensor,
                  float const operableTemperature,
@@ -50,14 +47,24 @@ public:
         sb.Append("\"");
 
         // Configuration
-        sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"th\":%.2f",
-                        Configuration::getTemperature(configuration.rootConfiguration().setPointHeat_x100()),
-                        Configuration::getTemperature(configuration.rootConfiguration().setPointCool_x100()),
-                        Configuration::getTemperature(configuration.rootConfiguration().threshold_x100()));
+        {
+            // See main.cpp#applyTimezoneConfiguration()
+            bool const inNextTimezone = configuration.rootConfiguration().nextTimezoneChange() <= Time.now();
 
-        sb.Append(",\"aa\":\"");
-        appendActionsToStringBuilder(sb, configuration.rootConfiguration().allowedActions());
-        sb.Append("\"}");
+            int16_t const timezoneUTCOffset = inNextTimezone
+                                                  ? configuration.rootConfiguration().nextTimezoneUTCOffset()
+                                                  : configuration.rootConfiguration().currentTimezoneUTCOffset();
+
+            sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"th\":%.2f,\"tz\":%d",
+                            thermostatSetpoint.SetPointHeat,
+                            thermostatSetpoint.SetPointCool,
+                            Configuration::getTemperature(configuration.rootConfiguration().threshold_x100()),
+                            timezoneUTCOffset);
+
+            sb.Append(",\"aa\":\"");
+            appendActionsToStringBuilder(sb, thermostatSetpoint.AllowedActions);
+            sb.Append("\"}");
+        }
 
         // Measurements
         sb.Append(",\"v\":[");
@@ -91,10 +98,10 @@ public:
 
 private:
     static size_t constexpr cchEventData =
-        static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬")      // Header
-        + static_strlen(",'t':-100.0,'t2':-100.0,'h':100.0,'ca':'HCR'")     // Status
-        + static_strlen(",cc:{'sh':10.0,'sc':10.0,'th':10.00,'aa':'HCR'}")  // Configuration
-        + static_strlen(",'v':[]}")                                         // Measurements
+        static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬")                     // Header
+        + static_strlen(",'t':-100.0,'t2':-100.0,'h':100.0,'ca':'HCR'")                    // Status
+        + static_strlen(",cc:{'sh':10.0,'sc':10.0,'th':10.00,'tz':-999,'aa':'HCR','tz'}")  // Configuration
+        + static_strlen(",'v':[]}")                                                        // Measurements
         + c_cOneWireDevices_Max *
               static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
         + 4;                                                                      // Safety margin

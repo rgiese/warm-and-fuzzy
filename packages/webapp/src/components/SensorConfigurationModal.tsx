@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 
@@ -8,77 +8,62 @@ import { RootStoreContext, SensorConfiguration } from "@grumpycorp/warm-and-fuzz
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";
 
-interface Props {
+const SensorConfigurationModal: React.FunctionComponent<{
   values: SensorConfiguration;
-}
+}> = ({ values }): React.ReactElement => {
+  const [mutableValues, setMutableValues] = useState(values);
+  const [validationError, setValidationError] = useState<ValidationError | undefined>(undefined);
 
-class State {
-  constructor(props: Props) {
-    this.values = props.values;
-  }
+  const rootStore = useContext(RootStoreContext).rootStore;
 
-  values: SensorConfiguration;
-  validationError?: ValidationError;
-}
-
-class SensorConfigurationModal extends React.Component<Props, State> {
-  static contextType = RootStoreContext;
-  context!: React.ContextType<typeof RootStoreContext>;
-
-  public constructor(props: Props) {
-    super(props);
-    this.state = new State(props);
-  }
-
-  handleChange = async (
+  const handleChange = async (
     _event: React.ChangeEvent<HTMLInputElement>,
     data: InputOnChangeData
   ): Promise<void> => {
     const handleChangeResult = await EditFormTools.handleChange(
-      this.state.values,
+      mutableValues,
       SensorConfigurationSchema.Schema,
-      data
+      data as EditFormTools.OnChangeData // name="" defined for each control below
     );
 
     if (handleChangeResult) {
-      this.setState(handleChangeResult);
+      setMutableValues(handleChangeResult.values);
+      setValidationError(handleChangeResult.validationError);
     }
   };
 
-  getFieldError = (field: string): any | undefined => {
-    return EditFormTools.getFieldError(this.state, field);
+  const getFieldError = (field: string): any | undefined => {
+    return EditFormTools.getFieldError({ values: mutableValues, validationError }, field);
   };
 
-  public render(): React.ReactElement {
-    return (
-      <EditFormModal
-        canSave={this.state.validationError !== undefined}
-        onSave={async (): Promise<void> => {
-          await this.context.rootStore.sensorConfigurationStore.updateItem(this.state.values);
-        }}
-        header={
-          <>
-            {this.props.values.name} (<code>{this.props.values.id}</code>)
-          </>
-        }
-      >
-        <Form.Input
-          label="Name"
-          name="name"
-          error={this.getFieldError("name")}
-          value={this.state.values.name}
-          onChange={this.handleChange}
-        />
-        <Form.Input
-          label="Stream Name"
-          name="streamName"
-          error={this.getFieldError("streamName")}
-          value={this.state.values.streamName}
-          onChange={this.handleChange}
-        />
-      </EditFormModal>
-    );
-  }
-}
+  return (
+    <EditFormModal
+      canSave={validationError !== undefined}
+      onSave={async (): Promise<void> => {
+        await rootStore.sensorConfigurationStore.updateItem(mutableValues);
+      }}
+      header={
+        <>
+          {values.name} (<code>{values.id}</code>)
+        </>
+      }
+    >
+      <Form.Input
+        label="Name"
+        name="name"
+        error={getFieldError("name")}
+        value={mutableValues.name}
+        onChange={handleChange}
+      />
+      <Form.Input
+        label="Stream Name"
+        name="streamName"
+        error={getFieldError("streamName")}
+        value={mutableValues.streamName}
+        onChange={handleChange}
+      />
+    </EditFormModal>
+  );
+};
 
 export default SensorConfigurationModal;

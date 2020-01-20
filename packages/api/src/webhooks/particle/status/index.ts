@@ -9,10 +9,12 @@ import * as ThermostatConfigurationAdapter from "../../../shared/firmware/thermo
 import {
   DbMapper,
   DeviceTenancy,
+  ObjectWithIdAndTenant,
   SensorConfiguration,
   SensorValue,
   SensorValueStream,
   ThermostatConfiguration,
+  ThermostatSettings,
   ThermostatValue,
   ThermostatValueStream,
 } from "../../../shared/db";
@@ -20,7 +22,7 @@ import {
 import { StatusEvent, StatusEventSchema } from "./statusEvent";
 
 //
-// Support functions
+// Device tenancy cache
 //
 
 const deviceTenancyCache = new Map();
@@ -30,57 +32,13 @@ async function getTenant(id: string): Promise<string> {
   let tenant = deviceTenancyCache.get(id);
 
   if (!tenant) {
-    const deviceTenancyCondition: Pick<DeviceTenancy, "id"> = { id };
-
-    const deviceTenancy = await DbMapper.get(
-      Object.assign(new DeviceTenancy(), deviceTenancyCondition)
-    );
+    const deviceTenancy = await DbMapper.getOne(new DeviceTenancy(), { id });
 
     tenant = deviceTenancy.tenant;
     deviceTenancyCache.set(id, tenant);
   }
 
   return tenant;
-}
-
-async function getThermostatConfiguration(
-  tenant: string,
-  id: string
-): Promise<ThermostatConfiguration> {
-  const thermostatConfigurationCondition: Pick<ThermostatConfiguration, "tenant" | "id"> = {
-    tenant,
-    id,
-  };
-
-  const thermostatConfiguration = await DbMapper.get(
-    Object.assign(new ThermostatConfiguration(), thermostatConfigurationCondition)
-  );
-
-  return thermostatConfiguration;
-}
-
-async function getSensorConfigurations(
-  tenant: string,
-  ids: string[]
-): Promise<Map<string, SensorConfiguration>> {
-  const sensorConfigurationConditions = ids.map(
-    (id): SensorConfiguration => {
-      const sensorConfigurationCondition: Pick<SensorConfiguration, "tenant" | "id"> = {
-        tenant,
-        id,
-      };
-
-      return Object.assign(new SensorConfiguration(), sensorConfigurationCondition);
-    }
-  );
-
-  const sensorConfigurations = new Map<string, SensorConfiguration>();
-
-  for await (const sensorConfiguration of DbMapper.batchGet(sensorConfigurationConditions)) {
-    sensorConfigurations.set(sensorConfiguration.id, sensorConfiguration);
-  }
-
-  return sensorConfigurations;
 }
 
 //
@@ -114,12 +72,17 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     return Responses.badRequest({ unrecognizedDeviceId: statusEvent.deviceId });
   }
 
-  // Retrieve configuration data
-  const thermostatConfiguration = await getThermostatConfiguration(tenant, statusEvent.deviceId);
+  const deviceKey: ObjectWithIdAndTenant = { tenant, id: statusEvent.deviceId };
 
-  const sensorConfigurations = await getSensorConfigurations(
-    tenant,
-    statusEvent.data.v.map((value): string => value.id)
+  // Retrieve configuration data
+  const thermostatConfiguration = await DbMapper.getOne(new ThermostatConfiguration(), deviceKey);
+  const thermostatSettings = await DbMapper.getOne(new ThermostatSettings(), deviceKey);
+
+  const sensorConfigurations = await DbMapper.getBatch(
+    statusEvent.data.v.map(
+      (value): SensorConfiguration =>
+        Object.assign(new SensorConfiguration(), { tenant, id: value.id })
+    )
   );
 
   // Patch up device time if it's overly out of sync with the "published" time attached by Particle Cloud
@@ -140,44 +103,45 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   const entitiesToStore = new Array<any>();
 
   {
-    // Thermostat value (latest)
-    const thermostatData: ThermostatValue = {
-      tenant: tenant,
-      id: statusEvent.deviceId,
-
-      publishedTime,
-      deviceTime,
-      deviceLocalSerial,
-
-      currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
-
+    const baseThermostatData = {
       temperature: statusEvent.data.t,
       humidity: statusEvent.data.h,
-
-      ...ThermostatConfigurationAdapter.partialModelFromFirmware(statusEvent.data.cc),
-    };
-
-    entitiesToStore.push(Object.assign(new ThermostatValue(), thermostatData));
-  }
-
-  {
-    // Thermostat value stream
-    const thermostatStreamData: ThermostatValueStream = {
-      stream: ThermostatValueStream.getStreamKey(tenant, thermostatConfiguration.streamName),
-      ts: deviceTime.getTime(),
-
-      publishedTime,
-      deviceLocalSerial,
-
       currentActions: ActionsAdapter.modelFromFirmware(statusEvent.data.ca),
-
-      temperature: statusEvent.data.t,
-      humidity: statusEvent.data.h,
-
-      ...ThermostatConfigurationAdapter.partialModelFromFirmware(statusEvent.data.cc),
+      setPointHeat: statusEvent.data.cc.sh,
+      setPointCool: statusEvent.data.cc.sc,
+      threshold: statusEvent.data.cc.th,
+      currentTimezoneUTCOffset: statusEvent.data.cc.tz,
     };
 
-    entitiesToStore.push(Object.assign(new ThermostatValueStream(), thermostatStreamData));
+    {
+      // Thermostat value (latest)
+      const thermostatData: ThermostatValue = {
+        ...deviceKey,
+
+        publishedTime,
+        deviceTime,
+        deviceLocalSerial,
+
+        ...baseThermostatData,
+      };
+
+      entitiesToStore.push(Object.assign(new ThermostatValue(), thermostatData));
+    }
+
+    {
+      // Thermostat value stream
+      const thermostatStreamData: ThermostatValueStream = {
+        stream: ThermostatValueStream.getStreamKey(tenant, thermostatConfiguration.streamName),
+        ts: deviceTime.getTime(),
+
+        publishedTime,
+        deviceLocalSerial,
+
+        ...baseThermostatData,
+      };
+
+      entitiesToStore.push(Object.assign(new ThermostatValueStream(), thermostatStreamData));
+    }
   }
 
   statusEvent.data.v.forEach((value): void => {
@@ -198,7 +162,9 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
     }
 
     // Sensor value streams
-    const sensorConfiguration = sensorConfigurations.get(value.id);
+    const sensorConfiguration = sensorConfigurations.find(
+      sensorConfiguration => sensorConfiguration.id === value.id
+    );
 
     if (sensorConfiguration) {
       const sensorStreamData: SensorValueStream = {
@@ -221,6 +187,6 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
   // Return current configuration to device
   return Responses.success(
-    ThermostatConfigurationAdapter.firmwareFromModel(thermostatConfiguration)
+    ThermostatConfigurationAdapter.firmwareFromModel(thermostatConfiguration, thermostatSettings)
   );
 };

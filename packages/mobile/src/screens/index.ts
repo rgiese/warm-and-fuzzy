@@ -17,7 +17,8 @@ import ScreenProps from "./ScreenProps";
 import AuthScreen from "./AuthScreen";
 import AccountScreen from "./AccountScreen";
 import HomeScreen from "./HomeScreen";
-import ThermostatScreen from "./ThermostatScreen";
+import ThermostatSettingsScreen from "../thermostatSettings/ThermostatSettingsScreen";
+import ThermostatSettingScreen from "../thermostatSettings/ThermostatSettingScreen";
 
 import ScreenRoutes from "./ScreenRoutes";
 
@@ -26,7 +27,8 @@ const AppNavigator = createStackNavigator(
   {
     [ScreenRoutes.Home]: { screen: HomeScreen },
     [ScreenRoutes.Account]: { screen: AccountScreen },
-    [ScreenRoutes.Thermostat]: { screen: ThermostatScreen },
+    [ScreenRoutes.ThermostatSettings]: { screen: ThermostatSettingsScreen },
+    [ScreenRoutes.ThermostatSetting]: { screen: ThermostatSettingScreen },
   },
   {
     initialRouteName: ScreenRoutes.Home,
@@ -55,7 +57,7 @@ const AuthNavigator = createStackNavigator(
   },
   {
     defaultNavigationOptions: {
-      header: null,
+      headerShown: false,
     },
   }
 );

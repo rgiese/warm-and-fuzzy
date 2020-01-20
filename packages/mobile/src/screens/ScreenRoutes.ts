@@ -2,7 +2,8 @@ enum ScreenRoutes {
   // App
   Home = "Home",
   Account = "Account",
-  Thermostat = "Thermostat",
+  ThermostatSettings = "ThermostatSettings",
+  ThermostatSetting = "ThermostatSetting",
   // Auth
   Auth = "Auth",
 }

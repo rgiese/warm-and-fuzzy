@@ -1,4 +1,6 @@
-import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
+import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
+
+import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 //
 // See https://github.com/awslabs/dynamodb-data-mapper-js
@@ -8,24 +10,15 @@ import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-a
 //
 
 @table("LatestSensorValues")
-export default class SensorValue {
+export default class SensorValue extends DeviceWithTenantAndId {
   public constructor() {
-    this.tenant = "";
-    this.id = "";
+    super();
 
     this.publishedTime = new Date();
     this.deviceTime = new Date();
     this.deviceLocalSerial = 0;
     this.temperature = 0.0;
   }
-
-  // Tenant (assigned by WarmAndFuzzy)
-  @hashKey()
-  public tenant: string;
-
-  // Sensor ID (assigned by Particle/OneWire)
-  @rangeKey()
-  public id: string;
 
   // Timestamp attached by Particle OS when event was published
   @attribute()

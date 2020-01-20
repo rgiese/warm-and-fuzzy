@@ -24,14 +24,17 @@
   },
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
+    "@types/clone-deep": "^4.0.1",
     "apollo-cache-inmemory": "^1.6.5",
     "apollo-client": "^2.6.8",
     "apollo-link-context": "^1.0.19",
     "apollo-link-http": "^1.5.16",
+    "clone-deep": "^4.0.1",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "mobx": "^5.15.1",
     "mobx-react": "^6.1.4",
-    "mobx-utils": "^5.5.2"
+    "mobx-utils": "^5.5.2",
+    "react-fast-compare": "^2.0.4"
   }
 }

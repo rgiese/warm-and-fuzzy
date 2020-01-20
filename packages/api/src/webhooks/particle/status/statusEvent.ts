@@ -48,6 +48,10 @@ export const StatusEventSchema = yup.object().shape({
           sh: yup.number().required(),
           sc: yup.number().required(),
           th: yup.number().required(),
+          tz: yup
+            .number()
+            .integer()
+            .required(),
           aa: yup
             .string()
             .min(0) // string needs to be present but can be empty

@@ -24,8 +24,11 @@ const Header: React.FunctionComponent<{}> = (): React.ReactElement => {
       <Menu.Item as={NavLink} to="/" exact>
         {authStore.tenant || ""} Home
       </Menu.Item>
+      {authStore.userPermissions.includes(Authorization.Permissions.ReadSettings) && (
+        <Menu.Item as={NavLink} to="/settings" content="Thermostat Settings" />
+      )}
       {authStore.userPermissions.includes(Authorization.Permissions.ReadConfig) && (
-        <Menu.Item as={NavLink} to="/configuration" content="Configuration" />
+        <Menu.Item as={NavLink} to="/configuration" content="System Configuration" />
       )}
       {authStore.userPermissions.includes(Authorization.Permissions.ReadData) && (
         <Menu.Item as={NavLink} to="/explore" content="Explore" />

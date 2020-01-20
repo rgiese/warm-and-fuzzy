@@ -1,13 +1,5 @@
 #pragma once
 
-#include <Particle.h>
-
-#include <mutex>
-
-#include "../generated/firmware_generated.h"
-#include "../onewire/OneWireAddress.h"
-#include "Z85.h"
-
 //
 // A note on EEPROM emulation on Particle devices:
 // (c.f. https://github.com/particle-iot/device-os/blob/develop/services/inc/eeprom_emulation.h)
@@ -70,6 +62,11 @@ public:
         return temperature_x100 / 100.0f;
     }
 
+    static uint16_t buildTemperature(float const temperature)
+    {
+        return static_cast<uint16_t>(temperature * 100);
+    }
+
     //
     // Operations
     //
@@ -113,7 +110,7 @@ public:
         Invalid,
     };
 
-    ConfigUpdateResult SubmitUpdate(uint8_t const* const rgConfigurationData, uint16_t const cbConfigurationData)
+    ConfigUpdateResult SubmitUpdate(char const* const rgConfigurationData, uint16_t const cchConfigurationData)
     {
         LockGuard autoLock(m_UpdateMutex);
 
@@ -122,7 +119,7 @@ public:
 
         // Decode into buffer
         uint16_t const cbPendingData =
-            Z85::DecodeBytes(m_rgPendingData, sizeof(m_rgPendingData), rgConfigurationData, cbConfigurationData);
+            Z85::DecodeBytes(m_rgPendingData, sizeof(m_rgPendingData), rgConfigurationData, cchConfigurationData);
 
         if (!cbPendingData)
         {
@@ -196,16 +193,63 @@ public:
         externalSensorId.ToString(szExternalSensorId);
 
         Serial.printlnf(
-            "SetPoints = %.1f C (heat) / %.1f C (cool), Threshold = +/-%.1f C, Cadence = %u sec, AllowedActions = "
-            "[%c%c%c], ExternalSensorId = %s",
-            Configuration::getTemperature(rootConfiguration().setPointHeat_x100()),
-            Configuration::getTemperature(rootConfiguration().setPointCool_x100()),
+            "Threshold = +/-%.1f C, Cadence = %u sec, ExternalSensorId = %s, Timezone UTC offset %d/%d pre/post %u",
             Configuration::getTemperature(rootConfiguration().threshold_x100()),
             rootConfiguration().cadence(),
-            !!(rootConfiguration().allowedActions() & Flatbuffers::Firmware::ThermostatAction::Heat) ? 'H' : '_',
-            !!(rootConfiguration().allowedActions() & Flatbuffers::Firmware::ThermostatAction::Cool) ? 'C' : '_',
-            !!(rootConfiguration().allowedActions() & Flatbuffers::Firmware::ThermostatAction::Circulate) ? 'R' : '_',
-            szExternalSensorId);
+            szExternalSensorId,
+            rootConfiguration().currentTimezoneUTCOffset(),
+            rootConfiguration().nextTimezoneUTCOffset(),
+            rootConfiguration().nextTimezoneChange());
+
+        auto const pvThermostatSettings = rootConfiguration().thermostatSettings();
+
+        if (pvThermostatSettings)
+        {
+            for (auto const pThermostatSetting : *pvThermostatSettings)
+            {
+                switch (pThermostatSetting->type())
+                {
+                    case ThermostatSettingType::Hold: {
+                        Serial.print("  Hold: ");
+                        Serial.printf("until %lu", pThermostatSetting->holdUntil());
+                        break;
+                    }
+
+                    case ThermostatSettingType::Scheduled: {
+                        Serial.print("  Scheduled: ");
+
+                        DaysOfWeek const daysOfWeek = pThermostatSetting->daysOfWeek();
+
+                        for (uint8_t idxEnumBit = 0; idxEnumBit < 7; ++idxEnumBit)
+                        {
+                            DaysOfWeek const dayOfWeek = Flatbuffers::Firmware::EnumValuesDaysOfWeek()[idxEnumBit];
+                            if (!!(daysOfWeek & dayOfWeek))
+                            {
+                                Serial.printf("%.3s", Flatbuffers::Firmware::EnumNameDaysOfWeek(dayOfWeek));
+                            }
+                        }
+
+                        uint16_t const atMinutesSinceMidnight = pThermostatSetting->atMinutesSinceMidnight();
+                        Serial.printf(" at %02u:%02u", atMinutesSinceMidnight / 60, atMinutesSinceMidnight % 60);
+                        break;
+                    }
+
+                    default: {
+                        Serial.printf("  UnknownSettingType(%u)", pThermostatSetting->type());
+                        break;
+                    }
+                }
+
+                ThermostatAction const allowedActions = pThermostatSetting->allowedActions();
+
+                Serial.printlnf(": %.1f C (heat) / %.1f C (cool), AllowedActions = [%c%c%c]",
+                                Configuration::getTemperature(pThermostatSetting->setPointHeat_x100()),
+                                Configuration::getTemperature(pThermostatSetting->setPointCool_x100()),
+                                !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Heat) ? 'H' : '_',
+                                !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Cool) ? 'C' : '_',
+                                !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Circulate) ? 'R' : '_');
+            }
+        }
     }
 
 private:

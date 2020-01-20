@@ -1,23 +1,31 @@
+import moment from "moment-timezone";
+
 import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import { ThermostatConfiguration } from "../db";
+import { ThermostatConfiguration, ThermostatSettings } from "../db";
 import { Z85Encode } from "../Z85";
 
-import * as ActionsAdapter from "./actionsAdapter";
 import * as OneWireIdAdapter from "./oneWireIdAdapter";
+import * as ThermostatSettingAdapter from "./thermostatSettingAdapter";
 
-export interface FirmwareConfiguration {
-  sh: number;
-  sc: number;
-  th: number;
-  ca: number;
-  aa: string;
-  xs: string;
-}
-
-export function firmwareFromModel(thermostatConfiguration: ThermostatConfiguration): string {
+export function firmwareFromModel(
+  thermostatConfiguration: ThermostatConfiguration,
+  thermostatSettings: ThermostatSettings
+): string {
   // Create buffer
-  const firmwareConfigBuilder = new flatbuffers.Builder(128); // ...initial guess at size
+  const firmwareConfigBuilder: flatbuffers.Builder = new flatbuffers.Builder(128); // ...initial guess at size
+
+  // Create settings array
+  Flatbuffers.Firmware.ThermostatConfiguration.startThermostatSettingsVector(
+    firmwareConfigBuilder,
+    thermostatSettings.settings?.length || 0
+  );
+
+  thermostatSettings.settings?.forEach(thermostatSetting =>
+    ThermostatSettingAdapter.createThermostatSetting(firmwareConfigBuilder, thermostatSetting)
+  );
+
+  const thermostatSettingsVector = firmwareConfigBuilder.endVector();
 
   // Start top-level table
   Flatbuffers.Firmware.ThermostatConfiguration.startThermostatConfiguration(firmwareConfigBuilder);
@@ -40,45 +48,60 @@ export function firmwareFromModel(thermostatConfiguration: ThermostatConfigurati
     );
   }
 
-  Flatbuffers.Firmware.ThermostatConfiguration.addAllowedActions(
+  if (thermostatConfiguration.timezone) {
+    const timezoneInfo = moment.tz.zone(thermostatConfiguration.timezone);
+
+    if (timezoneInfo) {
+      // We rely on the timezoneInfo data being in sorted order
+      const currentTime = Date.now(); // ms since UTC epoch, just like timezoneInfo.untils[]
+      const idxCurrent = timezoneInfo.untils.findIndex(untilTime => untilTime > currentTime);
+
+      if (idxCurrent > 0) {
+        const currentOffset = timezoneInfo.offsets[idxCurrent];
+        const nextOffset = timezoneInfo.offsets[idxCurrent + 1];
+
+        const nextTimezoneChange = timezoneInfo.untils[idxCurrent] / 1000; // -> sec since UTC epoch
+
+        Flatbuffers.Firmware.ThermostatConfiguration.addCurrentTimezoneUTCOffset(
+          firmwareConfigBuilder,
+          currentOffset
+        );
+
+        Flatbuffers.Firmware.ThermostatConfiguration.addNextTimezoneUTCOffset(
+          firmwareConfigBuilder,
+          nextOffset
+        );
+
+        Flatbuffers.Firmware.ThermostatConfiguration.addNextTimezoneChange(
+          firmwareConfigBuilder,
+          nextTimezoneChange
+        );
+      }
+    }
+  }
+
+  Flatbuffers.Firmware.ThermostatConfiguration.addThermostatSettings(
     firmwareConfigBuilder,
-    ActionsAdapter.firmwareFromModel(thermostatConfiguration.allowedActions)
+    thermostatSettingsVector
   );
 
-  Flatbuffers.Firmware.ThermostatConfiguration.addSetPointHeatX100(
-    firmwareConfigBuilder,
-    Math.round(thermostatConfiguration.setPointHeat * 100)
-  );
-
-  Flatbuffers.Firmware.ThermostatConfiguration.addSetPointCoolX100(
-    firmwareConfigBuilder,
-    Math.round(thermostatConfiguration.setPointCool * 100)
-  );
-
+  // Finish top-level table
   const firmwareConfigOffset = Flatbuffers.Firmware.ThermostatConfiguration.endThermostatConfiguration(
     firmwareConfigBuilder
   );
 
-  // Finish top-level table
-  firmwareConfigBuilder.finish(firmwareConfigOffset);
+  Flatbuffers.Firmware.ThermostatConfiguration.finishThermostatConfigurationBuffer(
+    firmwareConfigBuilder,
+    firmwareConfigOffset
+  );
 
   // Extract and encode
   const firmwareConfigBytes = firmwareConfigBuilder.asUint8Array();
 
   const stringEncodedFirmwareConfig = Z85Encode(firmwareConfigBytes);
 
-  const versionMagic = "1Z85";
+  // c.f. //packages/firmware/thermostat/Main.cpp#handleUpdatedConfig
+  const versionMagic = "2Z85";
 
   return versionMagic.concat(stringEncodedFirmwareConfig);
-}
-
-export function partialModelFromFirmware( // ...partial because we don't need cadence or external sensor ID reported back from the firmware
-  firmwareConfiguration: Omit<FirmwareConfiguration, "ca" | "xs">
-): Pick<ThermostatConfiguration, "setPointHeat" | "setPointCool" | "threshold" | "allowedActions"> {
-  return {
-    setPointHeat: firmwareConfiguration.sh,
-    setPointCool: firmwareConfiguration.sc,
-    threshold: firmwareConfiguration.th,
-    allowedActions: ActionsAdapter.modelFromFirmware(firmwareConfiguration.aa),
-  };
 }

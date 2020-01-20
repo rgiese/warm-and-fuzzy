@@ -8,6 +8,8 @@ enum RequiredPermission {
   READ_DATA
   READ_CONFIG
   WRITE_CONFIG
+  READ_SETTINGS
+  WRITE_SETTINGS
   CROSS_TENANT_ADMIN
 }
 
@@ -27,6 +29,11 @@ schema {
 }
 
 type Query {
+  # ThermostatSettings
+  getThermostatSettings: [ThermostatSettings!]! @requiresPermission(permission: READ_SETTINGS)
+
+  getThermostatSetting(id: ID!): ThermostatSettings! @requiresPermission(permission: READ_SETTINGS)
+
   # ThermostatConfiguration
   getThermostatConfigurations: [ThermostatConfiguration!]!
     @requiresPermission(permission: READ_CONFIG)
@@ -64,6 +71,13 @@ type Query {
 }
 
 type Mutation {
+  # ThermostatSettings
+  createThermostatSettings(thermostatSettings: ThermostatSettingsCreateInput!): ThermostatSettings!
+    @requiresPermission(permission: WRITE_SETTINGS)
+
+  updateThermostatSettings(thermostatSettings: ThermostatSettingsUpdateInput!): ThermostatSettings!
+    @requiresPermission(permission: WRITE_SETTINGS)
+
   # ThermostatConfiguration
   createThermostatConfiguration(
     thermostatConfiguration: ThermostatConfigurationCreateInput!
@@ -84,6 +98,95 @@ type Mutation {
 }
 
 #
+# ThermostatSettings
+#
+
+enum ThermostatAction {
+  Heat
+  Cool
+  Circulate
+}
+
+enum ThermostatSettingType {
+  Hold
+  Scheduled
+}
+
+enum DayOfWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+type ThermostatSetting {
+  type: ThermostatSettingType!
+
+  # For Hold settings
+  holdUntil: DateTime
+
+  # For Scheduled settings
+  daysOfWeek: [DayOfWeek!]
+  atMinutesSinceMidnight: Int
+
+  # For all types
+  allowedActions: [ThermostatAction!]!
+  setPointHeat: Float!
+  setPointCool: Float!
+}
+
+input ThermostatSettingCreateInput {
+  type: ThermostatSettingType!
+
+  # For Hold settings
+  holdUntil: DateTime
+
+  # For Scheduled settings
+  daysOfWeek: [DayOfWeek!]
+  atMinutesSinceMidnight: Int
+
+  # For all types
+  allowedActions: [ThermostatAction!]!
+  setPointHeat: Float!
+  setPointCool: Float!
+}
+
+input ThermostatSettingUpdateInput {
+  type: ThermostatSettingType!
+
+  # For Hold settings
+  holdUntil: DateTime
+
+  # For Scheduled settings
+  daysOfWeek: [DayOfWeek!]
+  atMinutesSinceMidnight: Int
+
+  # For all types
+  allowedActions: [ThermostatAction!]!
+  setPointHeat: Float!
+  setPointCool: Float!
+}
+
+type ThermostatSettings {
+  tenant: String!
+  id: ID!
+  settings: [ThermostatSetting!]!
+}
+
+input ThermostatSettingsCreateInput {
+  id: ID!
+  settings: [ThermostatSettingCreateInput!]!
+}
+
+input ThermostatSettingsUpdateInput {
+  id: ID!
+  settings: [ThermostatSettingUpdateInput!]!
+}
+
+#
 # ThermostatConfiguration
 #
 
@@ -94,11 +197,8 @@ input ThermostatConfigurationCreateInput {
 
   availableActions: [ThermostatAction!]!
 
-  allowedActions: [ThermostatAction!]!
-  setPointHeat: Float!
-  setPointCool: Float!
-
   externalSensorId: String
+  timezone: String
   threshold: Float!
   cadence: Int!
 }
@@ -110,11 +210,8 @@ input ThermostatConfigurationUpdateInput {
 
   availableActions: [ThermostatAction!]!
 
-  allowedActions: [ThermostatAction!]
-  setPointHeat: Float
-  setPointCool: Float
-
   externalSensorId: String
+  timezone: String
   threshold: Float
   cadence: Int
 }
@@ -127,19 +224,10 @@ type ThermostatConfiguration {
 
   availableActions: [ThermostatAction!]!
 
-  allowedActions: [ThermostatAction!]!
-  setPointHeat: Float!
-  setPointCool: Float!
-
   externalSensorId: String
+  timezone: String
   threshold: Float!
   cadence: Int!
-}
-
-enum ThermostatAction {
-  Heat
-  Cool
-  Circulate
 }
 
 #

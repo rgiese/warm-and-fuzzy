@@ -20,9 +20,7 @@ const thermostatConfigurationsFragment = gql`
     streamName
     availableActions
     externalSensorId
-    allowedActions
-    setPointHeat
-    setPointCool
+    timezone
     threshold
     cadence
   }

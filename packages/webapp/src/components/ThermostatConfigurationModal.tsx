@@ -1,6 +1,7 @@
-import React from "react";
-import { Accordion, Checkbox, Form, Icon, InputOnChangeData } from "semantic-ui-react";
+import React, { useContext, useState } from "react";
+import { Checkbox, DropdownProps, Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
+import moment from "moment-timezone";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import {
@@ -11,193 +12,149 @@ import {
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";
 
-interface Props {
+const ThermostatConfigurationModal: React.FunctionComponent<{
   values: ThermostatConfiguration;
-}
+}> = ({ values }): React.ReactElement => {
+  const [mutableValues, setMutableValues] = useState(values);
+  const [validationError, setValidationError] = useState<ValidationError | undefined>(undefined);
 
-class State {
-  constructor(props: Props) {
-    this.values = props.values;
-    this.showSystemSetup = false;
-  }
+  const rootStore = useContext(RootStoreContext).rootStore;
 
-  values: ThermostatConfiguration;
-  validationError?: ValidationError;
-  showSystemSetup: boolean;
-}
-
-class ThermostatConfigurationModal extends React.Component<Props, State> {
-  static contextType = RootStoreContext;
-  context!: React.ContextType<typeof RootStoreContext>;
-
-  public constructor(props: Props) {
-    super(props);
-    this.state = new State(props);
-  }
-
-  handleChange = async (
+  const handleChange = async (
     _event: React.ChangeEvent<HTMLInputElement>,
     data: InputOnChangeData
   ): Promise<void> => {
     const handleChangeResult = await EditFormTools.handleChange(
-      this.state.values,
+      mutableValues,
       ThermostatConfigurationSchema.Schema,
-      data
+      data as EditFormTools.OnChangeData // name="" defined for each control below
     );
 
     if (handleChangeResult) {
-      this.setState(handleChangeResult);
+      setMutableValues(handleChangeResult.values);
+      setValidationError(handleChangeResult.validationError);
     }
   };
 
-  getFieldError = (field: string): any | undefined => {
-    return EditFormTools.getFieldError(this.state, field);
+  const handleDropdownChange = async (
+    _event: React.SyntheticEvent<HTMLElement>,
+    data: DropdownProps
+  ): Promise<void> => {
+    const handleChangeResult = await EditFormTools.handleChange(
+      mutableValues,
+      ThermostatConfigurationSchema.Schema,
+      { ...data, type: "select" } as EditFormTools.OnChangeData // name="" defined for each control below
+    );
+
+    if (handleChangeResult) {
+      setMutableValues(handleChangeResult.values);
+      setValidationError(handleChangeResult.validationError);
+    }
   };
 
-  public render(): React.ReactElement {
-    return (
-      <EditFormModal
-        canSave={this.state.validationError !== undefined}
-        onSave={async (): Promise<void> => {
-          await this.context.rootStore.thermostatConfigurationStore.updateItem(this.state.values);
-        }}
-        header={
-          <>
-            {this.props.values.name} (<code>{this.props.values.id}</code>)
-          </>
-        }
-      >
-        <Form.Group widths="equal">
-          <Form.Input
-            fluid
-            label="Heat to [&deg;C]"
-            name="setPointHeat"
-            error={this.getFieldError("setPointHeat")}
-            value={this.state.values.setPointHeat}
-            type="number"
-            min={ThermostatConfigurationSchema.SetPointRange.min}
-            max={ThermostatConfigurationSchema.SetPointRange.max}
-            step={1}
-            onChange={this.handleChange}
+  const getFieldError = (field: string): any | undefined => {
+    return EditFormTools.getFieldError({ values: mutableValues, validationError }, field);
+  };
+
+  return (
+    <EditFormModal
+      canSave={validationError !== undefined}
+      onSave={async (): Promise<void> => {
+        await rootStore.thermostatConfigurationStore.updateItem(mutableValues);
+      }}
+      header={
+        <>
+          {values.name} (<code>{values.id}</code>)
+        </>
+      }
+    >
+      <Form.Group widths="equal">
+        <Form.Input
+          fluid
+          label="Name"
+          name="name"
+          error={getFieldError("name")}
+          value={mutableValues.name}
+          onChange={handleChange}
+        />
+
+        <Form.Input
+          fluid
+          label="Stream Name"
+          name="streamName"
+          error={getFieldError("streamName")}
+          value={mutableValues.streamName}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
+      <Form.Group widths="equal">
+        <Form.Input
+          fluid
+          label="Threshold [&Delta;&deg;C]"
+          name="threshold"
+          error={getFieldError("threshold")}
+          value={mutableValues.threshold}
+          type="number"
+          min={ThermostatConfigurationSchema.ThresholdRange.min}
+          max={ThermostatConfigurationSchema.ThresholdRange.max}
+          step={0.5}
+          onChange={handleChange}
+        />
+
+        <Form.Input
+          fluid
+          label="Cadence [sec]"
+          name="cadence"
+          error={getFieldError("cadence")}
+          value={mutableValues.cadence}
+          type="number"
+          min={ThermostatConfigurationSchema.CadenceRange.min}
+          max={ThermostatConfigurationSchema.CadenceRange.max}
+          step={10}
+          onChange={handleChange}
+        />
+      </Form.Group>
+
+      <Form.Group widths="equal">
+        <Form.Input
+          fluid
+          label="External sensor ID"
+          name="externalSensorId"
+          error={getFieldError("externalSensorId")}
+          value={mutableValues.externalSensorId}
+          onChange={handleChange}
+        />
+
+        <Form.Select
+          fluid
+          label="Timezone"
+          name="timezone"
+          options={moment.tz.names().map(timezone => {
+            return { text: timezone, value: timezone };
+          })}
+          error={getFieldError("timezone")}
+          value={mutableValues.timezone || ""}
+          onChange={handleDropdownChange}
+        />
+      </Form.Group>
+
+      <Form.Group inline>
+        <label>Available actions:</label>
+        {ThermostatConfigurationSchema.Actions.map(action => (
+          <Form.Field
+            control={Checkbox}
+            label={action}
+            name="availableActions"
+            value={action}
+            checked={mutableValues.availableActions.includes(action)}
+            key={`availableAction.${action}`}
+            onChange={handleChange}
           />
-
-          <Form.Input
-            fluid
-            label="Cool to [&deg;C]"
-            name="setPointCool"
-            error={this.getFieldError("setPointCool")}
-            value={this.state.values.setPointCool}
-            type="number"
-            min={ThermostatConfigurationSchema.SetPointRange.min}
-            max={ThermostatConfigurationSchema.SetPointRange.max}
-            step={1}
-            onChange={this.handleChange}
-          />
-        </Form.Group>
-
-        <Form.Group inline>
-          <label>Allowed actions:</label>
-          {ThermostatConfigurationSchema.Actions.map(action => (
-            <Form.Field
-              control={Checkbox}
-              label={action}
-              name="allowedActions"
-              value={action}
-              checked={this.state.values.allowedActions.includes(action)}
-              key={`allowedActions.${action}`}
-              onChange={this.handleChange}
-            />
-          ))}
-        </Form.Group>
-
-        <Accordion>
-          <Accordion.Title
-            active={this.state.showSystemSetup}
-            onClick={() => this.setState({ showSystemSetup: !this.state.showSystemSetup })}
-          >
-            <Icon name="dropdown" />
-            System setup
-          </Accordion.Title>
-
-          <Accordion.Content active={this.state.showSystemSetup}>
-            <Form.Group widths="equal">
-              <Form.Input
-                fluid
-                label="Name"
-                name="name"
-                error={this.getFieldError("name")}
-                value={this.state.values.name}
-                onChange={this.handleChange}
-              />
-
-              <Form.Input
-                fluid
-                label="Stream Name"
-                name="streamName"
-                error={this.getFieldError("streamName")}
-                value={this.state.values.streamName}
-                onChange={this.handleChange}
-              />
-            </Form.Group>
-
-            <Form.Group widths="equal">
-              <Form.Input
-                fluid
-                label="Threshold [&Delta;&deg;C]"
-                name="threshold"
-                error={this.getFieldError("threshold")}
-                value={this.state.values.threshold}
-                type="number"
-                min={ThermostatConfigurationSchema.ThresholdRange.min}
-                max={ThermostatConfigurationSchema.ThresholdRange.max}
-                step={0.5}
-                onChange={this.handleChange}
-              />
-
-              <Form.Input
-                fluid
-                label="Cadence [sec]"
-                name="cadence"
-                error={this.getFieldError("cadence")}
-                value={this.state.values.cadence}
-                type="number"
-                min={ThermostatConfigurationSchema.CadenceRange.min}
-                max={ThermostatConfigurationSchema.CadenceRange.max}
-                step={10}
-                onChange={this.handleChange}
-              />
-            </Form.Group>
-
-            <Form.Group widths="equal">
-              <Form.Input
-                fluid
-                label="External sensor ID"
-                name="externalSensorId"
-                error={this.getFieldError("externalSensorId")}
-                value={this.state.values.externalSensorId}
-                onChange={this.handleChange}
-              />
-            </Form.Group>
-
-            <Form.Group inline>
-              <label>Available actions:</label>
-              {ThermostatConfigurationSchema.Actions.map(action => (
-                <Form.Field
-                  control={Checkbox}
-                  label={action}
-                  name="availableActions"
-                  value={action}
-                  checked={this.state.values.availableActions.includes(action)}
-                  key={`availableAction.${action}`}
-                  onChange={this.handleChange}
-                />
-              ))}
-            </Form.Group>
-          </Accordion.Content>
-        </Accordion>
-      </EditFormModal>
-    );
-  }
-}
+        ))}
+      </Form.Group>
+    </EditFormModal>
+  );
+};
 
 export default ThermostatConfigurationModal;

@@ -24,6 +24,7 @@
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@types/flatbuffers": "^1.10.0",
     "graphql": "^14.5.8",
     "yup": "^0.27.0"
   }

@@ -1,7 +1,7 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import MappedResolver, { ZeroArgumentsConstructor } from "./MappedResolver";
+import MappedResolver from "./MappedResolver";
 
-import { SensorValue } from "../../shared/db";
+import { SensorValue, ZeroArgumentsConstructor } from "../../shared/db";
 import LatestSensorValueMapper from "../mappers/LatestSensorValueMapper";
 
 const modelConstructor: ZeroArgumentsConstructor<SensorValue> = SensorValue;
