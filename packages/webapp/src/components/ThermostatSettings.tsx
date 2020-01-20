@@ -1,15 +1,14 @@
-import React, { useState } from "react";
 import { Header, Segment } from "semantic-ui-react";
-import { observer } from "mobx-react";
-
+import React, { useState } from "react";
 import {
-  useRootStore,
   ThermostatSettings,
   ThermostatSettingsHelpers,
+  useRootStore,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import AddSettingPopup from "./thermostatSettings/AddSettingPopup";
 import ThermostatSettingBean from "./thermostatSettings/ThermostatSettingBean";
+import { observer } from "mobx-react";
 
 const ThermostatSettingsComponent: React.FunctionComponent<{
   thermostatSettings: ThermostatSettings;
@@ -34,28 +33,29 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
         {thermostatConfiguration?.name || thermostatSettings.id}
 
         <AddSettingPopup
-          mutableSettingsStore={mutableSettingsStore}
-          defaultThermostatSetting={mutableSettingsStore.newHoldSettingTemplate}
           availableActions={thermostatConfiguration?.availableActions || []}
+          defaultThermostatSetting={mutableSettingsStore.newHoldSettingTemplate}
           isSaving={isSaving}
+          mutableSettingsStore={mutableSettingsStore}
         />
 
         <AddSettingPopup
-          mutableSettingsStore={mutableSettingsStore}
-          defaultThermostatSetting={mutableSettingsStore.newScheduledSettingTemplate}
           availableActions={thermostatConfiguration?.availableActions || []}
+          defaultThermostatSetting={mutableSettingsStore.newScheduledSettingTemplate}
           isSaving={isSaving}
+          mutableSettingsStore={mutableSettingsStore}
         />
       </Header>
       <Segment attached>
         {mutableSettingsStore.orderedSettings.map((setting, index) => {
           return (
             <ThermostatSettingBean
+              availableActions={thermostatConfiguration?.availableActions || []}
+              isSaving={isSaving}
+              // eslint-disable-next-line react/no-array-index-key
+              key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
               mutableSettingsStore={mutableSettingsStore}
               thermostatSetting={setting}
-              availableActions={thermostatConfiguration?.availableActions || []}
-              key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
-              isSaving={isSaving}
             />
           );
         })}

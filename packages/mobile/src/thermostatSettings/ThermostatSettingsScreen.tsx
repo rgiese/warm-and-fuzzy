@@ -103,6 +103,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
         {mutableSettingsStore.orderedSettings.map((thermostatSetting, index) => {
           return (
             <TouchableOpacity
+              // eslint-disable-next-line react/no-array-index-key
               key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
               onPress={(): void => {
                 const params: ThermostatSettingNavigationParams = {
@@ -129,6 +130,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
                   <List.Icon {...props} icon={IconNames[thermostatSetting.type]} />
                 )}
                 title={
+                  // eslint-disable-next-line react/jsx-no-useless-fragment
                   <>
                     {[
                       GraphQL.ThermostatAction.Heat,

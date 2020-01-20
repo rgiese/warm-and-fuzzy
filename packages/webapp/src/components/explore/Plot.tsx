@@ -1,36 +1,28 @@
-import React from "react";
 import { Dimmer, Loader, Message } from "semantic-ui-react";
+import { LinearScale, TimeScale } from "@nivo/scales";
+import { ResponsiveScatterPlotCanvas, Scale, Serie } from "@nivo/scatterplot";
+
+import { AxisProps } from "@nivo/axes";
+import ExplorePlotDataStore from "../../stores/explore-plot-data";
+import ExploreStore from "../../stores/explore";
+import PlotTooltip from "./PlotTooltip";
+import React from "react";
+import SeriesColorPalette from "./SeriesColorPalette";
+import SeriesInstanceDataDefinition from "../../stores/explore-plot-data/SeriesInstanceDataDefinition";
+import ViewSpan from "../../stores/explore/ViewSpan";
 import { observer } from "mobx-react";
 
-import { ResponsiveScatterPlotCanvas, Scale, Serie } from "@nivo/scatterplot";
-import { LinearScale, TimeScale } from "@nivo/scales";
-import { AxisProps } from "@nivo/axes";
-
-import SeriesColorPalette from "./SeriesColorPalette";
-import PlotTooltip from "./PlotTooltip";
-import ViewSpan from "../../stores/explore/ViewSpan";
-
-import ExploreStore from "../../stores/explore";
-import ExplorePlotDataStore from "../../stores/explore-plot-data";
-
-import SeriesInstanceDataDefinition from "../../stores/explore-plot-data/SeriesInstanceDataDefinition";
-
-interface Props {
+const Plot: React.FunctionComponent<{
   exploreStore: ExploreStore;
   explorePlotDataStore: ExplorePlotDataStore;
-}
-
-const Plot: React.FunctionComponent<Props> = observer(
-  (props): React.ReactElement => {
-    const exploreStore = props.exploreStore;
-    const explorePlotDataStore = props.explorePlotDataStore;
-
+}> = observer(
+  ({ exploreStore, explorePlotDataStore }): React.ReactElement => {
     // Pick reasonable Y-axis defaults considering interior temperature ranges
     let plotMin = 16;
     let plotMax = 36;
 
     let isLoading = false;
-    let errors: string[] = [];
+    const errors: string[] = [];
 
     const plotData: Serie[] = exploreStore.seriesInstanceProps.map(
       (seriesInstanceProps): Serie => {
@@ -104,17 +96,9 @@ const Plot: React.FunctionComponent<Props> = observer(
           <Loader content="Loading" />
         </Dimmer>
         {errors && errors.length > 0 && (
-          <Message negative header="Errors fetching data" list={errors} />
+          <Message header="Errors fetching data" list={errors} negative />
         )}
         <ResponsiveScatterPlotCanvas
-          data={plotData}
-          colors={colors}
-          nodeSize={6}
-          // margin is required to show axis labels and legend
-          margin={{ top: 10, right: 240, bottom: 70, left: 90 }}
-          // https://github.com/plouc/nivo/issues/674 for scale casting
-          xScale={(xScale as any) as Scale}
-          yScale={(yScale as any) as Scale}
           axisBottom={{
             ...xAxis,
             orient: "bottom",
@@ -134,10 +118,10 @@ const Plot: React.FunctionComponent<Props> = observer(
             legendPosition: "middle",
             legendOffset: -60,
           }}
-          // https://github.com/d3/d3-format
-          xFormat={`time:${timeFormat}`}
-          yFormat=".1f"
-          tooltip={PlotTooltip}
+          colors={colors}
+          // margin is required to show axis labels and legend
+          data={plotData}
+          // https://github.com/plouc/nivo/issues/674 for scale casting
           legends={[
             {
               anchor: "bottom-right",
@@ -153,6 +137,14 @@ const Plot: React.FunctionComponent<Props> = observer(
               symbolShape: "circle",
             },
           ]}
+          margin={{ top: 10, right: 240, bottom: 70, left: 90 }}
+          nodeSize={6}
+          tooltip={PlotTooltip}
+          // https://github.com/d3/d3-format
+          xFormat={`time:${timeFormat}`}
+          xScale={(xScale as any) as Scale}
+          yFormat=".1f"
+          yScale={(yScale as any) as Scale}
         />
       </Dimmer.Dimmable>
     );

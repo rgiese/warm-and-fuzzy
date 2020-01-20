@@ -31,11 +31,11 @@ const LatestSensorValues: React.FunctionComponent<{}> = (): React.ReactElement =
   return (
     <StoreChecks requiredStores={[latestSensorValuesStore, sensorConfigurationStore]}>
       <SortableTable
-        tableProps={{ basic: "very", collapsing: true, compact: true, size: "small" }}
         data={values}
+        defaultSortField="name"
         fieldDefinitions={tableDefinition}
         keyField="id"
-        defaultSortField="name"
+        tableProps={{ basic: "very", collapsing: true, compact: true, size: "small" }}
       />
     </StoreChecks>
   );

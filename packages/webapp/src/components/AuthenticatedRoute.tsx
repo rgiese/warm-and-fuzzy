@@ -1,6 +1,6 @@
-import React from "react";
-import { Route, RouteComponentProps, RouteProps, Redirect } from "react-router-dom";
+import { Redirect, Route, RouteComponentProps, RouteProps } from "react-router-dom";
 
+import React from "react";
 import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 interface Props extends RouteProps {
@@ -15,7 +15,7 @@ export default ({ component: C, props: propsToInject, ...rest }: Props): React.R
     <Route
       {...rest}
       render={(props): any =>
-        authStore.isUserAuthenticated ? <C {...props} {...propsToInject} /> : <Redirect to={`/`} />
+        authStore.isUserAuthenticated ? <C {...props} {...propsToInject} /> : <Redirect to="/" />
       }
     />
   );

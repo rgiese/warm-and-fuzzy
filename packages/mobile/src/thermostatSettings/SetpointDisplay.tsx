@@ -1,13 +1,12 @@
-import React from "react";
-import { Text } from "react-native-paper";
-import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
-import { observer } from "mobx-react";
-
-import { ThermostatSetting } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import * as GraphQL from "../../generated/graphqlClient";
 
 import { ColorCodes, IconNames } from "../Theme";
+
+import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
+import React from "react";
+import { Text } from "react-native-paper";
+import { ThermostatSetting } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { observer } from "mobx-react";
 
 const iconSize = 14;
 
@@ -19,10 +18,10 @@ const SetpointDisplay: React.FunctionComponent<{
 
   return thermostatSetting.allowedActions.includes(action) ? (
     <>
-      <IconMDC name={IconNames[action]} size={iconSize} color={ColorCodes[action]} />
+      <IconMDC color={ColorCodes[action]} name={IconNames[action]} size={iconSize} />
       <Text style={{ color: ColorCodes[action] }}>
         {isCirculate ? (
-          <IconMDC name="check" size={iconSize} color={ColorCodes[action]} />
+          <IconMDC color={ColorCodes[action]} name="check" size={iconSize} />
         ) : (
           <>
             {action === GraphQL.ThermostatAction.Heat
@@ -35,6 +34,7 @@ const SetpointDisplay: React.FunctionComponent<{
       <Text>&nbsp;</Text>
     </>
   ) : (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     <></>
   );
 };

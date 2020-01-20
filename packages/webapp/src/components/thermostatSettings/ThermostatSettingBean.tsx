@@ -1,18 +1,16 @@
-import React, { useState } from "react";
-import fastCompare from "react-fast-compare";
-import { Button } from "semantic-ui-react";
-import { observer } from "mobx-react";
-
-import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import * as GraphQL from "../../generated/graphqlClient";
 
-import InteriorPadding from "./InteriorPadding";
+import React, { useState } from "react";
 
-import HoldUntilPopup from "./HoldUntilPopup";
-import SetpointPopup from "./SetpointPopup";
+import { Button } from "semantic-ui-react";
 import DaysOfWeekPopup from "./DaysOfWeekPopup";
+import HoldUntilPopup from "./HoldUntilPopup";
+import InteriorPadding from "./InteriorPadding";
+import SetpointPopup from "./SetpointPopup";
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 import TimeOfDayPopup from "./TimeOfDayPopup";
+import fastCompare from "react-fast-compare";
+import { observer } from "mobx-react";
 
 const ThermostatSettingBean: React.FunctionComponent<{
   mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
@@ -106,7 +104,7 @@ const ThermostatSettingBean: React.FunctionComponent<{
           <Button
             color="grey"
             icon="undo"
-            onClick={() => {
+            onClick={(): void => {
               updateMutableSetting(thermostatSetting);
               if (onAfterRevert) {
                 onAfterRevert();
@@ -118,13 +116,13 @@ const ThermostatSettingBean: React.FunctionComponent<{
 
       {!isNewSetting && (
         <Button
+          icon="remove"
+          onClick={async (): Promise<void> => mutableSettingsStore.onRemove(mutableSetting)}
           style={{
             paddingLeft: InteriorPadding,
             paddingRight: InteriorPadding,
             opacity: 0.8,
           }}
-          icon="remove"
-          onClick={() => mutableSettingsStore.onRemove(mutableSetting)}
         />
       )}
     </Button.Group>

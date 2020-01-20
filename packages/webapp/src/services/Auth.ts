@@ -1,7 +1,7 @@
-import Auth0 from "auth0-js";
-
-import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 import { AuthProvider, AuthStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
+import Auth0 from "auth0-js";
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
 const localStorageKeys = {
   expiresAt: "auth.expiresAt",
@@ -23,7 +23,7 @@ export default class Auth implements AuthProvider {
 
   private authStore?: AuthStore = undefined;
 
-  public initializeStore(authStore: AuthStore) {
+  public initializeStore(authStore: AuthStore): void {
     this.authStore = authStore;
 
     // Apply state from localStorage

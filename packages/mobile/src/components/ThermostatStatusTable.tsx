@@ -21,6 +21,12 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import moment from "moment";
 import { observer } from "mobx-react";
 
+/* The below rule doesn't seem worth investing in at this time... */
+/* eslint-disable react/require-optimization */
+
+/* Welp, it's not a function component yet due to lifecycle methods, so let's allow ourselves to use setState */
+/* eslint-disable react/no-set-state */
+
 const styles = StyleSheet.create({
   // Primary row (e.g. "Sensor [temp] [hum]")
   primaryRow: {
@@ -65,12 +71,6 @@ class State {
 type ThermostatValue = LatestThermostatValue & { configuration: ThermostatConfiguration };
 
 class ThermostatStatusTable extends React.Component<Props, State> {
-  static contextType = RootStoreContext;
-  context!: React.ContextType<typeof RootStoreContext>;
-
-  private intervalRefreshTimeSince: any;
-  private intervalRefreshStores: any;
-
   public constructor(props: Props) {
     super(props);
 
@@ -95,16 +95,27 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     clearInterval(this.intervalRefreshStores);
   }
 
+  static contextType = RootStoreContext;
+  context!: React.ContextType<typeof RootStoreContext>;
+
+  private intervalRefreshTimeSince: any;
+  private intervalRefreshStores: any;
+
   refreshStores(): void {
-    this.context.rootStore.latestThermostatValuesStore.update();
-    this.context.rootStore.thermostatSettingsStore.update();
+    const { rootStore } = this.context;
+
+    rootStore.latestThermostatValuesStore.update();
+    rootStore.thermostatSettingsStore.update();
   }
 
   public render(): React.ReactElement {
-    const rootStore = this.context.rootStore;
+    const { rootStore } = this.context;
 
     const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
     const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
+
+    const { latestRenderTime } = this.state;
+    const { navigation, theme } = this.props;
 
     // Project data
     const values = latestThermostatValuesStore.data
@@ -135,7 +146,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
       <StoreChecks requiredStores={[latestThermostatValuesStore, thermostatConfigurationStore]}>
         <FlatList<ThermostatValue>
           data={values}
-          extraData={this.state.latestRenderTime}
+          extraData={latestRenderTime}
           keyExtractor={(item): string => item.id}
           onRefresh={(): void => this.refreshStores()}
           refreshing={
@@ -148,7 +159,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   thermostatId: item.id,
                   thermostatName: item.configuration.name,
                 };
-                this.props.navigation.navigate(ScreenRoutes.ThermostatSettings, params);
+                navigation.navigate(ScreenRoutes.ThermostatSettings, params);
               }}
               style={ScreenBaseStyles.topLevelView}
             >
@@ -161,7 +172,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                 <>
                   {/* Thermometer icon */}
                   <IconMDC
-                    color={this.props.theme.colors.accent}
+                    color={theme.colors.accent}
                     name="thermometer"
                     size={iconSizes.default}
                   />
@@ -212,11 +223,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                   )}
 
                   {/* Reported humidity */}
-                  <IconMDC
-                    color={this.props.theme.colors.accent}
-                    name="water"
-                    size={iconSizes.default}
-                  />
+                  <IconMDC color={theme.colors.accent} name="water" size={iconSizes.default} />
                   <ThemedText.Accent style={styles.detailsText}>{item.humidity}%</ThemedText.Accent>
                 </>
               </View>
@@ -224,7 +231,7 @@ class ThermostatStatusTable extends React.Component<Props, State> {
               {/* Bottom row: last updated time */}
               <View style={styles.secondaryRow}>
                 <ThemedText.Accent style={styles.lastUpdatedText}>
-                  Last updated {moment(item.deviceTime).from(this.state.latestRenderTime)}
+                  Last updated {moment(item.deviceTime).from(latestRenderTime)}
                 </ThemedText.Accent>
               </View>
             </TouchableOpacity>

@@ -3,7 +3,7 @@ import { Form, InputOnChangeData } from "semantic-ui-react";
 import { ValidationError } from "yup";
 
 import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { useRootStore, SensorConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { SensorConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";
@@ -39,28 +39,28 @@ const SensorConfigurationModal: React.FunctionComponent<{
   return (
     <EditFormModal
       canSave={validationError !== undefined}
-      onSave={async (): Promise<void> => {
-        await rootStore.sensorConfigurationStore.updateItem(mutableValues);
-      }}
       header={
         <>
           {values.name} (<code>{values.id}</code>)
         </>
       }
+      onSave={async (): Promise<void> => {
+        await rootStore.sensorConfigurationStore.updateItem(mutableValues);
+      }}
     >
       <Form.Input
+        error={getFieldError("name")}
         label="Name"
         name="name"
-        error={getFieldError("name")}
-        value={mutableValues.name}
         onChange={handleChange}
+        value={mutableValues.name}
       />
       <Form.Input
+        error={getFieldError("streamName")}
         label="Stream Name"
         name="streamName"
-        error={getFieldError("streamName")}
-        value={mutableValues.streamName}
         onChange={handleChange}
+        value={mutableValues.streamName}
       />
     </EditFormModal>
   );

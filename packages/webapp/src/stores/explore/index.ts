@@ -1,11 +1,10 @@
+import Timezone, { Timezones } from "./Timezone";
+import ViewSpan, { ViewSpans } from "./ViewSpan";
 import { action, observable } from "mobx";
 
 import { RootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import SeriesIdentifier from "./SeriesIdentifier";
 import SeriesInstanceProps from "./SeriesInstanceProps";
-import Timezone, { Timezones } from "./Timezone";
-import ViewSpan, { ViewSpans } from "./ViewSpan";
 
 export default class ExploreStore {
   private rootStore: RootStore;
@@ -18,13 +17,13 @@ export default class ExploreStore {
 
   // Timezone
   @observable timezone: Timezone = Timezone.Local;
-  @action setTimezone(timezone: Timezone) {
+  @action setTimezone(timezone: Timezone): void {
     this.timezone = timezone;
   }
 
   // ViewSpan
   @observable viewSpan: ViewSpan = ViewSpan.Day;
-  @action setViewSpan(viewSpan: ViewSpan) {
+  @action setViewSpan(viewSpan: ViewSpan): void {
     this.viewSpan = viewSpan;
   }
 
@@ -39,8 +38,8 @@ export default class ExploreStore {
     streamName: string,
     startDate: string,
     colorIndex?: number,
-    shouldFailSilently: boolean = false
-  ) {
+    shouldFailSilently = false
+  ): void {
     const thermostatConfigurationStore = this.rootStore.thermostatConfigurationStore;
 
     if (!thermostatConfigurationStore.isReady) {
@@ -75,7 +74,7 @@ export default class ExploreStore {
   }
 
   @action
-  updateSeriesInstance(updatedSeriesInstanceProps: SeriesInstanceProps) {
+  updateSeriesInstance(updatedSeriesInstanceProps: SeriesInstanceProps): void {
     const updatedSeriesIndex = this.seriesInstanceProps.findIndex(
       series => series.instanceId === updatedSeriesInstanceProps.instanceId
     );
@@ -84,13 +83,13 @@ export default class ExploreStore {
   }
 
   @action
-  removeSeriesInstance(removedSeriesInstanceProps: SeriesInstanceProps) {
+  removeSeriesInstance(removedSeriesInstanceProps: SeriesInstanceProps): void {
     this.seriesInstanceProps.remove(removedSeriesInstanceProps);
   }
 
   // URL persistence helpers
-  public toURLString() {
-    let urlParams: any = {
+  public toURLString(): string {
+    const urlParams: any = {
       view: this.viewSpan,
       tz: this.timezone,
     };
@@ -106,7 +105,7 @@ export default class ExploreStore {
   }
 
   @action
-  public fromURLString(searchString: string) {
+  public fromURLString(searchString: string): void {
     const urlParams = new URLSearchParams(searchString);
 
     for (const [key, value] of urlParams.entries()) {

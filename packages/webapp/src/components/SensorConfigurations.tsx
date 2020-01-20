@@ -1,14 +1,11 @@
-import React from "react";
-import { observer } from "mobx-react";
-
-import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
 import { SensorConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
-import StoreChecks from "./StoreChecks";
-
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
+import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
+import React from "react";
 import SensorConfigurationModal from "./SensorConfigurationModal";
+import StoreChecks from "./StoreChecks";
+import { observer } from "mobx-react";
 
 const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
   { field: "id", label: "ID" },
@@ -23,6 +20,7 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
     Authorization.Permissions.WriteConfig
   );
 
+  // eslint-disable-next-line react/no-multi-comp
   const fnBuildEditControl = (value: SensorConfiguration): React.ReactElement => (
     <SensorConfigurationModal values={value} />
   );
@@ -30,12 +28,12 @@ const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
   return (
     <StoreChecks requiredStores={[rootStore.sensorConfigurationStore]}>
       <SortableTable
-        tableProps={{ basic: "very", compact: true, size: "small" }}
         data={rootStore.sensorConfigurationStore.data}
+        defaultSortField="name"
         fieldDefinitions={tableDefinition}
         keyField="id"
-        defaultSortField="name"
         right={canEdit ? fnBuildEditControl : undefined}
+        tableProps={{ basic: "very", compact: true, size: "small" }}
       />
     </StoreChecks>
   );

@@ -8,6 +8,9 @@ import ScreenProps from "./ScreenProps";
 import ScreenRoutes from "./ScreenRoutes";
 import ThermostatStatusTable from "../components/ThermostatStatusTable";
 
+/* ESLint believes the headerRight created below is a component. Alas. */
+/* eslint-disable react/no-multi-comp */
+
 const HomeScreen: NavigationStackScreenComponent<{}> = (): React.ReactElement => {
   return (
     <BaseView>

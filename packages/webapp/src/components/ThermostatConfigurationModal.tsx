@@ -4,7 +4,7 @@ import { ValidationError } from "yup";
 import moment from "moment-timezone";
 
 import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { useRootStore, ThermostatConfiguration } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { ThermostatConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
 import * as EditFormTools from "./EditFormTools";
@@ -56,83 +56,83 @@ const ThermostatConfigurationModal: React.FunctionComponent<{
   return (
     <EditFormModal
       canSave={validationError !== undefined}
-      onSave={async (): Promise<void> => {
-        await rootStore.thermostatConfigurationStore.updateItem(mutableValues);
-      }}
       header={
         <>
           {values.name} (<code>{values.id}</code>)
         </>
       }
+      onSave={async (): Promise<void> => {
+        await rootStore.thermostatConfigurationStore.updateItem(mutableValues);
+      }}
     >
       <Form.Group widths="equal">
         <Form.Input
+          error={getFieldError("name")}
           fluid
           label="Name"
           name="name"
-          error={getFieldError("name")}
-          value={mutableValues.name}
           onChange={handleChange}
+          value={mutableValues.name}
         />
 
         <Form.Input
+          error={getFieldError("streamName")}
           fluid
           label="Stream Name"
           name="streamName"
-          error={getFieldError("streamName")}
-          value={mutableValues.streamName}
           onChange={handleChange}
+          value={mutableValues.streamName}
         />
       </Form.Group>
 
       <Form.Group widths="equal">
         <Form.Input
+          error={getFieldError("threshold")}
           fluid
           label="Threshold [&Delta;&deg;C]"
-          name="threshold"
-          error={getFieldError("threshold")}
-          value={mutableValues.threshold}
-          type="number"
-          min={ThermostatConfigurationSchema.ThresholdRange.min}
           max={ThermostatConfigurationSchema.ThresholdRange.max}
-          step={0.5}
+          min={ThermostatConfigurationSchema.ThresholdRange.min}
+          name="threshold"
           onChange={handleChange}
+          step={0.5}
+          type="number"
+          value={mutableValues.threshold}
         />
 
         <Form.Input
+          error={getFieldError("cadence")}
           fluid
           label="Cadence [sec]"
-          name="cadence"
-          error={getFieldError("cadence")}
-          value={mutableValues.cadence}
-          type="number"
-          min={ThermostatConfigurationSchema.CadenceRange.min}
           max={ThermostatConfigurationSchema.CadenceRange.max}
-          step={10}
+          min={ThermostatConfigurationSchema.CadenceRange.min}
+          name="cadence"
           onChange={handleChange}
+          step={10}
+          type="number"
+          value={mutableValues.cadence}
         />
       </Form.Group>
 
       <Form.Group widths="equal">
         <Form.Input
+          error={getFieldError("externalSensorId")}
           fluid
           label="External sensor ID"
           name="externalSensorId"
-          error={getFieldError("externalSensorId")}
-          value={mutableValues.externalSensorId}
           onChange={handleChange}
+          value={mutableValues.externalSensorId}
         />
 
         <Form.Select
+          error={getFieldError("timezone")}
           fluid
           label="Timezone"
           name="timezone"
+          onChange={handleDropdownChange}
           options={moment.tz.names().map(timezone => {
             return { text: timezone, value: timezone };
           })}
-          error={getFieldError("timezone")}
           value={mutableValues.timezone || ""}
-          onChange={handleDropdownChange}
         />
       </Form.Group>
 
@@ -140,13 +140,13 @@ const ThermostatConfigurationModal: React.FunctionComponent<{
         <label>Available actions:</label>
         {ThermostatConfigurationSchema.Actions.map(action => (
           <Form.Field
+            checked={mutableValues.availableActions.includes(action)}
             control={Checkbox}
+            key={`availableAction.${action}`}
             label={action}
             name="availableActions"
-            value={action}
-            checked={mutableValues.availableActions.includes(action)}
-            key={`availableAction.${action}`}
             onChange={handleChange}
+            value={action}
           />
         ))}
       </Form.Group>

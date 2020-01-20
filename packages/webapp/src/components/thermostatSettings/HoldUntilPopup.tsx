@@ -44,13 +44,13 @@ const HoldUntilPopup: React.FunctionComponent<{
   return (
     <Dropdown
       button
-      style={{ paddingLeft: InteriorPadding / 2 }}
-      options={limitsDropdownOptions.concat(hourlyDropdownOptions)}
-      text={`Hold ${ThermostatSettingsHelpers.FormatHoldUntil(holdUntil)}`}
-      value={holdUntil.valueOf()}
       onChange={(_event, data: DropdownProps): void => {
         updateMutableSetting({ ...mutableSetting, holdUntil: new Date(data.value as number) });
       }}
+      options={limitsDropdownOptions.concat(hourlyDropdownOptions)}
+      style={{ paddingLeft: InteriorPadding / 2 }}
+      text={`Hold ${ThermostatSettingsHelpers.FormatHoldUntil(holdUntil)}`}
+      value={holdUntil.valueOf()}
     />
   );
 };

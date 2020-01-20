@@ -1,155 +1,119 @@
-import React from "react";
 import { Button, Label, Popup } from "semantic-ui-react";
-import { DateInput } from "semantic-ui-calendar-react";
-import moment from "moment";
-
-import SeriesColorPalette from "./SeriesColorPalette";
+import React, { useState } from "react";
 import SeriesInstanceProps, {
   SeriesInstanceDateFormat,
 } from "../../stores/explore/SeriesInstanceProps";
-import ViewSpan from "../../stores/explore/ViewSpan";
 
+import { DateInput } from "semantic-ui-calendar-react";
 import ExploreStore from "../../stores/explore";
+import SeriesColorPalette from "./SeriesColorPalette";
+import ViewSpan from "../../stores/explore/ViewSpan";
+import moment from "moment";
 
-interface Props {
+const SeriesInstanceBean: React.FunctionComponent<{
   store: ExploreStore;
   seriesInstanceProps: SeriesInstanceProps;
   padding: number;
-}
+}> = ({ store, seriesInstanceProps, padding }): React.ReactElement => {
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
-class State {
-  // Control states of respective popups so we can dismiss them once a new value has been selected
-  isColorPickerOpen: boolean = false;
-  isDatePickerOpen: boolean = false;
-}
+  const interiorPadding = 8;
 
-class SeriesInstanceBean extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
-    this.state = new State();
-  }
-
-  private handleColorPickerOpen = (): void => {
-    this.setState({ isColorPickerOpen: true });
-  };
-
-  private handleColorPickerClose = (): void => {
-    this.setState({ isColorPickerOpen: false });
-  };
-
-  private handleColorChanged = (colorIndex: number): void => {
-    this.handleColorPickerClose();
-    this.props.store.updateSeriesInstance({ ...this.props.seriesInstanceProps, colorIndex });
-  };
-
-  private handleDateInputPopupOpen = (): void => {
-    this.setState({ isDatePickerOpen: true });
-  };
-
-  private handleDateInputPopupClose = (): void => {
-    this.setState({ isDatePickerOpen: false });
-  };
-
-  private handleDatePicked = (_event: React.SyntheticEvent<HTMLElement>, data: any): void => {
-    this.setState({ isDatePickerOpen: false });
-    this.props.store.updateSeriesInstance({
-      ...this.props.seriesInstanceProps,
-      startDate: data.value,
-    });
-  };
-
-  private handleRemoved = (): void => {
-    this.props.store.removeSeriesInstance(this.props.seriesInstanceProps);
-  };
-
-  public render(): React.ReactElement {
-    const interiorPadding = 8;
-
-    return (
-      <Button.Group
-        color={SeriesColorPalette[this.props.seriesInstanceProps.colorIndex].semanticColor}
-        style={{ padding: this.props.padding }}
+  return (
+    <Button.Group
+      color={SeriesColorPalette[seriesInstanceProps.colorIndex].semanticColor}
+      style={{ padding: padding }}
+    >
+      <Popup
+        on="click"
+        onClose={(): void => setIsColorPickerOpen(false)}
+        // See note in `State` re: controlling open/close;
+        // onOpen/onClose are called by this popup when it itself thinks it should open/close
+        onOpen={(): void => setIsColorPickerOpen(true)}
+        open={isColorPickerOpen}
+        trigger={
+          <Button
+            content={seriesInstanceProps.seriesIdentifier.name}
+            style={{ paddingLeft: interiorPadding, paddingRight: interiorPadding / 2 }}
+          />
+        }
       >
-        <Popup
-          on="click"
-          trigger={
-            <Button
-              content={this.props.seriesInstanceProps.seriesIdentifier.name}
-              style={{ paddingLeft: interiorPadding, paddingRight: interiorPadding / 2 }}
-            />
-          }
-          // See note in `State` re: controlling open/close;
-          // onOpen/onClose are called by this popup when it itself thinks it should open/close
-          open={this.state.isColorPickerOpen}
-          onOpen={this.handleColorPickerOpen}
-          onClose={this.handleColorPickerClose}
-        >
-          <Popup.Content>
-            {SeriesColorPalette.map((color, index) => {
-              return (
-                <Label
-                  key={color.semanticColor}
-                  as="a"
-                  circular
-                  color={color.semanticColor}
-                  style={
-                    // Provide subtle highlighting by scale to selected color
-                    index === this.props.seriesInstanceProps.colorIndex % SeriesColorPalette.length
-                      ? { transform: `scale(0.75, 0.75)` }
-                      : undefined
-                  }
-                  onClick={() => this.handleColorChanged(index)}
-                />
-              );
-            })}
-          </Popup.Content>
-        </Popup>
+        <Popup.Content>
+          {SeriesColorPalette.map((color, index) => {
+            return (
+              <Label
+                as="a"
+                circular
+                color={color.semanticColor}
+                key={color.semanticColor}
+                onClick={(): void => {
+                  store.updateSeriesInstance({ ...seriesInstanceProps, colorIndex: index });
+                  setIsColorPickerOpen(false);
+                }}
+                style={
+                  // Provide subtle highlighting by scale to selected color
+                  index === seriesInstanceProps.colorIndex % SeriesColorPalette.length
+                    ? { transform: `scale(0.75, 0.75)` }
+                    : undefined
+                }
+              />
+            );
+          })}
+        </Popup.Content>
+      </Popup>
 
-        <Popup
-          // We use a Popup to house an inline (always displayed) DateInput because the DateInput
-          // can otherwise not help itself from showing a textual representation in its own `dateFormat`
-          // which is not worth trying to parse around.
-          on="click"
-          trigger={
-            <Button
-              style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding }}
-              content={
-                (this.props.store.viewSpan === ViewSpan.Day ? "on" : "beginning") +
-                " " +
-                moment(this.props.seriesInstanceProps.startDate).format("ddd ll")
-              }
-            />
-          }
-          // See note in `State` re: controlling open/close;
-          // onOpen/onClose are called by this control when it itself thinks it should open/close
-          open={this.state.isDatePickerOpen}
-          onOpen={this.handleDateInputPopupOpen}
-          onClose={this.handleDateInputPopupClose}
-        >
-          <Popup.Content>
-            {/* animation issue: https://github.com/arfedulov/semantic-ui-calendar-react/issues/152 */}
-            <DateInput
-              inline
-              animation={"none" as any}
-              dateFormat={SeriesInstanceDateFormat}
-              maxDate={moment().format(SeriesInstanceDateFormat)}
-              value={this.props.seriesInstanceProps.startDate}
-              onChange={this.handleDatePicked}
-            />
-          </Popup.Content>
-        </Popup>
-        <Button
-          style={{
-            paddingLeft: interiorPadding,
-            paddingRight: interiorPadding,
-            opacity: 0.8,
-          }}
-          icon="remove"
-          onClick={this.handleRemoved}
-        />
-      </Button.Group>
-    );
-  }
-}
+      <Popup
+        // We use a Popup to house an inline (always displayed) DateInput because the DateInput
+        // can otherwise not help itself from showing a textual representation in its own `dateFormat`
+        // which is not worth trying to parse around.
+        on="click"
+        onClose={(): void => setIsDatePickerOpen(false)}
+        // See note in `State` re: controlling open/close;
+        // onOpen/onClose are called by this control when it itself thinks it should open/close
+        onOpen={(): void => setIsDatePickerOpen(true)}
+        open={isDatePickerOpen}
+        trigger={
+          <Button
+            content={
+              (store.viewSpan === ViewSpan.Day ? "on" : "beginning") +
+              " " +
+              moment(seriesInstanceProps.startDate).format("ddd ll")
+            }
+            style={{ paddingLeft: interiorPadding / 2, paddingRight: interiorPadding }}
+          />
+        }
+      >
+        <Popup.Content>
+          {/* animation issue: https://github.com/arfedulov/semantic-ui-calendar-react/issues/152 */}
+          <DateInput
+            animation={"none" as any}
+            dateFormat={SeriesInstanceDateFormat}
+            inline
+            maxDate={moment().format(SeriesInstanceDateFormat)}
+            onChange={(_event: React.SyntheticEvent<HTMLElement>, data: any): void => {
+              setIsDatePickerOpen(false);
+
+              store.updateSeriesInstance({
+                ...seriesInstanceProps,
+                startDate: data.value,
+              });
+            }}
+            value={seriesInstanceProps.startDate}
+          />
+        </Popup.Content>
+      </Popup>
+      <Button
+        icon="remove"
+        onClick={(): void => store.removeSeriesInstance(seriesInstanceProps)}
+        style={{
+          paddingLeft: interiorPadding,
+          paddingRight: interiorPadding,
+          opacity: 0.8,
+        }}
+      />
+    </Button.Group>
+  );
+};
 
 export default SeriesInstanceBean;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Segment, Header, Grid } from "semantic-ui-react";
+import { Grid, Header, Segment } from "semantic-ui-react";
 import { CustomTooltip } from "./NivoMissingDefinitions";
 
 const PlotTooltip: CustomTooltip = ({ node }): React.ReactElement => {

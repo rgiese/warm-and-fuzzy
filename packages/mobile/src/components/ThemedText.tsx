@@ -1,34 +1,38 @@
-import React from "react";
-import { TextStyle } from "react-native";
 import { Text, Theme, withTheme } from "react-native-paper";
 
 import { ColorCodes } from "../Theme";
+import React from "react";
+import { TextStyle } from "react-native";
 
-interface Props {
-  theme: Theme;
-  style?: TextStyle;
-}
+/* eslint-disable react/no-multi-comp */
 
-const accentText: React.FunctionComponent<Props> = (props): React.ReactElement => {
-  return <Text style={{ ...props.style, color: props.theme.colors.accent }}>{props.children}</Text>;
+const accentText: React.FunctionComponent<{ theme: Theme; style?: TextStyle }> = ({
+  children,
+  style,
+  theme,
+}): React.ReactElement => {
+  return <Text style={{ ...style, color: theme.colors.accent }}>{children}</Text>;
 };
 
 export const Accent = withTheme(accentText);
 
-const heatText: React.FunctionComponent<Props> = (props): React.ReactElement => {
-  return <Text style={{ ...props.style, color: ColorCodes.Heat }}>{props.children}</Text>;
+export const Heat: React.FunctionComponent<{ style?: TextStyle }> = ({
+  children,
+  style,
+}): React.ReactElement => {
+  return <Text style={{ ...style, color: ColorCodes.Heat }}>{children}</Text>;
 };
 
-export const Heat = withTheme(heatText);
-
-const coolText: React.FunctionComponent<Props> = (props): React.ReactElement => {
-  return <Text style={{ ...props.style, color: ColorCodes.Cool }}>{props.children}</Text>;
+export const Cool: React.FunctionComponent<{ style?: TextStyle }> = ({
+  children,
+  style,
+}): React.ReactElement => {
+  return <Text style={{ ...style, color: ColorCodes.Cool }}>{children}</Text>;
 };
 
-export const Cool = withTheme(coolText);
-
-const circulateText: React.FunctionComponent<Props> = (props): React.ReactElement => {
-  return <Text style={{ ...props.style, color: ColorCodes.Circulate }}>{props.children}</Text>;
+export const Circulate: React.FunctionComponent<{ style?: TextStyle }> = ({
+  children,
+  style,
+}): React.ReactElement => {
+  return <Text style={{ ...style, color: ColorCodes.Circulate }}>{children}</Text>;
 };
-
-export const Circulate = withTheme(circulateText);

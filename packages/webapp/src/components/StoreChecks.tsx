@@ -1,8 +1,7 @@
-import React from "react";
 import { Message } from "semantic-ui-react";
-import { observer } from "mobx-react";
-
+import React from "react";
 import { StoreBase } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { observer } from "mobx-react";
 
 const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
   requiredStores,
@@ -11,6 +10,7 @@ const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
   const allStoresAvailable = requiredStores.every(store => store.isReady || store.isUpdating);
 
   if (allStoresAvailable) {
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     return <>{children}</>;
   }
 
@@ -21,11 +21,12 @@ const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
   }
 
   return (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {requiredStores
         .filter(store => store.hasErrors)
         .map(store => (
-          <Message negative content={store.error} key={store.name} />
+          <Message content={store.error} key={store.name} negative />
         ))}
     </>
   );

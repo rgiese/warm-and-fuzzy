@@ -1,5 +1,5 @@
-import React, { useState } from "react";
 import { Button, Form, Icon, Message, Modal } from "semantic-ui-react";
+import React, { useState } from "react";
 
 const EditFormModal: React.FunctionComponent<{
   canSave: boolean;
@@ -12,31 +12,30 @@ const EditFormModal: React.FunctionComponent<{
 
   return (
     <Modal
+      basic
+      dimmer="inverted"
+      onClose={(): void => setIsModalOpen(false)}
       open={isModalOpen}
+      size="small"
       trigger={
-        <Button animated="vertical" basic onClick={() => setIsModalOpen(true)}>
+        <Button animated="vertical" basic onClick={(): void => setIsModalOpen(true)}>
           <Button.Content hidden>Edit</Button.Content>
           <Button.Content visible>
             <Icon name="pencil" />
           </Button.Content>
         </Button>
       }
-      onClose={() => setIsModalOpen(false)}
-      basic
-      dimmer="inverted"
-      size="small"
     >
       <Modal.Header>{header}</Modal.Header>
       <Modal.Content>
         <Form loading={isSaving}>{children}</Form>
       </Modal.Content>
       <Modal.Actions>
-        <Button icon="cancel" content="Cancel" onClick={() => setIsModalOpen(false)} />
+        <Button content="Cancel" icon="cancel" onClick={(): void => setIsModalOpen(false)} />
         <Button
-          icon="save"
           content={isSaving ? "Saving..." : "Save"}
-          positive
           disabled={canSave}
+          icon="save"
           onClick={async (): Promise<void> => {
             setIsSaving(true);
 
@@ -45,9 +44,10 @@ const EditFormModal: React.FunctionComponent<{
             setIsSaving(false);
             setIsModalOpen(false);
           }}
+          positive
         />
       </Modal.Actions>
-      {error && <Message error header="Server response" content={error} />}
+      {error && <Message content={error} error header="Server response" />}
     </Modal>
   );
 };

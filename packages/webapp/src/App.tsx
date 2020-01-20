@@ -52,28 +52,28 @@ const App: React.FunctionComponent<{}> = (): React.ReactElement => {
     <RootStoreContext.Provider value={{ rootStore }}>
       <Router history={History}>
         {/* Always show Nav (alternative: reference component directly using withRouter()) */}
-        <Route path="/" component={Header} />
+        <Route component={Header} path="/" />
         <Container
           style={{ marginTop: "4em" /* for top menu */, marginBottom: "4em" /* for footer */ }}
         >
           <Switch>
             {/* Utility routes */}
-            <Route path="/callback" component={AuthCallback} />
+            <Route component={AuthCallback} path="/callback" />
             {/* Actual pages */}
-            <Route path="/" exact component={Home} />
-            <Route path="/settings" exact component={ThermostatSettings} />
-            <AuthenticatedRoute path="/configuration" exact component={Configuration} />
+            <Route component={Home} exact path="/" />
+            <Route component={ThermostatSettings} exact path="/settings" />
+            <AuthenticatedRoute component={Configuration} exact path="/configuration" />
             <AuthenticatedRoute
-              path="/explore"
-              exact
               component={Explore}
+              exact
+              path="/explore"
               props={{ exploreStore, explorePlotDataStore }}
             />
             {/* Finally, catch all unmatched routes */}
             <Route component={NotFound} />
           </Switch>
         </Container>
-        <Route path="/" component={Footer} />
+        <Route component={Footer} path="/" />
       </Router>
     </RootStoreContext.Provider>
   );

@@ -43,9 +43,6 @@
       "last 1 safari version"
     ]
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "dependencies": {
     "@grumpycorp/warm-and-fuzzy-shared": "^1.0.0",
     "@grumpycorp/warm-and-fuzzy-shared-client": "^1.0.0",

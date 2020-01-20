@@ -1,5 +1,6 @@
+import { StrictTableProps, Table } from "semantic-ui-react";
+
 import React from "react";
-import { Table, StrictTableProps } from "semantic-ui-react";
 import { observer } from "mobx-react";
 
 interface TableData {
@@ -36,6 +37,12 @@ class State<T> {
   sortAscending: boolean;
 }
 
+/* The below rule doesn't seem worth investing in at this time... */
+/* eslint-disable react/require-optimization */
+
+/* Welp, it's not a function component yet due to lifecycle methods, so let's allow ourselves to use setState */
+/* eslint-disable react/no-set-state */
+
 @observer // required when used with MobX store data
 class SortableTable<T extends TableData> extends React.Component<Props<T>, State<T>> {
   public constructor(props: Props<T>) {
@@ -43,11 +50,13 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
     this.state = new State<T>(props);
   }
 
-  handleSort = (sortOrder: keyof T) => () => {
+  handleSort = (sortOrder: keyof T) => (): void => {
     if (sortOrder !== this.state.sortOrder) {
       this.setState({ sortOrder, sortAscending: true });
     } else {
-      this.setState({ sortAscending: !this.state.sortAscending });
+      this.setState(previousState => ({
+        sortAscending: !previousState.sortAscending,
+      }));
     }
   };
 
@@ -108,9 +117,9 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
             {this.props.fieldDefinitions.map(
               (fieldDefinition): React.ReactElement => (
                 <Table.HeaderCell
+                  key={fieldDefinition.label}
                   onClick={this.handleSort(fieldDefinition.field)}
                   sorted={this.isSorted(fieldDefinition.field)}
-                  key={fieldDefinition.label}
                 >
                   {fieldDefinition.label}
                 </Table.HeaderCell>
@@ -132,7 +141,7 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
                 >
                   {this.props.fieldDefinitions.map(
                     (fieldDefinition): React.ReactElement => {
-                      const valuePresenter = (v: any) => {
+                      const valuePresenter = (v: any): any => {
                         if (Array.isArray(v)) {
                           return v.join(", ");
                         }
@@ -147,12 +156,7 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
                       return (
                         <Table.Cell key={fieldDefinition.field as string}>
                           {valuePresenter(value[fieldDefinition.field])}
-                          {fieldDefinition.units && (
-                            <>
-                              {` `}
-                              {fieldDefinition.units}
-                            </>
-                          )}
+                          {fieldDefinition.units && fieldDefinition.units}
                         </Table.Cell>
                       );
                     }

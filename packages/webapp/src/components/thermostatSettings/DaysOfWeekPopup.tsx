@@ -1,10 +1,9 @@
-import React from "react";
 import { Button, Checkbox, Form, Message, Popup } from "semantic-ui-react";
 
+import InteriorPadding from "./InteriorPadding";
+import React from "react";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
-import InteriorPadding from "./InteriorPadding";
 
 const DaysOfWeekPopup: React.FunctionComponent<{
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
@@ -14,40 +13,40 @@ const DaysOfWeekPopup: React.FunctionComponent<{
 }> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
   return (
     <Popup
-      position="top center"
-      wide="very"
       on="click"
+      position="top center"
       trigger={
         <Button
           content={ThermostatSettingsHelpers.FormatDaysOfWeekList(mutableSetting.daysOfWeek || [])}
           style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 4 }}
         />
       }
+      wide="very"
     >
       <Popup.Content>
         <Form>
           <Form.Group inline>
             <Button
               basic
-              size="mini"
               content="weekdays"
-              onClick={() =>
+              onClick={(): void =>
                 updateMutableSetting({
                   ...mutableSetting,
                   daysOfWeek: ThermostatSettingsHelpers.WeekdayDays,
                 })
               }
+              size="mini"
             />
             <Button
               basic
-              size="mini"
               content="weekends"
-              onClick={() =>
+              onClick={(): void =>
                 updateMutableSetting({
                   ...mutableSetting,
                   daysOfWeek: ThermostatSettingsHelpers.WeekendDays,
                 })
               }
+              size="mini"
             />
           </Form.Group>
           {(!mutableSetting.daysOfWeek || !mutableSetting.daysOfWeek.length) && (
@@ -58,9 +57,9 @@ const DaysOfWeekPopup: React.FunctionComponent<{
           {ThermostatSettingSchema.DaysOfWeek.map(dayOfWeek => (
             <Form.Group key={dayOfWeek}>
               <Checkbox
-                label={dayOfWeek}
                 checked={mutableSetting.daysOfWeek?.includes(dayOfWeek)}
-                onChange={() => {
+                label={dayOfWeek}
+                onChange={(): void => {
                   const daysOfWeek = mutableSetting.daysOfWeek?.includes(dayOfWeek)
                     ? mutableSetting.daysOfWeek?.filter(allowedDay => allowedDay !== dayOfWeek)
                     : mutableSetting.daysOfWeek?.concat(dayOfWeek);

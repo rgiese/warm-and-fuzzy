@@ -1,14 +1,11 @@
-import React from "react";
-import { observer } from "mobx-react";
-
-import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
+import SortableTable, { TableFieldDefinition } from "./SortableTable";
 import { ThermostatConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
+import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
+import React from "react";
 import StoreChecks from "./StoreChecks";
-
-import SortableTable, { TableFieldDefinition } from "./SortableTable";
-
 import ThermostatConfigurationModal from "./ThermostatConfigurationModal";
+import { observer } from "mobx-react";
 
 const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "id", label: "ID" },
@@ -28,6 +25,7 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
     Authorization.Permissions.WriteConfig
   );
 
+  // eslint-disable-next-line react/no-multi-comp
   const fnBuildEditControl = (value: ThermostatConfiguration): React.ReactElement => (
     <ThermostatConfigurationModal values={value} />
   );
@@ -35,12 +33,12 @@ const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement =>
   return (
     <StoreChecks requiredStores={[rootStore.thermostatConfigurationStore]}>
       <SortableTable
-        tableProps={{ basic: "very", compact: true, size: "small" }}
         data={rootStore.thermostatConfigurationStore.data}
+        defaultSortField="name"
         fieldDefinitions={tableDefinition}
         keyField="id"
-        defaultSortField="name"
         right={canEdit ? fnBuildEditControl : undefined}
+        tableProps={{ basic: "very", compact: true, size: "small" }}
       />
     </StoreChecks>
   );

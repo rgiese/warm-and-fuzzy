@@ -126,6 +126,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   // Helpers
   //
 
+  // eslint-disable-next-line react/no-multi-comp
   const generateDayOfWeekButton = (dayOfWeek: GraphQL.DayOfWeek): React.ReactElement => {
     return (
       <Button
@@ -179,11 +180,11 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
                   return (
                     <Picker.Item
                       key={hour}
+                      label={`Until ${hour} hours from now`}
                       value={moment()
                         .add(hour, "hours")
                         .toDate()
                         .valueOf()}
-                      label={`Until ${hour} hours from now`}
                     />
                   );
                 }
@@ -197,10 +198,10 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             <View style={styles.scheduleRow}>
               <Button
                 icon={IconNames[mutableSetting.type]}
-                style={styles.scheduleDayButton}
-                uppercase={false}
                 mode="contained"
                 onPress={(): void => setShowingTimePicker(true)}
+                style={styles.scheduleDayButton}
+                uppercase={false}
               >
                 At{" "}
                 {ThermostatSettingsHelpers.FormatMinutesSinceMidnight(
@@ -209,6 +210,11 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               </Button>
               {isShowingTimePicker && (
                 <DateTimePicker
+                  display="default"
+                  is24Hour
+                  minuteInterval={5}
+                  mode="time"
+                  onChange={onScheduledTimeChange}
                   value={
                     new Date(
                       2000,
@@ -218,11 +224,6 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
                       Math.round((mutableSetting.atMinutesSinceMidnight || 0) % 60)
                     )
                   }
-                  mode="time"
-                  is24Hour
-                  display="default"
-                  minuteInterval={5}
-                  onChange={onScheduledTimeChange}
                 />
               )}
             </View>
@@ -259,12 +260,12 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               value={mutableSetting.setPointHeat}
             />
             <Switch
-              style={styles.setPointSwitch}
-              value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Heat)}
+              color={ColorCodes[GraphQL.ThermostatAction.Heat]}
               onValueChange={(value): void =>
                 onChangeAllowedAction(GraphQL.ThermostatAction.Heat, value)
               }
-              color={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              style={styles.setPointSwitch}
+              value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Heat)}
             />
           </View>
         )}
@@ -349,10 +350,10 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
 
           {/* Save button */}
           <Button
-            mode="outlined"
+            color={(theme as Theme)?.colors?.text}
             disabled={!isDirty}
             loading={isSaving}
-            color={(theme as Theme)?.colors?.text}
+            mode="outlined"
             onPress={async (): Promise<void> => {
               setIsSaving(true);
 

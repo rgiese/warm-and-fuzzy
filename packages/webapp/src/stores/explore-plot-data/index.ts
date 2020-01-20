@@ -1,17 +1,14 @@
-import { observable, computed, action, reaction, runInAction } from "mobx";
-import moment from "moment";
+import { PlotSeriesQuery, PlotSeriesQueryVariables } from "../../generated/graphqlClient";
+import { action, computed, observable, reaction, runInAction } from "mobx";
 
 import { ApolloClient } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import ExploreStore from "../explore";
-
 import SeriesInstanceData from "./SeriesInstanceData";
 import SeriesInstanceDataDefinition from "./SeriesInstanceDataDefinition";
 import Timezone from "../explore/Timezone";
-import { viewSpanToDays } from "../explore/ViewSpan";
-
 import gql from "graphql-tag";
-import { PlotSeriesQuery, PlotSeriesQueryVariables } from "../../generated/graphqlClient";
+import moment from "moment";
+import { viewSpanToDays } from "../explore/ViewSpan";
 
 const plotSeriesDocument = gql`
   query PlotSeries($streamName: String!, $fromDate: DateTime!, $toDate: DateTime!) {
@@ -61,7 +58,9 @@ export default class ExplorePlotDataStore {
   readonly seriesInstanceDatas = observable.map<string, SeriesInstanceData>();
 
   @action
-  async fetchSeriesInstanceData(seriesInstanceDataDefinitions: SeriesInstanceDataDefinition[]) {
+  async fetchSeriesInstanceData(
+    seriesInstanceDataDefinitions: SeriesInstanceDataDefinition[]
+  ): Promise<void> {
     if (seriesInstanceDataDefinitions.length === 0) {
       this.seriesInstanceDatas.clear();
       return;
@@ -106,7 +105,7 @@ export default class ExplorePlotDataStore {
                 ? moment(definition.startDate)
                 : moment.utc(definition.startDate);
 
-            let fromMoment = moment(startDate).startOf("day");
+            const fromMoment = moment(startDate).startOf("day");
 
             const fromDate = fromMoment.toDate();
             const toDate = fromMoment.add(viewSpanToDays(definition.viewSpan), "day").toDate();
@@ -137,18 +136,18 @@ export default class ExplorePlotDataStore {
                 const deviceTime = new Date(value.deviceTime);
 
                 // Determine relative time to start time (since series may have different start days)
-                const deviceTime_RelativeToStartTime = deviceTime.getTime() - fromDate.getTime();
+                const deviceTimeRelativeToStartTime = deviceTime.getTime() - fromDate.getTime();
 
                 // Shift interval relative to a semi-arbitrary start day (today) so that Nivo uses today's timezone for display
                 // (will cause issues if there's a change in timezones during a multi-day view - alas.)
-                const deviceTime_RelativeToStartTime_TimezoneAdjusted =
-                  deviceTime_RelativeToStartTime + startOfToday;
+                const deviceTimeRelativeToStartTimeTimezoneAdjusted =
+                  deviceTimeRelativeToStartTime + startOfToday;
 
                 // Memoize series min/max Y values
                 min = min ? Math.min(min, value.temperature) : value.temperature;
                 max = max ? Math.max(max, value.temperature) : value.temperature;
 
-                return { x: deviceTime_RelativeToStartTime_TimezoneAdjusted, y: value.temperature };
+                return { x: deviceTimeRelativeToStartTimeTimezoneAdjusted, y: value.temperature };
               });
 
               console.log(`Fetched ${data.length} datapoints for ${definition.toString()}`);

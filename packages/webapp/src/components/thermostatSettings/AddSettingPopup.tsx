@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { Button, Popup } from "semantic-ui-react";
-
-import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import * as GraphQL from "../../generated/graphqlClient";
 
+import { Button, Popup } from "semantic-ui-react";
+import React, { useState } from "react";
+
 import ThermostatSettingBean from "./ThermostatSettingBean";
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 const AddSettingPopup: React.FunctionComponent<{
   mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
@@ -23,36 +22,36 @@ const AddSettingPopup: React.FunctionComponent<{
 
   return (
     <Popup
-      position="top center"
-      wide="very"
       on="click"
+      onOpen={(): void => setPopupOpen(true)}
       open={isPopupOpen}
-      onOpen={() => setPopupOpen(true)}
+      position="top center"
       trigger={
         <Button
-          style={{ marginLeft: 10, marginRight: 10 }}
-          icon={
-            defaultThermostatSetting.type === GraphQL.ThermostatSettingType.Hold ? "pause" : "play"
-          }
           basic
-          size="small"
           content={
             defaultThermostatSetting.type === GraphQL.ThermostatSettingType.Hold
               ? "Add hold"
               : "Add schedule step"
           }
+          icon={
+            defaultThermostatSetting.type === GraphQL.ThermostatSettingType.Hold ? "pause" : "play"
+          }
+          size="small"
+          style={{ marginLeft: 10, marginRight: 10 }}
         />
       }
+      wide="very"
     >
       <Popup.Content>
         <ThermostatSettingBean
-          mutableSettingsStore={mutableSettingsStore}
-          thermostatSetting={defaultThermostatSetting}
           availableActions={availableActions}
           isNewSetting
           isSaving={isSaving}
-          onAfterRevert={() => setPopupOpen(false)}
-          onAfterSave={() => setPopupOpen(false)}
+          mutableSettingsStore={mutableSettingsStore}
+          onAfterRevert={(): void => setPopupOpen(false)}
+          onAfterSave={(): void => setPopupOpen(false)}
+          thermostatSetting={defaultThermostatSetting}
         />
       </Popup.Content>
     </Popup>

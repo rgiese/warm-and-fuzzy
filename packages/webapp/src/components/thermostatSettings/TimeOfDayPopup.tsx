@@ -1,10 +1,9 @@
-import React from "react";
 import { Button, Popup } from "semantic-ui-react";
-import { TimeInput } from "semantic-ui-calendar-react";
-
-import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import InteriorPadding from "./InteriorPadding";
+import React from "react";
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { TimeInput } from "semantic-ui-calendar-react";
 
 const TimeOfDayPopup: React.FunctionComponent<{
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
@@ -19,28 +18,28 @@ const TimeOfDayPopup: React.FunctionComponent<{
     // can otherwise not help itself from showing a textual representation in its own `dateFormat`
     // which is not worth trying to parse around.
     <Popup
-      position="top center"
-      wide="very"
       on="click"
+      position="top center"
       trigger={
         <Button
           content={`at ${ThermostatSettingsHelpers.FormatMinutesSinceMidnight(timeOfDay)}`}
           style={{ paddingLeft: InteriorPadding / 4, paddingRight: InteriorPadding / 2 }}
         />
       }
+      wide="very"
     >
       <Popup.Content>
         {/* animation issue: https://github.com/arfedulov/semantic-ui-calendar-react/issues/152 */}
         <TimeInput
-          inline
           animation={"none" as any}
-          value={ThermostatSettingsHelpers.FormatMinutesSinceMidnight(timeOfDay)}
-          onChange={(_event, { value }) =>
+          inline
+          onChange={(_event, { value }): void =>
             updateMutableSetting({
               ...mutableSetting,
               atMinutesSinceMidnight: ThermostatSettingsHelpers.ParseMinutesSinceMidnight(value),
             })
           }
+          value={ThermostatSettingsHelpers.FormatMinutesSinceMidnight(timeOfDay)}
         />
       </Popup.Content>
     </Popup>

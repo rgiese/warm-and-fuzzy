@@ -1,4 +1,5 @@
-import React from "react";
+import * as GraphQL from "../../generated/graphqlClient";
+
 import {
   Button,
   Checkbox,
@@ -11,12 +12,10 @@ import {
   SemanticICONS,
 } from "semantic-ui-react";
 
+import InteriorPadding from "./InteriorPadding";
+import React from "react";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
-import * as GraphQL from "../../generated/graphqlClient";
-
-import InteriorPadding from "./InteriorPadding";
 
 const SetpointPopup: React.FunctionComponent<{
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
@@ -41,12 +40,11 @@ const SetpointPopup: React.FunctionComponent<{
 
   return availableActions.includes(action) ? (
     <Popup
-      position="top center"
-      wide="very"
       on="click"
+      position="top center"
       trigger={
         <Button style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 2 }}>
-          <Icon name={iconName} color={iconColor} />
+          <Icon color={iconColor} name={iconName} />
           {mutableSetting.allowedActions.includes(action) ? (
             isCirculate ? (
               <Icon name="check" />
@@ -63,15 +61,16 @@ const SetpointPopup: React.FunctionComponent<{
           )}
         </Button>
       }
+      wide="very"
     >
       <Popup.Content>
         <Form>
           <Form.Group inline>
             <Form.Field>
               <Checkbox
-                label={`${action} ${!isCirculate ? "to" : ""}`}
                 checked={isActionAllowed}
-                onChange={() => {
+                label={`${action} ${!isCirculate ? "to" : ""}`}
+                onChange={(): void => {
                   const allowedActions = isActionAllowed
                     ? mutableSetting.allowedActions.filter(
                         allowedAction => allowedAction !== action
@@ -88,19 +87,12 @@ const SetpointPopup: React.FunctionComponent<{
                   disabled={!isActionAllowed}
                   label={{ content: <>&deg; C</> }}
                   labelPosition="right"
-                  value={
-                    action === GraphQL.ThermostatAction.Heat
-                      ? mutableSetting.setPointHeat
-                      : mutableSetting.setPointCool
-                  }
-                  type="number"
-                  min={ThermostatSettingSchema.SetPointRange.min}
                   max={ThermostatSettingSchema.SetPointRange.max}
-                  step={1}
+                  min={ThermostatSettingSchema.SetPointRange.min}
                   onChange={(
                     _event: React.ChangeEvent<HTMLInputElement>,
                     data: InputOnChangeData
-                  ) => {
+                  ): void => {
                     const setpoint = Number.parseFloat(data.value);
                     const updatedSetpoints =
                       action === GraphQL.ThermostatAction.Heat
@@ -112,6 +104,13 @@ const SetpointPopup: React.FunctionComponent<{
                       ...updatedSetpoints,
                     });
                   }}
+                  step={1}
+                  type="number"
+                  value={
+                    action === GraphQL.ThermostatAction.Heat
+                      ? mutableSetting.setPointHeat
+                      : mutableSetting.setPointCool
+                  }
                 />
               </Form.Field>
             )}
@@ -120,6 +119,7 @@ const SetpointPopup: React.FunctionComponent<{
       </Popup.Content>
     </Popup>
   ) : (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     <></>
   );
 };
