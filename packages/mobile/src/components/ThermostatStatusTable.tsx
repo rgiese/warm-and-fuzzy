@@ -36,11 +36,9 @@ const styles = StyleSheet.create({
   thermostatName: {
     fontSize: 18,
   },
-  detailsIconPadding: {
-    paddingLeft: 5,
-  },
   detailsText: {
     fontSize: 14,
+    paddingRight: 5,
   },
   // Secondary row (e.g. "Last updated...")
   secondaryRow: {
@@ -170,7 +168,6 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                     name="thermometer"
                     size={iconSizes.default}
                     color={this.props.theme.colors.accent}
-                    style={styles.detailsIconPadding}
                   />
 
                   {/* Reported temperature */}
@@ -180,32 +177,30 @@ class ThermostatStatusTable extends React.Component<Props, State> {
 
                   {/* Actions: heat */}
                   {item.currentActions.includes(ThermostatAction.Heat) && (
-                    <>
-                      <IconMDC
-                        name={IconNames[ThermostatAction.Heat]}
-                        size={iconSizes.arrows}
-                        color={ColorCodes[ThermostatAction.Heat]}
-                        style={styles.detailsIconPadding}
-                      />
-                      <ThemedText.Heat style={styles.detailsText}>
-                        {item.setPointHeat} &deg;C
-                      </ThemedText.Heat>
-                    </>
+                    <IconMDC
+                      name={IconNames[ThermostatAction.Heat]}
+                      size={iconSizes.arrows}
+                      color={ColorCodes[ThermostatAction.Heat]}
+                    />
+                  )}
+                  {item.allowedActions.includes(ThermostatAction.Heat) && (
+                    <ThemedText.Heat style={styles.detailsText}>
+                      {item.setPointHeat}&deg;C
+                    </ThemedText.Heat>
                   )}
 
                   {/* Actions: cool */}
                   {item.currentActions.includes(ThermostatAction.Cool) && (
-                    <>
-                      <IconMDC
-                        name={IconNames[ThermostatAction.Cool]}
-                        size={iconSizes.arrows}
-                        color={ColorCodes[ThermostatAction.Cool]}
-                        style={styles.detailsIconPadding}
-                      />
-                      <ThemedText.Cool style={styles.detailsText}>
-                        {item.setPointCool} &deg;C
-                      </ThemedText.Cool>
-                    </>
+                    <IconMDC
+                      name={IconNames[ThermostatAction.Cool]}
+                      size={iconSizes.arrows}
+                      color={ColorCodes[ThermostatAction.Cool]}
+                    />
+                  )}
+                  {item.allowedActions.includes(ThermostatAction.Cool) && (
+                    <ThemedText.Cool style={styles.detailsText}>
+                      {item.setPointCool}&deg;C
+                    </ThemedText.Cool>
                   )}
 
                   {/* Actions: circulate */}
@@ -214,7 +209,6 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                       name={IconNames[ThermostatAction.Circulate]}
                       size={iconSizes.default}
                       color={ColorCodes[ThermostatAction.Circulate]}
-                      style={styles.detailsIconPadding}
                     />
                   )}
 
@@ -223,7 +217,6 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                     name="water"
                     size={iconSizes.default}
                     color={this.props.theme.colors.accent}
-                    style={styles.detailsIconPadding}
                   />
                   <ThemedText.Accent style={styles.detailsText}>{item.humidity}%</ThemedText.Accent>
                 </>
