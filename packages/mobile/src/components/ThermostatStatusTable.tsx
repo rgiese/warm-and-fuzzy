@@ -1,29 +1,25 @@
-import React from "react";
-import { FlatList, View, StyleSheet } from "react-native";
-import { Text, Theme, withTheme } from "react-native-paper";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
-import { withNavigation, NavigationInjectedProps } from "react-navigation";
-
-import { observer } from "mobx-react";
-import moment from "moment";
-
-import {
-  LatestThermostatValue,
-  ThermostatConfiguration,
-  RootStoreContext,
-} from "@grumpycorp/warm-and-fuzzy-shared-client";
-
-import { ThermostatAction } from "../../generated/graphqlClient";
-
-import { ColorCodes, IconNames } from "../Theme";
 import * as ThemedText from "./ThemedText";
 
+import { ColorCodes, IconNames } from "../Theme";
+import { FlatList, StyleSheet, View } from "react-native";
+import {
+  LatestThermostatValue,
+  RootStoreContext,
+  ThermostatConfiguration,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { NavigationInjectedProps, withNavigation } from "react-navigation";
+import { Text, Theme, withTheme } from "react-native-paper";
+
+import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
+import React from "react";
 import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import ScreenRoutes from "../screens/ScreenRoutes";
-import { ThermostatNavigationParams } from "../thermostatSettings/ThermostatSettingsScreen";
-
 import StoreChecks from "./StoreChecks";
+import { ThermostatAction } from "../../generated/graphqlClient";
+import { ThermostatNavigationParams } from "../thermostatSettings/ThermostatSettingsScreen";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import moment from "moment";
+import { observer } from "mobx-react";
 
 const styles = StyleSheet.create({
   // Primary row (e.g. "Sensor [temp] [hum]")
@@ -141,13 +137,13 @@ class ThermostatStatusTable extends React.Component<Props, State> {
           data={values}
           extraData={this.state.latestRenderTime}
           keyExtractor={(item): string => item.id}
+          onRefresh={(): void => this.refreshStores()}
           refreshing={
             latestThermostatValuesStore.isWorking || thermostatConfigurationStore.isWorking
           }
-          onRefresh={() => this.refreshStores()}
           renderItem={({ item }): React.ReactElement => (
             <TouchableOpacity
-              onPress={() => {
+              onPress={(): void => {
                 const params: ThermostatNavigationParams = {
                   thermostatId: item.id,
                   thermostatName: item.configuration.name,
@@ -165,58 +161,61 @@ class ThermostatStatusTable extends React.Component<Props, State> {
                 <>
                   {/* Thermometer icon */}
                   <IconMDC
+                    color={this.props.theme.colors.accent}
                     name="thermometer"
                     size={iconSizes.default}
-                    color={this.props.theme.colors.accent}
                   />
 
                   {/* Reported temperature */}
                   <ThemedText.Accent style={styles.detailsText}>
-                    {item.temperature}&deg;C
+                    {item.temperature}
+                    &deg;C
                   </ThemedText.Accent>
 
                   {/* Actions: heat */}
                   {item.currentActions.includes(ThermostatAction.Heat) && (
                     <IconMDC
+                      color={ColorCodes[ThermostatAction.Heat]}
                       name={IconNames[ThermostatAction.Heat]}
                       size={iconSizes.arrows}
-                      color={ColorCodes[ThermostatAction.Heat]}
                     />
                   )}
                   {item.allowedActions.includes(ThermostatAction.Heat) && (
                     <ThemedText.Heat style={styles.detailsText}>
-                      {item.setPointHeat}&deg;C
+                      {item.setPointHeat}
+                      &deg;C
                     </ThemedText.Heat>
                   )}
 
                   {/* Actions: cool */}
                   {item.currentActions.includes(ThermostatAction.Cool) && (
                     <IconMDC
+                      color={ColorCodes[ThermostatAction.Cool]}
                       name={IconNames[ThermostatAction.Cool]}
                       size={iconSizes.arrows}
-                      color={ColorCodes[ThermostatAction.Cool]}
                     />
                   )}
                   {item.allowedActions.includes(ThermostatAction.Cool) && (
                     <ThemedText.Cool style={styles.detailsText}>
-                      {item.setPointCool}&deg;C
+                      {item.setPointCool}
+                      &deg;C
                     </ThemedText.Cool>
                   )}
 
                   {/* Actions: circulate */}
                   {item.currentActions.includes(ThermostatAction.Circulate) && (
                     <IconMDC
+                      color={ColorCodes[ThermostatAction.Circulate]}
                       name={IconNames[ThermostatAction.Circulate]}
                       size={iconSizes.default}
-                      color={ColorCodes[ThermostatAction.Circulate]}
                     />
                   )}
 
                   {/* Reported humidity */}
                   <IconMDC
+                    color={this.props.theme.colors.accent}
                     name="water"
                     size={iconSizes.default}
-                    color={this.props.theme.colors.accent}
                   />
                   <ThemedText.Accent style={styles.detailsText}>{item.humidity}%</ThemedText.Accent>
                 </>

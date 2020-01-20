@@ -1,23 +1,20 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, List } from "react-native-paper";
-import { NavigationParams } from "react-navigation";
-import { NavigationStackScreenComponent } from "react-navigation-stack";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { observer } from "mobx-react";
-
-import { useRootStore, ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import * as GraphQL from "../../generated/graphqlClient";
 
+import { Button, List } from "react-native-paper";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ThermostatSettingsHelpers, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
+
 import BaseView from "../components/BaseView";
-import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import { IconNames } from "../Theme";
-
-import { ThermostatSettingNavigationParams } from "./ThermostatSettingScreen";
+import { NavigationParams } from "react-navigation";
+import { NavigationStackScreenComponent } from "react-navigation-stack";
+import React from "react";
+import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import ScreenRoutes from "../screens/ScreenRoutes";
-
 import SetpointDisplay from "./SetpointDisplay";
+import { ThermostatSettingNavigationParams } from "./ThermostatSettingScreen";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { observer } from "mobx-react";
 
 export interface ThermostatNavigationParams extends NavigationParams {
   thermostatId: string;
@@ -70,9 +67,9 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
         <View style={styles.addButtonRow}>
           {/* Add Hold button */}
           <Button
-            mode="contained"
             icon={IconNames.Hold}
-            onPress={() => {
+            mode="contained"
+            onPress={(): void => {
               const params: ThermostatSettingNavigationParams = {
                 mutableSettingsStore,
                 thermostatSetting: mutableSettingsStore.newHoldSettingTemplate,
@@ -87,9 +84,9 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
 
           {/* Add Schedule button */}
           <Button
-            mode="outlined"
             icon={IconNames.Scheduled}
-            onPress={() => {
+            mode="outlined"
+            onPress={(): void => {
               const params: ThermostatSettingNavigationParams = {
                 mutableSettingsStore,
                 thermostatSetting: mutableSettingsStore.newScheduledSettingTemplate,
@@ -107,7 +104,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
           return (
             <TouchableOpacity
               key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}
-              onPress={() => {
+              onPress={(): void => {
                 const params: ThermostatSettingNavigationParams = {
                   mutableSettingsStore,
                   thermostatSetting,
@@ -117,22 +114,6 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
               }}
             >
               <List.Item
-                left={props => <List.Icon {...props} icon={IconNames[thermostatSetting.type]} />}
-                title={
-                  <>
-                    {[
-                      GraphQL.ThermostatAction.Heat,
-                      GraphQL.ThermostatAction.Cool,
-                      GraphQL.ThermostatAction.Circulate,
-                    ].map(action => (
-                      <SetpointDisplay
-                        action={action}
-                        thermostatSetting={thermostatSetting}
-                        key={action}
-                      />
-                    ))}
-                  </>
-                }
                 description={
                   thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
                     ? ThermostatSettingsHelpers.FormatHoldUntil(
@@ -144,6 +125,24 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
                         thermostatSetting.atMinutesSinceMidnight || 0
                       )}`
                 }
+                left={(props): React.ReactNode => (
+                  <List.Icon {...props} icon={IconNames[thermostatSetting.type]} />
+                )}
+                title={
+                  <>
+                    {[
+                      GraphQL.ThermostatAction.Heat,
+                      GraphQL.ThermostatAction.Cool,
+                      GraphQL.ThermostatAction.Circulate,
+                    ].map(action => (
+                      <SetpointDisplay
+                        action={action}
+                        key={action}
+                        thermostatSetting={thermostatSetting}
+                      />
+                    ))}
+                  </>
+                }
               />
             </TouchableOpacity>
           );
@@ -153,6 +152,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ThermostatSettingsScreen.navigationOptions = ({ navigation }) => {
   return {
     title: `${navigation.state.params?.thermostatName || "Thermostat"} settings`,

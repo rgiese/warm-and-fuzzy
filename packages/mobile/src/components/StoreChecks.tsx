@@ -16,7 +16,7 @@ const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
   const anyStoresWorking = requiredStores.some(store => store.isWorking);
 
   if (anyStoresWorking) {
-    return <ActivityIndicator animating={true} />;
+    return <ActivityIndicator animating />;
   }
 
   return (

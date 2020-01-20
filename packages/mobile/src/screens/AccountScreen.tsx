@@ -1,15 +1,12 @@
-import React from "react";
-import { ScrollView } from "react-native";
 import { Button, Divider, List } from "react-native-paper";
-import { NavigationStackScreenComponent } from "react-navigation-stack";
-
-import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import BaseView from "../components/BaseView";
-
 import { ConfigStageName } from "../config";
-
+import { NavigationStackScreenComponent } from "react-navigation-stack";
+import React from "react";
 import ScreenRoutes from "./ScreenRoutes";
+import { ScrollView } from "react-native";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.ReactElement => {
   const authStore = useRootStore().authStore;
@@ -18,8 +15,14 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
     <BaseView>
       <ScrollView>
         <List.Section title="Your account">
-          <List.Item left={_props => <List.Icon icon="account" />} title={authStore.userName} />
-          <List.Item left={_props => <List.Icon icon="at" />} title={authStore.userEmail} />
+          <List.Item
+            left={(_props): React.ReactNode => <List.Icon icon="account" />}
+            title={authStore.userName}
+          />
+          <List.Item
+            left={(_props): React.ReactNode => <List.Icon icon="at" />}
+            title={authStore.userEmail}
+          />
           <Button
             mode="outlined"
             onPress={async (): Promise<void> => {
@@ -34,19 +37,25 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
         <List.Section title="Your permissions">
           {authStore.userPermissions.map(permission => (
             <List.Item
-              left={_props => <List.Icon icon="check" />}
-              title={permission}
               key={permission}
+              left={(_props): React.ReactNode => <List.Icon icon="check" />}
+              title={permission}
             />
           ))}
         </List.Section>
         <Divider />
         <List.Section title="Tenant">
-          <List.Item left={_props => <List.Icon icon="home" />} title={authStore.tenant} />
+          <List.Item
+            left={(_props): React.ReactNode => <List.Icon icon="home" />}
+            title={authStore.tenant}
+          />
         </List.Section>
         <Divider />
         <List.Section title="API">
-          <List.Item left={_props => <List.Icon icon="server" />} title={ConfigStageName} />
+          <List.Item
+            left={(_props): React.ReactNode => <List.Icon icon="server" />}
+            title={ConfigStageName}
+          />
         </List.Section>
       </ScrollView>
     </BaseView>

@@ -1,9 +1,9 @@
 import {
   createAppContainer,
   createSwitchNavigator,
-  NavigationScreenConfigProps,
-  NavigationRoute,
   NavigationParams,
+  NavigationRoute,
+  NavigationScreenConfigProps,
 } from "react-navigation";
 
 import {

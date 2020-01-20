@@ -1,17 +1,14 @@
-import React from "react";
-import { View } from "react-native";
 import { ActivityIndicator, Button, Caption, Surface, Text, Title } from "react-native-paper";
-import { NavigationStackScreenComponent } from "react-navigation-stack";
-import { observer } from "mobx-react";
-
-import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import BaseView from "../components/BaseView";
-import GrumpyRobin from "../assets/grumpy-robin.svg";
-
 import { ConfigStageName } from "../config";
-
+import GrumpyRobin from "../assets/grumpy-robin.svg";
+import { NavigationStackScreenComponent } from "react-navigation-stack";
+import React from "react";
 import ScreenRoutes from "./ScreenRoutes";
+import { View } from "react-native";
+import { observer } from "mobx-react";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 const AuthScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.ReactElement => {
   const authStore = useRootStore().authStore;
@@ -20,7 +17,7 @@ const AuthScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.R
     return (
       <BaseView>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <ActivityIndicator animating={true} />
+          <ActivityIndicator animating />
         </View>
       </BaseView>
     );
@@ -42,7 +39,7 @@ const AuthScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.R
           <Title style={{ marginBottom: 20 }}>Warm and Fuzzy</Title>
           <Button
             mode="contained"
-            onPress={() => {
+            onPress={(): void => {
               authStore.authProvider.requestLogin();
             }}
           >

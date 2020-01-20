@@ -1,13 +1,12 @@
-import React from "react";
-import { IconButton } from "react-native-paper";
-import { NavigationScreenProp, NavigationRoute } from "react-navigation";
+import { NavigationRoute, NavigationScreenProp } from "react-navigation";
 import { NavigationStackOptions, NavigationStackScreenComponent } from "react-navigation-stack";
 
 import BaseView from "../components/BaseView";
-import ThermostatStatusTable from "../components/ThermostatStatusTable";
-
+import { IconButton } from "react-native-paper";
+import React from "react";
 import ScreenProps from "./ScreenProps";
 import ScreenRoutes from "./ScreenRoutes";
+import ThermostatStatusTable from "../components/ThermostatStatusTable";
 
 const HomeScreen: NavigationStackScreenComponent<{}> = (): React.ReactElement => {
   return (
@@ -17,23 +16,21 @@ const HomeScreen: NavigationStackScreenComponent<{}> = (): React.ReactElement =>
   );
 };
 
-interface Params {}
-
 HomeScreen.navigationOptions = ({
   navigation,
   screenProps,
 }: {
-  navigation: NavigationScreenProp<NavigationRoute<Params>, Params>;
+  navigation: NavigationScreenProp<NavigationRoute<{}>, {}>;
   screenProps: any;
 }): NavigationStackOptions => ({
   title: "Home",
-  headerRight: () => (
+  headerRight: (): React.ReactNode => (
     <IconButton
+      color={(screenProps as ScreenProps).theme.colors.text}
+      icon="account"
       onPress={(): void => {
         navigation.navigate(ScreenRoutes.Account);
       }}
-      color={(screenProps as ScreenProps).theme.colors.text}
-      icon="account"
     />
   ),
 });

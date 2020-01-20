@@ -1,26 +1,23 @@
-import React, { useContext, useState } from "react";
-import { Picker, ScrollView, StyleSheet, View } from "react-native";
-import { ThemeContext } from "react-native-elements";
-import { Button, Switch, Text, Theme } from "react-native-paper";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import Slider from "@react-native-community/slider";
-import { NavigationParams } from "react-navigation";
-import { NavigationStackScreenComponent } from "react-navigation-stack";
-import fastCompare from "react-fast-compare";
-import { observer } from "mobx-react";
-
-import moment from "moment";
-
-import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import * as GraphQL from "../../generated/graphqlClient";
+import * as ThemedText from "../components/ThemedText";
+
+import { Button, Switch, Text, Theme } from "react-native-paper";
+import { ColorCodes, IconNames } from "../Theme";
+import { Picker, ScrollView, StyleSheet, View } from "react-native";
+import React, { useContext, useState } from "react";
 
 import BaseView from "../components/BaseView";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { NavigationParams } from "react-navigation";
+import { NavigationStackScreenComponent } from "react-navigation-stack";
 import ScreenBaseStyles from "../screens/ScreenBaseStyles";
-
-import * as ThemedText from "../components/ThemedText";
-import { ColorCodes, IconNames } from "../Theme";
+import Slider from "@react-native-community/slider";
+import { ThemeContext } from "react-native-elements";
+import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import fastCompare from "react-fast-compare";
+import moment from "moment";
+import { observer } from "mobx-react";
 
 const styles = StyleSheet.create({
   // Hold row
@@ -108,8 +105,8 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   // Functions to change in-flight (editing) state
   //
 
-  const onChangeAllowedAction = (action: GraphQL.ThermostatAction, allowed: boolean) => {
-    let actions = mutableSetting.allowedActions.filter(a => a !== action);
+  const onChangeAllowedAction = (action: GraphQL.ThermostatAction, allowed: boolean): void => {
+    const actions = mutableSetting.allowedActions.filter(a => a !== action);
 
     if (allowed) {
       actions.push(action);
@@ -118,7 +115,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
     updateMutableSetting({ ...mutableSetting, allowedActions: actions });
   };
 
-  const onScheduledTimeChange = (_e: Event, time?: Date) => {
+  const onScheduledTimeChange = (_e: Event, time?: Date): void => {
     const atMinutesSinceMidnight = time ? time.getHours() * 60 + time.getMinutes() : 0;
 
     setShowingTimePicker(false);
@@ -133,16 +130,16 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
     return (
       <Button
         key={dayOfWeek}
-        style={styles.scheduleDayButton}
-        uppercase={false}
         mode={mutableSetting.daysOfWeek?.includes(dayOfWeek) ? "contained" : "outlined"}
-        onPress={() => {
+        onPress={(): void => {
           const daysOfWeek = mutableSetting.daysOfWeek?.includes(dayOfWeek)
             ? mutableSetting.daysOfWeek?.filter(allowedDay => allowedDay !== dayOfWeek)
             : mutableSetting.daysOfWeek?.concat(dayOfWeek);
 
           updateMutableSetting({ ...mutableSetting, daysOfWeek });
         }}
+        style={styles.scheduleDayButton}
+        uppercase={false}
       >
         {dayOfWeek.substring(0, 3)}
       </Button>
@@ -160,22 +157,22 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         mutableSetting.type === GraphQL.ThermostatSettingType.Hold && (
           <View>
             <Picker
-              style={styles.holdPicker}
               mode="dropdown"
-              selectedValue={mutableSetting.holdUntil?.valueOf()}
-              onValueChange={value =>
+              onValueChange={(value): void =>
                 updateMutableSetting({ ...mutableSetting, holdUntil: new Date(value as number) })
               }
+              selectedValue={mutableSetting.holdUntil?.valueOf()}
+              style={styles.holdPicker}
             >
               <Picker.Item
-                value={mutableSetting.holdUntil?.valueOf()}
                 label={capitalizeString(
                   ThermostatSettingsHelpers.FormatHoldUntil(mutableSetting.holdUntil || new Date())
                 )}
+                value={mutableSetting.holdUntil?.valueOf()}
               />
               <Picker.Item
-                value={ThermostatSettingsHelpers.HoldUntilForeverSentinel.valueOf()}
                 label="Forever"
+                value={ThermostatSettingsHelpers.HoldUntilForeverSentinel.valueOf()}
               />
               {ThermostatSettingsHelpers.HoldUntilHoursFromNowOptions.map(
                 (hour): React.ReactElement => {
@@ -203,7 +200,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
                 style={styles.scheduleDayButton}
                 uppercase={false}
                 mode="contained"
-                onPress={() => setShowingTimePicker(true)}
+                onPress={(): void => setShowingTimePicker(true)}
               >
                 At{" "}
                 {ThermostatSettingsHelpers.FormatMinutesSinceMidnight(
@@ -245,25 +242,28 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {availableActions.includes(GraphQL.ThermostatAction.Heat) && (
           <View style={styles.setPointRow}>
             <Text style={styles.setPointText}>
-              <ThemedText.Heat>Heat</ThemedText.Heat> to {mutableSetting.setPointHeat} &deg;C
+              <ThemedText.Heat>Heat</ThemedText.Heat> to
+              {mutableSetting.setPointHeat} &deg;C
             </Text>
             <Slider
-              style={styles.setPointSlider}
-              value={mutableSetting.setPointHeat}
+              maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              maximumValue={ThermostatSettingSchema.SetPointRange.max}
+              minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              minimumValue={ThermostatSettingSchema.SetPointRange.min}
               onValueChange={(value): void =>
                 updateMutableSetting({ ...mutableSetting, setPointHeat: value })
               }
-              minimumValue={ThermostatSettingSchema.SetPointRange.min}
-              maximumValue={ThermostatSettingSchema.SetPointRange.max}
               step={1}
-              minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
-              maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              style={styles.setPointSlider}
               thumbTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              value={mutableSetting.setPointHeat}
             />
             <Switch
               style={styles.setPointSwitch}
               value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Heat)}
-              onValueChange={value => onChangeAllowedAction(GraphQL.ThermostatAction.Heat, value)}
+              onValueChange={(value): void =>
+                onChangeAllowedAction(GraphQL.ThermostatAction.Heat, value)
+              }
               color={ColorCodes[GraphQL.ThermostatAction.Heat]}
             />
           </View>
@@ -273,26 +273,29 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {availableActions.includes(GraphQL.ThermostatAction.Cool) && (
           <View style={styles.setPointRow}>
             <Text style={styles.setPointText}>
-              <ThemedText.Cool>Cool</ThemedText.Cool> to {mutableSetting.setPointCool} &deg;C
+              <ThemedText.Cool>Cool</ThemedText.Cool> to
+              {mutableSetting.setPointCool} &deg;C
             </Text>
             <Slider
-              style={styles.setPointSlider}
-              value={mutableSetting.setPointCool}
+              maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
+              maximumValue={ThermostatSettingSchema.SetPointRange.max}
+              minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
+              minimumValue={ThermostatSettingSchema.SetPointRange.min}
               onValueChange={(value): void =>
                 updateMutableSetting({ ...mutableSetting, setPointCool: value })
               }
-              minimumValue={ThermostatSettingSchema.SetPointRange.min}
-              maximumValue={ThermostatSettingSchema.SetPointRange.max}
               step={1}
-              minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
-              maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
+              style={styles.setPointSlider}
               thumbTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
+              value={mutableSetting.setPointCool}
             />
             <Switch
+              color={ColorCodes[GraphQL.ThermostatAction.Cool]}
+              onValueChange={(value): void =>
+                onChangeAllowedAction(GraphQL.ThermostatAction.Cool, value)
+              }
               style={styles.setPointSwitch}
               value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Cool)}
-              onValueChange={value => onChangeAllowedAction(GraphQL.ThermostatAction.Cool, value)}
-              color={ColorCodes[GraphQL.ThermostatAction.Cool]}
             />
           </View>
         )}
@@ -303,12 +306,12 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
             <View style={styles.setPointSlider}>{/* Empty */}</View>
             <Switch
-              style={styles.setPointSwitch}
-              value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Circulate)}
-              onValueChange={value =>
+              color={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+              onValueChange={(value): void =>
                 onChangeAllowedAction(GraphQL.ThermostatAction.Circulate, value)
               }
-              color={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+              style={styles.setPointSwitch}
+              value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Circulate)}
             />
           </View>
         )}
@@ -317,8 +320,8 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
           {/* Cancel button */}
           {isNewSetting && (
             <Button
-              mode="outlined"
               color={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              mode="outlined"
               onPress={async (): Promise<void> => {
                 navigation.goBack();
               }}
@@ -330,10 +333,10 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
           {/* Remove button */}
           {!isNewSetting && (
             <Button
-              mode="outlined"
+              color={ColorCodes[GraphQL.ThermostatAction.Heat]}
               disabled={isDirty}
               loading={isRemoving}
-              color={ColorCodes[GraphQL.ThermostatAction.Heat]}
+              mode="outlined"
               onPress={async (): Promise<void> => {
                 setIsRemoving(true);
                 await mutableSettingsStore.onRemove(mutableSetting);
@@ -370,6 +373,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ThermostatSettingScreen.navigationOptions = ({ navigation }) => {
   const thermostatSetting = navigation.state.params?.thermostatSetting;
 
