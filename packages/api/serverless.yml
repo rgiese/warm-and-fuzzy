@@ -120,7 +120,7 @@ functions:
           cors: true
           authorizer: auth0Authorizer
   # DynamoDB Stream handlers
-  stream_thermostatConfigurationAndSettings:
+  streamThermostatConfigurationAndSettings:
     handler: src/streams/thermostatConfigurationAndSettings/index.dynamoStream
     environment:
       PARTICLE_API_KEY_NAME: ${self:custom.secretNameParticleAPIKey}
