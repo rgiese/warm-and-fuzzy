@@ -18,18 +18,21 @@ import {
   DeviceTenancy,
   SensorConfiguration,
   ThermostatConfiguration,
+  ThermostatSettings,
 } from "../../../shared/db";
 
 import {
   Authorization,
   SensorConfigurationSchema,
   ThermostatConfigurationSchema,
+  ThermostatSettingsSchema,
 } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import * as GraphQL from "../../../../generated/graphqlTypes";
 
 import SensorConfigurationMapper from "../../../graphql/mappers/SensorConfigurationMapper";
 import ThermostatConfigurationMapper from "../../../graphql/mappers/ThermostatConfigurationMapper";
+import ThermostatSettingsMapper from "../../../graphql/mappers/ThermostatSettingsMapper";
 
 const deviceTenancySchema = yup.object().shape({
   id: yup.string().required(),
@@ -38,11 +41,13 @@ const deviceTenancySchema = yup.object().shape({
 
 const sensorConfigurationMapper = new SensorConfigurationMapper();
 const thermostatConfigurationMapper = new ThermostatConfigurationMapper();
+const thermostatSettingsMapper = new ThermostatSettingsMapper();
 
 class SystemConfiguration {
   public deviceTenancy: DeviceTenancy[] = [];
-  public sensors: GraphQL.SensorConfiguration[] = [];
-  public thermostats: GraphQL.ThermostatConfiguration[] = [];
+  public sensorConfigurations: GraphQL.SensorConfiguration[] = [];
+  public thermostatConfigurations: GraphQL.ThermostatConfiguration[] = [];
+  public thermostatSettings: GraphQL.ThermostatSettings[] = [];
 }
 
 export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
@@ -64,11 +69,19 @@ export const get: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
     }
 
     for await (const item of DbMapper.scan(SensorConfiguration)) {
-      systemConfiguration.sensors.push(sensorConfigurationMapper.graphqlFromModel(item));
+      systemConfiguration.sensorConfigurations.push(
+        sensorConfigurationMapper.graphqlFromModel(item)
+      );
     }
 
     for await (const item of DbMapper.scan(ThermostatConfiguration)) {
-      systemConfiguration.thermostats.push(thermostatConfigurationMapper.graphqlFromModel(item));
+      systemConfiguration.thermostatConfigurations.push(
+        thermostatConfigurationMapper.graphqlFromModel(item)
+      );
+    }
+
+    for await (const item of DbMapper.scan(ThermostatSettings)) {
+      systemConfiguration.thermostatSettings.push(thermostatSettingsMapper.graphqlFromModel(item));
     }
   }
 
@@ -95,8 +108,9 @@ export const put: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
   {
     if (
       !systemConfiguration.deviceTenancy ||
-      !systemConfiguration.sensors ||
-      !systemConfiguration.thermostats
+      !systemConfiguration.sensorConfigurations ||
+      !systemConfiguration.thermostatConfigurations ||
+      !systemConfiguration.thermostatSettings
     ) {
       return Responses.badRequest("Malformed body.");
     }
@@ -107,15 +121,21 @@ export const put: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
       }
     );
 
-    systemConfiguration.sensors.forEach(
+    systemConfiguration.sensorConfigurations.forEach(
       async (item): Promise<void> => {
         await SensorConfigurationSchema.Schema.validate(item);
       }
     );
 
-    systemConfiguration.thermostats.forEach(
+    systemConfiguration.thermostatConfigurations.forEach(
       async (item): Promise<void> => {
         await ThermostatConfigurationSchema.Schema.validate(item);
+      }
+    );
+
+    systemConfiguration.thermostatSettings.forEach(
+      async (item): Promise<void> => {
+        await ThermostatSettingsSchema.Schema.validate(item);
       }
     );
   }
@@ -124,20 +144,29 @@ export const put: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
   const deviceTenancy = systemConfiguration.deviceTenancy.map(
     (d): DeviceTenancy => Object.assign(new DeviceTenancy(), d)
   );
-  const sensors = systemConfiguration.sensors.map(
+
+  const sensorConfigurations = systemConfiguration.sensorConfigurations.map(
     (s): SensorConfiguration => sensorConfigurationMapper.modelFromGraphql(s.tenant, s)
   );
-  const thermostats = systemConfiguration.thermostats.map(
+
+  const thermostatConfigurations = systemConfiguration.thermostatConfigurations.map(
     (t): ThermostatConfiguration => thermostatConfigurationMapper.modelFromGraphql(t.tenant, t)
+  );
+
+  const thermostatSettings = systemConfiguration.thermostatSettings.map(
+    (t): ThermostatSettings => thermostatSettingsMapper.modelFromGraphql(t.tenant, t)
   );
 
   for await (const {} of DbMapper.batchPut(deviceTenancy)) {
   }
 
-  for await (const {} of DbMapper.batchPut(sensors)) {
+  for await (const {} of DbMapper.batchPut(sensorConfigurations)) {
   }
 
-  for await (const {} of DbMapper.batchPut(thermostats)) {
+  for await (const {} of DbMapper.batchPut(thermostatConfigurations)) {
+  }
+
+  for await (const {} of DbMapper.batchPut(thermostatSettings)) {
   }
 
   return Responses.success({ ok: true });
