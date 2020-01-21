@@ -14,8 +14,8 @@ import AuthScreen from "./AuthScreen";
 import HomeScreen from "./HomeScreen";
 import ScreenProps from "./ScreenProps";
 import ScreenRoutes from "./ScreenRoutes";
-import ThermostatSettingScreen from "../thermostatSettings/ThermostatSettingScreen";
-import ThermostatSettingsScreen from "../thermostatSettings/ThermostatSettingsScreen";
+import ThermostatSettingScreen from "./ThermostatSettingScreen";
+import ThermostatSettingsScreen from "./ThermostatSettingsScreen";
 
 // App screens
 const AppNavigator = createStackNavigator(

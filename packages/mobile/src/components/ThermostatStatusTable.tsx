@@ -16,7 +16,7 @@ import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import ScreenRoutes from "../screens/ScreenRoutes";
 import StoreChecks from "./StoreChecks";
 import { ThermostatAction } from "../../generated/graphqlClient";
-import { ThermostatNavigationParams } from "../thermostatSettings/ThermostatSettingsScreen";
+import { ThermostatNavigationParams } from "../screens/ThermostatSettingsScreen";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import moment from "moment";
 import { observer } from "mobx-react";

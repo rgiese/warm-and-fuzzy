@@ -10,7 +10,7 @@ import BaseView from "../components/BaseView";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
-import ScreenBaseStyles from "../screens/ScreenBaseStyles";
+import ScreenBaseStyles from "./ScreenBaseStyles";
 import Slider from "@react-native-community/slider";
 import { ThemeContext } from "react-native-elements";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
