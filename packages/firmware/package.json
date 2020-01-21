@@ -28,13 +28,12 @@
     "prettierglob": "{.,./**}/*.{js,json,md}"
   },
   "devDependencies": {
-    "clang-format": "^1.2.4",
-    "glob": "^7.1.4",
-    "oclif": "^1.13.1",
-    "particle-api-js": "^7.4.1",
+    "clang-format": "^1.3.0",
+    "glob": "^7.1.6",
+    "oclif": "^1.15.2",
+    "particle-api-js": "^8.0.1",
     "path": "^0.12.7",
-    "prettier": "^1.16.4",
-    "superagent": "^5.1.0"
+    "superagent": "^5.2.1"
   },
   "oclif": {
     "commands": "./firmware-build-tool/commands"

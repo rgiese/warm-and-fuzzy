@@ -32,9 +32,9 @@
     "clone-deep": "^4.0.1",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
-    "mobx": "^5.15.1",
-    "mobx-react": "^6.1.4",
-    "mobx-utils": "^5.5.2",
+    "mobx": "^5.15.2",
+    "mobx-react": "^6.1.5",
+    "mobx-utils": "^5.5.3",
     "react-fast-compare": "^2.0.4"
   }
 }
