@@ -59,7 +59,7 @@ type ThermostatValue = LatestThermostatValue & { configuration: ThermostatConfig
 const ThermostatStatusTable: React.FunctionComponent<{
   navigation: NavigationScreenProp<NavigationRoute>;
   theme: Theme;
-}> = ({ theme }): React.ReactElement => {
+}> = ({ navigation, theme }): React.ReactElement => {
   const rootStore = useRootStore();
 
   const [latestRenderTime, setLatestRenderTime] = useState(new Date());
