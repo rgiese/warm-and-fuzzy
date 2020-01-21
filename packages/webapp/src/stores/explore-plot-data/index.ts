@@ -20,16 +20,19 @@ const plotSeriesDocument = gql`
 `;
 
 export default class ExplorePlotDataStore {
-  private exploreStore: ExploreStore;
-  private apolloClient: ApolloClient;
+  public readonly seriesInstanceDatas = observable.map<string, SeriesInstanceData>();
 
-  constructor(exploreStore: ExploreStore, apolloClient: ApolloClient) {
+  private readonly exploreStore: ExploreStore;
+  private readonly apolloClient: ApolloClient;
+
+  public constructor(exploreStore: ExploreStore, apolloClient: ApolloClient) {
     this.exploreStore = exploreStore;
     this.apolloClient = apolloClient;
 
     reaction(
       () => this.seriesInstanceDataDefinitions.map(d => d),
       seriesInstanceDataDefinitions => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.fetchSeriesInstanceData(seriesInstanceDataDefinitions);
       }
     );
@@ -39,7 +42,7 @@ export default class ExplorePlotDataStore {
   // SeriesInstanceDataDefinitions
   //
 
-  @computed get seriesInstanceDataDefinitions(): SeriesInstanceDataDefinition[] {
+  @computed public get seriesInstanceDataDefinitions(): SeriesInstanceDataDefinition[] {
     return this.exploreStore.seriesInstanceProps.map(
       seriesInstance =>
         new SeriesInstanceDataDefinition(
@@ -55,10 +58,8 @@ export default class ExplorePlotDataStore {
   // SeriesInstanceData
   //
 
-  readonly seriesInstanceDatas = observable.map<string, SeriesInstanceData>();
-
   @action
-  async fetchSeriesInstanceData(
+  private async fetchSeriesInstanceData(
     seriesInstanceDataDefinitions: SeriesInstanceDataDefinition[]
   ): Promise<void> {
     if (seriesInstanceDataDefinitions.length === 0) {

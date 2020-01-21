@@ -1,8 +1,11 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
-
 import { PackedAuthorizations, UnpackPermissions } from "./PackedAuthorizations";
 
+import { APIGatewayProxyEvent } from "aws-lambda";
+
 export default class Authorizations {
+  private readonly _authorizedTenant: string;
+  private readonly _authorizedPermissions: string[];
+
   public constructor(event: APIGatewayProxyEvent) {
     const authorizations = event.requestContext.authorizer as PackedAuthorizations;
 
@@ -21,7 +24,4 @@ export default class Authorizations {
   public HasPermission(permission: string): boolean {
     return this._authorizedPermissions.includes(permission);
   }
-
-  private _authorizedTenant: string;
-  private _authorizedPermissions: string[];
 }

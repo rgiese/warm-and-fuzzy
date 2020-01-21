@@ -11,15 +11,6 @@ import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 @table("LatestSensorValues")
 export default class SensorValue extends DeviceWithTenantAndId {
-  public constructor() {
-    super();
-
-    this.publishedTime = new Date();
-    this.deviceTime = new Date();
-    this.deviceLocalSerial = 0;
-    this.temperature = 0.0;
-  }
-
   // Timestamp attached by Particle OS when event was published
   @attribute()
   public publishedTime: Date;
@@ -35,4 +26,13 @@ export default class SensorValue extends DeviceWithTenantAndId {
   // Units: Celsius
   @attribute()
   public temperature: number;
+
+  public constructor() {
+    super();
+
+    this.publishedTime = new Date();
+    this.deviceTime = new Date();
+    this.deviceLocalSerial = 0;
+    this.temperature = 0.0;
+  }
 }

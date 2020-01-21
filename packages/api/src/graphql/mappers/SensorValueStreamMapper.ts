@@ -1,7 +1,7 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import { SensorValueStream } from "../../shared/db";
 
 import GraphQLModelMapper from "./GraphQLModelMapper";
+import { SensorValueStream } from "../../shared/db";
 
 //
 // Adapt GraphQL <-> Model (DB) conventions:
@@ -11,6 +11,8 @@ import GraphQLModelMapper from "./GraphQLModelMapper";
 class SensorValueStreamMapper
   implements
     GraphQLModelMapper<GraphQL.SensorValueStream, GraphQL.SensorValueStream, SensorValueStream> {
+  private readonly streamName: string;
+
   public constructor(streamName: string) {
     this.streamName = streamName;
   }
@@ -29,8 +31,6 @@ class SensorValueStreamMapper
   public modelFromGraphql(_tenant: string, _rhs: GraphQL.SensorValueStream): SensorValueStream {
     throw new Error("Not supported");
   }
-
-  private streamName: string;
 }
 
 export default SensorValueStreamMapper;

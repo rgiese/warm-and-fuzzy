@@ -65,19 +65,25 @@ interface Props extends NavigationInjectedProps {
 }
 
 class State {
-  latestRenderTime: Date = new Date();
+  public latestRenderTime: Date = new Date();
 }
 
 type ThermostatValue = LatestThermostatValue & { configuration: ThermostatConfiguration };
 
 class ThermostatStatusTable extends React.Component<Props, State> {
+  public static contextType = RootStoreContext;
+  public context!: React.ContextType<typeof RootStoreContext>;
+
+  private intervalRefreshTimeSince: any;
+  private intervalRefreshStores: any;
+
   public constructor(props: Props) {
     super(props);
 
     this.state = new State();
   }
 
-  componentDidMount(): void {
+  public componentDidMount(): void {
     //
     // Use this.state.latestRenderTime to force a list re-render
     // every so often in order to update the "Last update a few seconds ago" strings
@@ -90,22 +96,9 @@ class ThermostatStatusTable extends React.Component<Props, State> {
     this.intervalRefreshStores = setInterval(() => this.refreshStores(), 60 * 1000);
   }
 
-  componentWillUnmount(): void {
+  public componentWillUnmount(): void {
     clearInterval(this.intervalRefreshTimeSince);
     clearInterval(this.intervalRefreshStores);
-  }
-
-  static contextType = RootStoreContext;
-  context!: React.ContextType<typeof RootStoreContext>;
-
-  private intervalRefreshTimeSince: any;
-  private intervalRefreshStores: any;
-
-  refreshStores(): void {
-    const { rootStore } = this.context;
-
-    rootStore.latestThermostatValuesStore.update();
-    rootStore.thermostatSettingsStore.update();
   }
 
   public render(): React.ReactElement {
@@ -239,6 +232,16 @@ class ThermostatStatusTable extends React.Component<Props, State> {
         />
       </StoreChecks>
     );
+  }
+
+  private refreshStores(): void {
+    const { rootStore } = this.context;
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    rootStore.latestThermostatValuesStore.update();
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    rootStore.thermostatSettingsStore.update();
   }
 }
 

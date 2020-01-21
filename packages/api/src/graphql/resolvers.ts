@@ -1,17 +1,14 @@
-import { GraphQLScalarType, Kind } from "graphql";
-
 import * as GraphQL from "../../generated/graphqlTypes";
 
-import thermostatSettingsResolver from "./resolvers/ThermostatSettingsResolver";
+import { GraphQLScalarType, Kind } from "graphql";
 
-import thermostatConfigurationResolver from "./resolvers/ThermostatConfigurationResolver";
-import sensorConfigurationResolver from "./resolvers/SensorConfigurationResolver";
-
-import latestThermostatValueResolver from "./resolvers/LatestThermostatValueResolver";
 import latestSensorValueResolver from "./resolvers/LatestSensorValueResolver";
-
-import thermostatValueStreamResolver from "./resolvers/ThermostatValueStreamResolver";
+import latestThermostatValueResolver from "./resolvers/LatestThermostatValueResolver";
+import sensorConfigurationResolver from "./resolvers/SensorConfigurationResolver";
 import sensorValueStreamResolver from "./resolvers/SensorValueStreamResolver";
+import thermostatConfigurationResolver from "./resolvers/ThermostatConfigurationResolver";
+import thermostatSettingsResolver from "./resolvers/ThermostatSettingsResolver";
+import thermostatValueStreamResolver from "./resolvers/ThermostatValueStreamResolver";
 
 const resolvers: GraphQL.Resolvers = {
   //

@@ -12,7 +12,7 @@ const localStorageKeys = {
 export default class Auth implements AuthProvider {
   private tokenRenewalTimeout: any;
 
-  private auth0 = new Auth0.WebAuth({
+  private readonly auth0 = new Auth0.WebAuth({
     domain: AuthenticationConfiguration.Domain,
     clientID: AuthenticationConfiguration.ClientId,
     redirectUri: window.location.origin + "/callback",
@@ -57,6 +57,7 @@ export default class Auth implements AuthProvider {
   // AuthProvider implementation
   //
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async requestLogin(): Promise<boolean | undefined> {
     this.auth0.authorize();
     return undefined;
@@ -68,7 +69,7 @@ export default class Auth implements AuthProvider {
     return new Promise((resolve, reject): void => {
       // Promise-ify Auth0's API
       this.auth0.parseHash((err, authResult): void => {
-        if (authResult && authResult.accessToken && authResult.idToken) {
+        if (authResult?.accessToken && authResult.idToken) {
           this.setSession(authResult);
           resolve(true);
         } else if (err) {
@@ -85,6 +86,7 @@ export default class Auth implements AuthProvider {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async requestLogout(): Promise<void> {
     this.clear();
 
@@ -143,9 +145,10 @@ export default class Auth implements AuthProvider {
 
   private renewSession(): void {
     this.auth0.checkSession({}, (err, authResult): void => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
+      if (authResult?.accessToken && authResult.idToken) {
         this.setSession(authResult);
       } else if (err) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.requestLogout();
         console.log(err);
         alert(`Could not get a new token (${err.error}: ${err.error_description}).`);

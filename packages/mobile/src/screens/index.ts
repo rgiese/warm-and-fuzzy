@@ -1,26 +1,21 @@
 import {
+  NavigationScreenConfigProps,
   createAppContainer,
   createSwitchNavigator,
-  NavigationParams,
-  NavigationRoute,
-  NavigationScreenConfigProps,
 } from "react-navigation";
-
 import {
-  createStackNavigator,
   NavigationStackOptions,
   NavigationStackProp,
+  createStackNavigator,
 } from "react-navigation-stack";
 
-import ScreenProps from "./ScreenProps";
-
-import AuthScreen from "./AuthScreen";
 import AccountScreen from "./AccountScreen";
+import AuthScreen from "./AuthScreen";
 import HomeScreen from "./HomeScreen";
-import ThermostatSettingsScreen from "../thermostatSettings/ThermostatSettingsScreen";
-import ThermostatSettingScreen from "../thermostatSettings/ThermostatSettingScreen";
-
+import ScreenProps from "./ScreenProps";
 import ScreenRoutes from "./ScreenRoutes";
+import ThermostatSettingScreen from "../thermostatSettings/ThermostatSettingScreen";
+import ThermostatSettingsScreen from "../thermostatSettings/ThermostatSettingsScreen";
 
 // App screens
 const AppNavigator = createStackNavigator(
@@ -33,9 +28,7 @@ const AppNavigator = createStackNavigator(
   {
     initialRouteName: ScreenRoutes.Home,
     defaultNavigationOptions: (
-      navigationOptionsContainer: NavigationScreenConfigProps<
-        NavigationStackProp<NavigationRoute<NavigationParams>>
-      >
+      navigationOptionsContainer: NavigationScreenConfigProps<NavigationStackProp>
     ): NavigationStackOptions => {
       const screenProps = navigationOptionsContainer.screenProps as ScreenProps;
       const colors = screenProps.theme.colors;

@@ -7,7 +7,13 @@ import SeriesIdentifier from "./SeriesIdentifier";
 import SeriesInstanceProps from "./SeriesInstanceProps";
 
 export default class ExploreStore {
-  private rootStore: RootStore;
+  @observable public timezone: Timezone = Timezone.Local;
+  @observable public viewSpan: ViewSpan = ViewSpan.Day;
+
+  public availableSeries?: SeriesIdentifier[] = undefined;
+  public readonly seriesInstanceProps = observable.array<SeriesInstanceProps>([]);
+
+  private readonly rootStore: RootStore;
   private nextSeriesInstanceId: number;
 
   public constructor(rootStore: RootStore) {
@@ -15,26 +21,16 @@ export default class ExploreStore {
     this.nextSeriesInstanceId = 0;
   }
 
-  // Timezone
-  @observable timezone: Timezone = Timezone.Local;
-  @action setTimezone(timezone: Timezone): void {
+  @action public setTimezone(timezone: Timezone): void {
     this.timezone = timezone;
   }
 
-  // ViewSpan
-  @observable viewSpan: ViewSpan = ViewSpan.Day;
-  @action setViewSpan(viewSpan: ViewSpan): void {
+  @action public setViewSpan(viewSpan: ViewSpan): void {
     this.viewSpan = viewSpan;
   }
 
-  // AvailableSeries
-  availableSeries?: SeriesIdentifier[] = undefined;
-
-  // SeriesInstanceProps
-  readonly seriesInstanceProps = observable.array<SeriesInstanceProps>([]);
-
   @action
-  addSeriesInstance(
+  public addSeriesInstance(
     streamName: string,
     startDate: string,
     colorIndex?: number,
@@ -66,7 +62,7 @@ export default class ExploreStore {
     const seriesInstance: SeriesInstanceProps = {
       instanceId,
       seriesIdentifier,
-      colorIndex: colorIndex || instanceId,
+      colorIndex: colorIndex ?? instanceId,
       startDate,
     };
 
@@ -74,7 +70,7 @@ export default class ExploreStore {
   }
 
   @action
-  updateSeriesInstance(updatedSeriesInstanceProps: SeriesInstanceProps): void {
+  public updateSeriesInstance(updatedSeriesInstanceProps: SeriesInstanceProps): void {
     const updatedSeriesIndex = this.seriesInstanceProps.findIndex(
       series => series.instanceId === updatedSeriesInstanceProps.instanceId
     );
@@ -83,7 +79,7 @@ export default class ExploreStore {
   }
 
   @action
-  removeSeriesInstance(removedSeriesInstanceProps: SeriesInstanceProps): void {
+  public removeSeriesInstance(removedSeriesInstanceProps: SeriesInstanceProps): void {
     this.seriesInstanceProps.remove(removedSeriesInstanceProps);
   }
 

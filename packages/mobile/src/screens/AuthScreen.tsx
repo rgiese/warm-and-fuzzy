@@ -39,8 +39,8 @@ const AuthScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.R
           <Title style={{ marginBottom: 20 }}>Warm and Fuzzy</Title>
           <Button
             mode="contained"
-            onPress={(): void => {
-              authStore.authProvider.requestLogin();
+            onPress={async (): Promise<void> => {
+              await authStore.authProvider.requestLogin();
             }}
           >
             Sign in

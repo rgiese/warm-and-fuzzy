@@ -1,6 +1,6 @@
-import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
-
 import * as GraphQL from "../../../generated/graphqlTypes";
+
+import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
 
 import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
@@ -13,18 +13,6 @@ import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 @table("ThermostatConfiguration")
 export default class ThermostatConfiguration extends DeviceWithTenantAndId {
-  public constructor() {
-    super();
-
-    this.name = "";
-    this.streamName = "";
-    this.externalSensorId = undefined;
-    this.threshold = NaN;
-    this.cadence = NaN;
-    this.availableActions = undefined;
-    this.timezone = undefined;
-  }
-
   // User-facing name
   @attribute()
   public name: string;
@@ -52,4 +40,16 @@ export default class ThermostatConfiguration extends DeviceWithTenantAndId {
   // Device timezone [IANA tz name, e.g. "America/Los_Angeles"]
   @attribute()
   public timezone?: string;
+
+  public constructor() {
+    super();
+
+    this.name = "";
+    this.streamName = "";
+    this.externalSensorId = undefined;
+    this.threshold = NaN;
+    this.cadence = NaN;
+    this.availableActions = undefined;
+    this.timezone = undefined;
+  }
 }

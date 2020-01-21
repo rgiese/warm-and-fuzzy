@@ -1,11 +1,11 @@
-import React from "react";
 import { Divider, Header } from "semantic-ui-react";
-import { observer } from "mobx-react";
 
+import React from "react";
 import SensorConfigurations from "../components/SensorConfigurations";
 import ThermostatConfigurations from "../components/ThermostatConfigurations";
+import { observer } from "mobx-react";
 
-const Configuration: React.FunctionComponent<{}> = (): React.ReactElement => {
+const Configuration: React.FunctionComponent = (): React.ReactElement => {
   return (
     <>
       <Divider horizontal>

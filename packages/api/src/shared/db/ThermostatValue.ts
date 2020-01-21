@@ -1,6 +1,6 @@
-import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
-
 import * as GraphQL from "../../../generated/graphqlTypes";
+
+import { attribute, table } from "@aws/dynamodb-data-mapper-annotations";
 
 import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
@@ -13,22 +13,6 @@ import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 @table("LatestThermostatValues")
 export default class ThermostatValue extends DeviceWithTenantAndId {
-  public constructor() {
-    super();
-
-    this.publishedTime = new Date();
-    this.deviceTime = new Date();
-    this.deviceLocalSerial = 0;
-    this.currentActions = undefined;
-    this.temperature = 0.0;
-    this.humidity = 0.0;
-    this.setPointHeat = NaN;
-    this.setPointCool = NaN;
-    this.threshold = NaN;
-    this.currentTimezoneUTCOffset = undefined;
-    this.allowedActions = undefined;
-  }
-
   // Timestamp attached by Particle OS when event was published
   @attribute()
   public publishedTime: Date;
@@ -72,4 +56,20 @@ export default class ThermostatValue extends DeviceWithTenantAndId {
   // @see ThermostatConfiguration#allowedActions
   @attribute({ memberType: "String" })
   public allowedActions?: Set<GraphQL.ThermostatAction>;
+
+  public constructor() {
+    super();
+
+    this.publishedTime = new Date();
+    this.deviceTime = new Date();
+    this.deviceLocalSerial = 0;
+    this.currentActions = undefined;
+    this.temperature = 0.0;
+    this.humidity = 0.0;
+    this.setPointHeat = NaN;
+    this.setPointCool = NaN;
+    this.threshold = NaN;
+    this.currentTimezoneUTCOffset = undefined;
+    this.allowedActions = undefined;
+  }
 }

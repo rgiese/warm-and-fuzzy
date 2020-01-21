@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { Checkbox, DropdownProps, Form, InputOnChangeData } from "semantic-ui-react";
-import { ValidationError } from "yup";
-import moment from "moment-timezone";
+import * as EditFormTools from "./EditFormTools";
 
-import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import { Checkbox, DropdownProps, Form, InputOnChangeData } from "semantic-ui-react";
+import React, { useState } from "react";
 import { ThermostatConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
-import * as EditFormTools from "./EditFormTools";
+import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import { ValidationError } from "yup";
+import moment from "moment-timezone";
 
 const ThermostatConfigurationModal: React.FunctionComponent<{
   values: ThermostatConfiguration;
@@ -132,7 +132,7 @@ const ThermostatConfigurationModal: React.FunctionComponent<{
           options={moment.tz.names().map(timezone => {
             return { text: timezone, value: timezone };
           })}
-          value={mutableValues.timezone || ""}
+          value={mutableValues.timezone ?? ""}
         />
       </Form.Group>
 

@@ -40,7 +40,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
   const rootStore = useRootStore();
 
   const thermostatSettings = rootStore.thermostatSettingsStore.findById(
-    navigation.state.params?.thermostatId || "0"
+    navigation.state.params?.thermostatId ?? "0"
   );
 
   if (!thermostatSettings) {
@@ -51,7 +51,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
     thermostatSettings.id
   );
 
-  const availableActions = thermostatConfiguration?.availableActions || [];
+  const availableActions = thermostatConfiguration?.availableActions ?? [];
 
   const mutableSettingsStore = new ThermostatSettingsHelpers.MutableSettingsStore(
     rootStore.thermostatSettingsStore,
@@ -118,12 +118,12 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
                 description={
                   thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
                     ? ThermostatSettingsHelpers.FormatHoldUntil(
-                        thermostatSetting.holdUntil || new Date(0)
+                        thermostatSetting.holdUntil ?? new Date(0)
                       )
                     : `${ThermostatSettingsHelpers.FormatDaysOfWeekList(
-                        thermostatSetting.daysOfWeek || []
+                        thermostatSetting.daysOfWeek ?? []
                       )} at ${ThermostatSettingsHelpers.FormatMinutesSinceMidnight(
-                        thermostatSetting.atMinutesSinceMidnight || 0
+                        thermostatSetting.atMinutesSinceMidnight ?? 0
                       )}`
                 }
                 left={(props): React.ReactNode => (
@@ -157,7 +157,7 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 ThermostatSettingsScreen.navigationOptions = ({ navigation }) => {
   return {
-    title: `${navigation.state.params?.thermostatName || "Thermostat"} settings`,
+    title: `${navigation.state.params?.thermostatName ?? "Thermostat"} settings`,
   };
 };
 

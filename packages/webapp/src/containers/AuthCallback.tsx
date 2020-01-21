@@ -4,7 +4,10 @@ import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 // Instantiated for the /callback route that Auth0's universal login page will redirect to after logging in
 // eslint-disable-next-line react/require-optimization
-class AuthCallback extends React.Component<{}> {
+class AuthCallback extends React.Component {
+  public static contextType = RootStoreContext;
+  public context!: React.ContextType<typeof RootStoreContext>;
+
   public async componentDidMount(): Promise<void> {
     const authStore = this.context.rootStore.authStore;
 
@@ -14,9 +17,6 @@ class AuthCallback extends React.Component<{}> {
     // Reload the main app page
     History.replace("/");
   }
-
-  static contextType = RootStoreContext;
-  context!: React.ContextType<typeof RootStoreContext>;
 
   public render(): React.ReactElement {
     return <div>Applying authentication...</div>;

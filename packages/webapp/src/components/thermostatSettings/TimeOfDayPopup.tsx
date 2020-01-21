@@ -11,7 +11,7 @@ const TimeOfDayPopup: React.FunctionComponent<{
     React.SetStateAction<ThermostatSettingsHelpers.IndexedThermostatSetting>
   >;
 }> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
-  const timeOfDay = mutableSetting.atMinutesSinceMidnight || 0;
+  const timeOfDay = mutableSetting.atMinutesSinceMidnight ?? 0;
 
   return (
     // We use a Popup to house an inline (always displayed) TimeInput because the TimeInput

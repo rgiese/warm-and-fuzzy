@@ -1,18 +1,15 @@
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
-import * as yup from "yup";
 import "source-map-support/register";
 
-import Authorizations from "../../../auth/Authorizations";
+import * as GraphQL from "../../../../generated/graphqlTypes";
+import * as yup from "yup";
 
-import Responses from "../../../shared/Responses";
-
-//
-// This API provides a cross-tenant DB import/export service.
-//
-// Even though it's a REST API, we'll use the GraphQL representations of our model types
-// whenever available since that's what our schemas are built to validate.
-//
-
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
+import {
+  Authorization,
+  SensorConfigurationSchema,
+  ThermostatConfigurationSchema,
+  ThermostatSettingsSchema,
+} from "@grumpycorp/warm-and-fuzzy-shared";
 import {
   DbMapper,
   DeviceTenancy,
@@ -21,18 +18,18 @@ import {
   ThermostatSettings,
 } from "../../../shared/db";
 
-import {
-  Authorization,
-  SensorConfigurationSchema,
-  ThermostatConfigurationSchema,
-  ThermostatSettingsSchema,
-} from "@grumpycorp/warm-and-fuzzy-shared";
-
-import * as GraphQL from "../../../../generated/graphqlTypes";
-
+import Authorizations from "../../../auth/Authorizations";
+import Responses from "../../../shared/Responses";
 import SensorConfigurationMapper from "../../../graphql/mappers/SensorConfigurationMapper";
 import ThermostatConfigurationMapper from "../../../graphql/mappers/ThermostatConfigurationMapper";
 import ThermostatSettingsMapper from "../../../graphql/mappers/ThermostatSettingsMapper";
+
+//
+// This API provides a cross-tenant DB import/export service.
+//
+// Even though it's a REST API, we'll use the GraphQL representations of our model types
+// whenever available since that's what our schemas are built to validate.
+//
 
 const deviceTenancySchema = yup.object().shape({
   id: yup.string().required(),
@@ -115,29 +112,21 @@ export const put: APIGatewayProxyHandler = async (event): Promise<APIGatewayProx
       return Responses.badRequest("Malformed body.");
     }
 
-    systemConfiguration.deviceTenancy.forEach(
-      async (item): Promise<void> => {
-        await deviceTenancySchema.validate(item);
-      }
-    );
+    systemConfiguration.deviceTenancy.forEach((item): void => {
+      deviceTenancySchema.validateSync(item);
+    });
 
-    systemConfiguration.sensorConfigurations.forEach(
-      async (item): Promise<void> => {
-        await SensorConfigurationSchema.Schema.validate(item);
-      }
-    );
+    systemConfiguration.sensorConfigurations.forEach((item): void => {
+      SensorConfigurationSchema.Schema.validateSync(item);
+    });
 
-    systemConfiguration.thermostatConfigurations.forEach(
-      async (item): Promise<void> => {
-        await ThermostatConfigurationSchema.Schema.validate(item);
-      }
-    );
+    systemConfiguration.thermostatConfigurations.forEach((item): void => {
+      ThermostatConfigurationSchema.Schema.validateSync(item);
+    });
 
-    systemConfiguration.thermostatSettings.forEach(
-      async (item): Promise<void> => {
-        await ThermostatSettingsSchema.Schema.validate(item);
-      }
-    );
+    systemConfiguration.thermostatSettings.forEach((item): void => {
+      ThermostatSettingsSchema.Schema.validateSync(item);
+    });
   }
 
   // Merge in provided configuration

@@ -37,7 +37,7 @@ export function firmwareFromModel(
     return Array.from(actions)
       .map(
         (a): Flatbuffers.Firmware.ThermostatAction =>
-          mapModelToFirmwareEnum.get(a) || throwUndefinedModelAction(a)
+          mapModelToFirmwareEnum.get(a) ?? throwUndefinedModelAction(a)
       )
       .reduce((accumulatedValue, currentValue) => accumulatedValue | currentValue);
   } else {
@@ -57,7 +57,7 @@ export function modelFromFirmware(
       .split("")
       .map(
         (c): GraphQL.ThermostatAction =>
-          mapFirmwareCharactersToModel.get(c) || throwUndefinedFirmwareAction(c)
+          mapFirmwareCharactersToModel.get(c) ?? throwUndefinedFirmwareAction(c)
       )
   );
 }

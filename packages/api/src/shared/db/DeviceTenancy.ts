@@ -9,11 +9,6 @@ import { attribute, hashKey, table } from "@aws/dynamodb-data-mapper-annotations
 
 @table("DeviceTenancy")
 export default class DeviceTenancy {
-  public constructor() {
-    this.id = "";
-    this.tenant = "";
-  }
-
   // Device ID (assigned by Particle)
   @hashKey()
   public id: string;
@@ -21,4 +16,9 @@ export default class DeviceTenancy {
   // Tenant (assigned by WarmAndFuzzy)
   @attribute()
   public tenant: string;
+
+  public constructor() {
+    this.id = "";
+    this.tenant = "";
+  }
 }

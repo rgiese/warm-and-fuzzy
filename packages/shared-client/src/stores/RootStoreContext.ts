@@ -2,9 +2,9 @@ import React, { useContext } from "react";
 
 import { RootStore } from "./RootStore";
 
-export type RootStoreContextType = {
+export interface RootStoreContextType {
   rootStore: RootStore;
-};
+}
 
 // TypeScript gymnastics so we don't need to make rootStore above "rootStore?"
 export const RootStoreContext = React.createContext<RootStoreContextType>({

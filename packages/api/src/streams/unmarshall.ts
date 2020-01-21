@@ -1,7 +1,7 @@
-import { AttributeValue } from "aws-lambda";
-
 import { DynamoDbSchema, StringToAnyObjectMap } from "@aws/dynamodb-data-mapper";
-import { unmarshallItem, ZeroArgumentsConstructor } from "@aws/dynamodb-data-marshaller";
+import { ZeroArgumentsConstructor, unmarshallItem } from "@aws/dynamodb-data-marshaller";
+
+import { AttributeValue } from "aws-lambda";
 
 export default function/* unmarshall */ <T extends StringToAnyObjectMap>(
   item: T,

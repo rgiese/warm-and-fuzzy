@@ -1,7 +1,7 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import { ThermostatValue } from "../../shared/db";
 
 import GraphQLModelMapper from "./GraphQLModelMapper";
+import { ThermostatValue } from "../../shared/db";
 
 //
 // Adapt GraphQL <-> Model (DB) conventions:

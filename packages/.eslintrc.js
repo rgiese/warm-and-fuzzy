@@ -3,7 +3,7 @@ module.exports = {
   parser: "@typescript-eslint/parser", // Specifies the ESLint parser
   plugins: ["react", "react-native"],
   extends: [
-    "plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
+    "plugin:@typescript-eslint/all", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
     "plugin:react/all",
     "plugin:react-native/all",
     "plugin:promise/recommended",
@@ -18,19 +18,15 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
     sourceType: "module", // Allows for the use of imports
+    project: "./tsconfig.json",
   },
   ignorePatterns: ["generated/"],
   rules: {
     // JavaScript
-    "sort-imports": [
-      "error",
-      {
-        ignoreCase: true,
-        ignoreDeclarationSort: true,
-      },
-    ],
+    "sort-imports": "error", // Use `sort-imports` VSCode extension to auto-fix
     // TypeScript
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-magic-numbers": "off", // More trouble than it's worth (e.g. returning -1/0/1 in comparison functions)
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -39,6 +35,27 @@ module.exports = {
         varsIgnorePattern: "^_",
       },
     ],
+    "@typescript-eslint/no-type-alias": [
+      "error",
+      {
+        allowAliases: "always",
+        allowCallbacks: "always",
+        allowConditionalTypes: "always", // ...because we are fancy
+        allowConstructors: "always", // ...because we are extra-fancy
+        allowLiterals: "in-intersections",
+      },
+    ],
+    "@typescript-eslint/restrict-template-expressions": [
+      "error",
+      {
+        allowNumber: true,
+        allowNullable: true,
+      },
+    ],
+    "@typescript-eslint/typedef": "off", // Prettier tends to remove trivially inferred ones
+    // TypeScript - temporary?
+    "@typescript-eslint/strict-boolean-expressions": "off", // Seems to work poorly with optional chaining
+    "@typescript-eslint/no-unnecessary-condition": "off", // Seems to work poorly with optional chaining
     // React - disable auto-formatting (leave it to prettier)
     "react/jsx-indent": "off",
     "react/jsx-indent-props": "off",
@@ -53,6 +70,7 @@ module.exports = {
     "react/jsx-wrap-multilines": "off",
     // React - TypeScript compatibility
     "react/jsx-filename-extension": "off", // Since we have .tsx files, obviously
+    "react/sort-comp": "off", // Use @typescript-eslint/member-ordering instead
     // React - other
     "react/destructuring-assignment": "off", // Doesn't actually improve readability
     "react/display-name": "off", // Generally not a problem, just for assorted short-hands where it doesn't matter

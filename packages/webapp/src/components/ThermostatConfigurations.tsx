@@ -18,7 +18,7 @@ const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "availableActions", label: "Available actions" },
 ];
 
-const ThermostatConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
+const ThermostatConfigs: React.FunctionComponent = (): React.ReactElement => {
   const rootStore = useRootStore();
 
   const canEdit = rootStore.authStore.userPermissions.includes(

@@ -1,13 +1,9 @@
-import gql from "graphql-tag";
-
-import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
-
 import { ApolloClient } from "../../services/ApolloClient";
-
-import { GraphqlStoreBase } from "../GraphqlStoreBase";
 import { AuthStore } from "../auth";
-
+import { GraphqlStoreBase } from "../GraphqlStoreBase";
 import { LatestThermostatValuesStoreQuery } from "../../generated/graphqlClient";
+import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+import gql from "graphql-tag";
 
 const latestThermostatValuesStoreDocument = gql`
   query LatestThermostatValuesStore {

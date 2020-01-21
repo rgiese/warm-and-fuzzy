@@ -30,7 +30,7 @@ const ThermostatSettingBean: React.FunctionComponent<{
   onAfterSave,
 }): React.ReactElement => {
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
-  const isDirty = isNewSetting || !fastCompare(mutableSetting, thermostatSetting);
+  const isDirty = isNewSetting ?? !fastCompare(mutableSetting, thermostatSetting);
 
   return (
     <Button.Group style={{ padding: 4 }}>

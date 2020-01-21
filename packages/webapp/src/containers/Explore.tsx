@@ -19,17 +19,16 @@ interface Props extends RouteComponentProps {
   explorePlotDataStore: ExplorePlotDataStore;
 }
 
-class State {}
-
 // eslint-disable-next-line react/require-optimization
 @observer
-class Explore extends React.Component<Props, State> {
-  public constructor(props: Props) {
-    super(props);
-    this.state = new State();
-  }
+class Explore extends React.Component<Props> {
+  public static contextType = RootStoreContext;
+  public context!: React.ContextType<typeof RootStoreContext>;
 
-  async componentDidMount(): Promise<void> {
+  private haveParsedURLParams = false;
+  private lastURLParams = "";
+
+  public componentDidMount(): void {
     // Parse URL params
     this.props.exploreStore.fromURLString(this.props.location.search);
 
@@ -44,7 +43,7 @@ class Explore extends React.Component<Props, State> {
     this.haveParsedURLParams = true;
   }
 
-  componentDidUpdate(): void {
+  public componentDidUpdate(): void {
     if (this.haveParsedURLParams) {
       // Update URL as needed
       const urlParamsString = this.props.exploreStore.toURLString();
@@ -58,26 +57,6 @@ class Explore extends React.Component<Props, State> {
       }
     }
   }
-
-  static contextType = RootStoreContext;
-  context!: React.ContextType<typeof RootStoreContext>;
-
-  private haveParsedURLParams = false;
-  private lastURLParams = "";
-
-  private handleSeriesInstanceAdded = (
-    _event: React.SyntheticEvent<HTMLElement>,
-    data: DropdownProps
-  ): void => {
-    const streamName = data.value as string; // see Dropdown key definition below
-
-    // Default the start date to the beginning of the period ending with today
-    const startDate = moment()
-      .subtract(viewSpanToDays(this.props.exploreStore.viewSpan) - 1, "days")
-      .format(SeriesInstanceDateFormat);
-
-    this.props.exploreStore.addSeriesInstance(streamName, startDate);
-  };
 
   public render(): React.ReactElement {
     const rootStore = this.context.rootStore;
@@ -149,14 +128,30 @@ class Explore extends React.Component<Props, State> {
       </StoreChecks>
     );
   }
+
+  private readonly handleSeriesInstanceAdded = (
+    _event: React.SyntheticEvent<HTMLElement>,
+    data: DropdownProps
+  ): void => {
+    const streamName = data.value as string; // see Dropdown key definition below
+
+    // Default the start date to the beginning of the period ending with today
+    const startDate = moment()
+      .subtract(viewSpanToDays(this.props.exploreStore.viewSpan) - 1, "days")
+      .format(SeriesInstanceDateFormat);
+
+    this.props.exploreStore.addSeriesInstance(streamName, startDate);
+  };
 }
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type,react/no-multi-comp */
 
 // https://github.com/facebook/react/issues/14061
-function withRouterWorkaround<P extends RouteComponentProps<any>>(Inner: React.ComponentType<P>) {
-  const Wrapped: React.FunctionComponent<P> = (props: P) => <Inner {...props} />;
-  Wrapped.displayName = `WithRouterWorkaround(${Inner.displayName || Inner.name || "?"})`;
+function withRouterWorkaround<TProps extends RouteComponentProps<any>>(
+  Inner: React.ComponentType<TProps>
+) {
+  const Wrapped: React.FunctionComponent<TProps> = (props: TProps) => <Inner {...props} />;
+  Wrapped.displayName = `WithRouterWorkaround(${Inner.displayName ?? (Inner.name || "?")})`;
   return withRouter(Wrapped);
 }
 

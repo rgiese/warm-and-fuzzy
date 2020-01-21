@@ -6,7 +6,7 @@
 //                          Robin Giese <robin@grumpycorp.com>
 //
 
-/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable @typescript-eslint/camelcase, @typescript-eslint/member-ordering */
 
 export namespace flatbuffers {
   export type Offset = number;
@@ -34,33 +34,33 @@ export namespace flatbuffers {
   ////////////////////////////////////////////////////////////////////////////////
 
   export class Long {
-    constructor(low: number, high: number) {
+    public constructor(low: number, high: number) {
       this.low = low | 0;
       this.high = high | 0;
     }
 
-    low: number;
-    high: number;
+    public low: number;
+    public high: number;
 
-    static create(low: number, high: number): Long {
+    public static create(low: number, high: number): Long {
       return low == 0 && high == 0 ? Long.ZERO : new Long(low, high);
     }
 
-    toFloat64(): number {
+    public toFloat64(): number {
       return (this.low >>> 0) + this.high * 0x100000000;
     }
 
-    equals(other: any): boolean {
+    public equals(other: Long): boolean {
       return this.low == other.low && this.high == other.high;
     }
 
-    static ZERO = new Long(0, 0);
+    public static ZERO: Long = new Long(0, 0);
   }
 
   ////////////////////////////////////////////////////////////////////////////////
 
   export class ByteBuffer {
-    constructor(bytes: Uint8Array) {
+    public constructor(bytes: Uint8Array) {
       this.bytes_ = bytes;
       this.position_ = 0;
     }
@@ -68,44 +68,44 @@ export namespace flatbuffers {
     private bytes_: Uint8Array;
     private position_: number;
 
-    static allocate(byte_size: number): ByteBuffer {
+    public static allocate(byte_size: number): ByteBuffer {
       return new ByteBuffer(new Uint8Array(byte_size));
     }
 
-    clear(): void {
+    public clear(): void {
       this.position_ = 0;
     }
 
-    bytes(): Uint8Array {
+    public bytes(): Uint8Array {
       return this.bytes_;
     }
 
-    position(): number {
+    public position(): number {
       return this.position_;
     }
 
-    setPosition(position: number): void {
+    public setPosition(position: number): void {
       this.position_ = position;
     }
 
-    capacity(): number {
+    public capacity(): number {
       return this.bytes_.length;
     }
 
-    readInt8(offset: number): number {
+    public readInt8(offset: number): number {
       return (this.readUint8(offset) << 24) >> 24;
     }
 
-    readUint8(offset: number): number {
+    public readUint8(offset: number): number {
       return this.bytes_[offset];
     }
-    readInt16(offset: number): number {
+    public readInt16(offset: number): number {
       return (this.readUint16(offset) << 16) >> 16;
     }
-    readUint16(offset: number): number {
+    public readUint16(offset: number): number {
       return this.bytes_[offset] | (this.bytes_[offset + 1] << 8);
     }
-    readInt32(offset: number): number {
+    public readInt32(offset: number): number {
       return (
         this.bytes_[offset] |
         (this.bytes_[offset + 1] << 8) |
@@ -113,70 +113,70 @@ export namespace flatbuffers {
         (this.bytes_[offset + 3] << 24)
       );
     }
-    readUint32(offset: number): number {
+    public readUint32(offset: number): number {
       return this.readInt32(offset) >>> 0;
     }
-    readInt64(offset: number): Long {
+    public readInt64(offset: number): Long {
       return new Long(this.readInt32(offset), this.readInt32(offset + 4));
     }
-    readUint64(offset: number): Long {
+    public readUint64(offset: number): Long {
       return new Long(this.readUint32(offset), this.readUint32(offset + 4));
     }
-    readFloat32(offset: number): number {
+    public readFloat32(offset: number): number {
       int32[0] = this.readInt32(offset);
       return float32[0];
     }
-    readFloat64(offset: number): number {
+    public readFloat64(offset: number): number {
       int32[isLittleEndian ? 0 : 1] = this.readInt32(offset);
       int32[isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
       return float64[0];
     }
 
-    writeInt8(offset: number, value: number): void {
+    public writeInt8(offset: number, value: number): void {
       this.bytes_[offset] = value;
     }
-    writeUint8(offset: number, value: number): void {
+    public writeUint8(offset: number, value: number): void {
       this.bytes_[offset] = value;
     }
-    writeInt16(offset: number, value: number): void {
-      this.bytes_[offset] = value;
-      this.bytes_[offset + 1] = value >> 8;
-    }
-    writeUint16(offset: number, value: number): void {
+    public writeInt16(offset: number, value: number): void {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
     }
-    writeInt32(offset: number, value: number): void {
+    public writeUint16(offset: number, value: number): void {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
-      this.bytes_[offset + 2] = value >> 16;
-      this.bytes_[offset + 3] = value >> 24;
     }
-    writeUint32(offset: number, value: number): void {
+    public writeInt32(offset: number, value: number): void {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
       this.bytes_[offset + 2] = value >> 16;
       this.bytes_[offset + 3] = value >> 24;
     }
-    writeInt64(offset: number, value: Long): void {
+    public writeUint32(offset: number, value: number): void {
+      this.bytes_[offset] = value;
+      this.bytes_[offset + 1] = value >> 8;
+      this.bytes_[offset + 2] = value >> 16;
+      this.bytes_[offset + 3] = value >> 24;
+    }
+    public writeInt64(offset: number, value: Long): void {
       this.writeInt32(offset, value.low);
       this.writeInt32(offset + 4, value.high);
     }
-    writeUint64(offset: number, value: Long): void {
+    public writeUint64(offset: number, value: Long): void {
       this.writeUint32(offset, value.low);
       this.writeUint32(offset + 4, value.high);
     }
-    writeFloat32(offset: number, value: number): void {
+    public writeFloat32(offset: number, value: number): void {
       float32[0] = value;
       this.writeInt32(offset, int32[0]);
     }
-    writeFloat64(offset: number, value: number): void {
+    public writeFloat64(offset: number, value: number): void {
       float64[0] = value;
       this.writeInt32(offset, int32[isLittleEndian ? 0 : 1]);
       this.writeInt32(offset + 4, int32[isLittleEndian ? 1 : 0]);
     }
 
-    getBufferIdentifier(): string {
+    public getBufferIdentifier(): string {
       if (this.bytes_.length < this.position_ + SIZEOF_INT + FILE_IDENTIFIER_LENGTH) {
         throw new Error("FlatBuffers: ByteBuffer is too short to contain an identifier.");
       }
@@ -191,7 +191,7 @@ export namespace flatbuffers {
      * Look up a field in the vtable, return an offset into the object, or 0 if the
      * field is not present.
      */
-    __offset(bb_pos: number, vtable_offset: number): number {
+    public __offset(bb_pos: number, vtable_offset: number): number {
       const vtable = bb_pos - this.readInt32(bb_pos);
       return vtable_offset < this.readInt16(vtable) ? this.readInt16(vtable + vtable_offset) : 0;
     }
@@ -199,7 +199,7 @@ export namespace flatbuffers {
     /**
      * Initialize any Table-derived type to point to the union at the given offset.
      */
-    __union<T extends Table>(t: T, offset: number): T {
+    public __union<T extends Table>(t: T, offset: number): T {
       t.bb_pos = offset + this.readInt32(offset);
       t.bb = this;
       return t;
@@ -216,7 +216,7 @@ export namespace flatbuffers {
      *
      * @param optionalEncoding Defaults to UTF16_STRING
      */
-    __string(offset: number, optionalEncoding?: Encoding): string | Uint8Array {
+    public __string(offset: number, optionalEncoding?: Encoding): string | Uint8Array {
       offset += this.readInt32(offset);
 
       const length = this.readInt32(offset);
@@ -269,27 +269,27 @@ export namespace flatbuffers {
     /**
      * Retrieve the relative offset stored at "offset"
      */
-    __indirect(offset: number): number {
+    public __indirect(offset: number): number {
       return offset + this.readInt32(offset);
     }
 
     /**
      * Get the start of data of a vector whose offset is stored at "offset" in this object.
      */
-    __vector(offset: number): number {
+    public __vector(offset: number): number {
       return offset + this.readInt32(offset) + SIZEOF_INT; // data starts after the length
     }
 
     /**
      * Get the length of a vector whose offset is stored at "offset" in this object.
      */
-    __vector_len(offset: number): number {
+    public __vector_len(offset: number): number {
       return this.readInt32(offset + this.readInt32(offset));
     }
 
-    __has_identifier(ident: string): boolean {
+    public __has_identifier(ident: string): boolean {
       if (ident.length != FILE_IDENTIFIER_LENGTH) {
-        throw new Error("FlatBuffers: file identifier must be length " + FILE_IDENTIFIER_LENGTH);
+        throw new Error(`FlatBuffers: file identifier must be length ${FILE_IDENTIFIER_LENGTH}`);
       }
       for (let i = 0; i < FILE_IDENTIFIER_LENGTH; i++) {
         if (ident.charCodeAt(i) != this.readInt8(this.position_ + SIZEOF_INT + i)) {
@@ -302,7 +302,7 @@ export namespace flatbuffers {
     /**
      * Convenience function for creating Long objects.
      */
-    createLong(low: number, high: number): Long {
+    public createLong(low: number, high: number): Long {
       return Long.create(low, high);
     }
   }
@@ -310,10 +310,8 @@ export namespace flatbuffers {
   ////////////////////////////////////////////////////////////////////////////////
 
   export class Builder {
-    constructor(initial_size?: number) {
-      if (!initial_size) {
-        initial_size = 1024;
-      }
+    public constructor(initial_size?: number) {
+      initial_size = initial_size ?? 1024;
 
       this.bb = ByteBuffer.allocate(initial_size);
       this.space = initial_size;
@@ -329,7 +327,7 @@ export namespace flatbuffers {
     private minalign = 1;
 
     // The vtable for the current table.
-    private vtable?: Array<number>;
+    private vtable?: number[];
 
     // The amount of fields we're actually using.
     private vtable_in_use = 0;
@@ -353,7 +351,7 @@ export namespace flatbuffers {
      * Reset all the state in this FlatBufferBuilder
      * so it can be reused to construct another buffer.
      */
-    clear(): void {
+    public clear(): void {
       this.bb.clear();
       this.space = this.bb.capacity();
       this.minalign = 1;
@@ -373,7 +371,7 @@ export namespace flatbuffers {
      *
      * @param forceDefaults true always serializes default values
      */
-    forceDefaults(forceDefaults: boolean): void {
+    public forceDefaults(forceDefaults: boolean): void {
       this.force_defaults = forceDefaults;
     }
 
@@ -382,7 +380,7 @@ export namespace flatbuffers {
      * called finish(). The actual data starts at the ByteBuffer's current position,
      * not necessarily at 0.
      */
-    dataBuffer(): ByteBuffer {
+    public dataBuffer(): ByteBuffer {
       return this.bb;
     }
 
@@ -391,7 +389,7 @@ export namespace flatbuffers {
      * called finish(). The actual data starts at the ByteBuffer's current position,
      * not necessarily at 0.
      */
-    asUint8Array(): Uint8Array {
+    public asUint8Array(): Uint8Array {
       return this.bb.bytes().subarray(this.bb.position(), this.bb.position() + this.offset());
     }
 
@@ -404,7 +402,7 @@ export namespace flatbuffers {
      * @param size This is the of the new element to write
      * @param additional_bytes The padding size
      */
-    prep(size: number, additional_bytes: number): void {
+    public prep(size: number, additional_bytes: number): void {
       // Track the biggest thing we've ever aligned to.
       if (size > this.minalign) {
         this.minalign = size;
@@ -424,95 +422,95 @@ export namespace flatbuffers {
       this.pad(align_size);
     }
 
-    pad(byte_size: number): void {
+    public pad(byte_size: number): void {
       for (let i = 0; i < byte_size; i++) {
         this.bb.writeInt8(--this.space, 0);
       }
     }
 
-    writeInt8(value: number): void {
+    public writeInt8(value: number): void {
       this.bb.writeInt8((this.space -= 1), value);
     }
 
-    writeInt16(value: number): void {
+    public writeInt16(value: number): void {
       this.bb.writeInt16((this.space -= 2), value);
     }
-    writeInt32(value: number): void {
+    public writeInt32(value: number): void {
       this.bb.writeInt32((this.space -= 4), value);
     }
-    writeInt64(value: Long): void {
+    public writeInt64(value: Long): void {
       this.bb.writeInt64((this.space -= 8), value);
     }
-    writeFloat32(value: number): void {
+    public writeFloat32(value: number): void {
       this.bb.writeFloat32((this.space -= 4), value);
     }
-    writeFloat64(value: number): void {
+    public writeFloat64(value: number): void {
       this.bb.writeFloat64((this.space -= 8), value);
     }
 
-    addInt8(value: number): void {
+    public addInt8(value: number): void {
       this.prep(1, 0);
       this.writeInt8(value);
     }
-    addInt16(value: number): void {
+    public addInt16(value: number): void {
       this.prep(2, 0);
       this.writeInt16(value);
     }
-    addInt32(value: number): void {
+    public addInt32(value: number): void {
       this.prep(4, 0);
       this.writeInt32(value);
     }
-    addInt64(value: Long): void {
+    public addInt64(value: Long): void {
       this.prep(8, 0);
       this.writeInt64(value);
     }
-    addFloat32(value: number): void {
+    public addFloat32(value: number): void {
       this.prep(4, 0);
       this.writeFloat32(value);
     }
-    addFloat64(value: number): void {
+    public addFloat64(value: number): void {
       this.prep(8, 0);
       this.writeFloat64(value);
     }
 
-    addFieldInt8(voffset: number, value: number, defaultValue: number): void {
+    public addFieldInt8(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addInt8(value);
         this.slot(voffset);
       }
     }
-    addFieldInt16(voffset: number, value: number, defaultValue: number): void {
+    public addFieldInt16(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addInt16(value);
         this.slot(voffset);
       }
     }
-    addFieldInt32(voffset: number, value: number, defaultValue: number): void {
+    public addFieldInt32(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addInt32(value);
         this.slot(voffset);
       }
     }
-    addFieldInt64(voffset: number, value: Long, defaultValue: Long): void {
+    public addFieldInt64(voffset: number, value: Long, defaultValue: Long): void {
       if (this.force_defaults || !value.equals(defaultValue)) {
         this.addInt64(value);
         this.slot(voffset);
       }
     }
-    addFieldFloat32(voffset: number, value: number, defaultValue: number): void {
+    public addFieldFloat32(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addFloat32(value);
         this.slot(voffset);
       }
     }
-    addFieldFloat64(voffset: number, value: number, defaultValue: number): void {
+    public addFieldFloat64(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addFloat64(value);
         this.slot(voffset);
       }
     }
 
-    addFieldOffset(voffset: number, value: Offset, defaultValue: Offset): void {
+    public addFieldOffset(voffset: number, value: Offset, defaultValue: Offset): void {
       if (this.force_defaults || value != defaultValue) {
         this.addOffset(value);
         this.slot(voffset);
@@ -522,7 +520,7 @@ export namespace flatbuffers {
     /**
      * Structs are stored inline, so nothing additional is being added. `d` is always 0.
      */
-    addFieldStruct(voffset: number, value: Offset, defaultValue: Offset): void {
+    public addFieldStruct(voffset: number, value: Offset, defaultValue: Offset): void {
       if (value != defaultValue) {
         this.nested(value);
         this.slot(voffset);
@@ -536,7 +534,7 @@ export namespace flatbuffers {
      *
      * @param obj The offset of the created object
      */
-    nested(obj: Offset): void {
+    public nested(obj: Offset): void {
       if (obj != this.offset()) {
         throw new Error("FlatBuffers: struct must be serialized inline.");
       }
@@ -546,7 +544,7 @@ export namespace flatbuffers {
      * Should not be creating any other object, string or vector
      * while an object is being constructed
      */
-    notNested(): void {
+    public notNested(): void {
       if (this.isNested) {
         throw new Error("FlatBuffers: object serialization must not be nested.");
       }
@@ -555,8 +553,8 @@ export namespace flatbuffers {
     /**
      * Set the current vtable at `voffset` to the current location in the buffer.
      */
-    slot(voffset: number): void {
-      if (!this.vtable) {
+    public slot(voffset: number): void {
+      if (this.vtable === undefined) {
         throw new Error("FlatBuffers: vtable not configured.");
       }
       this.vtable[voffset] = this.offset();
@@ -565,7 +563,7 @@ export namespace flatbuffers {
     /**
      * @returns Offset relative to the end of the buffer.
      */
-    offset(): Offset {
+    public offset(): Offset {
       return this.bb.capacity() - this.space;
     }
 
@@ -577,11 +575,11 @@ export namespace flatbuffers {
      * @returns A new byte buffer with the old data copied
      * to it. The data is located at the end of the buffer.
      */
-    static growByteBuffer(bb: ByteBuffer): ByteBuffer {
+    public static growByteBuffer(bb: ByteBuffer): ByteBuffer {
       const old_buf_size = bb.capacity();
 
       // Ensure we don't grow beyond what fits in an int.
-      if (old_buf_size & 0xc0000000) {
+      if ((old_buf_size & 0xc0000000) !== 0) {
         throw new Error("FlatBuffers: cannot grow buffer beyond 2 gigabytes.");
       }
 
@@ -597,7 +595,7 @@ export namespace flatbuffers {
      *
      * @param offset The offset to add
      */
-    addOffset(offset: Offset): void {
+    public addOffset(offset: Offset): void {
       this.prep(SIZEOF_INT, 0); // Ensure alignment is already done.
       this.writeInt32(this.offset() - offset + SIZEOF_INT);
     }
@@ -607,7 +605,7 @@ export namespace flatbuffers {
      * call this directly. The FlatBuffers compiler will generate helper methods
      * that call this method internally.
      */
-    startObject(numfields: number): void {
+    public startObject(numfields: number): void {
       this.notNested();
       if (this.vtable == null) {
         this.vtable = [];
@@ -625,7 +623,7 @@ export namespace flatbuffers {
      *
      * @returns The offset to the object inside `dataBuffer`
      */
-    endObject(): Offset {
+    public endObject(): Offset {
       if (this.vtable == null || !this.isNested) {
         throw new Error("FlatBuffers: endObject called without startObject");
       }
@@ -665,7 +663,7 @@ export namespace flatbuffers {
         }
       }
 
-      if (existing_vtable) {
+      if (existing_vtable > 0) {
         // Found a match:
         // Remove the current vtable.
         this.space = this.bb.capacity() - vtableloc;
@@ -685,12 +683,12 @@ export namespace flatbuffers {
       return vtableloc;
     }
 
-    finish(root_table: Offset, file_identifier?: string, opt_size_prefix?: boolean): void {
-      const size_prefix = opt_size_prefix ? SIZE_PREFIX_LENGTH : 0;
-      if (file_identifier) {
+    public finish(root_table: Offset, file_identifier?: string, opt_size_prefix?: boolean): void {
+      const size_prefix = opt_size_prefix !== undefined && opt_size_prefix ? SIZE_PREFIX_LENGTH : 0;
+      if (file_identifier !== undefined) {
         this.prep(this.minalign, SIZEOF_INT + FILE_IDENTIFIER_LENGTH + size_prefix);
         if (file_identifier.length != FILE_IDENTIFIER_LENGTH) {
-          throw new Error("FlatBuffers: file identifier must be length " + FILE_IDENTIFIER_LENGTH);
+          throw new Error(`FlatBuffers: file identifier must be length ${FILE_IDENTIFIER_LENGTH}`);
         }
         for (let i = FILE_IDENTIFIER_LENGTH - 1; i >= 0; i--) {
           this.writeInt8(file_identifier.charCodeAt(i));
@@ -698,13 +696,13 @@ export namespace flatbuffers {
       }
       this.prep(this.minalign, SIZEOF_INT + size_prefix);
       this.addOffset(root_table);
-      if (size_prefix) {
+      if (size_prefix > 0) {
         this.addInt32(this.bb.capacity() - this.space);
       }
       this.bb.setPosition(this.space);
     }
 
-    finishSizePrefixed(root_table: Offset, file_identifier?: string): void {
+    public finishSizePrefixed(root_table: Offset, file_identifier?: string): void {
       this.finish(root_table, file_identifier, true);
     }
 
@@ -712,14 +710,14 @@ export namespace flatbuffers {
      * This checks a required field has been set in a given table that has
      * just been constructed.
      */
-    requiredField(table: Offset, field: number): void {
+    public requiredField(table: Offset, field: number): void {
       const table_start = this.bb.capacity() - table;
       const vtable_start = table_start - this.bb.readInt32(table_start);
       const ok = this.bb.readInt16(vtable_start + field) != 0;
 
       // If this fails, the caller will show what field needs to be set.
       if (!ok) {
-        throw new Error("FlatBuffers: field " + field + " must be set");
+        throw new Error(`FlatBuffers: field ${field.toString()} must be set`);
       }
     }
 
@@ -732,7 +730,7 @@ export namespace flatbuffers {
      * @param num_elems The number of elements in the array
      * @param alignment The alignment of the array
      */
-    startVector(elem_size: number, num_elems: number, alignment: number): void {
+    public startVector(elem_size: number, num_elems: number, alignment: number): void {
       this.notNested();
       this.vector_num_elems = num_elems;
       this.prep(SIZEOF_INT, elem_size * num_elems);
@@ -746,7 +744,7 @@ export namespace flatbuffers {
      * @returns The offset at which the newly created array
      * starts.
      */
-    endVector(): Offset {
+    public endVector(): Offset {
       this.writeInt32(this.vector_num_elems);
       return this.offset();
     }
@@ -758,8 +756,8 @@ export namespace flatbuffers {
      * @param s The string to encode
      * @return The offset in the buffer where the encoded string starts
      */
-    createString(s: string | Uint8Array): Offset {
-      let utf8: Uint8Array | Array<number>;
+    public createString(s: string | Uint8Array): Offset {
+      let utf8: Uint8Array | number[];
 
       if (s instanceof Uint8Array) {
         utf8 = s;
@@ -810,8 +808,8 @@ export namespace flatbuffers {
     /**
      * Convenience function for creating Long objects.
      */
-    createLong(low: number, high: number): Long {
-      return flatbuffers.Long.create(low, high);
+    public createLong(low: number, high: number): Long {
+      return Long.create(low, high);
     }
   }
 }

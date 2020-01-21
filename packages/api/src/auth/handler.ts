@@ -1,30 +1,27 @@
+import * as JsonWebKeySet from "jwks-rsa";
+import * as JsonWebToken from "jsonwebtoken";
+
 import { CustomAuthorizerHandler, CustomAuthorizerResult } from "aws-lambda";
+import { PackPermissions, PackedAuthorizations } from "./PackedAuthorizations";
 
 import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
-import * as JsonWebToken from "jsonwebtoken";
-import * as JsonWebKeySet from "jwks-rsa";
+const jsonWebKeyClient = JsonWebKeySet({
+  jwksUri: `https://${AuthenticationConfiguration.Domain}/.well-known/jwks.json`,
+  strictSsl: true,
+  cache: true,
+});
 
-import { PackedAuthorizations, PackPermissions } from "./PackedAuthorizations";
+async function getSigningKey(kid: any): Promise<string> {
+  return new Promise((resolve, reject): void => {
+    jsonWebKeyClient.getSigningKey(kid, (err: any, key: any): void => {
+      if (err) {
+        reject(err);
+      }
 
-class Jwks {
-  private static jsonWebKeyClient = JsonWebKeySet({
-    jwksUri: `https://${AuthenticationConfiguration.Domain}/.well-known/jwks.json`,
-    strictSsl: true,
-    cache: true,
-  });
-
-  public static getSigningKey(kid: any): Promise<string> {
-    return new Promise((resolve, reject): void => {
-      Jwks.jsonWebKeyClient.getSigningKey(kid, (err: any, key: any): void => {
-        if (err) {
-          reject(err);
-        }
-
-        resolve(key.publicKey || key.rsaPublicKey);
-      });
+      resolve(key.publicKey || key.rsaPublicKey);
     });
-  }
+  });
 }
 
 export const authorize: CustomAuthorizerHandler = async (
@@ -33,28 +30,28 @@ export const authorize: CustomAuthorizerHandler = async (
   try {
     // Retrieve access token from request headers
     if (!event.authorizationToken) {
-      return Promise.reject("Unauthorized");
+      return await Promise.reject("Unauthorized");
     }
 
     const tokenParts = event.authorizationToken.split(" ");
     const bearerToken = tokenParts[1];
 
     if (!(tokenParts[0].toLowerCase() === "bearer" && bearerToken)) {
-      return Promise.reject("Unauthorized");
+      return await Promise.reject("Unauthorized");
     }
 
     // Decode access token to retrieve key id
     const decodedToken: any = JsonWebToken.decode(bearerToken, { complete: true });
 
     // Retrieve public key
-    const signingKey = await Jwks.getSigningKey(decodedToken.header.kid);
+    const signingKey = await getSigningKey(decodedToken.header.kid);
 
     // Verify access token
-    const verifiedToken = (await JsonWebToken.verify(bearerToken, signingKey, {
+    const verifiedToken = JsonWebToken.verify(bearerToken, signingKey, {
       audience: AuthenticationConfiguration.Audience,
       issuer: `https://${AuthenticationConfiguration.Domain}/`,
       algorithms: ["RS256"],
-    })) as any;
+    }) as any;
 
     // Extract custom information from token
     const customClaimIds = {
@@ -69,7 +66,7 @@ export const authorize: CustomAuthorizerHandler = async (
     };
 
     if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
-      return Promise.reject("Unauthorized");
+      return await Promise.reject("Unauthorized");
     }
 
     // Build policy
@@ -123,6 +120,6 @@ export const authorize: CustomAuthorizerHandler = async (
     return policy;
   } catch (err) {
     console.log(err);
-    return Promise.reject("Unauthorized");
+    return await Promise.reject("Unauthorized");
   }
 };

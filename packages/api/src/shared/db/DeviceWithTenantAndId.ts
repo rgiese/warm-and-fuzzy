@@ -8,11 +8,6 @@ import { hashKey, rangeKey } from "@aws/dynamodb-data-mapper-annotations";
 //
 
 export default class DeviceWithTenantAndId {
-  public constructor() {
-    this.tenant = "";
-    this.id = "";
-  }
-
   // Tenant (assigned by WarmAndFuzzy)
   @hashKey()
   public tenant: string;
@@ -20,4 +15,9 @@ export default class DeviceWithTenantAndId {
   // Device ID (assigned by Particle)
   @rangeKey()
   public id: string;
+
+  public constructor() {
+    this.tenant = "";
+    this.id = "";
+  }
 }

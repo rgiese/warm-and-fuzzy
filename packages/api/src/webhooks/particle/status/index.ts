@@ -1,11 +1,9 @@
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
-import moment from "moment";
 import "source-map-support/register";
 
-import Responses from "../../../shared/Responses";
 import * as ActionsAdapter from "../../../shared/firmware/actionsAdapter";
 import * as ThermostatConfigurationAdapter from "../../../shared/firmware/thermostatConfigurationAdapter";
 
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from "aws-lambda";
 import {
   DbMapper,
   DeviceTenancy,
@@ -18,8 +16,10 @@ import {
   ThermostatValue,
   ThermostatValueStream,
 } from "../../../shared/db";
-
 import { StatusEvent, StatusEventSchema } from "./statusEvent";
+
+import Responses from "../../../shared/Responses";
+import moment from "moment";
 
 //
 // Device tenancy cache

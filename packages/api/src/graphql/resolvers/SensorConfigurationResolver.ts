@@ -1,9 +1,10 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import MappedResolver from "./MappedResolver";
 
-import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { SensorConfiguration, ZeroArgumentsConstructor } from "../../shared/db";
+
+import MappedResolver from "./MappedResolver";
 import SensorConfigurationMapper from "../mappers/SensorConfigurationMapper";
+import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 const sensorConfigurationModelConstructor: ZeroArgumentsConstructor<SensorConfiguration> = SensorConfiguration;
 

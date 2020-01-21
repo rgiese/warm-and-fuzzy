@@ -8,7 +8,7 @@ import React from "react";
 import { observer } from "mobx-react";
 import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const Header: React.FunctionComponent<{}> = (): React.ReactElement => {
+const Header: React.FunctionComponent = (): React.ReactElement => {
   const authStore = useRootStore().authStore;
 
   const menuBackgroundColor = "white";
@@ -21,7 +21,7 @@ const Header: React.FunctionComponent<{}> = (): React.ReactElement => {
         <GrumpyBird style={{ width: "1.5rem", height: "1.5rem" }} />
       </Menu.Item>
       <Menu.Item as={NavLink} exact to="/">
-        {authStore.tenant || ""} Home
+        {authStore.tenant ?? ""} Home
       </Menu.Item>
       {authStore.userPermissions.includes(Authorization.Permissions.ReadSettings) && (
         <Menu.Item as={NavLink} content="Thermostat Settings" to="/settings" />
@@ -49,7 +49,7 @@ const Header: React.FunctionComponent<{}> = (): React.ReactElement => {
             onClick={async (): Promise<void> => authStore.authProvider.requestLogout()}
           >
             {" "}
-            Log out {authStore.userName?.split(" ")[0] || ""}
+            Log out {authStore.userName?.split(" ")[0] ?? ""}
           </Menu.Item>
         )}
       </Menu.Menu>

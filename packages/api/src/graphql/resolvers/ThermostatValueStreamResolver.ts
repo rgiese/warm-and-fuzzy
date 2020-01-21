@@ -1,9 +1,9 @@
-import { between } from "@aws/dynamodb-expressions";
-import { DbMapper, ThermostatValueStream } from "../../shared/db";
-
 import * as GraphQL from "../../../generated/graphqlTypes";
 
+import { DbMapper, ThermostatValueStream } from "../../shared/db";
+
 import ThermostatValueStreamMapper from "../mappers/ThermostatValueStreamMapper";
+import { between } from "@aws/dynamodb-expressions";
 
 class ThermostatValueStreamResolver {
   public async getAllWithCondition(
@@ -13,8 +13,8 @@ class ThermostatValueStreamResolver {
     const thermostatValueStreamMapper = new ThermostatValueStreamMapper(args.streamName);
     const items = new Array<GraphQL.ThermostatValueStream>();
 
-    const fromDate = args.fromDate || new Date(0 /* beginning of time */);
-    const toDate = args.toDate || new Date(/* now */);
+    const fromDate = args.fromDate ?? new Date(0 /* beginning of time */);
+    const toDate = args.toDate ?? new Date(/* now */);
 
     for await (const modelItem of DbMapper.query(ThermostatValueStream, {
       stream: ThermostatValueStream.getStreamKey(tenant, args.streamName),

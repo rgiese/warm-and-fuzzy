@@ -1,11 +1,9 @@
-import React from "react";
 import { Dropdown, DropdownItemProps, DropdownProps } from "semantic-ui-react";
 
-import moment from "moment";
-
-import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import InteriorPadding from "./InteriorPadding";
+import React from "react";
+import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import moment from "moment";
 
 const HoldUntilPopup: React.FunctionComponent<{
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
@@ -13,7 +11,7 @@ const HoldUntilPopup: React.FunctionComponent<{
     React.SetStateAction<ThermostatSettingsHelpers.IndexedThermostatSetting>
   >;
 }> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
-  const holdUntil = mutableSetting.holdUntil || new Date(0);
+  const holdUntil = mutableSetting.holdUntil ?? new Date(0);
 
   const limitsDropdownOptions: DropdownItemProps[] = [
     {

@@ -1,7 +1,7 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import { ThermostatValueStream } from "../../shared/db";
 
 import GraphQLModelMapper from "./GraphQLModelMapper";
+import { ThermostatValueStream } from "../../shared/db";
 
 //
 // Adapt GraphQL <-> Model (DB) conventions:
@@ -16,6 +16,8 @@ class LatestThermostatValueMapper
       GraphQL.ThermostatValueStream,
       ThermostatValueStream
     > {
+  private readonly streamName: string;
+
   public constructor(streamName: string) {
     this.streamName = streamName;
   }
@@ -39,8 +41,6 @@ class LatestThermostatValueMapper
   ): ThermostatValueStream {
     throw new Error("Not supported");
   }
-
-  private streamName: string;
 }
 
 export default LatestThermostatValueMapper;

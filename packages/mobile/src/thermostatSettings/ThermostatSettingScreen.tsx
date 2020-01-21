@@ -82,7 +82,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   const theme = useContext(ThemeContext).theme;
 
   const thermostatSetting =
-    navigation.state.params?.thermostatSetting ||
+    navigation.state.params?.thermostatSetting ??
     ({} as ThermostatSettingsHelpers.IndexedThermostatSetting);
 
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
@@ -167,7 +167,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             >
               <Picker.Item
                 label={capitalizeString(
-                  ThermostatSettingsHelpers.FormatHoldUntil(mutableSetting.holdUntil || new Date())
+                  ThermostatSettingsHelpers.FormatHoldUntil(mutableSetting.holdUntil ?? new Date())
                 )}
                 value={mutableSetting.holdUntil?.valueOf()}
               />
@@ -205,7 +205,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               >
                 At{" "}
                 {ThermostatSettingsHelpers.FormatMinutesSinceMidnight(
-                  mutableSetting.atMinutesSinceMidnight || 0
+                  mutableSetting.atMinutesSinceMidnight ?? 0
                 )}
               </Button>
               {isShowingTimePicker && (
@@ -220,8 +220,8 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
                       2000,
                       1,
                       1,
-                      Math.floor((mutableSetting.atMinutesSinceMidnight || 0) / 60),
-                      Math.round((mutableSetting.atMinutesSinceMidnight || 0) % 60)
+                      Math.floor((mutableSetting.atMinutesSinceMidnight ?? 0) / 60),
+                      Math.round((mutableSetting.atMinutesSinceMidnight ?? 0) % 60)
                     )
                   }
                 />
@@ -323,9 +323,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             <Button
               color={ColorCodes[GraphQL.ThermostatAction.Heat]}
               mode="outlined"
-              onPress={async (): Promise<void> => {
-                navigation.goBack();
-              }}
+              onPress={(): boolean => navigation.goBack()}
             >
               Cancel
             </Button>
@@ -379,7 +377,7 @@ ThermostatSettingScreen.navigationOptions = ({ navigation }) => {
   const thermostatSetting = navigation.state.params?.thermostatSetting;
 
   return {
-    title: `${thermostatSetting?.type || ""} setting`,
+    title: `${thermostatSetting?.type ?? ""} setting`,
   };
 };
 

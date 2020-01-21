@@ -1,12 +1,10 @@
 import React from "react";
-import { observer } from "mobx-react";
-
-import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
-
 import StoreChecks from "../components/StoreChecks";
 import ThermostatSettings from "../components/ThermostatSettings";
+import { observer } from "mobx-react";
+import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const ThermostatSettingsContainer: React.FunctionComponent<{}> = (): React.ReactElement => {
+const ThermostatSettingsContainer: React.FunctionComponent = (): React.ReactElement => {
   const rootStore = useRootStore();
 
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
@@ -20,7 +18,7 @@ const ThermostatSettingsContainer: React.FunctionComponent<{}> = (): React.React
       return rhsConfiguration ? -1 : 0;
     }
 
-    return lhsConfiguration.name.localeCompare(rhsConfiguration?.name || "");
+    return lhsConfiguration.name.localeCompare(rhsConfiguration?.name ?? "");
   });
 
   return (

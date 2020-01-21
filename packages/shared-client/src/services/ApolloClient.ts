@@ -1,10 +1,10 @@
-import { ApolloClient as ApolloClientBase } from "apollo-client";
 import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
-import { createHttpLink } from "apollo-link-http";
-import { setContext } from "apollo-link-context";
-import { reaction } from "mobx";
 
+import { ApolloClient as ApolloClientBase } from "apollo-client";
 import { AuthStore } from "../stores/auth";
+import { createHttpLink } from "apollo-link-http";
+import { reaction } from "mobx";
+import { setContext } from "apollo-link-context";
 
 export class ApolloClient extends ApolloClientBase<NormalizedCacheObject> {
   public constructor(authStore: AuthStore, apiGatewayUrl: string) {
@@ -14,7 +14,10 @@ export class ApolloClient extends ApolloClientBase<NormalizedCacheObject> {
       return {
         headers: {
           ...headers,
-          authorization: authStore.isUserAuthenticated ? `Bearer ${authStore.accessToken}` : "",
+          authorization:
+            authStore.isUserAuthenticated && authStore.accessToken
+              ? `Bearer ${authStore.accessToken}`
+              : "",
         },
       };
     });
@@ -25,6 +28,7 @@ export class ApolloClient extends ApolloClientBase<NormalizedCacheObject> {
       () => authStore.isUserAuthenticated,
       isUserAuthenticated => {
         if (!isUserAuthenticated) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.clearStore();
         }
       }

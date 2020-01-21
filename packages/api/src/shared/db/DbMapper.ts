@@ -1,8 +1,9 @@
-import { DynamoDB } from "aws-sdk";
 import {
   DataMapperConfiguration,
   DataMapper as DynamoDBDataMapper,
 } from "@aws/dynamodb-data-mapper";
+
+import { DynamoDB } from "aws-sdk";
 
 export interface ObjectWithId {
   id: string;
@@ -13,18 +14,16 @@ export interface ObjectWithIdAndTenant {
   id: string;
 }
 
-export interface ZeroArgumentsConstructor<T> {
-  new (): T;
-}
+export type ZeroArgumentsConstructor<T> = new () => T;
 
 class DataMapper extends DynamoDBDataMapper {
   public constructor(configuration: DataMapperConfiguration) {
     super(configuration);
   }
 
-  public async getOne<T, K extends ObjectWithId | ObjectWithIdAndTenant>(
+  public async getOne<T, TCondition extends ObjectWithId | ObjectWithIdAndTenant>(
     newItem: T,
-    condition: K
+    condition: TCondition
   ): Promise<T> {
     const item = await this.get<T>(Object.assign(newItem, condition));
 
@@ -33,7 +32,7 @@ class DataMapper extends DynamoDBDataMapper {
 
   public async getBatch<T extends ObjectWithId | ObjectWithIdAndTenant>(
     conditions: T[]
-  ): Promise<Array<T>> {
+  ): Promise<T[]> {
     const items = new Array<T>();
 
     for await (const item of this.batchGet(conditions)) {

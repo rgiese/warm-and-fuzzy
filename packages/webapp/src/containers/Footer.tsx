@@ -2,7 +2,7 @@ import { Grid, Icon, Menu } from "semantic-ui-react";
 
 import React from "react";
 
-const Footer: React.FunctionComponent<{}> = (): React.ReactElement => (
+const Footer: React.FunctionComponent = (): React.ReactElement => (
   <Menu color="grey" fixed="bottom" inverted>
     <Menu.Item style={{ width: "100%" }}>
       <Grid columns="equal" divided style={{ width: "100%" }} textAlign="center">

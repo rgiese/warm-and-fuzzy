@@ -1,7 +1,7 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import { ThermostatSetting } from "../../shared/db";
 
 import GraphQLModelMapper from "./GraphQLModelMapper";
+import { ThermostatSetting } from "../../shared/db";
 
 //
 // Adapt GraphQL <-> Model (DB) conventions:
@@ -35,7 +35,7 @@ class ThermostatSettingMapper
     return Object.assign(new ThermostatSetting(), {
       tenant,
       ...remainder,
-      atMinutesSinceMidnight: atMinutesSinceMidnight || undefined,
+      atMinutesSinceMidnight: atMinutesSinceMidnight ?? undefined,
       daysOfWeek: daysOfWeek?.length ? new Set(daysOfWeek) : undefined,
       allowedActions: allowedActions.length > 0 ? new Set(allowedActions) : undefined,
     });

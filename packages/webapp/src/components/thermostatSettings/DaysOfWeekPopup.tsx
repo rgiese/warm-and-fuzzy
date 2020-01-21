@@ -17,7 +17,7 @@ const DaysOfWeekPopup: React.FunctionComponent<{
       position="top center"
       trigger={
         <Button
-          content={ThermostatSettingsHelpers.FormatDaysOfWeekList(mutableSetting.daysOfWeek || [])}
+          content={ThermostatSettingsHelpers.FormatDaysOfWeekList(mutableSetting.daysOfWeek ?? [])}
           style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 4 }}
         />
       }

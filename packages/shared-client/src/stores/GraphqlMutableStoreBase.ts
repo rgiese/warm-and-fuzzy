@@ -1,10 +1,3 @@
-import { flow } from "mobx";
-import { FetchResult } from "apollo-link";
-import { DocumentNode } from "graphql";
-
-import { ApolloClient } from "../services/ApolloClient";
-import { AuthStore } from "./auth";
-
 import {
   GraphqlStoreBase,
   GraphqlStoreItem,
@@ -12,9 +5,18 @@ import {
   QueryResultDataItemPatcher,
 } from "./GraphqlStoreBase";
 
-export interface MutationVariablesBuilder<T extends GraphqlStoreItem, TMutationVariables> {
-  (item: T): TMutationVariables;
-}
+import { ApolloClient } from "../services/ApolloClient";
+import { AuthStore } from "./auth";
+import { DocumentNode } from "graphql";
+import { FetchResult } from "apollo-link";
+import { flow } from "mobx";
+
+/* Member ordering gets too weird with annotations, generators, etc. */
+/* eslint-disable @typescript-eslint/member-ordering */
+
+export type MutationVariablesBuilder<T extends GraphqlStoreItem, TMutationVariables> = (
+  item: T
+) => TMutationVariables;
 
 export class GraphqlMutableStoreBase<
   T extends GraphqlStoreItem,
@@ -22,8 +24,8 @@ export class GraphqlMutableStoreBase<
   TMutation,
   TMutationVariables
 > extends GraphqlStoreBase<T, TQuery> {
-  private mutationDocument: DocumentNode;
-  private mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>;
+  private readonly mutationDocument: DocumentNode;
+  private readonly mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>;
 
   public constructor(
     name: string,
@@ -48,7 +50,7 @@ export class GraphqlMutableStoreBase<
     this.mutationVariablesBuilder = mutationVariablesBuilder;
   }
 
-  updateItem = flow(function*(
+  public updateItem = flow(function*(
     this: GraphqlMutableStoreBase<T, TQuery, TMutation, TMutationVariables>,
     item: T
   ) {

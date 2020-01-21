@@ -14,6 +14,6 @@ export function viewSpanToDays(viewSpan: ViewSpan): number {
     case ViewSpan.Week:
       return 7;
     default:
-      throw new Error(`Unexpected ViewSpan ${viewSpan}`);
+      throw new Error("Unexpected ViewSpan");
   }
 }

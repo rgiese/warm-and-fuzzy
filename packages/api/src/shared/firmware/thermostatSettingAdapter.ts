@@ -1,12 +1,11 @@
-import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import * as GraphQL from "../../../generated/graphqlTypes";
-
-import { ThermostatSetting } from "../db";
-
 import * as ActionsAdapter from "./actionsAdapter";
 import * as DaysOfWeekAdapter from "./daysOfWeekAdapter";
+import * as GraphQL from "../../../generated/graphqlTypes";
 import * as TemperatureAdapter from "./temperatureAdapter";
+
+import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
+
+import { ThermostatSetting } from "../db";
 
 function thermostatSettingType(
   thermostatSetting: ThermostatSetting
@@ -19,7 +18,7 @@ function thermostatSettingType(
     return Flatbuffers.Firmware.ThermostatSettingType.Scheduled;
   }
 
-  throw new Error(`Unexpected thermostat setting type ${thermostatSetting.type}`);
+  throw new Error("Unexpected thermostat setting type");
 }
 
 export function createThermostatSetting(
@@ -28,7 +27,7 @@ export function createThermostatSetting(
 ): void {
   const holdUntil =
     thermostatSetting.type === GraphQL.ThermostatSettingType.Hold
-      ? (thermostatSetting.holdUntil?.valueOf() || 0) / 1000
+      ? (thermostatSetting.holdUntil?.valueOf() ?? 0) / 1000
       : 0;
 
   Flatbuffers.Firmware.ThermostatSetting.createThermostatSetting(
@@ -41,6 +40,6 @@ export function createThermostatSetting(
     holdUntil,
     DaysOfWeekAdapter.firmwareFromModel(thermostatSetting.daysOfWeek),
     0,
-    thermostatSetting.atMinutesSinceMidnight || 0
+    thermostatSetting.atMinutesSinceMidnight ?? 0
   );
 }

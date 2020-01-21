@@ -1,17 +1,14 @@
-import gql from "graphql-tag";
-
-import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import { ApolloClient } from "../../services/ApolloClient";
-
-import { GraphqlMutableStoreBase } from "../GraphqlMutableStoreBase";
-import { AuthStore } from "../auth";
-
 import {
   SensorConfigurationsStoreQuery,
   UpdateSensorConfigurationStoreMutation,
   UpdateSensorConfigurationStoreMutationVariables,
 } from "../../generated/graphqlClient";
+
+import { ApolloClient } from "../../services/ApolloClient";
+import { AuthStore } from "../auth";
+import { GraphqlMutableStoreBase } from "../GraphqlMutableStoreBase";
+import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
+import gql from "graphql-tag";
 
 const sensorConfigurationFragments = gql`
   fragment SensorConfigurationStoreFields on SensorConfiguration {

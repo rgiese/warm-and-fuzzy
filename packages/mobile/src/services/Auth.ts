@@ -1,8 +1,8 @@
-import Auth0 from "react-native-auth0";
 import * as Keychain from "react-native-keychain";
 
-import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
+import Auth0 from "react-native-auth0";
 import { AuthStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
 interface AuthResult {
   accessToken: string;
@@ -25,7 +25,7 @@ const KeychainTokenSeparator = ",";
 //
 
 export default class Auth {
-  private auth0 = new Auth0({
+  private readonly auth0 = new Auth0({
     domain: AuthenticationConfiguration.Domain,
     clientId: AuthenticationConfiguration.ClientId,
   });
@@ -81,6 +81,8 @@ export default class Auth {
     return false;
   }
 
+  // ...because of interface definition...
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async completeLogin(): Promise<boolean> {
     // No-op
     return false;

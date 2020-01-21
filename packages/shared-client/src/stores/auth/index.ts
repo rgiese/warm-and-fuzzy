@@ -1,33 +1,32 @@
 import { action, computed, observable } from "mobx";
-import JwtDecode from "jwt-decode";
-
-import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 
 import { AuthProvider } from "./AuthProvider";
+import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
+import JwtDecode from "jwt-decode";
 
 type AuthStoreState = "initializing" | "authenticating" | "unauthenticated" | "authenticated";
 
 export class AuthStore {
-  @observable state: AuthStoreState;
+  @observable public state: AuthStoreState;
 
-  @observable accessToken?: string = undefined;
-  @observable tenant?: string = undefined;
-  @observable userName?: string = undefined;
-  @observable userEmail?: string = undefined;
-  readonly userPermissions = observable.array<string>([]);
+  @observable public accessToken?: string = undefined;
+  @observable public tenant?: string = undefined;
+  @observable public userName?: string = undefined;
+  @observable public userEmail?: string = undefined;
+  public readonly userPermissions = observable.array<string>([]);
 
-  authProvider: AuthProvider;
+  public authProvider: AuthProvider;
 
   public constructor(authProvider: AuthProvider, initialState: AuthStoreState = "unauthenticated") {
     this.state = initialState;
     this.authProvider = authProvider;
   }
 
-  @computed get isUserAuthenticated(): boolean {
+  @computed public get isUserAuthenticated(): boolean {
     return this.state === "authenticated";
   }
 
-  @action onUserLoggingIn(): void {
+  @action public onUserLoggingIn(): void {
     this.state = "authenticating";
   }
 
@@ -37,8 +36,8 @@ export class AuthStore {
 
     this.accessToken = accessToken;
 
-    const decodedAccessToken = JwtDecode(accessToken) as any;
-    const decodedIdToken = JwtDecode(idToken) as any;
+    const decodedAccessToken = JwtDecode<any>(accessToken);
+    const decodedIdToken = JwtDecode<any>(idToken);
 
     this.tenant =
       decodedAccessToken[

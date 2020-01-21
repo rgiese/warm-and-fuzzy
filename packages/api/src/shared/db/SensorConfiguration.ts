@@ -11,13 +11,6 @@ import DeviceWithTenantAndId from "./DeviceWithTenantAndId";
 
 @table("SensorConfiguration")
 export default class SensorConfiguration extends DeviceWithTenantAndId {
-  public constructor() {
-    super();
-
-    this.name = "";
-    this.streamName = "";
-  }
-
   // User-facing name
   @attribute()
   public name: string;
@@ -25,4 +18,11 @@ export default class SensorConfiguration extends DeviceWithTenantAndId {
   // Stream (historical data) name
   @attribute()
   public streamName: string;
+
+  public constructor() {
+    super();
+
+    this.name = "";
+    this.streamName = "";
+  }
 }

@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Form, InputOnChangeData } from "semantic-ui-react";
-import { ValidationError } from "yup";
+import * as EditFormTools from "./EditFormTools";
 
-import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import { Form, InputOnChangeData } from "semantic-ui-react";
+import React, { useState } from "react";
 import { SensorConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import EditFormModal from "./EditFormModal";
-import * as EditFormTools from "./EditFormTools";
+import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import { ValidationError } from "yup";
 
 const SensorConfigurationModal: React.FunctionComponent<{
   values: SensorConfiguration;

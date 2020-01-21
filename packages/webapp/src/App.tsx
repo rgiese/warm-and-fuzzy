@@ -1,34 +1,27 @@
-import React from "react";
-import { Route, Router, Switch } from "react-router-dom";
-import { Container } from "semantic-ui-react";
-
-import { configure as MobxConfigure } from "mobx";
-
 import {
   ApolloClient,
   AuthStore,
   RootStore,
   RootStoreContext,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import { Route, Router, Switch } from "react-router-dom";
 
 import Auth from "./services/Auth";
-import History from "./services/History";
-
-import AuthenticatedRoute from "./components/AuthenticatedRoute";
-
 import AuthCallback from "./containers/AuthCallback";
+import AuthenticatedRoute from "./components/AuthenticatedRoute";
 import Configuration from "./containers/Configuration";
+import { Container } from "semantic-ui-react";
 import Explore from "./containers/Explore";
-import Home from "./containers/Home";
-import NotFound from "./containers/NotFound";
-import ThermostatSettings from "./containers/ThermostatSettings";
-
-import Header from "./containers/Header";
-import Footer from "./containers/Footer";
-
-import ExploreStore from "./stores/explore";
 import ExplorePlotDataStore from "./stores/explore-plot-data";
-
+import ExploreStore from "./stores/explore";
+import Footer from "./containers/Footer";
+import Header from "./containers/Header";
+import History from "./services/History";
+import Home from "./containers/Home";
+import { configure as MobxConfigure } from "mobx";
+import NotFound from "./containers/NotFound";
+import React from "react";
+import ThermostatSettings from "./containers/ThermostatSettings";
 import config from "./config";
 
 // App-wide MobX configuration
@@ -45,7 +38,7 @@ const rootStore = new RootStore(authStore, apolloClient);
 const exploreStore = new ExploreStore(rootStore); // for the top-level Explore page
 const explorePlotDataStore = new ExplorePlotDataStore(exploreStore, apolloClient);
 
-const App: React.FunctionComponent<{}> = (): React.ReactElement => {
+const App: React.FunctionComponent = (): React.ReactElement => {
   // Documentation for Router:
   // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
   return (

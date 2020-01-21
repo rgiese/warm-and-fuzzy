@@ -3,10 +3,10 @@ import { action, computed, observable } from "mobx";
 export type StoreState = "fetching" | "updating" | "ready" | "error";
 
 export class StoreBase {
-  readonly name: string;
+  public readonly name: string;
 
-  lastUpdated: Date = new Date();
-  error?: string;
+  public lastUpdated: Date = new Date();
+  public error?: string;
 
   @observable private state: StoreState = "ready";
 
@@ -14,7 +14,7 @@ export class StoreBase {
     this.name = name;
   }
 
-  @action setState(state: StoreState): void {
+  @action public setState(state: StoreState): void {
     //console.log(`${this.name}: ${this.state} -> ${state}`);
     this.state = state;
 
@@ -23,24 +23,24 @@ export class StoreBase {
     }
   }
 
-  setError(error: string): void {
+  public setError(error: string): void {
     this.error = error;
     this.setState("error");
   }
 
-  @computed get isReady(): boolean {
+  @computed public get isReady(): boolean {
     return this.state === "ready";
   }
 
-  @computed get isUpdating(): boolean {
+  @computed public get isUpdating(): boolean {
     return this.state === "updating";
   }
 
-  @computed get hasErrors(): boolean {
+  @computed public get hasErrors(): boolean {
     return this.state === "error";
   }
 
-  @computed get isWorking(): boolean {
+  @computed public get isWorking(): boolean {
     return !this.isReady && !this.hasErrors;
   }
 }

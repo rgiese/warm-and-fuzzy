@@ -48,18 +48,12 @@ const Plot: React.FunctionComponent<{
         const id =
           seriesInstanceProps.seriesIdentifier.name + ` (${seriesInstanceProps.startDate})`;
 
-        plotMin =
-          dataSeriesInstance && dataSeriesInstance.min
-            ? Math.min(plotMin, dataSeriesInstance.min)
-            : plotMin;
-        plotMax =
-          dataSeriesInstance && dataSeriesInstance.max
-            ? Math.max(plotMax, dataSeriesInstance.max)
-            : plotMax;
+        plotMin = dataSeriesInstance?.min ? Math.min(plotMin, dataSeriesInstance.min) : plotMin;
+        plotMax = dataSeriesInstance?.max ? Math.max(plotMax, dataSeriesInstance.max) : plotMax;
 
         return {
           id,
-          data: dataSeriesInstance && dataSeriesInstance.data ? dataSeriesInstance.data : [],
+          data: dataSeriesInstance?.data ? dataSeriesInstance.data : [],
         };
       }
     );

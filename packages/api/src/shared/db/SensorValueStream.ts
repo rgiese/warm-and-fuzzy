@@ -9,19 +9,6 @@ import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-a
 
 @table("ValueStreams")
 export default class SensorValueStream {
-  public constructor() {
-    this.stream = "";
-    this.ts = 0;
-
-    this.publishedTime = new Date();
-    this.deviceLocalSerial = 0;
-    this.temperature = 0.0;
-  }
-
-  public static getStreamKey(tenant: string, streamName: string): string {
-    return `${tenant}#S#${streamName}`;
-  }
-
   // Stream name (assigned by WarmAndFuzzy)
   @hashKey()
   public stream: string;
@@ -41,4 +28,17 @@ export default class SensorValueStream {
   // Units: Celsius
   @attribute()
   public temperature: number;
+
+  public constructor() {
+    this.stream = "";
+    this.ts = 0;
+
+    this.publishedTime = new Date();
+    this.deviceLocalSerial = 0;
+    this.temperature = 0.0;
+  }
+
+  public static getStreamKey(tenant: string, streamName: string): string {
+    return `${tenant}#S#${streamName}`;
+  }
 }

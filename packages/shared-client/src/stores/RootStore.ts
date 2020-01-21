@@ -1,5 +1,4 @@
 import { ApolloClient } from "../services/ApolloClient";
-
 import { AuthStore } from "./auth";
 import { LatestSensorValuesStore } from "./latestSensorValues";
 import { LatestThermostatValuesStore } from "./latestThermostatValues";
@@ -8,12 +7,12 @@ import { ThermostatConfigurationStore } from "./thermostatConfiguration";
 import { ThermostatSettingsStore } from "./thermostatSettings";
 
 export class RootStore {
-  readonly authStore: AuthStore;
-  readonly latestSensorValuesStore: LatestSensorValuesStore;
-  readonly latestThermostatValuesStore: LatestThermostatValuesStore;
-  readonly sensorConfigurationStore: SensorConfigurationStore;
-  readonly thermostatConfigurationStore: ThermostatConfigurationStore;
-  readonly thermostatSettingsStore: ThermostatSettingsStore;
+  public readonly authStore: AuthStore;
+  public readonly latestSensorValuesStore: LatestSensorValuesStore;
+  public readonly latestThermostatValuesStore: LatestThermostatValuesStore;
+  public readonly sensorConfigurationStore: SensorConfigurationStore;
+  public readonly thermostatConfigurationStore: ThermostatConfigurationStore;
+  public readonly thermostatSettingsStore: ThermostatSettingsStore;
 
   public constructor(authStore: AuthStore, apolloClient: ApolloClient) {
     this.authStore = authStore;

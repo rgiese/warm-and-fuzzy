@@ -1,9 +1,3 @@
-import moment from "moment";
-import fastCompare from "react-fast-compare";
-import cloneDeep from "clone-deep";
-
-import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-
 import * as GraphQL from "./generated/graphqlClient";
 
 import {
@@ -12,6 +6,11 @@ import {
   ThermostatSettingsStore,
 } from "./stores/thermostatSettings";
 import { compareMaybeDate, compareMaybeNumber } from "./compareHelpers";
+
+import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
+import cloneDeep from "clone-deep";
+import fastCompare from "react-fast-compare";
+import moment from "moment";
 
 export namespace ThermostatSettingsHelpers {
   //
@@ -25,6 +24,16 @@ export namespace ThermostatSettingsHelpers {
   //
 
   export class MutableSettingsStore {
+    public readonly orderedSettings: IndexedThermostatSetting[];
+    public readonly newHoldSettingTemplate: IndexedThermostatSetting;
+    public readonly newScheduledSettingTemplate: IndexedThermostatSetting;
+
+    private readonly thermostatSettingsStore: ThermostatSettingsStore;
+    private readonly thermostatSettings: ThermostatSettings;
+    private readonly setIsSaving: (isSaving: boolean) => void;
+
+    private readonly indexedSettings: IndexedThermostatSetting[];
+
     public constructor(
       thermostatSettingsStore: ThermostatSettingsStore,
       thermostatSettings: ThermostatSettings,
@@ -38,7 +47,7 @@ export namespace ThermostatSettingsHelpers {
       // also inject indexes to map settings back to store definition.
       // (Deep-cloning may be overkill, but we want to be sure not to mutate the store directly at any point.)
       this.indexedSettings = cloneDeep(thermostatSettings.settings).map(
-        (thermostatSetting, index): ThermostatSettingsHelpers.IndexedThermostatSetting => {
+        (thermostatSetting, index): IndexedThermostatSetting => {
           return { ...thermostatSetting, index };
         }
       );
@@ -98,19 +107,47 @@ export namespace ThermostatSettingsHelpers {
             };
     }
 
-    private readonly thermostatSettingsStore: ThermostatSettingsStore;
-    private readonly thermostatSettings: ThermostatSettings;
-    private readonly setIsSaving: (isSaving: boolean) => void;
-
-    private readonly indexedSettings: IndexedThermostatSetting[];
-
-    readonly orderedSettings: IndexedThermostatSetting[];
-    readonly newHoldSettingTemplate: IndexedThermostatSetting;
-    readonly newScheduledSettingTemplate: IndexedThermostatSetting;
-
     //
     // Mutation callbacks
     //
+
+    public async onSave(updatedThermostatSetting: IndexedThermostatSetting): Promise<void> {
+      return this.onMutate(
+        (mutatedSettingsArray: IndexedThermostatSetting[]): IndexedThermostatSetting[] => {
+          mutatedSettingsArray[updatedThermostatSetting.index] = updatedThermostatSetting;
+          return mutatedSettingsArray;
+        }
+      );
+    }
+
+    public async onAdd(addedThermostatSetting: IndexedThermostatSetting): Promise<void> {
+      return this.onMutate(
+        (mutatedSettingsArray: IndexedThermostatSetting[]): IndexedThermostatSetting[] => {
+          if (addedThermostatSetting.type === GraphQL.ThermostatSettingType.Hold) {
+            // Adding a new Hold -> remove any existing expired Hold settings
+            mutatedSettingsArray = mutatedSettingsArray.filter(
+              setting =>
+                // Keep all non-Hold settings
+                setting.type !== GraphQL.ThermostatSettingType.Hold ||
+                // Keep Hold settings that expire in the future
+                (setting.holdUntil && setting.holdUntil.valueOf() >= Date.now())
+            );
+          }
+
+          mutatedSettingsArray.push(addedThermostatSetting);
+          return mutatedSettingsArray;
+        }
+      );
+    }
+
+    public async onRemove(removedThermostatSetting: IndexedThermostatSetting): Promise<void> {
+      return this.onMutate(
+        (mutatedSettingsArray: IndexedThermostatSetting[]): IndexedThermostatSetting[] => {
+          mutatedSettingsArray.splice(removedThermostatSetting.index, 1);
+          return mutatedSettingsArray;
+        }
+      );
+    }
 
     private async onMutate(
       mutateFn: (mutatedSettingsArray: IndexedThermostatSetting[]) => IndexedThermostatSetting[]
@@ -137,56 +174,6 @@ export namespace ThermostatSettingsHelpers {
       await this.thermostatSettingsStore.updateItem(mutatedSettings);
 
       this.setIsSaving(false);
-    }
-
-    async onSave(
-      updatedThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting
-    ): Promise<void> {
-      return this.onMutate(
-        (
-          mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]
-        ): IndexedThermostatSetting[] => {
-          mutatedSettingsArray[updatedThermostatSetting.index] = updatedThermostatSetting;
-          return mutatedSettingsArray;
-        }
-      );
-    }
-
-    async onAdd(
-      addedThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting
-    ): Promise<void> {
-      return this.onMutate(
-        (
-          mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]
-        ): IndexedThermostatSetting[] => {
-          if (addedThermostatSetting.type === GraphQL.ThermostatSettingType.Hold) {
-            // Adding a new Hold -> remove any existing expired Hold settings
-            mutatedSettingsArray = mutatedSettingsArray.filter(
-              setting =>
-                // Keep all non-Hold settings
-                setting.type !== GraphQL.ThermostatSettingType.Hold ||
-                // Keep Hold settings that expire in the future
-                (setting.holdUntil && setting.holdUntil.valueOf() >= Date.now())
-            );
-          }
-
-          mutatedSettingsArray.push(addedThermostatSetting);
-          return mutatedSettingsArray;
-        }
-      );
-    }
-
-    async onRemove(
-      removedThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting
-    ): Promise<void> {
-      return this.onMutate(
-        (
-          mutatedSettingsArray: ThermostatSettingsHelpers.IndexedThermostatSetting[]
-        ): IndexedThermostatSetting[] => {
-          mutatedSettingsArray.splice(removedThermostatSetting.index, 1);
-          return mutatedSettingsArray;
-        }
-      );
     }
   }
 

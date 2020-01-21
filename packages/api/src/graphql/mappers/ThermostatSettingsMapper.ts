@@ -1,8 +1,8 @@
 import * as GraphQL from "../../../generated/graphqlTypes";
-import { ThermostatSettings } from "../../shared/db";
 
 import GraphQLModelMapper from "./GraphQLModelMapper";
 import ThermostatSettingMapper from "./ThermostatSettingMapper";
+import { ThermostatSettings } from "../../shared/db";
 
 //
 // Adapt GraphQL <-> Model (DB) conventions:
@@ -18,6 +18,8 @@ class ThermostatSettingsMapper
       GraphQL.ThermostatSettingsCreateInput,
       ThermostatSettings
     > {
+  private readonly thermostatSettingMapper = new ThermostatSettingMapper();
+
   public graphqlFromModel(rhs: ThermostatSettings): GraphQL.ThermostatSettings {
     const { settings, ...remainder } = rhs;
 
@@ -46,8 +48,6 @@ class ThermostatSettingsMapper
           : undefined,
     });
   }
-
-  thermostatSettingMapper = new ThermostatSettingMapper();
 }
 
 export default ThermostatSettingsMapper;

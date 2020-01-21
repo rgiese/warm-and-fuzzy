@@ -3,10 +3,10 @@ import React, { useState } from "react";
 
 const EditFormModal: React.FunctionComponent<{
   canSave: boolean;
-  onSave(): Promise<void>;
-  header: string | React.ReactElement;
   error?: string | React.ReactElement;
-}> = ({ canSave, onSave, header, error, children }): React.ReactElement => {
+  header: string | React.ReactElement;
+  onSave(): Promise<void>;
+}> = ({ canSave, error, header, onSave, children }): React.ReactElement => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 

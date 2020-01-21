@@ -6,8 +6,8 @@ import {
   ObjectWithIdAndTenant,
   ZeroArgumentsConstructor,
 } from "../../shared/db";
-import GraphQLModelMapper from "../mappers/GraphQLModelMapper";
 
+import GraphQLModelMapper from "../mappers/GraphQLModelMapper";
 import shallowUpdate from "./shallowUpdate";
 
 export default class MappedResolver<
@@ -18,6 +18,10 @@ export default class MappedResolver<
   TModelConstructor extends ZeroArgumentsConstructor<TModel>,
   TMapper extends GraphQLModelMapper<TGraphQL, TGraphQLCreateInput, TModel>
 > {
+  private readonly _modelConstructor: TModelConstructor;
+  private readonly _mapper: TMapper;
+  private readonly _schema?: yup.ObjectSchema;
+
   public constructor(
     modelConstructor: TModelConstructor,
     mapper: TMapper,
@@ -91,8 +95,4 @@ export default class MappedResolver<
 
     return updatedGraphql;
   }
-
-  private _modelConstructor: TModelConstructor;
-  private _mapper: TMapper;
-  private _schema?: yup.ObjectSchema;
 }

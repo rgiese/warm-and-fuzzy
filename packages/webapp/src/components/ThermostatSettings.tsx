@@ -30,17 +30,17 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
   return (
     <>
       <Header as="h3" attached="top">
-        {thermostatConfiguration?.name || thermostatSettings.id}
+        {thermostatConfiguration?.name ?? thermostatSettings.id}
 
         <AddSettingPopup
-          availableActions={thermostatConfiguration?.availableActions || []}
+          availableActions={thermostatConfiguration?.availableActions ?? []}
           defaultThermostatSetting={mutableSettingsStore.newHoldSettingTemplate}
           isSaving={isSaving}
           mutableSettingsStore={mutableSettingsStore}
         />
 
         <AddSettingPopup
-          availableActions={thermostatConfiguration?.availableActions || []}
+          availableActions={thermostatConfiguration?.availableActions ?? []}
           defaultThermostatSetting={mutableSettingsStore.newScheduledSettingTemplate}
           isSaving={isSaving}
           mutableSettingsStore={mutableSettingsStore}
@@ -50,7 +50,7 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
         {mutableSettingsStore.orderedSettings.map((setting, index) => {
           return (
             <ThermostatSettingBean
-              availableActions={thermostatConfiguration?.availableActions || []}
+              availableActions={thermostatConfiguration?.availableActions ?? []}
               isSaving={isSaving}
               // eslint-disable-next-line react/no-array-index-key
               key={`${rootStore.thermostatSettingsStore.lastUpdated.valueOf()}.${index}`}

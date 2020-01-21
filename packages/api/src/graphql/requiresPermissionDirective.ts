@@ -1,11 +1,11 @@
-import { AuthenticationError } from "apollo-server-core";
-import { defaultFieldResolver, GraphQLField } from "graphql";
-import { SchemaDirectiveVisitor } from "graphql-tools";
-
-import { Context } from "./context";
 import * as GraphQL from "../../generated/graphqlTypes";
 
+import { GraphQLField, defaultFieldResolver } from "graphql";
+
+import { AuthenticationError } from "apollo-server-core";
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
+import { Context } from "./context";
+import { SchemaDirectiveVisitor } from "graphql-tools";
 
 //
 // We can't define GraphQL enum values that exactly match the strings we're using for user permissions
@@ -38,9 +38,9 @@ class RequiresPermissionDirective extends SchemaDirectiveVisitor {
     const { resolve = defaultFieldResolver } = field;
 
     const requiredPermission =
-      mapGraphQLPermissionToUserPermission.get(permission) || throwUndefinedPermission(permission);
+      mapGraphQLPermissionToUserPermission.get(permission) ?? throwUndefinedPermission(permission);
 
-    field.resolve = async function(...args): Promise<any> {
+    field.resolve = function(...args): any {
       const context = args[2];
 
       if (!context.HasPermission(requiredPermission)) {

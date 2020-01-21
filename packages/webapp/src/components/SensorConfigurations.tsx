@@ -13,7 +13,7 @@ const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
   { field: "streamName", label: "Stream Name" },
 ];
 
-const SensorConfigs: React.FunctionComponent<{}> = (): React.ReactElement => {
+const SensorConfigs: React.FunctionComponent = (): React.ReactElement => {
   const rootStore = useRootStore();
 
   const canEdit = rootStore.authStore.userPermissions.includes(

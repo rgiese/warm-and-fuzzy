@@ -1,5 +1,6 @@
-import { DynamoDBStreamHandler } from "aws-lambda";
 import "source-map-support/register";
+
+import * as ThermostatConfigurationAdapter from "../../shared/firmware/thermostatConfigurationAdapter";
 
 import {
   DbMapper,
@@ -7,10 +8,9 @@ import {
   ThermostatConfiguration,
   ThermostatSettings,
 } from "../../shared/db";
-
-import * as ThermostatConfigurationAdapter from "../../shared/firmware/thermostatConfigurationAdapter";
-
 import { getParticleAPIKey, invokeParticleFunction } from "../invokeParticleFunction";
+
+import { DynamoDBStreamHandler } from "aws-lambda";
 import unmarshall from "../unmarshall";
 
 //

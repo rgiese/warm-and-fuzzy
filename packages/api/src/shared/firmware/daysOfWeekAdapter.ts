@@ -1,6 +1,6 @@
-import { Flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
-
 import * as GraphQL from "../../../generated/graphqlTypes";
+
+import { Flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
 
 const mapModelToFirmwareEnum = new Map<GraphQL.DayOfWeek, Flatbuffers.Firmware.DaysOfWeek>([
   [GraphQL.DayOfWeek.Monday, Flatbuffers.Firmware.DaysOfWeek.Monday],
@@ -23,7 +23,7 @@ export function firmwareFromModel(
     return Array.from(daysOfWeek)
       .map(
         (d): Flatbuffers.Firmware.DaysOfWeek =>
-          mapModelToFirmwareEnum.get(d) || throwUndefinedModelDay(d)
+          mapModelToFirmwareEnum.get(d) ?? throwUndefinedModelDay(d)
       )
       .reduce((accumulatedValue, currentValue) => accumulatedValue | currentValue);
   } else {

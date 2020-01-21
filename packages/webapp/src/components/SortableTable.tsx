@@ -4,7 +4,7 @@ import React from "react";
 import { observer } from "mobx-react";
 
 interface TableData {
-  [key: string]: string | number | Date | Array<string> | Array<number> | undefined;
+  [key: string]: string | number | Date | string[] | number[] | undefined;
 }
 
 type TableProps = Omit<StrictTableProps, "renderBodyRow" | "tableData" | "sortable">;
@@ -28,19 +28,19 @@ interface Props<T> {
 }
 
 class State<T> {
+  public sortOrder: keyof T;
+  public sortAscending: boolean;
+
   public constructor(props: Props<T>) {
     this.sortOrder = props.defaultSortField;
     this.sortAscending = true;
   }
-
-  sortOrder: keyof T;
-  sortAscending: boolean;
 }
 
 /* The below rule doesn't seem worth investing in at this time... */
 /* eslint-disable react/require-optimization */
 
-/* Welp, it's not a function component yet due to lifecycle methods, so let's allow ourselves to use setState */
+/* Welp, it's not a function component yet due to templating, so let's allow ourselves to use setState */
 /* eslint-disable react/no-set-state */
 
 @observer // required when used with MobX store data
@@ -49,63 +49,6 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
     super(props);
     this.state = new State<T>(props);
   }
-
-  handleSort = (sortOrder: keyof T) => (): void => {
-    if (sortOrder !== this.state.sortOrder) {
-      this.setState({ sortOrder, sortAscending: true });
-    } else {
-      this.setState(previousState => ({
-        sortAscending: !previousState.sortAscending,
-      }));
-    }
-  };
-
-  isSorted = (sortOrder: keyof T): "ascending" | "descending" | undefined => {
-    if (sortOrder !== this.state.sortOrder) {
-      return undefined;
-    }
-
-    return this.state.sortAscending ? "ascending" : "descending";
-  };
-
-  compareAscending = (lhs: T, rhs: T): number => {
-    const lhsKey = lhs[this.state.sortOrder];
-    const rhsKey = rhs[this.state.sortOrder];
-
-    if (typeof lhsKey !== typeof rhsKey) {
-      // Caller-side TypeScript should have caught this
-      throw new Error(
-        `Sort key types don't match for field ${this.state.sortOrder}: ${lhsKey} / ${rhsKey}`
-      );
-    }
-
-    if (typeof lhsKey === "string" && typeof rhsKey === "string") {
-      return lhsKey.localeCompare(rhsKey);
-    }
-
-    if (typeof lhsKey === "number" && typeof rhsKey === "number") {
-      return lhsKey - rhsKey;
-    }
-
-    if (lhsKey instanceof Date && rhsKey instanceof Date) {
-      return lhsKey.getTime() - rhsKey.getTime();
-    }
-
-    if (Array.isArray(lhsKey) && Array.isArray(rhsKey)) {
-      return lhsKey.toString().localeCompare(rhsKey.toString());
-    }
-
-    // Caller-side TypeScript should have caught this
-    throw new Error(`Unsupported type for field ${this.state.sortOrder}`);
-  };
-
-  sortData = (): T[] => {
-    // .slice(): Duplicate data so we don't mutate the passed-in object
-    return this.props.data.slice().sort((lhs, rhs): number => {
-      const ascendingResult = this.compareAscending(lhs, rhs);
-      return this.state.sortAscending ? ascendingResult : -1 * ascendingResult;
-    });
-  };
 
   public render(): React.ReactElement {
     const sortedData = this.sortData();
@@ -170,6 +113,63 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
       </Table>
     );
   }
+
+  private readonly handleSort = (sortOrder: keyof T) => (): void => {
+    if (sortOrder !== this.state.sortOrder) {
+      this.setState({ sortOrder, sortAscending: true });
+    } else {
+      this.setState(previousState => ({
+        sortAscending: !previousState.sortAscending,
+      }));
+    }
+  };
+
+  private readonly isSorted = (sortOrder: keyof T): "ascending" | "descending" | undefined => {
+    if (sortOrder !== this.state.sortOrder) {
+      return undefined;
+    }
+
+    return this.state.sortAscending ? "ascending" : "descending";
+  };
+
+  private readonly compareAscending = (lhs: T, rhs: T): number => {
+    const lhsKey = lhs[this.state.sortOrder];
+    const rhsKey = rhs[this.state.sortOrder];
+
+    if (typeof lhsKey !== typeof rhsKey) {
+      // Caller-side TypeScript should have caught this
+      throw new Error(
+        `Sort key types don't match for field ${this.state.sortOrder.toString()}: ${lhsKey?.toString()} / ${rhsKey?.toString()}`
+      );
+    }
+
+    if (typeof lhsKey === "string" && typeof rhsKey === "string") {
+      return lhsKey.localeCompare(rhsKey);
+    }
+
+    if (typeof lhsKey === "number" && typeof rhsKey === "number") {
+      return lhsKey - rhsKey;
+    }
+
+    if (lhsKey instanceof Date && rhsKey instanceof Date) {
+      return lhsKey.getTime() - rhsKey.getTime();
+    }
+
+    if (Array.isArray(lhsKey) && Array.isArray(rhsKey)) {
+      return lhsKey.toString().localeCompare(rhsKey.toString());
+    }
+
+    // Caller-side TypeScript should have caught this
+    throw new Error(`Unsupported type for field ${this.state.sortOrder.toString()}`);
+  };
+
+  private readonly sortData = (): T[] => {
+    // .slice(): Duplicate data so we don't mutate the passed-in object
+    return this.props.data.slice().sort((lhs, rhs): number => {
+      const ascendingResult = this.compareAscending(lhs, rhs);
+      return this.state.sortAscending ? ascendingResult : -1 * ascendingResult;
+    });
+  };
 }
 
 export default SortableTable;

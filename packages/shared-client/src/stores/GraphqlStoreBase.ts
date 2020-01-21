@@ -1,34 +1,32 @@
 import { action, autorun, flow, observable } from "mobx";
-import { computedFn } from "mobx-utils";
-import { ApolloQueryResult } from "apollo-client";
-import { DocumentNode } from "graphql";
 
 import { ApolloClient } from "../services/ApolloClient";
-
-import { StoreBase } from "./StoreBase";
+import { ApolloQueryResult } from "apollo-client";
 import { AuthStore } from "./auth";
+import { DocumentNode } from "graphql";
+import { StoreBase } from "./StoreBase";
+import { computedFn } from "mobx-utils";
+
+/* Member ordering gets too weird with annotations, generators, etc. */
+/* eslint-disable @typescript-eslint/member-ordering */
 
 export interface GraphqlStoreItem {
   id: string;
   __typename?: string;
 }
 
-export interface QueryResultDataExtractor<TResult, TQuery> {
-  (queryData: TQuery): TResult[];
-}
+export type QueryResultDataExtractor<TResult, TQuery> = (queryData: TQuery) => TResult[];
 
-export interface QueryResultDataItemPatcher<TResult> {
-  (data: TResult): TResult;
-}
+export type QueryResultDataItemPatcher<TResult> = (data: TResult) => TResult;
 
 export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreBase {
-  readonly data = observable.array<T>([]);
+  public readonly data = observable.array<T>([]);
 
   protected apolloClient: ApolloClient;
 
-  private queryDocument: DocumentNode;
-  private queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>;
-  private queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>;
+  private readonly queryDocument: DocumentNode;
+  private readonly queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>;
+  private readonly queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>;
 
   public constructor(
     name: string,
@@ -47,6 +45,7 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
 
     autorun(() => {
       if (authStore.isUserAuthenticated) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.fetchData(false);
       } else {
         this.clear();
@@ -58,7 +57,10 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
     await this.fetchData(true);
   }
 
-  private fetchData = flow(function*(this: GraphqlStoreBase<T, TQuery>, isUpdate: boolean) {
+  private readonly fetchData = flow(function*(
+    this: GraphqlStoreBase<T, TQuery>,
+    isUpdate: boolean
+  ) {
     this.setState(isUpdate ? "updating" : "fetching");
 
     try {
@@ -101,7 +103,7 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
     return this.data.find(item => item.id === id);
   });
 
-  @action clear(): void {
+  @action public clear(): void {
     this.data.clear();
   }
 }

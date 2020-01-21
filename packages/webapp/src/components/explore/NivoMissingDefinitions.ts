@@ -1,6 +1,6 @@
 import React from "react";
-import { Value } from "@nivo/scatterplot";
 import { TimeScale } from "@nivo/scales";
+import { Value } from "@nivo/scatterplot";
 
 interface CustomTooltipNode {
   index: number;

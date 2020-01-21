@@ -1,12 +1,11 @@
-import moment from "moment-timezone";
-
-import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
-
-import { ThermostatConfiguration, ThermostatSettings } from "../db";
-import { Z85Encode } from "../Z85";
-
 import * as OneWireIdAdapter from "./oneWireIdAdapter";
 import * as ThermostatSettingAdapter from "./thermostatSettingAdapter";
+
+import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
+import { ThermostatConfiguration, ThermostatSettings } from "../db";
+
+import { Z85Encode } from "../Z85";
+import moment from "moment-timezone";
 
 export function firmwareFromModel(
   thermostatConfiguration: ThermostatConfiguration,
@@ -18,7 +17,7 @@ export function firmwareFromModel(
   // Create settings array
   Flatbuffers.Firmware.ThermostatConfiguration.startThermostatSettingsVector(
     firmwareConfigBuilder,
-    thermostatSettings.settings?.length || 0
+    thermostatSettings.settings?.length ?? 0
   );
 
   thermostatSettings.settings?.forEach(thermostatSetting =>

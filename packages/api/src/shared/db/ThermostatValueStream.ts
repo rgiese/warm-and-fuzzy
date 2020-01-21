@@ -1,6 +1,6 @@
-import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
-
 import * as GraphQL from "../../../generated/graphqlTypes";
+
+import { attribute, hashKey, rangeKey, table } from "@aws/dynamodb-data-mapper-annotations";
 
 //
 // See https://github.com/awslabs/dynamodb-data-mapper-js
@@ -11,26 +11,6 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 @table("ValueStreams")
 export default class ThermostatValueStream {
-  public constructor() {
-    this.stream = "";
-    this.ts = 0;
-
-    this.publishedTime = new Date();
-    this.deviceLocalSerial = 0;
-    this.currentActions = undefined;
-    this.temperature = 0.0;
-    this.humidity = 0.0;
-    this.setPointHeat = NaN;
-    this.setPointCool = NaN;
-    this.threshold = NaN;
-    this.currentTimezoneUTCOffset = undefined;
-    this.allowedActions = undefined;
-  }
-
-  public static getStreamKey(tenant: string, streamName: string): string {
-    return `${tenant}#T#${streamName}`;
-  }
-
   // Stream name (assigned by WarmAndFuzzy)
   @hashKey()
   public stream: string;
@@ -78,4 +58,24 @@ export default class ThermostatValueStream {
   // @see ThermostatConfiguration#allowedActions
   @attribute({ memberType: "String" })
   public allowedActions?: Set<GraphQL.ThermostatAction>;
+
+  public constructor() {
+    this.stream = "";
+    this.ts = 0;
+
+    this.publishedTime = new Date();
+    this.deviceLocalSerial = 0;
+    this.currentActions = undefined;
+    this.temperature = 0.0;
+    this.humidity = 0.0;
+    this.setPointHeat = NaN;
+    this.setPointCool = NaN;
+    this.threshold = NaN;
+    this.currentTimezoneUTCOffset = undefined;
+    this.allowedActions = undefined;
+  }
+
+  public static getStreamKey(tenant: string, streamName: string): string {
+    return `${tenant}#T#${streamName}`;
+  }
 }
