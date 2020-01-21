@@ -15,6 +15,7 @@
     "decrypt-secrets": "lerna run decrypt-secrets --parallel",
     "encrypt-secrets": "lerna run encrypt-secrets --parallel",
     "format:fix": "lerna run format:fix --parallel",
+    "lint": "lerna run lint --parallel",
     "lint:fix": "lerna run lint:fix --parallel",
     "deploy:dev": "lerna run deploy:dev --stream",
     "deploy:prod": "lerna run deploy:prod --stream",

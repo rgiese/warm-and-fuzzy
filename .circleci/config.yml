@@ -48,6 +48,9 @@ jobs:
       # Run tests
       - run: npm run test
 
+      # Run lint
+      - run: npm run lint
+
       # Persist workspace for deployment
       - persist_to_workspace:
           root: .
