@@ -14,6 +14,7 @@ export default ({ component: C, props: propsToInject, ...rest }: Props): React.R
   return (
     <Route
       {...rest}
+      // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
       render={(props): any =>
         authStore.isUserAuthenticated ? <C {...props} {...propsToInject} /> : <Redirect to="/" />
       }

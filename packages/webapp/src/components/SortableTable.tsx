@@ -84,6 +84,8 @@ class SortableTable<T extends TableData> extends React.Component<Props<T>, State
                 >
                   {this.props.fieldDefinitions.map(
                     (fieldDefinition): React.ReactElement => {
+                      // `v` is intentionally typed as `any` -> tell eslint to go away
+                      // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
                       const valuePresenter = (v: any): any => {
                         if (Array.isArray(v)) {
                           return v.join(", ");

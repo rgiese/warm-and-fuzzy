@@ -159,7 +159,9 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
           <View>
             <Picker
               mode="dropdown"
-              onValueChange={(value): void =>
+              // onValueChange is typed as `any` -> tell eslint to go away
+              // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+              onValueChange={(value: any): void =>
                 updateMutableSetting({ ...mutableSetting, holdUntil: new Date(value as number) })
               }
               selectedValue={mutableSetting.holdUntil?.valueOf()}
@@ -251,7 +253,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               maximumValue={ThermostatSettingSchema.SetPointRange.max}
               minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
               minimumValue={ThermostatSettingSchema.SetPointRange.min}
-              onValueChange={(value): void =>
+              onValueChange={(value: number): void =>
                 updateMutableSetting({ ...mutableSetting, setPointHeat: value })
               }
               step={1}
@@ -261,7 +263,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             />
             <Switch
               color={ColorCodes[GraphQL.ThermostatAction.Heat]}
-              onValueChange={(value): void =>
+              onValueChange={(value: boolean): void =>
                 onChangeAllowedAction(GraphQL.ThermostatAction.Heat, value)
               }
               style={styles.setPointSwitch}
@@ -282,7 +284,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               maximumValue={ThermostatSettingSchema.SetPointRange.max}
               minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
               minimumValue={ThermostatSettingSchema.SetPointRange.min}
-              onValueChange={(value): void =>
+              onValueChange={(value: number): void =>
                 updateMutableSetting({ ...mutableSetting, setPointCool: value })
               }
               step={1}
@@ -292,7 +294,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             />
             <Switch
               color={ColorCodes[GraphQL.ThermostatAction.Cool]}
-              onValueChange={(value): void =>
+              onValueChange={(value: boolean): void =>
                 onChangeAllowedAction(GraphQL.ThermostatAction.Cool, value)
               }
               style={styles.setPointSwitch}
@@ -308,7 +310,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
             <View style={styles.setPointSlider}>{/* Empty */}</View>
             <Switch
               color={ColorCodes[GraphQL.ThermostatAction.Circulate]}
-              onValueChange={(value): void =>
+              onValueChange={(value: boolean): void =>
                 onChangeAllowedAction(GraphQL.ThermostatAction.Circulate, value)
               }
               style={styles.setPointSwitch}

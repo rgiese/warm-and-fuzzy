@@ -91,6 +91,8 @@ const SeriesInstanceBean: React.FunctionComponent<{
             dateFormat={SeriesInstanceDateFormat}
             inline
             maxDate={moment().format(SeriesInstanceDateFormat)}
+            // data is typed as `any` -> tell eslint to go away
+            // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
             onChange={(_event: React.SyntheticEvent<HTMLElement>, data: any): void => {
               setIsDatePickerOpen(false);
 

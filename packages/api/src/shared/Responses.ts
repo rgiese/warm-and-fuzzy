@@ -1,5 +1,7 @@
 import { APIGatewayProxyResult } from "aws-lambda";
 
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 function buildResponse(statusCode: number, body: any): APIGatewayProxyResult {
   return {
     statusCode: statusCode,

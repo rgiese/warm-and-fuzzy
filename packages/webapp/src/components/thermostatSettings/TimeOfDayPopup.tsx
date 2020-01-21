@@ -33,7 +33,7 @@ const TimeOfDayPopup: React.FunctionComponent<{
         <TimeInput
           animation={"none" as any}
           inline
-          onChange={(_event, { value }): void =>
+          onChange={(_event: React.SyntheticEvent<HTMLElement>, { value }): void =>
             updateMutableSetting({
               ...mutableSetting,
               atMinutesSinceMidnight: ThermostatSettingsHelpers.ParseMinutesSinceMidnight(value),

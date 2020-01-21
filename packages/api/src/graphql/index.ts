@@ -6,6 +6,7 @@ import requiresPermissionDirective from "./requiresPermissionDirective";
 import resolvers from "./resolvers";
 import typeDefs from "../../../shared/src/schema/schema.graphql";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const logger = { log: (e: any): void => console.log(e) };
 
 const schema = makeExecutableSchema({

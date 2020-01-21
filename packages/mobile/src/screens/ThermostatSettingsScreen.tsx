@@ -126,6 +126,8 @@ const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigat
                         thermostatSetting.atMinutesSinceMidnight ?? 0
                       )}`
                 }
+                // List.Item doesn't declare a type for the props so don't bother with the following
+                // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
                 left={(props): React.ReactNode => (
                   <List.Icon {...props} icon={IconNames[thermostatSetting.type]} />
                 )}

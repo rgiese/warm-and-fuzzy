@@ -12,6 +12,7 @@ const jsonWebKeyClient = JsonWebKeySet({
   cache: true,
 });
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 async function getSigningKey(kid: any): Promise<string> {
   return new Promise((resolve, reject): void => {
     jsonWebKeyClient.getSigningKey(kid, (err: any, key: any): void => {

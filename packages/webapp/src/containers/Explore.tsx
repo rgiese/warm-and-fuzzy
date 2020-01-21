@@ -73,7 +73,9 @@ class Explore extends React.Component<Props> {
             <Dropdown
               header="Choose time span"
               inline
-              onChange={(_event, data): void => exploreStore.setViewSpan(data.value as ViewSpan)}
+              onChange={(_event: React.SyntheticEvent<HTMLElement>, data: DropdownProps): void =>
+                exploreStore.setViewSpan(data.value as ViewSpan)
+              }
               options={ViewSpans.map(v => {
                 return { key: v, value: v, text: v };
               })}
@@ -83,7 +85,9 @@ class Explore extends React.Component<Props> {
             <Dropdown
               header="Choose time zone"
               inline
-              onChange={(_event, data): void => exploreStore.setTimezone(data.value as Timezone)}
+              onChange={(_event: React.SyntheticEvent<HTMLElement>, data: DropdownProps): void =>
+                exploreStore.setTimezone(data.value as Timezone)
+              }
               options={Timezones.map(tz => {
                 return { key: tz, value: tz, text: tz };
               })}

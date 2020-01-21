@@ -16,11 +16,11 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
       <ScrollView>
         <List.Section title="Your account">
           <List.Item
-            left={(_props): React.ReactNode => <List.Icon icon="account" />}
+            left={(): React.ReactNode => <List.Icon icon="account" />}
             title={authStore.userName}
           />
           <List.Item
-            left={(_props): React.ReactNode => <List.Icon icon="at" />}
+            left={(): React.ReactNode => <List.Icon icon="at" />}
             title={authStore.userEmail}
           />
           <Button
@@ -38,7 +38,7 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
           {authStore.userPermissions.map(permission => (
             <List.Item
               key={permission}
-              left={(_props): React.ReactNode => <List.Icon icon="check" />}
+              left={(): React.ReactNode => <List.Icon icon="check" />}
               title={permission}
             />
           ))}
@@ -46,14 +46,14 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
         <Divider />
         <List.Section title="Tenant">
           <List.Item
-            left={(_props): React.ReactNode => <List.Icon icon="home" />}
+            left={(): React.ReactNode => <List.Icon icon="home" />}
             title={authStore.tenant}
           />
         </List.Section>
         <Divider />
         <List.Section title="API">
           <List.Item
-            left={(_props): React.ReactNode => <List.Icon icon="server" />}
+            left={(): React.ReactNode => <List.Icon icon="server" />}
             title={ConfigStageName}
           />
         </List.Section>

@@ -42,7 +42,7 @@ const HoldUntilPopup: React.FunctionComponent<{
   return (
     <Dropdown
       button
-      onChange={(_event, data: DropdownProps): void => {
+      onChange={(_event: React.SyntheticEvent<HTMLElement>, data: DropdownProps): void => {
         updateMutableSetting({ ...mutableSetting, holdUntil: new Date(data.value as number) });
       }}
       options={limitsDropdownOptions.concat(hourlyDropdownOptions)}

@@ -11,6 +11,8 @@ import thermostatSettingsResolver from "./resolvers/ThermostatSettingsResolver";
 import thermostatValueStreamResolver from "./resolvers/ThermostatValueStreamResolver";
 
 const resolvers: GraphQL.Resolvers = {
+  /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
   //
   // Custom types
   //

@@ -119,7 +119,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
       <FlatList<ThermostatValue>
         data={values}
         extraData={latestRenderTime}
-        keyExtractor={(item): string => item.id}
+        keyExtractor={(item: ThermostatValue): string => item.id}
         onRefresh={refreshStores}
         refreshing={latestThermostatValuesStore.isWorking || thermostatConfigurationStore.isWorking}
         renderItem={({ item }): React.ReactElement => (
