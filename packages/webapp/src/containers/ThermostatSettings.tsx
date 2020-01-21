@@ -10,7 +10,7 @@ const ThermostatSettingsContainer: React.FunctionComponent = (): React.ReactElem
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
   const thermostatSettingsStore = rootStore.thermostatSettingsStore;
 
-  const sortedThermostatSettings = thermostatSettingsStore.data.sort((lhs, rhs): number => {
+  const sortedThermostatSettings = thermostatSettingsStore.data.slice().sort((lhs, rhs): number => {
     const lhsConfiguration = thermostatConfigurationStore.findById(lhs.id);
     const rhsConfiguration = thermostatConfigurationStore.findById(rhs.id);
 
