@@ -12,7 +12,7 @@ import { useObserver } from "mobx-react";
 // To add support for new custom types:
 // - Add type to TableData type enumeration
 // - Add comparison logic for type to compareAscending below
-// - Add presentatic logic for type to valuePresenter and unitsPresenter below
+// - Add presentatic logic for type to valuePresenter below
 //
 
 interface TableData {
@@ -175,47 +175,20 @@ const SortableTable = <T extends TableData>({
                       }
 
                       if (v instanceof Temperature) {
-                        return v.toPreferredUnits(rootStore.authStore.userPreferences).toFixed(1);
+                        return v.toString(rootStore.authStore.userPreferences);
                       }
 
                       if (v instanceof RelativeTemperature) {
-                        return v.toPreferredUnits(rootStore.authStore.userPreferences).toFixed(1);
+                        return v.toString(rootStore.authStore.userPreferences);
                       }
 
                       return v;
                     };
 
-                    // `v` is intentionally typed as `any` -> tell eslint to go away
-                    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-                    const unitsPresenter = (
-                      v: any,
-                      units?: string | React.ReactElement
-                    ): string | React.ReactElement => {
-                      // Prefer explicitly specified units
-                      if (units) {
-                        return units;
-                      }
-
-                      // Attempt to infer units
-                      if (v instanceof Temperature) {
-                        return Temperature.presentPreferredUnits(
-                          rootStore.authStore.userPreferences
-                        );
-                      }
-
-                      if (v instanceof RelativeTemperature) {
-                        return RelativeTemperature.presentPreferredUnits(
-                          rootStore.authStore.userPreferences
-                        );
-                      }
-
-                      return "";
-                    };
-
                     return (
                       <Table.Cell key={fieldDefinition.field as string}>
                         {valuePresenter(value[fieldDefinition.field])}
-                        {unitsPresenter(value[fieldDefinition.field], fieldDefinition.units)}
+                        {fieldDefinition.units}
                       </Table.Cell>
                     );
                   }

@@ -4,6 +4,7 @@ import { ColorCodes, IconNames } from "../Theme";
 import { FlatList, StyleSheet, View } from "react-native";
 import {
   LatestThermostatValue,
+  Temperature,
   ThermostatConfiguration,
   useRootStore,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
@@ -12,7 +13,6 @@ import React, { useEffect, useState } from "react";
 import { Text, Theme, withTheme } from "react-native-paper";
 
 import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
-import PresentTemperatureWithUnits from "../shared/PresentTemperatureWithUnits";
 import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import ScreenRoutes from "../screens/ScreenRoutes";
 import StoreChecks from "./StoreChecks";
@@ -148,7 +148,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
 
                 {/* Reported temperature */}
                 <ThemedText.Accent style={styles.detailsText}>
-                  {PresentTemperatureWithUnits(item.temperature, userPreferences)}
+                  {Temperature.toString(item.temperature, userPreferences)}
                 </ThemedText.Accent>
 
                 {/* Actions: heat */}
@@ -161,7 +161,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
                 )}
                 {item.allowedActions.includes(ThermostatAction.Heat) && (
                   <ThemedText.Heat style={styles.detailsText}>
-                    {PresentTemperatureWithUnits(item.setPointHeat, userPreferences)}
+                    {Temperature.toString(item.setPointHeat, userPreferences)}
                   </ThemedText.Heat>
                 )}
 
@@ -175,7 +175,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
                 )}
                 {item.allowedActions.includes(ThermostatAction.Cool) && (
                   <ThemedText.Cool style={styles.detailsText}>
-                    {PresentTemperatureWithUnits(item.setPointCool, userPreferences)}
+                    {Temperature.toString(item.setPointCool, userPreferences)}
                   </ThemedText.Cool>
                 )}
 
