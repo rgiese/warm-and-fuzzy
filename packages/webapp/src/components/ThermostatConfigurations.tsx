@@ -1,5 +1,9 @@
+import {
+  RelativeTemperature,
+  ThermostatConfiguration,
+  useRootStore,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
-import { ThermostatConfiguration, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
 import React from "react";
@@ -7,13 +11,17 @@ import StoreChecks from "./StoreChecks";
 import ThermostatConfigurationModal from "./ThermostatConfigurationModal";
 import { observer } from "mobx-react";
 
-const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
+type TypedThermostatConfiguration = ThermostatConfiguration & {
+  typedThreshold: RelativeTemperature;
+};
+
+const tableDefinition: TableFieldDefinition<TypedThermostatConfiguration>[] = [
   { field: "id", label: "ID" },
   { field: "name", label: "Name" },
   { field: "externalSensorId", label: "External sensor" },
   { field: "timezone", label: "Timezone" },
   { field: "streamName", label: "Stream Name" },
-  { field: "threshold", label: "Threshold", units: <>&Delta;&deg;C</> },
+  { field: "typedThreshold", label: "Threshold" },
   { field: "cadence", label: "Cadence", units: "sec" },
   { field: "availableActions", label: "Available actions" },
 ];
@@ -25,6 +33,16 @@ const ThermostatConfigs: React.FunctionComponent = (): React.ReactElement => {
     Authorization.Permissions.WriteConfig
   );
 
+  // Project data
+  const data = rootStore.thermostatConfigurationStore.data.map(
+    (value): TypedThermostatConfiguration => {
+      return {
+        ...value,
+        typedThreshold: new RelativeTemperature(value.threshold),
+      };
+    }
+  );
+
   // eslint-disable-next-line react/no-multi-comp
   const fnBuildEditControl = (value: ThermostatConfiguration): React.ReactElement => (
     <ThermostatConfigurationModal values={value} />
@@ -33,7 +51,7 @@ const ThermostatConfigs: React.FunctionComponent = (): React.ReactElement => {
   return (
     <StoreChecks requiredStores={[rootStore.thermostatConfigurationStore]}>
       <SortableTable
-        data={rootStore.thermostatConfigurationStore.data}
+        data={data}
         defaultSortField="name"
         fieldDefinitions={tableDefinition}
         keyField="id"

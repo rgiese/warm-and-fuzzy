@@ -17,3 +17,5 @@ export * from "./stores/thermostatSettings";
 export * from "./thermostatSettingsHelpers";
 
 export * from "./UserPreferences";
+export * from "./RelativeTemperature";
+export * from "./Temperature";

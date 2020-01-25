@@ -1,4 +1,9 @@
 import React, { useState } from "react";
+import {
+  RelativeTemperature,
+  Temperature,
+  useRootStore,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 import { StrictTableProps, Table } from "semantic-ui-react";
 
 import { useObserver } from "mobx-react";
@@ -7,11 +12,19 @@ import { useObserver } from "mobx-react";
 // To add support for new custom types:
 // - Add type to TableData type enumeration
 // - Add comparison logic for type to compareAscending below
-// - Add presentatic logic for type to valuePresenter below
+// - Add presentatic logic for type to valuePresenter and unitsPresenter below
 //
 
 interface TableData {
-  [key: string]: string | number | Date | string[] | number[] | undefined;
+  [key: string]:
+    | string
+    | number
+    | Date
+    | Temperature
+    | RelativeTemperature
+    | string[]
+    | number[]
+    | undefined;
 }
 
 type TableProps = Omit<StrictTableProps, "renderBodyRow" | "tableData" | "sortable">;
@@ -47,6 +60,8 @@ const SortableTable = <T extends TableData>({
 }): React.ReactElement => {
   const [sortOrder, setSortOrder] = useState<keyof T>(defaultSortField);
   const [sortAscending, setSortAscending] = useState(true);
+
+  const rootStore = useRootStore();
 
   //
   // Helpers for managing sort order
@@ -94,6 +109,14 @@ const SortableTable = <T extends TableData>({
 
     if (lhsKey instanceof Date && rhsKey instanceof Date) {
       return lhsKey.getTime() - rhsKey.getTime();
+    }
+
+    if (lhsKey instanceof Temperature && rhsKey instanceof Temperature) {
+      return lhsKey.valueInCelsius - rhsKey.valueInCelsius;
+    }
+
+    if (lhsKey instanceof RelativeTemperature && rhsKey instanceof RelativeTemperature) {
+      return lhsKey.valueInCelsius - rhsKey.valueInCelsius;
     }
 
     if (Array.isArray(lhsKey) && Array.isArray(rhsKey)) {
@@ -151,13 +174,48 @@ const SortableTable = <T extends TableData>({
                         return v.toLocaleString();
                       }
 
+                      if (v instanceof Temperature) {
+                        return v.toPreferredUnits(rootStore.authStore.userPreferences).toFixed(1);
+                      }
+
+                      if (v instanceof RelativeTemperature) {
+                        return v.toPreferredUnits(rootStore.authStore.userPreferences).toFixed(1);
+                      }
+
                       return v;
+                    };
+
+                    // `v` is intentionally typed as `any` -> tell eslint to go away
+                    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+                    const unitsPresenter = (
+                      v: any,
+                      units?: string | React.ReactElement
+                    ): string | React.ReactElement => {
+                      // Prefer explicitly specified units
+                      if (units) {
+                        return units;
+                      }
+
+                      // Attempt to infer units
+                      if (v instanceof Temperature) {
+                        return Temperature.presentPreferredUnits(
+                          rootStore.authStore.userPreferences
+                        );
+                      }
+
+                      if (v instanceof RelativeTemperature) {
+                        return RelativeTemperature.presentPreferredUnits(
+                          rootStore.authStore.userPreferences
+                        );
+                      }
+
+                      return "";
                     };
 
                     return (
                       <Table.Cell key={fieldDefinition.field as string}>
                         {valuePresenter(value[fieldDefinition.field])}
-                        {fieldDefinition.units && fieldDefinition.units}
+                        {unitsPresenter(value[fieldDefinition.field], fieldDefinition.units)}
                       </Table.Cell>
                     );
                   }
