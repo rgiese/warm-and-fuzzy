@@ -252,8 +252,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {availableActions.includes(GraphQL.ThermostatAction.Heat) && (
           <View style={styles.setPointRow}>
             <Text style={styles.setPointText}>
-              <ThemedText.Heat>Heat</ThemedText.Heat>
-              to
+              <ThemedText.Heat>Heat</ThemedText.Heat> to{" "}
               {Temperature.toString(mutableSetting.setPointHeat, userPreferences)}
             </Text>
             <Slider
@@ -284,8 +283,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {availableActions.includes(GraphQL.ThermostatAction.Cool) && (
           <View style={styles.setPointRow}>
             <Text style={styles.setPointText}>
-              <ThemedText.Cool>Cool</ThemedText.Cool>
-              to
+              <ThemedText.Cool>Cool</ThemedText.Cool> to{" "}
               {Temperature.toString(mutableSetting.setPointCool, userPreferences)}
             </Text>
             <Slider
