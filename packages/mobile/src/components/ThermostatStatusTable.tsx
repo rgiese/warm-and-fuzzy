@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { Text, Theme, withTheme } from "react-native-paper";
 
 import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
+import PresentTemperatureWithUnits from "../shared/PresentTemperatureWithUnits";
 import ScreenBaseStyles from "../screens/ScreenBaseStyles";
 import ScreenRoutes from "../screens/ScreenRoutes";
 import StoreChecks from "./StoreChecks";
@@ -91,6 +92,8 @@ const ThermostatStatusTable: React.FunctionComponent<{
   const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
 
+  const userPreferences = rootStore.authStore.userPreferences;
+
   // Project data
   const values = latestThermostatValuesStore.data
     .map(
@@ -145,8 +148,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
 
                 {/* Reported temperature */}
                 <ThemedText.Accent style={styles.detailsText}>
-                  {item.temperature}
-                  &deg;C
+                  {PresentTemperatureWithUnits(item.temperature, userPreferences)}
                 </ThemedText.Accent>
 
                 {/* Actions: heat */}
@@ -159,8 +161,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
                 )}
                 {item.allowedActions.includes(ThermostatAction.Heat) && (
                   <ThemedText.Heat style={styles.detailsText}>
-                    {item.setPointHeat}
-                    &deg;C
+                    {PresentTemperatureWithUnits(item.setPointHeat, userPreferences)}
                   </ThemedText.Heat>
                 )}
 
@@ -174,8 +175,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
                 )}
                 {item.allowedActions.includes(ThermostatAction.Cool) && (
                   <ThemedText.Cool style={styles.detailsText}>
-                    {item.setPointCool}
-                    &deg;C
+                    {PresentTemperatureWithUnits(item.setPointCool, userPreferences)}
                   </ThemedText.Cool>
                 )}
 

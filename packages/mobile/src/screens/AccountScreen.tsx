@@ -3,6 +3,7 @@ import { Button, Divider, List } from "react-native-paper";
 import BaseView from "../components/BaseView";
 import { ConfigStageName } from "../config";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
+import { PresentTemperatureUnits } from "@grumpycorp/warm-and-fuzzy-shared";
 import React from "react";
 import ScreenRoutes from "./ScreenRoutes";
 import { ScrollView } from "react-native";
@@ -34,6 +35,14 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
             Sign out
           </Button>
         </List.Section>
+        {authStore.userPreferences && (
+          <List.Section title="Your preferences">
+            <List.Item
+              left={(): React.ReactNode => <List.Icon icon="thermometer" />}
+              title={PresentTemperatureUnits(authStore.userPreferences.temperatureUnits)}
+            />
+          </List.Section>
+        )}
         <List.Section title="Your permissions">
           {authStore.userPermissions.map(permission => (
             <List.Item

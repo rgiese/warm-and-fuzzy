@@ -5,16 +5,17 @@ import { Button, Switch, Text, Theme } from "react-native-paper";
 import { ColorCodes, IconNames } from "../Theme";
 import { Picker, ScrollView, StyleSheet, View } from "react-native";
 import React, { useContext, useState } from "react";
+import { ThermostatSettingsHelpers, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import BaseView from "../components/BaseView";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
+import PresentTemperatureWithUnits from "../shared/PresentTemperatureWithUnits";
 import ScreenBaseStyles from "./ScreenBaseStyles";
 import Slider from "@react-native-community/slider";
 import { ThemeContext } from "react-native-elements";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 import fastCompare from "react-fast-compare";
 import moment from "moment";
 import { observer } from "mobx-react";
@@ -100,6 +101,9 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   const isNewSetting = !!navigation.state.params.isNewSetting;
 
   const isDirty = isNewSetting || !fastCompare(mutableSetting, thermostatSetting);
+
+  const rootStore = useRootStore();
+  const userPreferences = rootStore.authStore.userPreferences;
 
   //
   // Functions to change in-flight (editing) state
@@ -245,8 +249,9 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {availableActions.includes(GraphQL.ThermostatAction.Heat) && (
           <View style={styles.setPointRow}>
             <Text style={styles.setPointText}>
-              <ThemedText.Heat>Heat</ThemedText.Heat> to
-              {mutableSetting.setPointHeat} &deg;C
+              <ThemedText.Heat>Heat</ThemedText.Heat>
+              {" to "}
+              {PresentTemperatureWithUnits(mutableSetting.setPointHeat, userPreferences)}
             </Text>
             <Slider
               maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Heat]}
@@ -276,8 +281,9 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {availableActions.includes(GraphQL.ThermostatAction.Cool) && (
           <View style={styles.setPointRow}>
             <Text style={styles.setPointText}>
-              <ThemedText.Cool>Cool</ThemedText.Cool> to
-              {mutableSetting.setPointCool} &deg;C
+              <ThemedText.Cool>Cool</ThemedText.Cool>
+              {" to "}
+              {PresentTemperatureWithUnits(mutableSetting.setPointCool, userPreferences)}
             </Text>
             <Slider
               maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Cool]}
