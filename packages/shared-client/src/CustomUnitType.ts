@@ -15,6 +15,8 @@ export interface CustomUnitTypeStatics<T> {
   // Conversion and presentation capabilities as statics for optimized use
   //
 
+  fromPreferredUnits(value: T, userPreferences?: UserPreferences): T;
+
   toPreferredUnits(value: T, userPreferences?: UserPreferences): T;
 
   toString(value: number, userPreferences?: UserPreferences): string;

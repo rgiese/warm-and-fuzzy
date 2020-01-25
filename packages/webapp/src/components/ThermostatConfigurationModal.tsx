@@ -86,6 +86,7 @@ const ThermostatConfigurationModal: React.FunctionComponent<{
       </Form.Group>
 
       <Form.Group widths="equal">
+        {/* We're deliberately leaving this as Celsius-only */}
         <Form.Input
           error={getFieldError("threshold")}
           fluid

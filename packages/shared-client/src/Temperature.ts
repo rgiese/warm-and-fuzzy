@@ -15,12 +15,23 @@ export class Temperature implements CustomUnitTypeMembers<number> {
   // Conversion and presentation capabilities as statics for optimized use
   //
 
+  public static fromPreferredUnits(
+    valueInPreferredUnits: number,
+    userPreferences?: UserPreferences
+  ): number {
+    if (userPreferences?.temperatureUnits === TemperatureUnits.Fahrenheit) {
+      return ((valueInPreferredUnits - 32.0) * 5.0) / 9.0;
+    }
+
+    return valueInPreferredUnits;
+  }
+
   public static toPreferredUnits(
     valueInCelsius: number,
     userPreferences?: UserPreferences
   ): number {
     if (userPreferences?.temperatureUnits === TemperatureUnits.Fahrenheit) {
-      return (valueInCelsius * 9.0) / 5.0 + 32;
+      return (valueInCelsius * 9.0) / 5.0 + 32.0;
     }
 
     return valueInCelsius;
@@ -54,4 +65,6 @@ export class Temperature implements CustomUnitTypeMembers<number> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore TS6133 /* declared but its value is never read */
 const _customUnitTypeStaticsValidation: CustomUnitTypeStatics<number> = Temperature;
