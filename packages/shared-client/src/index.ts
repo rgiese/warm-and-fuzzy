@@ -15,3 +15,5 @@ export * from "./stores/thermostatConfiguration";
 export * from "./stores/thermostatSettings";
 
 export * from "./thermostatSettingsHelpers";
+
+export * from "./UserPreferences";

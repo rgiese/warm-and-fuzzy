@@ -19,13 +19,13 @@
 
     ```
     function (user, context, callback) {
-    const namespace = 'https://warmandfuzzy.house/';
+      const namespace = 'https://warmandfuzzy.house/';
 
-    if (user.app_metadata.hasOwnProperty('tenant')) {
+      if (user.app_metadata.hasOwnProperty('tenant')) {
         context.accessToken[namespace + 'tenant'] = user.app_metadata.tenant;
-    }
+      }
 
-    callback(null, user, context);
+      callback(null, user, context);
     }
     ```
 
@@ -37,6 +37,20 @@
 
       context.idToken[namespace + 'user_email'] = user.email;
       context.idToken[namespace + 'user_name'] = user.name;
+
+      callback(null, user, context);
+    }
+    ```
+
+  - `Add custom user metadata to ID token`
+
+    ```
+    function (user, context, callback) {
+      const namespace = 'https://warmandfuzzy.house/';
+
+      if (user.user_metadata.hasOwnProperty('units_prefs')) {
+        context.idToken[namespace + 'units_prefs'] = user.user_metadata.units_prefs;
+      }
 
       callback(null, user, context);
     }
