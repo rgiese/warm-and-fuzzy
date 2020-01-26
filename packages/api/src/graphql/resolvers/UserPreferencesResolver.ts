@@ -8,15 +8,15 @@ import shallowUpdate from "./shallowUpdate";
 
 class UserPreferencesResolver {
   public async getOneOrDefault(authenticatedSubject: string): Promise<GraphQL.UserPreferences> {
-    let initialModel = new UserPreferences();
-
     try {
-      initialModel = await DbMapper.get(Object.assign(initialModel, { id: authenticatedSubject }));
+      const item = await DbMapper.get(
+        Object.assign(new UserPreferences(), { id: authenticatedSubject })
+      );
+      return UserPreferencesMapper.graphqlFromModel(item);
     } catch (e) {
-      // Ignore - use default instead
+      // Return default instead
+      return UserPreferencesSchema.DefaultUserPreferences;
     }
-
-    return UserPreferencesMapper.graphqlFromModel(initialModel);
   }
 
   public async createOrUpdate(

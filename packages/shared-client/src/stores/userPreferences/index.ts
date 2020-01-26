@@ -1,5 +1,5 @@
+import { TypeTools, UserPreferencesSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import {
-  TemperatureUnits,
   UpdateUserPreferencesStoreMutation,
   UpdateUserPreferencesStoreMutationVariables,
   UserPreferences,
@@ -10,7 +10,6 @@ import { computed, flow } from "mobx";
 import { ApolloClient } from "../../services/ApolloClient";
 import { AuthStore } from "../auth";
 import { GraphqlMutableStoreBase } from "../GraphqlMutableStoreBase";
-import { TypeTools } from "@grumpycorp/warm-and-fuzzy-shared";
 import gql from "graphql-tag";
 
 const userPreferencesFragment = gql`
@@ -91,7 +90,7 @@ export class UserPreferencesStore extends GraphqlMutableStoreBase<
       return this.data[0];
     }
 
-    return { temperatureUnits: TemperatureUnits.Celsius };
+    return UserPreferencesSchema.DefaultUserPreferences;
   }
 
   public updateUserPreferences = flow(function*(

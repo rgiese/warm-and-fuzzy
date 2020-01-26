@@ -7,7 +7,6 @@ generates:
       useIndexSignature: true
       showUnusedMappers: true
       contextType: ../src/graphql/context#Context
-      constEnums: true
       scalars:
         DateTime: Date
     plugins:
