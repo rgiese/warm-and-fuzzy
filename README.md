@@ -84,6 +84,9 @@ All commands below start the mobile app server locally, varying which API it cal
 If the JS server fails to start (the window just closes), try running a full mobile build with `lerna run bundle-mobile --stream`,
 or `cd packages/mobile`, `npx react-native start`.
 
+Note that for whatever colorful reason, switching between modes (e.g. `...local:dev` vs. `...remote:prod`) requires
+a `lerna run clean-mobile` in the middle.
+
 ## Dev tooling tricks
 
 ### Lerna
