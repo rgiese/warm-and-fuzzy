@@ -32,6 +32,9 @@ const Header: React.FunctionComponent = (): React.ReactElement => {
       {authStore.userPermissions.includes(Authorization.Permissions.ReadData) && (
         <Menu.Item as={NavLink} content="Explore" to="/explore" />
       )}
+      {authStore.isUserAuthenticated && (
+        <Menu.Item as={NavLink} content="Preferences" to="/preferences" />
+      )}
       <Menu.Menu position="right">
         {!Config.isProduction && <Menu.Item header>Stage: {ConfigStageName}</Menu.Item>}
         {!authStore.isUserAuthenticated ? (
@@ -48,7 +51,6 @@ const Header: React.FunctionComponent = (): React.ReactElement => {
             name="logout"
             onClick={async (): Promise<void> => authStore.authProvider.requestLogout()}
           >
-            {" "}
             Log out {authStore.userName?.split(" ")[0] ?? ""}
           </Menu.Item>
         )}

@@ -10,6 +10,7 @@ import ThermostatSetting from "./ThermostatSetting";
 import ThermostatSettings from "./ThermostatSettings";
 import ThermostatValue from "./ThermostatValue";
 import ThermostatValueStream from "./ThermostatValueStream";
+import UserPreferences from "./UserPreferences";
 
 export {
   DeviceTenancy,
@@ -22,4 +23,5 @@ export {
   ThermostatSettings,
   ThermostatValue,
   ThermostatValueStream,
+  UserPreferences,
 };

@@ -1,16 +1,23 @@
-import { LatestThermostatValue, useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
+import {
+  LatestThermostatValue,
+  Temperature,
+  useRootStore,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 import SortableTable, { TableFieldDefinition } from "./SortableTable";
 
 import React from "react";
 import StoreChecks from "./StoreChecks";
 import { observer } from "mobx-react";
 
-type ThermostatValue = LatestThermostatValue & { name: string };
+type ThermostatValue = Omit<LatestThermostatValue, "temperature"> & {
+  name: string;
+  temperature: Temperature;
+};
 
 const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
   { field: "name", label: "Thermostat" },
   { field: "deviceTime", label: "Time" },
-  { field: "temperature", label: "Temperature", units: <>&deg;C</> },
+  { field: "temperature", label: "Temperature" },
   { field: "humidity", label: "Humidity", units: "%" },
   { field: "currentActions", label: "Actions" },
 ];
@@ -24,7 +31,11 @@ const LatestThermostatValues: React.FunctionComponent = (): React.ReactElement =
   // Project data
   const values = latestThermostatValuesStore.data.map(
     (value): ThermostatValue => {
-      return { ...value, name: thermostatConfigurationStore.findById(value.id)?.name ?? value.id };
+      return {
+        ...value,
+        name: thermostatConfigurationStore.findById(value.id)?.name ?? value.id,
+        temperature: new Temperature(value.temperature),
+      };
     }
   );
 

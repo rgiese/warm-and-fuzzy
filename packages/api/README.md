@@ -19,13 +19,13 @@
 
     ```
     function (user, context, callback) {
-    const namespace = 'https://warmandfuzzy.house/';
+      const namespace = 'https://warmandfuzzy.house/';
 
-    if (user.app_metadata.hasOwnProperty('tenant')) {
+      if (user.app_metadata.hasOwnProperty('tenant')) {
         context.accessToken[namespace + 'tenant'] = user.app_metadata.tenant;
-    }
+      }
 
-    callback(null, user, context);
+      callback(null, user, context);
     }
     ```
 

@@ -36,14 +36,19 @@ export class AuthStore {
 
     this.accessToken = accessToken;
 
+    // Access token
     const decodedAccessToken = JwtDecode<any>(accessToken);
-    const decodedIdToken = JwtDecode<any>(idToken);
 
     this.tenant =
       decodedAccessToken[
         AuthenticationConfiguration.CustomClaimsNamespace +
           AuthenticationConfiguration.CustomClaims.Tenant
       ];
+
+    this.userPermissions.replace(decodedAccessToken["permissions"]);
+
+    // Id token
+    const decodedIdToken = JwtDecode<any>(idToken);
 
     this.userName =
       decodedIdToken[
@@ -56,8 +61,6 @@ export class AuthStore {
         AuthenticationConfiguration.CustomClaimsNamespace +
           AuthenticationConfiguration.CustomClaims.UserEmail
       ];
-
-    this.userPermissions.replace(decodedAccessToken["permissions"]);
   }
 
   @action

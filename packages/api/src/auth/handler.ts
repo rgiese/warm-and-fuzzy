@@ -62,11 +62,16 @@ export const authorize: CustomAuthorizerHandler = async (
     };
 
     const authorizations: PackedAuthorizations = {
+      AuthenticatedSubject: verifiedToken.sub as string,
       AuthorizedTenant: verifiedToken[customClaimIds.Tenant],
       AuthorizedPermissions: PackPermissions(verifiedToken.permissions as string[]),
     };
 
-    if (!authorizations.AuthorizedTenant || !authorizations.AuthorizedPermissions) {
+    if (
+      !authorizations.AuthenticatedSubject ||
+      !authorizations.AuthorizedTenant ||
+      !authorizations.AuthorizedPermissions
+    ) {
       return await Promise.reject("Unauthorized");
     }
 

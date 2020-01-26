@@ -22,6 +22,7 @@ import { configure as MobxConfigure } from "mobx";
 import NotFound from "./containers/NotFound";
 import React from "react";
 import ThermostatSettings from "./containers/ThermostatSettings";
+import UserPreferences from "./containers/UserPreferences";
 import config from "./config";
 
 // App-wide MobX configuration
@@ -62,6 +63,7 @@ const App: React.FunctionComponent = (): React.ReactElement => {
               path="/explore"
               props={{ exploreStore, explorePlotDataStore }}
             />
+            <AuthenticatedRoute component={UserPreferences} exact path="/preferences" />
             {/* Finally, catch all unmatched routes */}
             <Route component={NotFound} />
           </Switch>

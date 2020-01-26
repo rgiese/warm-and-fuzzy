@@ -4,6 +4,7 @@ import { ColorCodes, IconNames } from "../Theme";
 import { FlatList, StyleSheet, View } from "react-native";
 import {
   LatestThermostatValue,
+  Temperature,
   ThermostatConfiguration,
   useRootStore,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
@@ -90,6 +91,9 @@ const ThermostatStatusTable: React.FunctionComponent<{
 
   const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
+  const userPreferencesStore = rootStore.userPreferencesStore;
+
+  const userPreferences = userPreferencesStore.userPreferences;
 
   // Project data
   const values = latestThermostatValuesStore.data
@@ -115,7 +119,13 @@ const ThermostatStatusTable: React.FunctionComponent<{
     .sort((lhs, rhs): number => lhs.configuration.name.localeCompare(rhs.configuration.name));
 
   return (
-    <StoreChecks requiredStores={[latestThermostatValuesStore, thermostatConfigurationStore]}>
+    <StoreChecks
+      requiredStores={[
+        latestThermostatValuesStore,
+        thermostatConfigurationStore,
+        userPreferencesStore,
+      ]}
+    >
       <FlatList<ThermostatValue>
         data={values}
         extraData={latestRenderTime}
@@ -145,8 +155,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
 
                 {/* Reported temperature */}
                 <ThemedText.Accent style={styles.detailsText}>
-                  {item.temperature}
-                  &deg;C
+                  {Temperature.toString(item.temperature, userPreferences)}
                 </ThemedText.Accent>
 
                 {/* Actions: heat */}
@@ -159,8 +168,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
                 )}
                 {item.allowedActions.includes(ThermostatAction.Heat) && (
                   <ThemedText.Heat style={styles.detailsText}>
-                    {item.setPointHeat}
-                    &deg;C
+                    {Temperature.toString(item.setPointHeat, userPreferences)}
                   </ThemedText.Heat>
                 )}
 
@@ -174,8 +182,7 @@ const ThermostatStatusTable: React.FunctionComponent<{
                 )}
                 {item.allowedActions.includes(ThermostatAction.Cool) && (
                   <ThemedText.Cool style={styles.detailsText}>
-                    {item.setPointCool}
-                    &deg;C
+                    {Temperature.toString(item.setPointCool, userPreferences)}
                   </ThemedText.Cool>
                 )}
 

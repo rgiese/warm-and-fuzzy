@@ -11,11 +11,16 @@ import {
   SemanticCOLORS,
   SemanticICONS,
 } from "semantic-ui-react";
+import {
+  RelativeTemperature,
+  Temperature,
+  ThermostatSettingsHelpers,
+  useRootStore,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import InteriorPadding from "./InteriorPadding";
 import React from "react";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
-import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 const SetpointPopup: React.FunctionComponent<{
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
@@ -34,9 +39,22 @@ const SetpointPopup: React.FunctionComponent<{
   iconColor,
   iconName,
 }): React.ReactElement => {
+  const rootStore = useRootStore();
+  const userPreferences = rootStore.userPreferencesStore.userPreferences;
+
   const isCirculate = action === GraphQL.ThermostatAction.Circulate;
 
   const isActionAllowed = mutableSetting.allowedActions.includes(action);
+
+  const temperatureStepInCelsius = 1.0; // Round setpoint to multiple of `temperatureStepInCelsius`
+
+  const roundToMultipleOf = (value: number, roundToMultipleOf: number): number => {
+    const numberOfMultiples = value / roundToMultipleOf;
+    const roundedNumberOfMultiples = Math.round(numberOfMultiples);
+    const roundedToMultiples = roundedNumberOfMultiples * roundToMultipleOf;
+
+    return roundedToMultiples;
+  };
 
   return availableActions.includes(action) ? (
     <Popup
@@ -49,12 +67,12 @@ const SetpointPopup: React.FunctionComponent<{
             isCirculate ? (
               <Icon name="check" />
             ) : (
-              <>
-                {action === GraphQL.ThermostatAction.Heat
+              Temperature.toString(
+                action === GraphQL.ThermostatAction.Heat
                   ? mutableSetting.setPointHeat
-                  : mutableSetting.setPointCool}{" "}
-                &deg;C
-              </>
+                  : mutableSetting.setPointCool,
+                userPreferences
+              )
             )
           ) : (
             <Icon name="window minimize outline" />
@@ -85,15 +103,30 @@ const SetpointPopup: React.FunctionComponent<{
               <Form.Field>
                 <Input
                   disabled={!isActionAllowed}
-                  label={{ content: <>&deg; C</> }}
+                  label={Temperature.unitsToString(userPreferences)}
                   labelPosition="right"
-                  max={ThermostatSettingSchema.SetPointRange.max}
-                  min={ThermostatSettingSchema.SetPointRange.min}
+                  max={Temperature.toPreferredUnits(
+                    ThermostatSettingSchema.SetPointRange.max,
+                    userPreferences
+                  )}
+                  min={Temperature.toPreferredUnits(
+                    ThermostatSettingSchema.SetPointRange.min,
+                    userPreferences
+                  )}
                   onChange={(
                     _event: React.ChangeEvent<HTMLInputElement>,
                     data: InputOnChangeData
                   ): void => {
-                    const setpoint = Number.parseFloat(data.value);
+                    const setpointInPreferredUnits = Number.parseFloat(data.value);
+                    const setpointInBaseUnits = Temperature.fromPreferredUnits(
+                      setpointInPreferredUnits,
+                      userPreferences
+                    );
+                    const setpoint = roundToMultipleOf(
+                      setpointInBaseUnits,
+                      temperatureStepInCelsius
+                    );
+
                     const updatedSetpoints =
                       action === GraphQL.ThermostatAction.Heat
                         ? { setPointHeat: setpoint }
@@ -104,13 +137,17 @@ const SetpointPopup: React.FunctionComponent<{
                       ...updatedSetpoints,
                     });
                   }}
-                  step={1}
+                  step={RelativeTemperature.toPreferredUnits(
+                    temperatureStepInCelsius,
+                    userPreferences
+                  )}
                   type="number"
-                  value={
+                  value={Temperature.toPreferredUnits(
                     action === GraphQL.ThermostatAction.Heat
                       ? mutableSetting.setPointHeat
-                      : mutableSetting.setPointCool
-                  }
+                      : mutableSetting.setPointCool,
+                    userPreferences
+                  )}
                 />
               </Form.Field>
             )}

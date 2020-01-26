@@ -29,6 +29,9 @@ schema {
 }
 
 type Query {
+  # UserPreferences (no special permission required)
+  getUserPreferences: UserPreferences!
+
   # ThermostatSettings
   getThermostatSettings: [ThermostatSettings!]! @requiresPermission(permission: READ_SETTINGS)
 
@@ -71,6 +74,9 @@ type Query {
 }
 
 type Mutation {
+  # UserPreferences (no special permission required)
+  updateUserPreferences(userPreferences: UserPreferencesUpdateInput!): UserPreferences!
+
   # ThermostatSettings
   createThermostatSettings(thermostatSettings: ThermostatSettingsCreateInput!): ThermostatSettings!
     @requiresPermission(permission: WRITE_SETTINGS)
@@ -95,6 +101,23 @@ type Mutation {
   updateSensorConfiguration(
     sensorConfiguration: SensorConfigurationUpdateInput!
   ): SensorConfiguration! @requiresPermission(permission: WRITE_CONFIG)
+}
+
+#
+# UserPreferences
+#
+
+enum TemperatureUnits {
+  Celsius
+  Fahrenheit
+}
+
+type UserPreferences {
+  temperatureUnits: TemperatureUnits!
+}
+
+input UserPreferencesUpdateInput {
+  temperatureUnits: TemperatureUnits
 }
 
 #

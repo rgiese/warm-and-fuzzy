@@ -1,11 +1,15 @@
 import * as GraphQL from "../../generated/graphqlClient";
 
 import { ColorCodes, IconNames } from "../Theme";
+import {
+  Temperature,
+  ThermostatSetting,
+  useRootStore,
+} from "@grumpycorp/warm-and-fuzzy-shared-client";
 
 import IconMDC from "react-native-vector-icons/MaterialCommunityIcons";
 import React from "react";
 import { Text } from "react-native-paper";
-import { ThermostatSetting } from "@grumpycorp/warm-and-fuzzy-shared-client";
 import { observer } from "mobx-react";
 
 const iconSize = 14;
@@ -16,6 +20,9 @@ const SetpointDisplay: React.FunctionComponent<{
 }> = ({ thermostatSetting, action }): React.ReactElement => {
   const isCirculate = action === GraphQL.ThermostatAction.Circulate;
 
+  const rootStore = useRootStore();
+  const userPreferences = rootStore.userPreferencesStore.userPreferences;
+
   return thermostatSetting.allowedActions.includes(action) ? (
     <>
       <IconMDC color={ColorCodes[action]} name={IconNames[action]} size={iconSize} />
@@ -23,12 +30,12 @@ const SetpointDisplay: React.FunctionComponent<{
         {isCirculate ? (
           <IconMDC color={ColorCodes[action]} name="check" size={iconSize} />
         ) : (
-          <>
-            {action === GraphQL.ThermostatAction.Heat
+          Temperature.toString(
+            action === GraphQL.ThermostatAction.Heat
               ? thermostatSetting.setPointHeat
-              : thermostatSetting.setPointCool}{" "}
-            &deg;C
-          </>
+              : thermostatSetting.setPointCool,
+            userPreferences
+          )
         )}
       </Text>
       <Text>&nbsp;</Text>
