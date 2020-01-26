@@ -9,6 +9,7 @@ import sensorValueStreamResolver from "./resolvers/SensorValueStreamResolver";
 import thermostatConfigurationResolver from "./resolvers/ThermostatConfigurationResolver";
 import thermostatSettingsResolver from "./resolvers/ThermostatSettingsResolver";
 import thermostatValueStreamResolver from "./resolvers/ThermostatValueStreamResolver";
+import userPreferencesResolver from "./resolvers/UserPreferencesResolver";
 
 const resolvers: GraphQL.Resolvers = {
   /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
@@ -39,6 +40,9 @@ const resolvers: GraphQL.Resolvers = {
 
   /* eslint-disable @typescript-eslint/explicit-function-return-type */
   Query: {
+    getUserPreferences: async (_parent, _args, context) => {
+      return userPreferencesResolver.getOne(context.AuthenticatedSubect);
+    },
     getThermostatSettings: async (_parent, _args, context) => {
       return thermostatSettingsResolver.getAll(context.AuthorizedTenant);
     },
@@ -82,6 +86,9 @@ const resolvers: GraphQL.Resolvers = {
   //
 
   Mutation: {
+    updateUserPreferences: async (_parent, args, context) => {
+      return userPreferencesResolver.update(context.AuthenticatedSubect, args.userPreferences);
+    },
     createThermostatSettings: async (_parent, args, context) => {
       return thermostatSettingsResolver.create(context.AuthorizedTenant, args.thermostatSettings);
     },
