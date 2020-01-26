@@ -92,6 +92,13 @@ const SortableTable = <T extends TableData>({
     const lhsKey = lhs[sortOrder];
     const rhsKey = rhs[sortOrder];
 
+    if (lhsKey === undefined) {
+      // Sort undefined keys to the end (highest values) of the list
+      return rhsKey === undefined ? 0 : 1;
+    } else if (rhsKey === undefined) {
+      return -1;
+    }
+
     if (typeof lhsKey !== typeof rhsKey) {
       // Caller-side TypeScript should have caught this
       throw new Error(
