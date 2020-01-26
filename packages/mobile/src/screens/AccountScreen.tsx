@@ -9,6 +9,7 @@ import { ConfigStageName } from "../config";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 import ScreenRoutes from "./ScreenRoutes";
 import StoreChecks from "../components/StoreChecks";
+import { UserPreferencesSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { observer } from "mobx-react";
 import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
@@ -30,8 +31,10 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
 
   const [mutableUserPreferences, setMutableUserPreferences] = useState(userPreferences);
 
-  const isUserPreferencesDirty =
-    userPreferences.temperatureUnits !== mutableUserPreferences.temperatureUnits;
+  const isUserPreferencesDirty = !UserPreferencesSchema.UserPreferencesIsEqual(
+    userPreferences,
+    mutableUserPreferences
+  );
 
   return (
     <StoreChecks requiredStores={[userPreferencesStore]}>
