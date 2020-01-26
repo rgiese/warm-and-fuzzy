@@ -34,7 +34,7 @@ const AuthScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.R
               marginBottom: 20,
             }}
           >
-            <GrumpyRobin height={60} width={60} />
+            <GrumpyRobin fill="#000" height={60} width={60} />
           </Surface>
           <Title style={{ marginBottom: 20 }}>Warm and Fuzzy</Title>
           <Button
