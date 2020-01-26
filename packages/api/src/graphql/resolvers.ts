@@ -87,7 +87,10 @@ const resolvers: GraphQL.Resolvers = {
 
   Mutation: {
     updateUserPreferences: async (_parent, args, context) => {
-      return userPreferencesResolver.update(context.AuthenticatedSubect, args.userPreferences);
+      return userPreferencesResolver.createOrUpdate(
+        context.AuthenticatedSubect,
+        args.userPreferences
+      );
     },
     createThermostatSettings: async (_parent, args, context) => {
       return thermostatSettingsResolver.create(context.AuthorizedTenant, args.thermostatSettings);
