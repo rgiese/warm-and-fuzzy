@@ -40,7 +40,7 @@ const SetpointPopup: React.FunctionComponent<{
   iconName,
 }): React.ReactElement => {
   const rootStore = useRootStore();
-  const userPreferences = rootStore.authStore.userPreferences;
+  const userPreferences = rootStore.userPreferencesStore.userPreferences;
 
   const isCirculate = action === GraphQL.ThermostatAction.Circulate;
 

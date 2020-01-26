@@ -21,7 +21,7 @@ const SetpointDisplay: React.FunctionComponent<{
   const isCirculate = action === GraphQL.ThermostatAction.Circulate;
 
   const rootStore = useRootStore();
-  const userPreferences = rootStore.authStore.userPreferences;
+  const userPreferences = rootStore.userPreferencesStore.userPreferences;
 
   return thermostatSetting.allowedActions.includes(action) ? (
     <>

@@ -5,6 +5,7 @@ import { LatestThermostatValuesStore } from "./latestThermostatValues";
 import { SensorConfigurationStore } from "./sensorConfiguration";
 import { ThermostatConfigurationStore } from "./thermostatConfiguration";
 import { ThermostatSettingsStore } from "./thermostatSettings";
+import { UserPreferencesStore } from "./userPreferences";
 
 export class RootStore {
   public readonly authStore: AuthStore;
@@ -13,6 +14,7 @@ export class RootStore {
   public readonly sensorConfigurationStore: SensorConfigurationStore;
   public readonly thermostatConfigurationStore: ThermostatConfigurationStore;
   public readonly thermostatSettingsStore: ThermostatSettingsStore;
+  public readonly userPreferencesStore: UserPreferencesStore;
 
   public constructor(authStore: AuthStore, apolloClient: ApolloClient) {
     this.authStore = authStore;
@@ -28,5 +30,6 @@ export class RootStore {
       apolloClient
     );
     this.thermostatSettingsStore = new ThermostatSettingsStore(this.authStore, apolloClient);
+    this.userPreferencesStore = new UserPreferencesStore(this.authStore, apolloClient);
   }
 }

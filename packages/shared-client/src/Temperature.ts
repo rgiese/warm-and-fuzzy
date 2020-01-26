@@ -1,7 +1,5 @@
 import { CustomUnitTypeMembers, CustomUnitTypeStatics } from "./CustomUnitType";
-
-import { TemperatureUnits } from "@grumpycorp/warm-and-fuzzy-shared";
-import { UserPreferences } from "./UserPreferences";
+import { TemperatureUnits, UserPreferences } from "./generated/graphqlClient";
 
 // static implements CustomUnitTypeStatics<number> (see below)
 export class Temperature implements CustomUnitTypeMembers<number> {

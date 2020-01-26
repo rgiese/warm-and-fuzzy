@@ -175,11 +175,11 @@ const SortableTable = <T extends TableData>({
                       }
 
                       if (v instanceof Temperature) {
-                        return v.toString(rootStore.authStore.userPreferences);
+                        return v.toString(rootStore.userPreferencesStore.userPreferences);
                       }
 
                       if (v instanceof RelativeTemperature) {
-                        return v.toString(rootStore.authStore.userPreferences);
+                        return v.toString(rootStore.userPreferencesStore.userPreferences);
                       }
 
                       return v;

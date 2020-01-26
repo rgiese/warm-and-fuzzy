@@ -20,7 +20,6 @@ export namespace AuthenticationConfiguration {
     // Id token
     UserName: "user_name",
     UserEmail: "user_email",
-    UnitsPreferences: "units_prefs",
     // Access token
     Tenant: "tenant",
   };

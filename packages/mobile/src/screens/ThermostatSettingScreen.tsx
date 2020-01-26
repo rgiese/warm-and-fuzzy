@@ -106,7 +106,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   const isDirty = isNewSetting || !fastCompare(mutableSetting, thermostatSetting);
 
   const rootStore = useRootStore();
-  const userPreferences = rootStore.authStore.userPreferences;
+  const userPreferences = rootStore.userPreferencesStore.userPreferences;
 
   //
   // Functions to change in-flight (editing) state

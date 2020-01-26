@@ -42,20 +42,6 @@
     }
     ```
 
-  - `Add custom user metadata to ID token`
-
-    ```
-    function (user, context, callback) {
-      const namespace = 'https://warmandfuzzy.house/';
-
-      if (user.user_metadata.hasOwnProperty('units_prefs')) {
-        context.idToken[namespace + 'units_prefs'] = user.user_metadata.units_prefs;
-      }
-
-      callback(null, user, context);
-    }
-    ```
-
 - User setup
   - Assign roles to users as needed
   - Assign tenant IDs to users as appropriate

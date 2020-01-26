@@ -1,4 +1,4 @@
-import { UserPreferences } from "./UserPreferences";
+import { UserPreferences } from "./generated/graphqlClient";
 
 export interface CustomUnitTypeMembers<T> {
   //

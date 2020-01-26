@@ -91,8 +91,9 @@ const ThermostatStatusTable: React.FunctionComponent<{
 
   const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
+  const userPreferencesStore = rootStore.userPreferencesStore;
 
-  const userPreferences = rootStore.authStore.userPreferences;
+  const userPreferences = userPreferencesStore.userPreferences;
 
   // Project data
   const values = latestThermostatValuesStore.data
@@ -118,7 +119,13 @@ const ThermostatStatusTable: React.FunctionComponent<{
     .sort((lhs, rhs): number => lhs.configuration.name.localeCompare(rhs.configuration.name));
 
   return (
-    <StoreChecks requiredStores={[latestThermostatValuesStore, thermostatConfigurationStore]}>
+    <StoreChecks
+      requiredStores={[
+        latestThermostatValuesStore,
+        thermostatConfigurationStore,
+        userPreferencesStore,
+      ]}
+    >
       <FlatList<ThermostatValue>
         data={values}
         extraData={latestRenderTime}

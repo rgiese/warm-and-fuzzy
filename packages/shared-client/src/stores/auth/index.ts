@@ -3,8 +3,6 @@ import { action, computed, observable } from "mobx";
 import { AuthProvider } from "./AuthProvider";
 import { AuthenticationConfiguration } from "@grumpycorp/warm-and-fuzzy-shared";
 import JwtDecode from "jwt-decode";
-import { TemperatureUnits } from "@grumpycorp/warm-and-fuzzy-shared";
-import { UserPreferences } from "../../UserPreferences";
 
 type AuthStoreState = "initializing" | "authenticating" | "unauthenticated" | "authenticated";
 
@@ -15,7 +13,6 @@ export class AuthStore {
   @observable public tenant?: string = undefined;
   @observable public userName?: string = undefined;
   @observable public userEmail?: string = undefined;
-  @observable public userPreferences?: UserPreferences = undefined;
   public readonly userPermissions = observable.array<string>([]);
 
   public authProvider: AuthProvider;
@@ -64,30 +61,6 @@ export class AuthStore {
         AuthenticationConfiguration.CustomClaimsNamespace +
           AuthenticationConfiguration.CustomClaims.UserEmail
       ];
-
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    this.userPreferences = ((unitsPreferences?: any): UserPreferences => {
-      const userPreferences = new UserPreferences();
-
-      if (unitsPreferences?.hasOwnProperty("temperature")) {
-        if (unitsPreferences.temperature === "celsius") {
-          userPreferences.temperatureUnits = TemperatureUnits.Celsius;
-        } else if (unitsPreferences.temperature === "fahrenheit") {
-          userPreferences.temperatureUnits = TemperatureUnits.Fahrenheit;
-        } else {
-          console.log(
-            `Ignoring unrecognized temperature units preference ${unitsPreferences.temperature as string}`
-          );
-        }
-      }
-
-      return userPreferences;
-    })(
-      decodedIdToken[
-        AuthenticationConfiguration.CustomClaimsNamespace +
-          AuthenticationConfiguration.CustomClaims.UnitsPreferences
-      ]
-    );
   }
 
   @action
@@ -96,7 +69,6 @@ export class AuthStore {
     this.tenant = undefined;
     this.userName = undefined;
     this.userEmail = undefined;
-    this.userPreferences = undefined;
     this.userPermissions.clear();
 
     this.state = "unauthenticated";
