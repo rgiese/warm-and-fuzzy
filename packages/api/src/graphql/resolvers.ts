@@ -41,7 +41,7 @@ const resolvers: GraphQL.Resolvers = {
   /* eslint-disable @typescript-eslint/explicit-function-return-type */
   Query: {
     getUserPreferences: async (_parent, _args, context) => {
-      return userPreferencesResolver.getOne(context.AuthenticatedSubect);
+      return userPreferencesResolver.getOneOrDefault(context.AuthenticatedSubect);
     },
     getThermostatSettings: async (_parent, _args, context) => {
       return thermostatSettingsResolver.getAll(context.AuthorizedTenant);

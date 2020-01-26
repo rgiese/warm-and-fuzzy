@@ -2,41 +2,29 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 import { DbMapper, UserPreferences } from "../../shared/db";
 
-import { ItemNotFoundException } from "@aws/dynamodb-data-mapper";
 import UserPreferencesMapper from "../mappers/UserPreferencesMapper";
 import { UserPreferencesSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import shallowUpdate from "./shallowUpdate";
 
 class UserPreferencesResolver {
-  public async getOne(authenticatedSubject: string): Promise<GraphQL.UserPreferences> {
-    const item = await DbMapper.get(
-      Object.assign(new UserPreferences(), { id: authenticatedSubject })
-    );
+  public async getOneOrDefault(authenticatedSubject: string): Promise<GraphQL.UserPreferences> {
+    let initialModel = new UserPreferences();
 
-    return UserPreferencesMapper.graphqlFromModel(item);
+    try {
+      initialModel = await DbMapper.get(Object.assign(initialModel, { id: authenticatedSubject }));
+    } catch (e) {
+      // Ignore - use default instead
+    }
+
+    return UserPreferencesMapper.graphqlFromModel(initialModel);
   }
 
   public async createOrUpdate(
     authenticatedSubject: string,
     input: GraphQL.UserPreferencesUpdateInput
   ): Promise<GraphQL.UserPreferences> {
-    // Retrieve existing item
-    let initialModel = new UserPreferences();
-
-    try {
-      initialModel = await DbMapper.get(
-        Object.assign(new UserPreferences(), { id: authenticatedSubject })
-      );
-    } catch (e) {
-      if (e instanceof ItemNotFoundException) {
-        // Ignore - treat as create rather than update
-      } else {
-        throw e;
-      }
-    }
-
-    // Build GraphQL representation
-    const initialGraphql = UserPreferencesMapper.graphqlFromModel(initialModel);
+    // Retrieve existing item or default
+    const initialGraphql = await this.getOneOrDefault(authenticatedSubject);
 
     // Merge in mutated values
     const updatedGraphql = shallowUpdate(initialGraphql, input);
