@@ -95,7 +95,8 @@ const SortableTable = <T extends TableData>({
     if (typeof lhsKey !== typeof rhsKey) {
       // Caller-side TypeScript should have caught this
       throw new Error(
-        `Sort key types don't match for field ${sortOrder.toString()}: ${lhsKey?.toString()} / ${rhsKey?.toString()}`
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `Sort key types don't match for field ${sortOrder.toString()}: ${lhsKey} / ${rhsKey}`
       );
     }
 
