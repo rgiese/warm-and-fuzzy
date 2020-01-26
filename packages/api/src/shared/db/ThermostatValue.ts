@@ -33,6 +33,10 @@ export default class ThermostatValue extends DeviceWithTenantAndId {
   @attribute()
   public temperature: number;
 
+  // Units: Celsius (from an optional secondary sensor on the device)
+  @attribute()
+  public secondaryTemperature?: number;
+
   // Units: %RH [0-100]
   @attribute()
   public humidity: number;
@@ -65,6 +69,7 @@ export default class ThermostatValue extends DeviceWithTenantAndId {
     this.deviceLocalSerial = 0;
     this.currentActions = undefined;
     this.temperature = 0.0;
+    this.secondaryTemperature = undefined;
     this.humidity = 0.0;
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
