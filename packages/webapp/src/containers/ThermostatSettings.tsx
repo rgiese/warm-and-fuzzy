@@ -10,16 +10,34 @@ const ThermostatSettingsContainer: React.FunctionComponent = (): React.ReactElem
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
   const thermostatSettingsStore = rootStore.thermostatSettingsStore;
 
-  const sortedThermostatSettings = thermostatSettingsStore.data.slice().sort((lhs, rhs): number => {
-    const lhsConfiguration = thermostatConfigurationStore.findById(lhs.id);
-    const rhsConfiguration = thermostatConfigurationStore.findById(rhs.id);
+  // Looking up the configuration a whole bunch below may be a bit clowny
+  // but these are small datasets and this is less complex than any alternative.
+  const sortedThermostatSettings = thermostatSettingsStore.data
+    .filter((thermostatSettings): boolean => {
+      const configuration = thermostatConfigurationStore.findById(thermostatSettings.id);
 
-    if (!lhsConfiguration) {
-      return rhsConfiguration ? -1 : 0;
-    }
+      // We need a configuration (e.g. for name)
+      if (!configuration) {
+        return false;
+      }
 
-    return lhsConfiguration.name.localeCompare(rhsConfiguration?.name ?? "");
-  });
+      // Don't display reporting-only devices, i.e. those that have no available actions
+      if (!configuration.availableActions || !configuration.availableActions.length) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((lhs, rhs): number => {
+      const lhsConfiguration = thermostatConfigurationStore.findById(lhs.id);
+      const rhsConfiguration = thermostatConfigurationStore.findById(rhs.id);
+
+      if (!lhsConfiguration || !rhsConfiguration) {
+        throw new Error("Filter step should have eliminated missing configurations");
+      }
+
+      return lhsConfiguration.name.localeCompare(rhsConfiguration.name ?? "");
+    });
 
   return (
     <StoreChecks
