@@ -25,8 +25,8 @@ const flatbuffersRoot = path.join(grumpycorpRoot, "flatbuffers");
 
 // Run codegen
 const fixIncludePathsInFile = fileName => {
-  // Modify include locations from "flatbuffers/{foo.h}" to "{foo.h}"
-  // because we don't get to set additional include roots with the Particle compiler
+  // Modify import locations from "./flatbuffers" to "../flatbuffers"
+  // so we don't need to copy our library code into the `generated` directory.
   const fileContent = fs.readFileSync(fileName).toString();
 
   const fixedUpFileContent = fileContent.replace(
