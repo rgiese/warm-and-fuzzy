@@ -1,7 +1,7 @@
-import { ApolloServer, makeExecutableSchema } from "apollo-server-lambda";
-
 import { APIGatewayProxyEvent } from "aws-lambda";
+import { ApolloServer } from "apollo-server-lambda";
 import { Context } from "./context";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 import requiresPermissionDirective from "./requiresPermissionDirective";
 import resolvers from "./resolvers";
 import typeDefs from "../../../shared/src/schema/schema.graphql";
