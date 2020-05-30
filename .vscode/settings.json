@@ -7,5 +7,6 @@
     "bin": true
   },
   "debug.internalConsoleOptions": "neverOpen",
-  "java.configuration.updateBuildConfiguration": "disabled"
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }
