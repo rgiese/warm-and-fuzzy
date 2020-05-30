@@ -55,7 +55,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
 
   const parsedRequestBody = JSON.parse(requestBody);
 
-  let statusEvent: StatusEvent;
+  let statusEvent: StatusEvent | undefined = undefined;
 
   try {
     statusEvent = await StatusEventSchema.validate(parsedRequestBody, { stripUnknown: true });
@@ -64,7 +64,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   }
 
   // Locate tenant name for device
-  let tenant: string;
+  let tenant: string = "";
 
   try {
     tenant = await getTenant(statusEvent.deviceId);

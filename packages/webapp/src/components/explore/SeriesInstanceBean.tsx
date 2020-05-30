@@ -10,11 +10,15 @@ import SeriesColorPalette from "./SeriesColorPalette";
 import ViewSpan from "../../stores/explore/ViewSpan";
 import moment from "moment";
 
-const SeriesInstanceBean: React.FunctionComponent<{
+function SeriesInstanceBean({
+  store,
+  seriesInstanceProps,
+  padding,
+}: {
   store: ExploreStore;
   seriesInstanceProps: SeriesInstanceProps;
   padding: number;
-}> = ({ store, seriesInstanceProps, padding }): React.ReactElement => {
+}): React.ReactElement {
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
@@ -116,6 +120,6 @@ const SeriesInstanceBean: React.FunctionComponent<{
       />
     </Button.Group>
   );
-};
+}
 
 export default SeriesInstanceBean;

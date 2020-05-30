@@ -4,7 +4,7 @@ import ThermostatSettings from "../components/ThermostatSettings";
 import { observer } from "mobx-react";
 import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const ThermostatSettingsContainer: React.FunctionComponent = (): React.ReactElement => {
+function ThermostatSettingsContainer(): React.ReactElement {
   const rootStore = useRootStore();
 
   const thermostatConfigurationStore = rootStore.thermostatConfigurationStore;
@@ -48,6 +48,6 @@ const ThermostatSettingsContainer: React.FunctionComponent = (): React.ReactElem
       ))}
     </StoreChecks>
   );
-};
+}
 
 export default observer(ThermostatSettingsContainer);

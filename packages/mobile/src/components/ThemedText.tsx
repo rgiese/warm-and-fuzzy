@@ -6,33 +6,46 @@ import { TextStyle } from "react-native";
 
 /* eslint-disable react/no-multi-comp */
 
-const accentText: React.FunctionComponent<{ theme: Theme; style?: TextStyle }> = ({
+function accentText({
   children,
   style,
   theme,
-}): React.ReactElement => {
+}: {
+  theme: Theme;
+  style?: TextStyle;
+  children?: React.ReactNode;
+}): React.ReactElement {
   return <Text style={{ ...style, color: theme.colors.accent }}>{children}</Text>;
-};
+}
 
 export const Accent = withTheme(accentText);
 
-export const Heat: React.FunctionComponent<{ style?: TextStyle }> = ({
+export function Heat({
   children,
   style,
-}): React.ReactElement => {
+}: {
+  children?: React.ReactNode;
+  style?: TextStyle;
+}): React.ReactElement {
   return <Text style={{ ...style, color: ColorCodes.Heat }}>{children}</Text>;
-};
+}
 
-export const Cool: React.FunctionComponent<{ style?: TextStyle }> = ({
+export function Cool({
   children,
   style,
-}): React.ReactElement => {
+}: {
+  children?: React.ReactNode;
+  style?: TextStyle;
+}): React.ReactElement {
   return <Text style={{ ...style, color: ColorCodes.Cool }}>{children}</Text>;
-};
+}
 
-export const Circulate: React.FunctionComponent<{ style?: TextStyle }> = ({
+export function Circulate({
   children,
   style,
-}): React.ReactElement => {
+}: {
+  children?: React.ReactNode;
+  style?: TextStyle;
+}): React.ReactElement {
   return <Text style={{ ...style, color: ColorCodes.Circulate }}>{children}</Text>;
-};
+}

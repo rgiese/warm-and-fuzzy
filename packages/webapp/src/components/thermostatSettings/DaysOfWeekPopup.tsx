@@ -5,12 +5,15 @@ import React from "react";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const DaysOfWeekPopup: React.FunctionComponent<{
+function DaysOfWeekPopup({
+  mutableSetting,
+  updateMutableSetting,
+}: {
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
   updateMutableSetting: React.Dispatch<
     React.SetStateAction<ThermostatSettingsHelpers.IndexedThermostatSetting>
   >;
-}> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
+}): React.ReactElement {
   return (
     <Popup
       on="click"
@@ -73,6 +76,6 @@ const DaysOfWeekPopup: React.FunctionComponent<{
       </Popup.Content>
     </Popup>
   );
-};
+}
 
 export default DaysOfWeekPopup;

@@ -51,11 +51,15 @@ export namespace ThermostatSettingsHelpers {
 
   export class MutableSettingsStore {
     public readonly orderedSettings: IndexedThermostatSetting[];
+
     public readonly newHoldSettingTemplate: IndexedThermostatSetting;
+
     public readonly newScheduledSettingTemplate: IndexedThermostatSetting;
 
     private readonly thermostatSettingsStore: ThermostatSettingsStore;
+
     private readonly thermostatSettings: ThermostatSettings;
+
     private readonly setIsSaving: (isSaving: boolean) => void;
 
     private readonly indexedSettings: IndexedThermostatSetting[];

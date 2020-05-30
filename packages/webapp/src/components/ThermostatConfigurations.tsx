@@ -24,7 +24,7 @@ const tableDefinition: TableFieldDefinition<ThermostatConfiguration>[] = [
   { field: "availableActions", label: "Available actions" },
 ];
 
-const ThermostatConfigs: React.FunctionComponent = (): React.ReactElement => {
+function ThermostatConfigs(): React.ReactElement {
   const rootStore = useRootStore();
 
   const canEdit = rootStore.authStore.userPermissions.includes(
@@ -32,9 +32,9 @@ const ThermostatConfigs: React.FunctionComponent = (): React.ReactElement => {
   );
 
   // eslint-disable-next-line react/no-multi-comp
-  const fnBuildEditControl = (value: ThermostatConfiguration): React.ReactElement => (
-    <ThermostatConfigurationModal values={value} />
-  );
+  function fnBuildEditControl(value: ThermostatConfiguration): React.ReactElement {
+    return <ThermostatConfigurationModal values={value} />;
+  }
 
   return (
     <StoreChecks requiredStores={[rootStore.thermostatConfigurationStore]}>
@@ -48,6 +48,6 @@ const ThermostatConfigs: React.FunctionComponent = (): React.ReactElement => {
       />
     </StoreChecks>
   );
-};
+}
 
 export default observer(ThermostatConfigs);

@@ -10,6 +10,9 @@ interface AuthResult {
   expiresIn: number;
 }
 
+// Lots of `any` in taking apart JWTs - fix another time.
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 //
 // We use (abuse?) Keychain.setGenericPassword by storing our tokens concatenated as [accessToken,idToken,expiresIn]
 // under a single user name (KeychainUserName) and service (i.e. the default one).

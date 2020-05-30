@@ -5,7 +5,7 @@ import SensorConfigurations from "../components/SensorConfigurations";
 import ThermostatConfigurations from "../components/ThermostatConfigurations";
 import { observer } from "mobx-react";
 
-const Configuration: React.FunctionComponent = (): React.ReactElement => {
+function Configuration(): React.ReactElement {
   return (
     <>
       <Divider horizontal>
@@ -19,6 +19,6 @@ const Configuration: React.FunctionComponent = (): React.ReactElement => {
       <SensorConfigurations />
     </>
   );
-};
+}
 
 export default observer(Configuration);

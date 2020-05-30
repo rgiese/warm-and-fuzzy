@@ -8,7 +8,7 @@ import React from "react";
 import { observer } from "mobx-react";
 import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const Header: React.FunctionComponent = (): React.ReactElement => {
+function Header(): React.ReactElement {
   const authStore = useRootStore().authStore;
 
   const menuBackgroundColor = "white";
@@ -57,6 +57,6 @@ const Header: React.FunctionComponent = (): React.ReactElement => {
       </Menu.Menu>
     </Menu>
   );
-};
+}
 
 export default observer(Header);

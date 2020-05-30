@@ -6,7 +6,7 @@
 //                          Robin Giese <robin@grumpycorp.com>
 //
 
-/* eslint-disable @typescript-eslint/camelcase, @typescript-eslint/member-ordering */
+/* eslint-disable @typescript-eslint/camelcase, @typescript-eslint/member-ordering, @typescript-eslint/prefer-readonly-parameter-types */
 
 export namespace flatbuffers {
   export type Offset = number;
@@ -40,6 +40,7 @@ export namespace flatbuffers {
     }
 
     public low: number;
+
     public high: number;
 
     public static create(low: number, high: number): Long {
@@ -66,6 +67,7 @@ export namespace flatbuffers {
     }
 
     private bytes_: Uint8Array;
+
     private position_: number;
 
     public static allocate(byte_size: number): ByteBuffer {
@@ -99,12 +101,15 @@ export namespace flatbuffers {
     public readUint8(offset: number): number {
       return this.bytes_[offset];
     }
+
     public readInt16(offset: number): number {
       return (this.readUint16(offset) << 16) >> 16;
     }
+
     public readUint16(offset: number): number {
       return this.bytes_[offset] | (this.bytes_[offset + 1] << 8);
     }
+
     public readInt32(offset: number): number {
       return (
         this.bytes_[offset] |
@@ -113,19 +118,24 @@ export namespace flatbuffers {
         (this.bytes_[offset + 3] << 24)
       );
     }
+
     public readUint32(offset: number): number {
       return this.readInt32(offset) >>> 0;
     }
+
     public readInt64(offset: number): Long {
       return new Long(this.readInt32(offset), this.readInt32(offset + 4));
     }
+
     public readUint64(offset: number): Long {
       return new Long(this.readUint32(offset), this.readUint32(offset + 4));
     }
+
     public readFloat32(offset: number): number {
       int32[0] = this.readInt32(offset);
       return float32[0];
     }
+
     public readFloat64(offset: number): number {
       int32[isLittleEndian ? 0 : 1] = this.readInt32(offset);
       int32[isLittleEndian ? 1 : 0] = this.readInt32(offset + 4);
@@ -135,41 +145,50 @@ export namespace flatbuffers {
     public writeInt8(offset: number, value: number): void {
       this.bytes_[offset] = value;
     }
+
     public writeUint8(offset: number, value: number): void {
       this.bytes_[offset] = value;
     }
+
     public writeInt16(offset: number, value: number): void {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
     }
+
     public writeUint16(offset: number, value: number): void {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
     }
+
     public writeInt32(offset: number, value: number): void {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
       this.bytes_[offset + 2] = value >> 16;
       this.bytes_[offset + 3] = value >> 24;
     }
+
     public writeUint32(offset: number, value: number): void {
       this.bytes_[offset] = value;
       this.bytes_[offset + 1] = value >> 8;
       this.bytes_[offset + 2] = value >> 16;
       this.bytes_[offset + 3] = value >> 24;
     }
+
     public writeInt64(offset: number, value: Long): void {
       this.writeInt32(offset, value.low);
       this.writeInt32(offset + 4, value.high);
     }
+
     public writeUint64(offset: number, value: Long): void {
       this.writeUint32(offset, value.low);
       this.writeUint32(offset + 4, value.high);
     }
+
     public writeFloat32(offset: number, value: number): void {
       float32[0] = value;
       this.writeInt32(offset, int32[0]);
     }
+
     public writeFloat64(offset: number, value: number): void {
       float64[0] = value;
       this.writeInt32(offset, int32[isLittleEndian ? 0 : 1]);
@@ -230,7 +249,7 @@ export namespace flatbuffers {
       }
 
       while (i < length) {
-        let codePoint: number;
+        let codePoint = 0;
 
         // Decode UTF-8
         const a = this.readUint8(offset + i++);
@@ -435,15 +454,19 @@ export namespace flatbuffers {
     public writeInt16(value: number): void {
       this.bb.writeInt16((this.space -= 2), value);
     }
+
     public writeInt32(value: number): void {
       this.bb.writeInt32((this.space -= 4), value);
     }
+
     public writeInt64(value: Long): void {
       this.bb.writeInt64((this.space -= 8), value);
     }
+
     public writeFloat32(value: number): void {
       this.bb.writeFloat32((this.space -= 4), value);
     }
+
     public writeFloat64(value: number): void {
       this.bb.writeFloat64((this.space -= 8), value);
     }
@@ -452,22 +475,27 @@ export namespace flatbuffers {
       this.prep(1, 0);
       this.writeInt8(value);
     }
+
     public addInt16(value: number): void {
       this.prep(2, 0);
       this.writeInt16(value);
     }
+
     public addInt32(value: number): void {
       this.prep(4, 0);
       this.writeInt32(value);
     }
+
     public addInt64(value: Long): void {
       this.prep(8, 0);
       this.writeInt64(value);
     }
+
     public addFloat32(value: number): void {
       this.prep(4, 0);
       this.writeFloat32(value);
     }
+
     public addFloat64(value: number): void {
       this.prep(8, 0);
       this.writeFloat64(value);
@@ -479,30 +507,35 @@ export namespace flatbuffers {
         this.slot(voffset);
       }
     }
+
     public addFieldInt16(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addInt16(value);
         this.slot(voffset);
       }
     }
+
     public addFieldInt32(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addInt32(value);
         this.slot(voffset);
       }
     }
+
     public addFieldInt64(voffset: number, value: Long, defaultValue: Long): void {
       if (this.force_defaults || !value.equals(defaultValue)) {
         this.addInt64(value);
         this.slot(voffset);
       }
     }
+
     public addFieldFloat32(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addFloat32(value);
         this.slot(voffset);
       }
     }
+
     public addFieldFloat64(voffset: number, value: number, defaultValue: number): void {
       if (this.force_defaults || value != defaultValue) {
         this.addFloat64(value);
@@ -757,7 +790,7 @@ export namespace flatbuffers {
      * @return The offset in the buffer where the encoded string starts
      */
     public createString(s: string | Uint8Array): Offset {
-      let utf8: Uint8Array | number[];
+      let utf8: Uint8Array | number[] | null = null;
 
       if (s instanceof Uint8Array) {
         utf8 = s;
@@ -766,7 +799,7 @@ export namespace flatbuffers {
         let i = 0;
 
         while (i < s.length) {
-          let codePoint: number;
+          let codePoint = 0;
 
           // Decode UTF-16
           const a = s.charCodeAt(i++);

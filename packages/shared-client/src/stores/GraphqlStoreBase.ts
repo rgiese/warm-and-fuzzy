@@ -25,7 +25,9 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
   protected apolloClient: ApolloClient;
 
   private readonly queryDocument: DocumentNode;
+
   private readonly queryResultDataExtractor: QueryResultDataExtractor<T, TQuery>;
+
   private readonly queryResultDataItemPatcher?: QueryResultDataItemPatcher<T>;
 
   public constructor(
@@ -65,6 +67,7 @@ export class GraphqlStoreBase<T extends GraphqlStoreItem, TQuery> extends StoreB
 
     try {
       // TypeScript clowning around for MobX/flow requiring yield vs. await
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const yieldedQueryResult = yield this.apolloClient.query<TQuery>({
         query: this.queryDocument,
         fetchPolicy: isUpdate ? "network-only" : "cache-first",

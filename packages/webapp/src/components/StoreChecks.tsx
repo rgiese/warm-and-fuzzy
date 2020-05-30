@@ -3,10 +3,13 @@ import React from "react";
 import { StoreBase } from "@grumpycorp/warm-and-fuzzy-shared-client";
 import { observer } from "mobx-react";
 
-const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
+function StoreChecks({
   requiredStores,
   children,
-}): React.ReactElement => {
+}: {
+  children?: React.ReactNode;
+  requiredStores: StoreBase[];
+}): React.ReactElement {
   const allStoresAvailable = requiredStores.every(store => store.isReady || store.isUpdating);
 
   if (allStoresAvailable) {
@@ -30,6 +33,6 @@ const StoreChecks: React.FunctionComponent<{ requiredStores: StoreBase[] }> = ({
         ))}
     </>
   );
-};
+}
 
 export default observer(StoreChecks);

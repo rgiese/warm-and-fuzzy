@@ -12,6 +12,7 @@ export class ApolloClient extends ApolloClientBase<NormalizedCacheObject> {
 
     const apolloAuthContextLink = setContext((_, { headers }): any => {
       return {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         headers: {
           ...headers,
           authorization:

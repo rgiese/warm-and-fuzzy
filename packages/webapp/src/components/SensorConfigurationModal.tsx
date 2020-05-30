@@ -8,9 +8,7 @@ import EditFormModal from "./EditFormModal";
 import { SensorConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { ValidationError } from "yup";
 
-const SensorConfigurationModal: React.FunctionComponent<{
-  values: SensorConfiguration;
-}> = ({ values }): React.ReactElement => {
+function SensorConfigurationModal({ values }: { values: SensorConfiguration }): React.ReactElement {
   const [mutableValues, setMutableValues] = useState(values);
   const [validationError, setValidationError] = useState<ValidationError | undefined>(undefined);
 
@@ -64,6 +62,6 @@ const SensorConfigurationModal: React.FunctionComponent<{
       />
     </EditFormModal>
   );
-};
+}
 
 export default SensorConfigurationModal;

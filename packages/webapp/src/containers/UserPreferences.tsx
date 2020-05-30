@@ -15,7 +15,7 @@ import { UserPreferencesSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 import { observer } from "mobx-react";
 import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const UserPreferences: React.FunctionComponent = (): React.ReactElement => {
+function UserPreferences(): React.ReactElement {
   const rootStore = useRootStore();
   const authStore = rootStore.authStore;
   const userPreferencesStore = rootStore.userPreferencesStore;
@@ -80,6 +80,6 @@ const UserPreferences: React.FunctionComponent = (): React.ReactElement => {
       </Container>
     </StoreChecks>
   );
-};
+}
 
 export default observer(UserPreferences);

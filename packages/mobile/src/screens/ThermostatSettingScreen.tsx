@@ -80,6 +80,10 @@ export interface ThermostatSettingNavigationParams extends NavigationParams {
   isNewSetting?: boolean;
 }
 
+/* ESLint wants to see this as a proper function component. */
+/* This NavigationStack stuff is too weird to mess with it. Alas. */
+/* eslint-disable react/function-component-definition */
+
 const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingNavigationParams> = ({
   navigation,
 }): React.ReactElement => {
@@ -134,7 +138,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   //
 
   // eslint-disable-next-line react/no-multi-comp
-  const generateDayOfWeekButton = (dayOfWeek: GraphQL.DayOfWeek): React.ReactElement => {
+  function generateDayOfWeekButton(dayOfWeek: GraphQL.DayOfWeek): React.ReactElement {
     return (
       <Button
         key={dayOfWeek}
@@ -152,7 +156,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {dayOfWeek.substring(0, 3)}
       </Button>
     );
-  };
+  }
 
   const capitalizeString = (str: string): string => {
     return str.charAt(0).toLocaleUpperCase() + str.substring(1);

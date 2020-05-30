@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// eslint-disable-next-line react/function-component-definition
 const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): React.ReactElement => {
   const rootStore = useRootStore();
 
@@ -73,6 +74,7 @@ const AccountScreen: NavigationStackScreenComponent<{}> = ({ navigation }): Reac
                       (value: any): void =>
                         setMutableUserPreferences({
                           ...mutableUserPreferences,
+                          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                           temperatureUnits: value,
                         })
                     }

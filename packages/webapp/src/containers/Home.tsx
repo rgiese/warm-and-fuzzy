@@ -6,7 +6,7 @@ import React from "react";
 import { observer } from "mobx-react";
 import { useRootStore } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const Home: React.FunctionComponent = (): React.ReactElement => {
+function Home(): React.ReactElement {
   const authStore = useRootStore().authStore;
 
   if (authStore.isUserAuthenticated) {
@@ -27,6 +27,6 @@ const Home: React.FunctionComponent = (): React.ReactElement => {
     // TODO: Make this a live link.
     return <div>Please log in via nav bar.</div>;
   }
-};
+}
 
 export default observer(Home);

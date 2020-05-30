@@ -10,9 +10,11 @@ import AddSettingPopup from "./thermostatSettings/AddSettingPopup";
 import ThermostatSettingBean from "./thermostatSettings/ThermostatSettingBean";
 import { observer } from "mobx-react";
 
-const ThermostatSettingsComponent: React.FunctionComponent<{
+function ThermostatSettingsComponent({
+  thermostatSettings,
+}: {
   thermostatSettings: ThermostatSettings;
-}> = ({ thermostatSettings }): React.ReactElement => {
+}): React.ReactElement {
   const rootStore = useRootStore();
 
   const thermostatConfiguration = rootStore.thermostatConfigurationStore.findById(
@@ -62,6 +64,6 @@ const ThermostatSettingsComponent: React.FunctionComponent<{
       </Segment>
     </>
   );
-};
+}
 
 export default observer(ThermostatSettingsComponent);

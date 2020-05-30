@@ -6,17 +6,17 @@ import React, { useState } from "react";
 import ThermostatSettingBean from "./ThermostatSettingBean";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 
-const AddSettingPopup: React.FunctionComponent<{
-  mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
-  defaultThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
-  availableActions: GraphQL.ThermostatAction[];
-  isSaving: boolean;
-}> = ({
+function AddSettingPopup({
   mutableSettingsStore,
   defaultThermostatSetting,
   availableActions,
   isSaving,
-}): React.ReactElement => {
+}: {
+  mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
+  defaultThermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
+  availableActions: GraphQL.ThermostatAction[];
+  isSaving: boolean;
+}): React.ReactElement {
   // Control popup state so that clicks into nested popups don't dismiss it
   const [isPopupOpen, setPopupOpen] = useState(false);
 
@@ -56,6 +56,6 @@ const AddSettingPopup: React.FunctionComponent<{
       </Popup.Content>
     </Popup>
   );
-};
+}
 
 export default AddSettingPopup;

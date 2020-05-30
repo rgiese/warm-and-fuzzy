@@ -25,6 +25,7 @@ export class GraphqlMutableStoreBase<
   TMutationVariables
 > extends GraphqlStoreBase<T, TQuery> {
   private readonly mutationDocument: DocumentNode;
+
   private readonly mutationVariablesBuilder: MutationVariablesBuilder<T, TMutationVariables>;
 
   public constructor(
@@ -71,6 +72,7 @@ export class GraphqlMutableStoreBase<
       const mutationVariables = this.mutationVariablesBuilder(item);
 
       // TypeScript clowning around for MobX/flow requiring yield vs. await
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const yieldedMutationResult = yield this.apolloClient.mutate<TMutation, TMutationVariables>({
         mutation: this.mutationDocument,
         variables: mutationVariables,

@@ -30,6 +30,10 @@ const styles = StyleSheet.create({
   },
 });
 
+/* ESLint wants to see this as a proper function component. */
+/* This NavigationStack stuff is too weird to mess with it. Alas. */
+/* eslint-disable react/function-component-definition */
+
 const ThermostatSettingsScreen: NavigationStackScreenComponent<ThermostatNavigationParams> = ({
   navigation,
 }): React.ReactElement => {

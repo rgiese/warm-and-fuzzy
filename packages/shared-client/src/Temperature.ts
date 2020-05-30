@@ -15,7 +15,7 @@ export class Temperature implements CustomUnitTypeMembers<number> {
 
   public static fromPreferredUnits(
     valueInPreferredUnits: number,
-    userPreferences: UserPreferences
+    userPreferences: Readonly<UserPreferences>
   ): number {
     if (userPreferences.temperatureUnits === TemperatureUnits.Fahrenheit) {
       return ((valueInPreferredUnits - 32.0) * 5.0) / 9.0;
@@ -24,7 +24,10 @@ export class Temperature implements CustomUnitTypeMembers<number> {
     return valueInPreferredUnits;
   }
 
-  public static toPreferredUnits(valueInCelsius: number, userPreferences: UserPreferences): number {
+  public static toPreferredUnits(
+    valueInCelsius: number,
+    userPreferences: Readonly<UserPreferences>
+  ): number {
     if (userPreferences.temperatureUnits === TemperatureUnits.Fahrenheit) {
       return (valueInCelsius * 9.0) / 5.0 + 32.0;
     }
@@ -32,14 +35,17 @@ export class Temperature implements CustomUnitTypeMembers<number> {
     return valueInCelsius;
   }
 
-  public static toString(valueInCelsius: number, userPreferences: UserPreferences): string {
+  public static toString(
+    valueInCelsius: number,
+    userPreferences: Readonly<UserPreferences>
+  ): string {
     return (
       Temperature.toPreferredUnits(valueInCelsius, userPreferences).toFixed(1) +
       Temperature.unitsToString(userPreferences)
     );
   }
 
-  public static unitsToString(userPreferences: UserPreferences): string {
+  public static unitsToString(userPreferences: Readonly<UserPreferences>): string {
     if (userPreferences.temperatureUnits === TemperatureUnits.Fahrenheit) {
       return "\u00B0F";
     }
@@ -51,15 +57,15 @@ export class Temperature implements CustomUnitTypeMembers<number> {
   // Conversion capabilities as members when boxing is required for type detection
   //
 
-  public toPreferredUnits(userPreferences: UserPreferences): number {
+  public toPreferredUnits(userPreferences: Readonly<UserPreferences>): number {
     return Temperature.toPreferredUnits(this.valueInCelsius, userPreferences);
   }
 
-  public toString(userPreferences: UserPreferences): string {
+  public toString(userPreferences: Readonly<UserPreferences>): string {
     return Temperature.toString(this.valueInCelsius, userPreferences);
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-// @ts-ignore TS6133 /* declared but its value is never read */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error TS6133 /* declared but its value is never read */
 const _customUnitTypeStaticsValidation: CustomUnitTypeStatics<number> = Temperature;

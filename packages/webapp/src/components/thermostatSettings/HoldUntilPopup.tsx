@@ -5,12 +5,15 @@ import React from "react";
 import { ThermostatSettingsHelpers } from "@grumpycorp/warm-and-fuzzy-shared-client";
 import moment from "moment";
 
-const HoldUntilPopup: React.FunctionComponent<{
+function HoldUntilPopup({
+  mutableSetting,
+  updateMutableSetting,
+}: {
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
   updateMutableSetting: React.Dispatch<
     React.SetStateAction<ThermostatSettingsHelpers.IndexedThermostatSetting>
   >;
-}> = ({ mutableSetting, updateMutableSetting }): React.ReactElement => {
+}): React.ReactElement {
   const holdUntil = mutableSetting.holdUntil ?? new Date(0);
 
   const limitsDropdownOptions: DropdownItemProps[] = [
@@ -51,6 +54,6 @@ const HoldUntilPopup: React.FunctionComponent<{
       value={holdUntil.valueOf()}
     />
   );
-};
+}
 
 export default HoldUntilPopup;

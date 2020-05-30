@@ -22,7 +22,14 @@ import InteriorPadding from "./InteriorPadding";
 import React from "react";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
-const SetpointPopup: React.FunctionComponent<{
+function SetpointPopup({
+  mutableSetting,
+  updateMutableSetting,
+  action,
+  availableActions,
+  iconColor,
+  iconName,
+}: {
   mutableSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
   updateMutableSetting: React.Dispatch<
     React.SetStateAction<ThermostatSettingsHelpers.IndexedThermostatSetting>
@@ -31,14 +38,7 @@ const SetpointPopup: React.FunctionComponent<{
   availableActions: GraphQL.ThermostatAction[];
   iconColor: SemanticCOLORS;
   iconName: SemanticICONS;
-}> = ({
-  mutableSetting,
-  updateMutableSetting,
-  action,
-  availableActions,
-  iconColor,
-  iconName,
-}): React.ReactElement => {
+}): React.ReactElement {
   const rootStore = useRootStore();
   const userPreferences = rootStore.userPreferencesStore.userPreferences;
 
@@ -159,6 +159,6 @@ const SetpointPopup: React.FunctionComponent<{
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <></>
   );
-};
+}
 
 export default SetpointPopup;

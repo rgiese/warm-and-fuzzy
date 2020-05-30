@@ -29,7 +29,7 @@ const apolloClient = new ApolloClient(authStore, config.apiGateway.URL);
 
 const rootStore = new RootStore(authStore, apolloClient);
 
-const App: React.FunctionComponent = (): React.ReactElement => {
+function App(): React.ReactElement {
   const screenProps: ScreenProps = {
     theme: AppTheme,
   };
@@ -41,6 +41,6 @@ const App: React.FunctionComponent = (): React.ReactElement => {
       </RootStoreContext.Provider>
     </PaperProvider>
   );
-};
+}
 
 export default App;
