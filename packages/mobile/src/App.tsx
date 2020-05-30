@@ -1,3 +1,5 @@
+import "mobx-react-lite/batchingForReactNative";
+
 import {
   ApolloClient,
   AuthStore,
