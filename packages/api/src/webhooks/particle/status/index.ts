@@ -64,7 +64,7 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
   }
 
   // Locate tenant name for device
-  let tenant: string = "";
+  let tenant = "";
 
   try {
     tenant = await getTenant(statusEvent.deviceId);
