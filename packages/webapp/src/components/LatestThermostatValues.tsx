@@ -14,7 +14,11 @@ import { observer } from "mobx-react";
 
 type ThermostatValue = Omit<
   LatestThermostatValue,
-  "temperature" | "setPointHeat" | "setPointCool"
+  | "temperature"
+  | "setPointHeat"
+  | "setPointCool"
+  | "setPointCirculateAbove"
+  | "setPointCirculateBelow"
 > & {
   // Injected fields
   name: string;
@@ -23,6 +27,8 @@ type ThermostatValue = Omit<
   temperature: Temperature;
   setPointHeat?: Temperature;
   setPointCool?: Temperature;
+  setPointCirculateAbove?: Temperature;
+  setPointCirculateBelow?: Temperature;
 };
 
 const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
@@ -32,6 +38,8 @@ const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
   { field: "humidity", label: "Humidity", units: "%" },
   { field: "setPointHeat", label: "Heat to" },
   { field: "setPointCool", label: "Cool to" },
+  { field: "setPointCirculateAbove", label: "Circulate above" },
+  { field: "setPointCirculateBelow", label: "Circulate below" },
   { field: "currentActions", label: "Actions" },
 ];
 
@@ -81,6 +89,12 @@ function LatestThermostatValues(): React.ReactElement {
           : undefined,
         setPointCool: value.allowedActions.includes(GraphQL.ThermostatAction.Cool)
           ? new Temperature(value.setPointCool)
+          : undefined,
+        setPointCirculateAbove: value.allowedActions.includes(GraphQL.ThermostatAction.Circulate)
+          ? new Temperature(value.setPointCirculateAbove)
+          : undefined,
+        setPointCirculateBelow: value.allowedActions.includes(GraphQL.ThermostatAction.Circulate)
+          ? new Temperature(value.setPointCirculateBelow)
           : undefined,
       };
     }
