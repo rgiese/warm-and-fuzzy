@@ -4,7 +4,9 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 
 export default class Authorizations {
   private readonly _authenticatedSubject: string;
+
   private readonly _authorizedTenant: string;
+
   private readonly _authorizedPermissions: string[];
 
   public constructor(event: APIGatewayProxyEvent) {

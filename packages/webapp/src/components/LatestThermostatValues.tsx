@@ -35,7 +35,7 @@ const tableDefinition: TableFieldDefinition<ThermostatValue>[] = [
   { field: "currentActions", label: "Actions" },
 ];
 
-const LatestThermostatValues: React.FunctionComponent = (): React.ReactElement => {
+function LatestThermostatValues(): React.ReactElement {
   const rootStore = useRootStore();
 
   const latestThermostatValuesStore = rootStore.latestThermostatValuesStore;
@@ -97,6 +97,6 @@ const LatestThermostatValues: React.FunctionComponent = (): React.ReactElement =
       />
     </StoreChecks>
   );
-};
+}
 
 export default observer(LatestThermostatValues);

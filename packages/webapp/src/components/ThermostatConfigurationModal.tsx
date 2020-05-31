@@ -9,9 +9,11 @@ import { ThermostatConfigurationSchema } from "@grumpycorp/warm-and-fuzzy-shared
 import { ValidationError } from "yup";
 import moment from "moment-timezone";
 
-const ThermostatConfigurationModal: React.FunctionComponent<{
+function ThermostatConfigurationModal({
+  values,
+}: {
   values: ThermostatConfiguration;
-}> = ({ values }): React.ReactElement => {
+}): React.ReactElement {
   const [mutableValues, setMutableValues] = useState(values);
   const [validationError, setValidationError] = useState<ValidationError | undefined>(undefined);
 
@@ -153,6 +155,6 @@ const ThermostatConfigurationModal: React.FunctionComponent<{
       </Form.Group>
     </EditFormModal>
   );
-};
+}
 
 export default ThermostatConfigurationModal;

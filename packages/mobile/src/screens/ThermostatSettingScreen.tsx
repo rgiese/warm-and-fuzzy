@@ -3,8 +3,8 @@ import * as ThemedText from "../components/ThemedText";
 
 import { Button, Switch, Text, Theme } from "react-native-paper";
 import { ColorCodes, IconNames } from "../Theme";
-import { Picker, ScrollView, StyleSheet, View } from "react-native";
 import React, { useContext, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Temperature,
   ThermostatSettingsHelpers,
@@ -15,6 +15,7 @@ import BaseView from "../components/BaseView";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { NavigationParams } from "react-navigation";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
+import { Picker } from "@react-native-community/picker";
 import ScreenBaseStyles from "./ScreenBaseStyles";
 import Slider from "@react-native-community/slider";
 import { ThemeContext } from "react-native-elements";
@@ -80,6 +81,10 @@ export interface ThermostatSettingNavigationParams extends NavigationParams {
   isNewSetting?: boolean;
 }
 
+/* ESLint wants to see this as a proper function component. */
+/* This NavigationStack stuff is too weird to mess with it. Alas. */
+/* eslint-disable react/function-component-definition */
+
 const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingNavigationParams> = ({
   navigation,
 }): React.ReactElement => {
@@ -134,7 +139,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
   //
 
   // eslint-disable-next-line react/no-multi-comp
-  const generateDayOfWeekButton = (dayOfWeek: GraphQL.DayOfWeek): React.ReactElement => {
+  function generateDayOfWeekButton(dayOfWeek: GraphQL.DayOfWeek): React.ReactElement {
     return (
       <Button
         key={dayOfWeek}
@@ -152,7 +157,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
         {dayOfWeek.substring(0, 3)}
       </Button>
     );
-  };
+  }
 
   const capitalizeString = (str: string): string => {
     return str.charAt(0).toLocaleUpperCase() + str.substring(1);

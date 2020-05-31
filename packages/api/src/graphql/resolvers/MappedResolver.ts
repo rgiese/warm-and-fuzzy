@@ -19,7 +19,9 @@ export default class MappedResolver<
   TMapper extends GraphQLModelMapper<TGraphQL, TGraphQLCreateInput, TModel>
 > {
   private readonly _modelConstructor: TModelConstructor;
+
   private readonly _mapper: TMapper;
+
   private readonly _schema?: yup.ObjectSchema;
 
   public constructor(

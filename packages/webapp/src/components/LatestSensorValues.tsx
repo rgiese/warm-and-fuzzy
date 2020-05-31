@@ -24,7 +24,7 @@ const tableDefinition: TableFieldDefinition<SensorValue>[] = [
   { field: "temperature", label: "Temperature" },
 ];
 
-const LatestSensorValues: React.FunctionComponent = (): React.ReactElement => {
+function LatestSensorValues(): React.ReactElement {
   const rootStore = useRootStore();
 
   const latestSensorValuesStore = rootStore.latestSensorValuesStore;
@@ -77,6 +77,6 @@ const LatestSensorValues: React.FunctionComponent = (): React.ReactElement => {
       />
     </StoreChecks>
   );
-};
+}
 
 export default observer(LatestSensorValues);

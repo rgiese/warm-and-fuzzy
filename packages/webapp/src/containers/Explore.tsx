@@ -19,13 +19,18 @@ interface Props extends RouteComponentProps {
   explorePlotDataStore: ExplorePlotDataStore;
 }
 
+// TODO: 105: Probably the source of some bugs
+/* eslint-disable @typescript-eslint/no-invalid-this */
+
 // eslint-disable-next-line react/require-optimization
 @observer
 class Explore extends React.Component<Props> {
   public static contextType = RootStoreContext;
+
   public context!: React.ContextType<typeof RootStoreContext>;
 
   private haveParsedURLParams = false;
+
   private lastURLParams = "";
 
   public componentDidMount(): void {
@@ -154,6 +159,7 @@ class Explore extends React.Component<Props> {
 function withRouterWorkaround<TProps extends RouteComponentProps<any>>(
   Inner: React.ComponentType<TProps>
 ) {
+  // eslint-disable-next-line react/function-component-definition
   const Wrapped: React.FunctionComponent<TProps> = (props: TProps) => <Inner {...props} />;
   Wrapped.displayName = `WithRouterWorkaround(${Inner.displayName ?? (Inner.name || "?")})`;
   return withRouter(Wrapped);

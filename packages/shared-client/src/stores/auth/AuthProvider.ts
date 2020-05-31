@@ -9,8 +9,8 @@ export interface AuthProvider {
   // - completeLogin: no-op
   //
 
-  requestLogin(): Promise<boolean | undefined>;
-  completeLogin(): Promise<boolean>;
+  requestLogin: () => Promise<boolean | undefined>;
+  completeLogin: () => Promise<boolean>;
 
-  requestLogout(): Promise<void>;
+  requestLogout: () => Promise<void>;
 }

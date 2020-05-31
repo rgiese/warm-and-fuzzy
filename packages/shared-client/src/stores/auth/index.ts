@@ -6,13 +6,20 @@ import JwtDecode from "jwt-decode";
 
 type AuthStoreState = "initializing" | "authenticating" | "unauthenticated" | "authenticated";
 
+// JWT functions are kind of clowny and return lots of `any`...
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 export class AuthStore {
   @observable public state: AuthStoreState;
 
   @observable public accessToken?: string = undefined;
+
   @observable public tenant?: string = undefined;
+
   @observable public userName?: string = undefined;
+
   @observable public userEmail?: string = undefined;
+
   public readonly userPermissions = observable.array<string>([]);
 
   public authProvider: AuthProvider;
@@ -45,7 +52,7 @@ export class AuthStore {
           AuthenticationConfiguration.CustomClaims.Tenant
       ];
 
-    this.userPermissions.replace(decodedAccessToken["permissions"]);
+    this.userPermissions.replace(decodedAccessToken.permissions);
 
     // Id token
     const decodedIdToken = JwtDecode<any>(idToken);

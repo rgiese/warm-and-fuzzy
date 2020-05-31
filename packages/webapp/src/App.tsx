@@ -39,7 +39,7 @@ const rootStore = new RootStore(authStore, apolloClient);
 const exploreStore = new ExploreStore(rootStore); // for the top-level Explore page
 const explorePlotDataStore = new ExplorePlotDataStore(exploreStore, apolloClient);
 
-const App: React.FunctionComponent = (): React.ReactElement => {
+function App(): React.ReactElement {
   // Documentation for Router:
   // - https://github.com/ReactTraining/react-router/blob/master/packages/react-router-dom/docs/guides/basic-components.md
   return (
@@ -72,6 +72,6 @@ const App: React.FunctionComponent = (): React.ReactElement => {
       </Router>
     </RootStoreContext.Provider>
   );
-};
+}
 
 export default App;

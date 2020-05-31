@@ -56,6 +56,12 @@ module.exports = {
     // TypeScript - temporary?
     "@typescript-eslint/strict-boolean-expressions": "off", // Seems to work poorly with optional chaining
     "@typescript-eslint/no-unnecessary-condition": "off", // Seems to work poorly with optional chaining
+    // TypeScript - fix these later
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/prefer-readonly-parameter-types": "off",
     // React - disable auto-formatting (leave it to prettier)
     "react/jsx-indent": "off",
     "react/jsx-indent-props": "off",

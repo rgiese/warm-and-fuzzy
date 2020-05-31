@@ -24,7 +24,8 @@ interface TableData {
     | RelativeTemperature
     | string[]
     | number[]
-    | undefined;
+    | undefined
+    | null;
 }
 
 type TableProps = Omit<StrictTableProps, "renderBodyRow" | "tableData" | "sortable">;
@@ -92,10 +93,10 @@ const SortableTable = <T extends TableData>({
     const lhsKey = lhs[sortOrder];
     const rhsKey = rhs[sortOrder];
 
-    if (lhsKey === undefined) {
+    if (lhsKey === undefined || lhsKey === null) {
       // Sort undefined keys to the end (highest values) of the list
-      return rhsKey === undefined ? 0 : 1;
-    } else if (rhsKey === undefined) {
+      return rhsKey === undefined || rhsKey === null ? 0 : 1;
+    } else if (rhsKey === undefined || rhsKey === null) {
       return -1;
     }
 

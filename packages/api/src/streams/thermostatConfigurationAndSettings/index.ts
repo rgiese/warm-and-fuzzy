@@ -64,7 +64,7 @@ export const dynamoStream: DynamoDBStreamHandler = async (
 
     for await (const deviceIdentifier of affectedDevices) {
       // Retrieve thermostat configuration
-      let thermostatConfiguration: ThermostatConfiguration;
+      let thermostatConfiguration: ThermostatConfiguration | undefined = undefined;
 
       try {
         thermostatConfiguration = await DbMapper.getOne(new ThermostatConfiguration(), {
@@ -78,7 +78,7 @@ export const dynamoStream: DynamoDBStreamHandler = async (
       }
 
       // Retrieve thermostat settings
-      let thermostatSettings: ThermostatSettings;
+      let thermostatSettings: ThermostatSettings | undefined = undefined;
 
       try {
         thermostatSettings = await DbMapper.getOne(new ThermostatSettings(), {

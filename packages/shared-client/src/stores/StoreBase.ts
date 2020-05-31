@@ -3,12 +3,13 @@ import { action, computed, observable } from "mobx";
 export type StoreState = "fetching" | "updating" | "ready" | "error";
 
 export class StoreBase {
+  @observable private state: StoreState = "ready";
+
   public readonly name: string;
 
   public lastUpdated: Date = new Date();
-  public error?: string;
 
-  @observable private state: StoreState = "ready";
+  public error?: string;
 
   public constructor(name: string) {
     this.name = name;

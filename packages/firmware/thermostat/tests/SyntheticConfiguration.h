@@ -81,7 +81,7 @@ public:
     // Accessors
     //
 
-    operator Configuration const&() const
+    operator Configuration const &() const
     {
         REQUIRE(m_fIsBuilt);
         return m_Configuration;

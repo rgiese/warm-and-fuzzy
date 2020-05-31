@@ -9,11 +9,17 @@ import { UserPreferencesStore } from "./userPreferences";
 
 export class RootStore {
   public readonly authStore: AuthStore;
+
   public readonly latestSensorValuesStore: LatestSensorValuesStore;
+
   public readonly latestThermostatValuesStore: LatestThermostatValuesStore;
+
   public readonly sensorConfigurationStore: SensorConfigurationStore;
+
   public readonly thermostatConfigurationStore: ThermostatConfigurationStore;
+
   public readonly thermostatSettingsStore: ThermostatSettingsStore;
+
   public readonly userPreferencesStore: UserPreferencesStore;
 
   public constructor(authStore: AuthStore, apolloClient: ApolloClient) {

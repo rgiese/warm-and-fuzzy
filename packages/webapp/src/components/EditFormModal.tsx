@@ -1,12 +1,19 @@
 import { Button, Form, Icon, Message, Modal } from "semantic-ui-react";
 import React, { useState } from "react";
 
-const EditFormModal: React.FunctionComponent<{
+function EditFormModal({
+  canSave,
+  error,
+  header,
+  onSave,
+  children,
+}: {
+  children?: React.ReactNode;
   canSave: boolean;
   error?: string | React.ReactElement;
   header: string | React.ReactElement;
-  onSave(): Promise<void>;
-}> = ({ canSave, error, header, onSave, children }): React.ReactElement => {
+  onSave: () => Promise<void>;
+}): React.ReactElement {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -50,6 +57,6 @@ const EditFormModal: React.FunctionComponent<{
       {error && <Message content={error} error header="Server response" />}
     </Modal>
   );
-};
+}
 
 export default EditFormModal;

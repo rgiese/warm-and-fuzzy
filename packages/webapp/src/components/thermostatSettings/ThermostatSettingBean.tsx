@@ -12,15 +12,7 @@ import TimeOfDayPopup from "./TimeOfDayPopup";
 import fastCompare from "react-fast-compare";
 import { observer } from "mobx-react";
 
-const ThermostatSettingBean: React.FunctionComponent<{
-  mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
-  thermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
-  availableActions: GraphQL.ThermostatAction[];
-  isNewSetting?: boolean;
-  isSaving: boolean;
-  onAfterRevert?: () => void;
-  onAfterSave?: () => void;
-}> = ({
+function ThermostatSettingBean({
   mutableSettingsStore,
   thermostatSetting,
   availableActions,
@@ -28,7 +20,15 @@ const ThermostatSettingBean: React.FunctionComponent<{
   isSaving,
   onAfterRevert,
   onAfterSave,
-}): React.ReactElement => {
+}: {
+  mutableSettingsStore: ThermostatSettingsHelpers.MutableSettingsStore;
+  thermostatSetting: ThermostatSettingsHelpers.IndexedThermostatSetting;
+  availableActions: GraphQL.ThermostatAction[];
+  isNewSetting?: boolean;
+  isSaving: boolean;
+  onAfterRevert?: () => void;
+  onAfterSave?: () => void;
+}): React.ReactElement {
   const [mutableSetting, updateMutableSetting] = useState(thermostatSetting);
   const isDirty = isNewSetting ?? !fastCompare(mutableSetting, thermostatSetting);
 
@@ -127,6 +127,6 @@ const ThermostatSettingBean: React.FunctionComponent<{
       )}
     </Button.Group>
   );
-};
+}
 
 export default observer(ThermostatSettingBean);

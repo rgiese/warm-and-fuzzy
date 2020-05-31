@@ -57,10 +57,13 @@ const iconSizes = {
 
 type ThermostatValue = LatestThermostatValue & { configuration: ThermostatConfiguration };
 
-const ThermostatStatusTable: React.FunctionComponent<{
+function ThermostatStatusTable({
+  navigation,
+  theme,
+}: {
   navigation: NavigationScreenProp<NavigationRoute>;
   theme: Theme;
-}> = ({ navigation, theme }): React.ReactElement => {
+}): React.ReactElement {
   const rootStore = useRootStore();
 
   const [latestRenderTime, setLatestRenderTime] = useState(new Date());
@@ -212,6 +215,6 @@ const ThermostatStatusTable: React.FunctionComponent<{
       />
     </StoreChecks>
   );
-};
+}
 
 export default withTheme(withNavigation(observer(ThermostatStatusTable)));

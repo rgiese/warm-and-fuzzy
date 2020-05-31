@@ -23,6 +23,7 @@ export default class ExplorePlotDataStore {
   public readonly seriesInstanceDatas = observable.map<string, SeriesInstanceData>();
 
   private readonly exploreStore: ExploreStore;
+
   private readonly apolloClient: ApolloClient;
 
   public constructor(exploreStore: ExploreStore, apolloClient: ApolloClient) {
@@ -95,10 +96,10 @@ export default class ExplorePlotDataStore {
             throw new Error("Expected to find definition.");
           }
 
-          let data;
-          let errors;
-          let min: number | undefined;
-          let max: number | undefined;
+          let data = undefined;
+          let errors = undefined;
+          let min: number | undefined = undefined;
+          let max: number | undefined = undefined;
 
           try {
             const startDate =

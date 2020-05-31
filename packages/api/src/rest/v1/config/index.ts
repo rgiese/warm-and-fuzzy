@@ -42,8 +42,11 @@ const thermostatSettingsMapper = new ThermostatSettingsMapper();
 
 class SystemConfiguration {
   public deviceTenancy: DeviceTenancy[] = [];
+
   public sensorConfigurations: GraphQL.SensorConfiguration[] = [];
+
   public thermostatConfigurations: GraphQL.ThermostatConfiguration[] = [];
+
   public thermostatSettings: GraphQL.ThermostatSettings[] = [];
 }
 

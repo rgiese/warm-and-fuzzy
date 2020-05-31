@@ -13,7 +13,7 @@ const tableDefinition: TableFieldDefinition<SensorConfiguration>[] = [
   { field: "streamName", label: "Stream Name" },
 ];
 
-const SensorConfigs: React.FunctionComponent = (): React.ReactElement => {
+function SensorConfigs(): React.ReactElement {
   const rootStore = useRootStore();
 
   const canEdit = rootStore.authStore.userPermissions.includes(
@@ -21,9 +21,9 @@ const SensorConfigs: React.FunctionComponent = (): React.ReactElement => {
   );
 
   // eslint-disable-next-line react/no-multi-comp
-  const fnBuildEditControl = (value: SensorConfiguration): React.ReactElement => (
-    <SensorConfigurationModal values={value} />
-  );
+  function fnBuildEditControl(value: SensorConfiguration): React.ReactElement {
+    return <SensorConfigurationModal values={value} />;
+  }
 
   return (
     <StoreChecks requiredStores={[rootStore.sensorConfigurationStore]}>
@@ -37,6 +37,6 @@ const SensorConfigs: React.FunctionComponent = (): React.ReactElement => {
       />
     </StoreChecks>
   );
-};
+}
 
 export default observer(SensorConfigs);

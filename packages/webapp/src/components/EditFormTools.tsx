@@ -1,7 +1,7 @@
 import { ValidateOptions, ValidationError } from "yup";
 
 interface Schema {
-  validate(value: any, options?: ValidateOptions | undefined): Promise<any>;
+  validate: (value: any, options?: ValidateOptions | undefined) => Promise<any>;
 }
 
 interface Values {
@@ -31,12 +31,12 @@ export async function handleChange<T extends Values, TSchema extends Schema>(
     return undefined;
   }
 
-  let value;
+  let value = undefined;
 
   switch (data.type) {
     case "text":
     case "select":
-      value = data.value;
+      value = data.value as string;
       break;
 
     case "number":

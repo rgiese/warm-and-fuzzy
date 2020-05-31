@@ -1,9 +1,9 @@
 import { Grid, Header, Segment } from "semantic-ui-react";
 
-import { CustomTooltip } from "./NivoMissingDefinitions";
+import { CustomTooltipNode } from "./NivoMissingDefinitions";
 import React from "react";
 
-const PlotTooltip: CustomTooltip = ({ node }): React.ReactElement => {
+function PlotTooltip({ node }: { node: CustomTooltipNode }): React.ReactElement {
   return (
     <Segment size="small" style={{ borderTop: `2px solid ${node.style.color}` }}>
       <Header size="small">{node.data.serieId}</Header>
@@ -15,6 +15,6 @@ const PlotTooltip: CustomTooltip = ({ node }): React.ReactElement => {
       </Grid>
     </Segment>
   );
-};
+}
 
 export default PlotTooltip;

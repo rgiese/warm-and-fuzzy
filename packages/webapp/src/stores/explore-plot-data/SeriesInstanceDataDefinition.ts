@@ -3,8 +3,11 @@ import ViewSpan from "../explore/ViewSpan";
 
 export default class SeriesInstanceDataDefinition {
   public streamName: string;
+
   public startDate: string;
+
   public viewSpan: ViewSpan;
+
   public timezone: Timezone;
 
   public constructor(

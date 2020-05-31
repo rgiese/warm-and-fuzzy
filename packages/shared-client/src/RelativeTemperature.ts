@@ -17,7 +17,7 @@ export class RelativeTemperature implements CustomUnitTypeMembers<number> {
 
   public static fromPreferredUnits(
     valueInPreferredUnits: number,
-    userPreferences: UserPreferences
+    userPreferences: Readonly<UserPreferences>
   ): number {
     if (userPreferences.temperatureUnits === TemperatureUnits.Fahrenheit) {
       return (valueInPreferredUnits * 5.0) / 9.0;
@@ -26,7 +26,10 @@ export class RelativeTemperature implements CustomUnitTypeMembers<number> {
     return valueInPreferredUnits;
   }
 
-  public static toPreferredUnits(valueInCelsius: number, userPreferences: UserPreferences): number {
+  public static toPreferredUnits(
+    valueInCelsius: number,
+    userPreferences: Readonly<UserPreferences>
+  ): number {
     if (userPreferences.temperatureUnits === TemperatureUnits.Fahrenheit) {
       return (valueInCelsius * 9.0) / 5.0;
     }
@@ -34,14 +37,17 @@ export class RelativeTemperature implements CustomUnitTypeMembers<number> {
     return valueInCelsius;
   }
 
-  public static toString(valueInCelsius: number, userPreferences: UserPreferences): string {
+  public static toString(
+    valueInCelsius: number,
+    userPreferences: Readonly<UserPreferences>
+  ): string {
     return (
       RelativeTemperature.toPreferredUnits(valueInCelsius, userPreferences).toFixed(1) +
       RelativeTemperature.unitsToString(userPreferences)
     );
   }
 
-  public static unitsToString(userPreferences: UserPreferences): string {
+  public static unitsToString(userPreferences: Readonly<UserPreferences>): string {
     // Prepend Delta to desired temperature units
     return "\u0394" + Temperature.unitsToString(userPreferences);
   }
@@ -50,15 +56,15 @@ export class RelativeTemperature implements CustomUnitTypeMembers<number> {
   // Conversion capabilities as members when boxing is required for type detection
   //
 
-  public toPreferredUnits(userPreferences: UserPreferences): number {
+  public toPreferredUnits(userPreferences: Readonly<UserPreferences>): number {
     return RelativeTemperature.toPreferredUnits(this.valueInCelsius, userPreferences);
   }
 
-  public toString(userPreferences: UserPreferences): string {
+  public toString(userPreferences: Readonly<UserPreferences>): string {
     return RelativeTemperature.toString(this.valueInCelsius, userPreferences);
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-// @ts-ignore TS6133 /* declared but its value is never read */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error TS6133 /* declared but its value is never read */
 const _customUnitTypeStaticsValidation: CustomUnitTypeStatics<number> = RelativeTemperature;

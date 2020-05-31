@@ -14,7 +14,10 @@ export namespace UserPreferencesSchema {
     temperatureUnits: TemperatureUnits.Celsius,
   };
 
-  export function UserPreferencesIsEqual(lhs: UserPreferences, rhs: UserPreferences): boolean {
+  export function UserPreferencesIsEqual(
+    lhs: Readonly<UserPreferences>,
+    rhs: Readonly<UserPreferences>
+  ): boolean {
     return lhs.temperatureUnits === rhs.temperatureUnits;
   }
 }

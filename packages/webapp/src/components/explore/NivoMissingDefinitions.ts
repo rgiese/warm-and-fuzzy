@@ -1,8 +1,7 @@
-import React from "react";
 import { TimeScale } from "@nivo/scales";
 import { Value } from "@nivo/scatterplot";
 
-interface CustomTooltipNode {
+export interface CustomTooltipNode {
   index: number;
   id: string;
   x: number; // pixel coordinates
@@ -21,8 +20,6 @@ interface CustomTooltipNode {
     formattedY: string;
   };
 }
-
-export type CustomTooltip = ({ node }: { node: CustomTooltipNode }) => React.ReactNode;
 
 export interface TimeScaleEx extends TimeScale {
   // Properties missing from nivo's outdated TypeScript definitions

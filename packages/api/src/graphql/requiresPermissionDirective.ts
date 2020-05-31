@@ -5,7 +5,7 @@ import { GraphQLField, defaultFieldResolver } from "graphql";
 import { AuthenticationError } from "apollo-server-core";
 import { Authorization } from "@grumpycorp/warm-and-fuzzy-shared";
 import { Context } from "./context";
-import { SchemaDirectiveVisitor } from "graphql-tools";
+import { SchemaDirectiveVisitor } from "@graphql-tools/utils";
 
 //
 // We can't define GraphQL enum values that exactly match the strings we're using for user permissions

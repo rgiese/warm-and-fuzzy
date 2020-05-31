@@ -8,7 +8,11 @@ interface Props extends RouteProps {
   props?: any;
 }
 
-export default ({ component: C, props: propsToInject, ...rest }: Props): React.ReactElement => {
+export default function({
+  component: C,
+  props: propsToInject,
+  ...rest
+}: Props): React.ReactElement {
   const authStore = useRootStore().authStore;
 
   return (
@@ -20,4 +24,4 @@ export default ({ component: C, props: propsToInject, ...rest }: Props): React.R
       }
     />
   );
-};
+}

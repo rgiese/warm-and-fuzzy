@@ -14,10 +14,13 @@ import { observer } from "mobx-react";
 
 const iconSize = 14;
 
-const SetpointDisplay: React.FunctionComponent<{
+function SetpointDisplay({
+  thermostatSetting,
+  action,
+}: {
   thermostatSetting: ThermostatSetting;
   action: GraphQL.ThermostatAction;
-}> = ({ thermostatSetting, action }): React.ReactElement => {
+}): React.ReactElement {
   const isCirculate = action === GraphQL.ThermostatAction.Circulate;
 
   const rootStore = useRootStore();
@@ -44,6 +47,6 @@ const SetpointDisplay: React.FunctionComponent<{
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <></>
   );
-};
+}
 
 export default observer(SetpointDisplay);

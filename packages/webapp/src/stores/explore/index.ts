@@ -8,12 +8,15 @@ import SeriesInstanceProps from "./SeriesInstanceProps";
 
 export default class ExploreStore {
   @observable public timezone: Timezone = Timezone.Local;
+
   @observable public viewSpan: ViewSpan = ViewSpan.Day;
 
   public availableSeries?: SeriesIdentifier[] = undefined;
+
   public readonly seriesInstanceProps = observable.array<SeriesInstanceProps>([]);
 
   private readonly rootStore: RootStore;
+
   private nextSeriesInstanceId: number;
 
   public constructor(rootStore: RootStore) {
@@ -84,22 +87,6 @@ export default class ExploreStore {
   }
 
   // URL persistence helpers
-  public toURLString(): string {
-    const urlParams: any = {
-      view: this.viewSpan,
-      tz: this.timezone,
-    };
-
-    // Per-series instance parameters
-    this.seriesInstanceProps.forEach(seriesInstanceProps => {
-      urlParams[
-        "ts." + seriesInstanceProps.seriesIdentifier.streamName
-      ] = `${seriesInstanceProps.startDate}_${seriesInstanceProps.colorIndex}`;
-    });
-
-    return "?" + new URLSearchParams(urlParams).toString();
-  }
-
   @action
   public fromURLString(searchString: string): void {
     const urlParams = new URLSearchParams(searchString);
@@ -130,5 +117,21 @@ export default class ExploreStore {
         );
       }
     }
+  }
+
+  public toURLString(): string {
+    const urlParams: any = {
+      view: this.viewSpan,
+      tz: this.timezone,
+    };
+
+    // Per-series instance parameters
+    this.seriesInstanceProps.forEach(seriesInstanceProps => {
+      urlParams[
+        "ts." + seriesInstanceProps.seriesIdentifier.streamName
+      ] = `${seriesInstanceProps.startDate}_${seriesInstanceProps.colorIndex}`;
+    });
+
+    return "?" + new URLSearchParams(urlParams).toString();
   }
 }

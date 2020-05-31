@@ -6,6 +6,7 @@ import { RootStoreContext } from "@grumpycorp/warm-and-fuzzy-shared-client";
 // eslint-disable-next-line react/require-optimization
 class AuthCallback extends React.Component {
   public static contextType = RootStoreContext;
+
   public context!: React.ContextType<typeof RootStoreContext>;
 
   public async componentDidMount(): Promise<void> {
