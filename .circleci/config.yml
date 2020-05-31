@@ -40,8 +40,11 @@ jobs:
             if [ "$CIRCLE_BRANCH" == "master" ]; then
               REACT_APP_API_STAGE=prod npm run build
             else
-              npm run build
+            npm run build
             fi
+          environment:
+            # Limit NodeJS heap size so we don't OOM
+            NODE_OPTIONS: --max_old_space_size=1500
 
       # Run tests
       - run: npm run test
