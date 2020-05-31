@@ -242,12 +242,16 @@ public:
 
                 ThermostatAction const allowedActions = pThermostatSetting->allowedActions();
 
-                Serial.printlnf(": %.1f C (heat) / %.1f C (cool), AllowedActions = [%c%c%c]",
-                                Configuration::getTemperature(pThermostatSetting->setPointHeat_x100()),
-                                Configuration::getTemperature(pThermostatSetting->setPointCool_x100()),
-                                !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Heat) ? 'H' : '_',
-                                !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Cool) ? 'C' : '_',
-                                !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Circulate) ? 'R' : '_');
+                Serial.printlnf(
+                    ": %.1f C (heat), %.1f C (cool), %.1f C / %.1f C (circulate above/below), AllowedActions = "
+                    "[%c%c%c]",
+                    Configuration::getTemperature(pThermostatSetting->setPointHeat_x100()),
+                    Configuration::getTemperature(pThermostatSetting->setPointCool_x100()),
+                    Configuration::getTemperature(pThermostatSetting->setPointCirculateAbove_x100()),
+                    Configuration::getTemperature(pThermostatSetting->setPointCirculateBelow_x100()),
+                    !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Heat) ? 'H' : '_',
+                    !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Cool) ? 'C' : '_',
+                    !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Circulate) ? 'R' : '_');
             }
         }
     }
@@ -268,7 +272,7 @@ private:
         }
 
         static constexpr uint16_t sc_Signature = 0x8233;
-        static constexpr uint16_t sc_CurrentVersion = 3;
+        static constexpr uint16_t sc_CurrentVersion = 4;
     };
 
     static constexpr uint16_t sc_cbFlatbufferData_Max = 256;

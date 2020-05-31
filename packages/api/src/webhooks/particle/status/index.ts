@@ -111,6 +111,8 @@ export const post: APIGatewayProxyHandler = async (event): Promise<APIGatewayPro
       allowedActions: ActionsAdapter.modelFromFirmware(statusEvent.data.cc.aa),
       setPointHeat: statusEvent.data.cc.sh,
       setPointCool: statusEvent.data.cc.sc,
+      setPointCirculateAbove: statusEvent.data.cc.sa,
+      setPointCirculateBelow: statusEvent.data.cc.sb,
       threshold: statusEvent.data.cc.th,
       currentTimezoneUTCOffset: statusEvent.data.cc.tz,
     };

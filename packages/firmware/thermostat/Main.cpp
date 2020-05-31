@@ -321,7 +321,7 @@ Configuration::ConfigUpdateResult handleUpdatedConfig(char const* const szData,
     // and may be enclosed in quotes
     //
 
-    static char constexpr rgMagic[] = "2Z85";
+    static char constexpr rgMagic[] = "3Z85";
     size_t const cchMagic = strlen(rgMagic);
 
     size_t const cchQuote = fTrimQuotes ? 1 : 0;

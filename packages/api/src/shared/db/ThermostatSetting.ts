@@ -45,6 +45,14 @@ export default class ThermostatSetting {
   @attribute()
   public setPointCool: number;
 
+  // Target temperature for circulation (above) [Celsius]
+  @attribute()
+  public setPointCirculateAbove: number;
+
+  // Target temperature for circulation (above) [Celsius]
+  @attribute()
+  public setPointCirculateBelow: number;
+
   // Allowed actions: GraphQL.ThermostatAction (may be `undefined` if no actions are allowed)
   @attribute({ memberType: "String" })
   public allowedActions?: Set<GraphQL.ThermostatAction>;
@@ -59,6 +67,8 @@ export default class ThermostatSetting {
 
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
+    this.setPointCirculateAbove = NaN;
+    this.setPointCirculateBelow = NaN;
     this.allowedActions = undefined;
   }
 }

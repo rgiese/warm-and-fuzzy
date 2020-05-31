@@ -100,7 +100,7 @@ export function firmwareFromModel(
   const stringEncodedFirmwareConfig = Z85Encode(firmwareConfigBytes);
 
   // c.f. //packages/firmware/thermostat/Main.cpp#handleUpdatedConfig
-  const versionMagic = "2Z85";
+  const versionMagic = "3Z85";
 
   return versionMagic.concat(stringEncodedFirmwareConfig);
 }

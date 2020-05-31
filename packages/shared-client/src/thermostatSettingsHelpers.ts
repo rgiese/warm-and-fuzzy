@@ -109,6 +109,8 @@ export namespace ThermostatSettingsHelpers {
               allowedActions: [],
               setPointHeat: 18,
               setPointCool: 22,
+              setPointCirculateAbove: ThermostatSettingSchema.SetPointRange.max,
+              setPointCirculateBelow: ThermostatSettingSchema.SetPointRange.min,
             };
 
       // Whichever source the new hold setting comes from, default to expiring four hours from now
@@ -134,6 +136,8 @@ export namespace ThermostatSettingsHelpers {
               allowedActions: [],
               setPointHeat: 18,
               setPointCool: 22,
+              setPointCirculateAbove: ThermostatSettingSchema.SetPointRange.max,
+              setPointCirculateBelow: ThermostatSettingSchema.SetPointRange.min,
             };
     }
 

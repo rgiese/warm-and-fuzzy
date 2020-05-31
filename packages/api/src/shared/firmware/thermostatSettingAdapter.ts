@@ -34,6 +34,8 @@ export function createThermostatSetting(
     firmwareConfigBuilder,
     TemperatureAdapter.firmwareFromModel(thermostatSetting.setPointHeat),
     TemperatureAdapter.firmwareFromModel(thermostatSetting.setPointCool),
+    TemperatureAdapter.firmwareFromModel(thermostatSetting.setPointCirculateAbove),
+    TemperatureAdapter.firmwareFromModel(thermostatSetting.setPointCirculateBelow),
     ActionsAdapter.firmwareFromModel(thermostatSetting.allowedActions),
     thermostatSettingType(thermostatSetting),
     0,

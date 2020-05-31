@@ -45,8 +45,10 @@ export const StatusEventSchema = yup.object().shape({
         .object()
         .required()
         .shape({
-          sh: yup.number().required(),
-          sc: yup.number().required(),
+          sh: yup.number().required(), // setPointHeat
+          sc: yup.number().required(), // setPointCool
+          sa: yup.number().required(), // setPointCirculateAbove
+          sb: yup.number().required(), // setPointCirculateBelow
           th: yup.number().required(),
           tz: yup
             .number()

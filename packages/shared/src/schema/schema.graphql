@@ -159,6 +159,8 @@ type ThermostatSetting {
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
+  setPointCirculateAbove: Float!
+  setPointCirculateBelow: Float!
 }
 
 input ThermostatSettingCreateInput {
@@ -175,6 +177,8 @@ input ThermostatSettingCreateInput {
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
+  setPointCirculateAbove: Float!
+  setPointCirculateBelow: Float!
 }
 
 input ThermostatSettingUpdateInput {
@@ -191,6 +195,8 @@ input ThermostatSettingUpdateInput {
   allowedActions: [ThermostatAction!]!
   setPointHeat: Float!
   setPointCool: Float!
+  setPointCirculateAbove: Float!
+  setPointCirculateBelow: Float!
 }
 
 type ThermostatSettings {
@@ -295,6 +301,8 @@ type ThermostatValue {
 
   setPointHeat: Float!
   setPointCool: Float!
+  setPointCirculateAbove: Float!
+  setPointCirculateBelow: Float!
   threshold: Float!
   allowedActions: [ThermostatAction!]!
   currentTimezoneUTCOffset: Float
@@ -329,6 +337,8 @@ type ThermostatValueStream {
 
   setPointHeat: Float!
   setPointCool: Float!
+  setPointCirculateAbove: Float!
+  setPointCirculateBelow: Float!
   threshold: Float!
   allowedActions: [ThermostatAction!]!
   currentTimezoneUTCOffset: Float

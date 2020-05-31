@@ -8,10 +8,10 @@ SCENARIO("Synthetic configuration", "[SyntheticConfiguration]")
 
         WHEN("The configuration is built with settings")
         {
-            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);
+            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20, 12, 22);
             configuration.AddHoldSetting(1000, setpointHold);
 
-            ThermostatSetpoint setpointScheduled(ThermostatAction::Cool, 30, 40);
+            ThermostatSetpoint setpointScheduled(ThermostatAction::Cool, 30, 40, 14, 24);
             configuration.AddScheduledSetting(DaysOfWeek::Monday | DaysOfWeek::Tuesday, 120, setpointScheduled);
 
             configuration.Build();
@@ -32,6 +32,10 @@ SCENARIO("Synthetic configuration", "[SyntheticConfiguration]")
                             setpointHold.SetPointHeat);
                     REQUIRE(Configuration::getTemperature(holdSetting->setPointCool_x100()) ==
                             setpointHold.SetPointCool);
+                    REQUIRE(Configuration::getTemperature(holdSetting->setPointCirculateAbove_x100()) ==
+                            setpointHold.SetPointCirculateAbove);
+                    REQUIRE(Configuration::getTemperature(holdSetting->setPointCirculateBelow_x100()) ==
+                            setpointHold.SetPointCirculateBelow);
                 }
 
                 auto const& scheduledSetting = pvThermostatSettings->Get(1);
@@ -44,6 +48,10 @@ SCENARIO("Synthetic configuration", "[SyntheticConfiguration]")
                             setpointScheduled.SetPointHeat);
                     REQUIRE(Configuration::getTemperature(scheduledSetting->setPointCool_x100()) ==
                             setpointScheduled.SetPointCool);
+                    REQUIRE(Configuration::getTemperature(scheduledSetting->setPointCirculateAbove_x100()) ==
+                            setpointScheduled.SetPointCirculateAbove);
+                    REQUIRE(Configuration::getTemperature(scheduledSetting->setPointCirculateBelow_x100()) ==
+                            setpointScheduled.SetPointCirculateBelow);
                 }
             }
         }
