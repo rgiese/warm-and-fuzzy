@@ -1,9 +1,11 @@
 const path = require("path");
 const slsw = require("serverless-webpack");
+const nodeExternals = require("webpack-node-externals");
 
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
   entry: slsw.lib.entries,
+  externals: [nodeExternals()],
   devtool: "source-map",
   resolve: {
     // c.f. https://github.com/graphql/graphql-js/issues/1272, need to list .mjs prior to .js
@@ -14,7 +16,7 @@ module.exports = {
     path: path.join(__dirname, ".webpack"),
     filename: "[name].js",
   },
-  stats: "errors-warnings",
+  stats: "minimal",
   target: "node",
   module: {
     rules: [
