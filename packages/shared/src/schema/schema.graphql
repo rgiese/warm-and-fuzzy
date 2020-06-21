@@ -337,8 +337,8 @@ type ThermostatValueStream {
 
   setPointHeat: Float!
   setPointCool: Float!
-  setPointCirculateAbove: Float!
-  setPointCirculateBelow: Float!
+  setPointCirculateAbove: Float # Optional for back-compat
+  setPointCirculateBelow: Float # Optional for back-compat
   threshold: Float!
   allowedActions: [ThermostatAction!]!
   currentTimezoneUTCOffset: Float

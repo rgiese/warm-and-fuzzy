@@ -53,11 +53,11 @@ export default class ThermostatValueStream {
 
   // Target temperature for circulation (above) [Celsius]
   @attribute()
-  public setPointCirculateAbove: number;
+  public setPointCirculateAbove?: number;
 
   // Target temperature for circulation (above) [Celsius]
   @attribute()
-  public setPointCirculateBelow: number;
+  public setPointCirculateBelow?: number;
 
   // Hysteresis threshold around targets [Celsius]
   @attribute()
