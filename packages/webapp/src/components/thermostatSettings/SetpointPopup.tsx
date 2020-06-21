@@ -23,6 +23,8 @@ import InteriorPadding from "./InteriorPadding";
 import React from "react";
 import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
+/* eslint-disable react/no-multi-comp */
+
 function SetpointPopup({
   mutableSetting,
   updateMutableSetting,

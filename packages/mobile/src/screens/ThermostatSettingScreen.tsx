@@ -359,7 +359,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
                     thumbTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
                     value={mutableSetting.setPointCirculateAbove}
                   />
-                  <Text style={styles.setPointSwitch}></Text>
+                  <Text style={styles.setPointSwitch} />
                 </View>
                 <View style={styles.setPointRow}>
                   <Text style={styles.setPointText}>
@@ -386,7 +386,7 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
                     thumbTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
                     value={mutableSetting.setPointCirculateBelow}
                   />
-                  <Text style={styles.setPointSwitch}></Text>
+                  <Text style={styles.setPointSwitch} />
                 </View>
               </>
             )}
