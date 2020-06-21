@@ -49,6 +49,14 @@ export default class ThermostatValue extends DeviceWithTenantAndId {
   @attribute()
   public setPointCool: number;
 
+  // Target temperature for circulation (above) [Celsius]
+  @attribute()
+  public setPointCirculateAbove: number;
+
+  // Target temperature for circulation (above) [Celsius]
+  @attribute()
+  public setPointCirculateBelow: number;
+
   // Hysteresis threshold around targets [Celsius]
   @attribute()
   public threshold: number;
@@ -73,6 +81,8 @@ export default class ThermostatValue extends DeviceWithTenantAndId {
     this.humidity = 0.0;
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
+    this.setPointCirculateAbove = NaN;
+    this.setPointCirculateBelow = NaN;
     this.threshold = NaN;
     this.currentTimezoneUTCOffset = undefined;
     this.allowedActions = undefined;

@@ -32,7 +32,9 @@
     "start-mobile:remote:prod": "lerna run start-mobile:remote:prod --stream",
     "bundle:mobile": "lerna run bundle-mobile --stream",
     "publish-mobile:internal": "lerna run publish-mobile:internal --stream",
-    "test": "lerna run test --concurrency 1 --stream"
+    "test": "lerna run test --concurrency 1 --stream",
+    "dev-build:api": "lerna run build --scope \"@grumpycorp/warm-and-fuzzy-api\" --stream",
+    "dev-build:firmware": "lerna run build --scope \"@grumpycorp/warm-and-fuzzy-firmware\" --stream"
   },
   "devDependencies": {
     "@babel/core": "^7.10.1",

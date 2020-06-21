@@ -197,6 +197,13 @@ function ThermostatStatusTable({
                     size={iconSizes.default}
                   />
                 )}
+                {item.allowedActions.includes(ThermostatAction.Circulate) && (
+                  <ThemedText.Circulate style={styles.detailsText}>
+                    {Temperature.toString(item.setPointCirculateAbove, userPreferences)}
+                    {" / "}
+                    {Temperature.toString(item.setPointCirculateBelow, userPreferences)}
+                  </ThemedText.Circulate>
+                )}
 
                 {/* Reported humidity */}
                 <IconMDC color={theme.colors.accent} name="water" size={iconSizes.default} />

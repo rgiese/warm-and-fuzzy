@@ -55,9 +55,11 @@ public:
                                                   ? configuration.rootConfiguration().nextTimezoneUTCOffset()
                                                   : configuration.rootConfiguration().currentTimezoneUTCOffset();
 
-            sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"th\":%.2f,\"tz\":%d",
+            sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"sa\":%.1f,\"sb\":%.1f,\"th\":%.2f,\"tz\":%d",
                             thermostatSetpoint.SetPointHeat,
                             thermostatSetpoint.SetPointCool,
+                            thermostatSetpoint.SetPointCirculateAbove,
+                            thermostatSetpoint.SetPointCirculateBelow,
                             Configuration::getTemperature(configuration.rootConfiguration().threshold_x100()),
                             timezoneUTCOffset);
 
@@ -98,10 +100,11 @@ public:
 
 private:
     static size_t constexpr cchEventData =
-        static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬")                     // Header
-        + static_strlen(",'t':-100.0,'t2':-100.0,'h':100.0,'ca':'HCR'")                    // Status
-        + static_strlen(",cc:{'sh':10.0,'sc':10.0,'th':10.00,'tz':-999,'aa':'HCR','tz'}")  // Configuration
-        + static_strlen(",'v':[]}")                                                        // Measurements
+        static_strlen("{'ts':‭4294967295‬,'ser':‭4294967295‬")   // Header
+        + static_strlen(",'t':-100.0,'t2':-100.0,'h':100.0,'ca':'HCR'")  // Status
+        + static_strlen(
+              ",cc:{'sh':10.0,'sc':10.0,'sa':10.0,'sb':10.0,'th':10.00,'tz':-999,'aa':'HCR','tz'}")  // Configuration
+        + static_strlen(",'v':[]}")                                                                  // Measurements
         + c_cOneWireDevices_Max *
               static_strlen("{'id':'001122334455667788','t':-100.0,'h':100.0},")  // Values from external sensors
         + 4;                                                                      // Safety margin

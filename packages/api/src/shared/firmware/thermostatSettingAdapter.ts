@@ -3,7 +3,11 @@ import * as DaysOfWeekAdapter from "./daysOfWeekAdapter";
 import * as GraphQL from "../../../generated/graphqlTypes";
 import * as TemperatureAdapter from "./temperatureAdapter";
 
-import { Flatbuffers, flatbuffers } from "@grumpycorp/warm-and-fuzzy-shared";
+import {
+  Flatbuffers,
+  ThermostatSettingSchema,
+  flatbuffers,
+} from "@grumpycorp/warm-and-fuzzy-shared";
 
 import { ThermostatSetting } from "../db";
 
@@ -34,6 +38,13 @@ export function createThermostatSetting(
     firmwareConfigBuilder,
     TemperatureAdapter.firmwareFromModel(thermostatSetting.setPointHeat),
     TemperatureAdapter.firmwareFromModel(thermostatSetting.setPointCool),
+    // TEMPORARY: Fallbacks for backwards compatibility
+    TemperatureAdapter.firmwareFromModel(
+      thermostatSetting.setPointCirculateAbove ?? ThermostatSettingSchema.SetPointRange.max
+    ),
+    TemperatureAdapter.firmwareFromModel(
+      thermostatSetting.setPointCirculateBelow ?? ThermostatSettingSchema.SetPointRange.min
+    ),
     ActionsAdapter.firmwareFromModel(thermostatSetting.allowedActions),
     thermostatSettingType(thermostatSetting),
     0,

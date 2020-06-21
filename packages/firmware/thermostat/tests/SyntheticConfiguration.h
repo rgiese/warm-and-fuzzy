@@ -21,6 +21,8 @@ public:
     {
         m_ThermostatSettings.emplace_back(Configuration::buildTemperature(thermostatSetpoint.SetPointHeat),
                                           Configuration::buildTemperature(thermostatSetpoint.SetPointCool),
+                                          Configuration::buildTemperature(thermostatSetpoint.SetPointCirculateAbove),
+                                          Configuration::buildTemperature(thermostatSetpoint.SetPointCirculateBelow),
                                           thermostatSetpoint.AllowedActions,
                                           ThermostatSettingType::Hold,
                                           0 /* padding */,
@@ -36,6 +38,8 @@ public:
     {
         m_ThermostatSettings.emplace_back(Configuration::buildTemperature(thermostatSetpoint.SetPointHeat),
                                           Configuration::buildTemperature(thermostatSetpoint.SetPointCool),
+                                          Configuration::buildTemperature(thermostatSetpoint.SetPointCirculateAbove),
+                                          Configuration::buildTemperature(thermostatSetpoint.SetPointCirculateBelow),
                                           thermostatSetpoint.AllowedActions,
                                           ThermostatSettingType::Scheduled,
                                           0 /* padding */,

@@ -21,6 +21,8 @@ const thermostatSettingsFragment = gql`
       allowedActions
       setPointHeat
       setPointCool
+      setPointCirculateAbove
+      setPointCirculateBelow
     }
   }
 `;

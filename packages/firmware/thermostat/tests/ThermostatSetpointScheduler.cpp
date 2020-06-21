@@ -27,10 +27,10 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
     {
         SyntheticConfiguration configuration;
 
-        ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);
+        ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20, 10, 20);
         configuration.AddHoldSetting(1000, setpointHold);
 
-        ThermostatSetpoint setPointScheduled(ThermostatAction::Cool, 30, 40);
+        ThermostatSetpoint setPointScheduled(ThermostatAction::Cool, 30, 40, 30, 40);
         configuration.AddScheduledSetting(DaysOfWeek::Monday | DaysOfWeek::Tuesday, 120, setPointScheduled);
 
         configuration.Build();
@@ -70,13 +70,13 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
     {
         SyntheticConfiguration configuration;
 
-        ThermostatSetpoint setpointHold1(ThermostatAction::Circulate, 10, 20);
+        ThermostatSetpoint setpointHold1(ThermostatAction::Circulate, 10, 20, 10, 20);
         configuration.AddHoldSetting(1000, setpointHold1);
 
-        ThermostatSetpoint setpointHold2(ThermostatAction::Circulate, 30, 40);
+        ThermostatSetpoint setpointHold2(ThermostatAction::Circulate, 30, 40, 30, 40);
         configuration.AddHoldSetting(2000, setpointHold2);
 
-        ThermostatSetpoint setpointHold3(ThermostatAction::Circulate, 50, 60);
+        ThermostatSetpoint setpointHold3(ThermostatAction::Circulate, 50, 60, 50, 60);
         configuration.AddHoldSetting(3000, setpointHold3);
 
         configuration.Build();
@@ -135,10 +135,10 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
 
     {
         // Test a bunch of different ways to build the same schedule
-        ThermostatSetpoint const setPoints[] = {ThermostatSetpoint(ThermostatAction::Cool, 10, 10.5),
-                                                ThermostatSetpoint(ThermostatAction::Cool, 12, 12.5),
-                                                ThermostatSetpoint(ThermostatAction::Cool, 14, 14.5),
-                                                ThermostatSetpoint(ThermostatAction::Cool, 16, 16.5)};
+        ThermostatSetpoint const setPoints[] = {ThermostatSetpoint(ThermostatAction::Cool, 10, 10.5, 10, 20),
+                                                ThermostatSetpoint(ThermostatAction::Cool, 12, 12.5, 12, 22),
+                                                ThermostatSetpoint(ThermostatAction::Cool, 14, 14.5, 14, 24),
+                                                ThermostatSetpoint(ThermostatAction::Cool, 16, 16.5, 16, 26)};
 
         auto fnVerifySettings = [&scheduler](SyntheticConfiguration const& configuration,
                                              ThermostatSetpoint const setPoints[4]) {
@@ -242,7 +242,7 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
         {
             SyntheticConfiguration configuration;
 
-            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);
+            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20, 12, 22);
             configuration.AddHoldSetting(10, setpointHold);  // expired hold for good measure
 
             configuration.AddScheduledSetting(DaysOfWeek::Monday, 9 * 60, setPoints[0]);
@@ -259,7 +259,7 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
         {
             SyntheticConfiguration configuration;
 
-            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);
+            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20, 12, 22);
             configuration.AddHoldSetting(10, setpointHold);  // expired hold for good measure
 
             configuration.AddScheduledSetting(DaysOfWeek::Wednesday, 9 * 60, setPoints[2]);
@@ -276,7 +276,7 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
         {
             SyntheticConfiguration configuration;
 
-            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);
+            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20, 12, 22);
             configuration.AddHoldSetting(10, setpointHold);  // expired hold for good measure
 
             ThermostatSetpoint const groupedSetPoints[] = {
@@ -295,7 +295,7 @@ SCENARIO("Thermostat setpoint scheduler basics", "[ThermostatSetpointScheduler]"
         {
             SyntheticConfiguration configuration;
 
-            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20);
+            ThermostatSetpoint setpointHold(ThermostatAction::Circulate, 10, 20, 12, 22);
             configuration.AddHoldSetting(10, setpointHold);  // expired hold for good measure
 
             ThermostatSetpoint const groupedSetPoints[] = {

@@ -2,6 +2,7 @@ import * as GraphQL from "../../../generated/graphqlTypes";
 
 import GraphQLModelMapper from "./GraphQLModelMapper";
 import { ThermostatSetting } from "../../shared/db";
+import { ThermostatSettingSchema } from "@grumpycorp/warm-and-fuzzy-shared";
 
 //
 // Adapt GraphQL <-> Model (DB) conventions:
@@ -23,6 +24,11 @@ class ThermostatSettingMapper
       ...remainder,
       daysOfWeek: daysOfWeek ? Array.from(daysOfWeek) : [],
       allowedActions: allowedActions ? Array.from(allowedActions) : [],
+      // TEMPORARY: For backwards compatibility
+      setPointCirculateAbove:
+        rhs.setPointCirculateAbove ?? ThermostatSettingSchema.SetPointRange.max,
+      setPointCirculateBelow:
+        rhs.setPointCirculateBelow ?? ThermostatSettingSchema.SetPointRange.min,
     };
   }
 

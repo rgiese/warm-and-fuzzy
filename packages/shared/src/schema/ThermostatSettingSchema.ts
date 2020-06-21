@@ -65,5 +65,15 @@ export namespace ThermostatSettingSchema {
       .required()
       .min(SetPointRange.min)
       .max(SetPointRange.max),
+    setPointCirculateAbove: yup
+      .number()
+      .required()
+      .min(SetPointRange.min)
+      .max(SetPointRange.max),
+    setPointCirculateBelow: yup
+      .number()
+      .required()
+      .min(SetPointRange.min)
+      .max(SetPointRange.max),
   });
 }

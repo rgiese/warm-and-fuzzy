@@ -16,6 +16,8 @@ const latestThermostatValuesStoreDocument = gql`
       allowedActions
       setPointHeat
       setPointCool
+      setPointCirculateAbove
+      setPointCirculateBelow
     }
   }
 `;
