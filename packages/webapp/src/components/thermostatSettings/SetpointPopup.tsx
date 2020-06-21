@@ -14,6 +14,7 @@ import {
 import {
   RelativeTemperature,
   Temperature,
+  ThermostatSetting,
   ThermostatSettingsHelpers,
   useRootStore,
 } from "@grumpycorp/warm-and-fuzzy-shared-client";
@@ -56,6 +57,86 @@ function SetpointPopup({
     return roundedToMultiples;
   };
 
+  function formatTemperatureForAction(): string {
+    switch (action) {
+      case GraphQL.ThermostatAction.Heat:
+        return Temperature.toString(mutableSetting.setPointHeat, userPreferences);
+      case GraphQL.ThermostatAction.Cool:
+        return Temperature.toString(mutableSetting.setPointCool, userPreferences);
+      case GraphQL.ThermostatAction.Circulate:
+        return (
+          Temperature.toString(mutableSetting.setPointCirculateAbove, userPreferences) +
+          " / " +
+          Temperature.toString(mutableSetting.setPointCirculateBelow, userPreferences)
+        );
+    }
+  }
+
+  function buildControlForSetPoint(
+    setPointName:
+      | "setPointHeat"
+      | "setPointCool"
+      | "setPointCirculateAbove"
+      | "setPointCirculateBelow",
+    label?: string
+  ): React.ReactElement {
+    return (
+      <Form.Field>
+        {label && <label>{label}</label>}
+        <Input
+          disabled={!isActionAllowed}
+          label={Temperature.unitsToString(userPreferences)}
+          labelPosition="right"
+          max={Temperature.toPreferredUnits(
+            ThermostatSettingSchema.SetPointRange.max,
+            userPreferences
+          )}
+          min={Temperature.toPreferredUnits(
+            ThermostatSettingSchema.SetPointRange.min,
+            userPreferences
+          )}
+          onChange={(
+            _event: React.ChangeEvent<HTMLInputElement>,
+            data: InputOnChangeData
+          ): void => {
+            const setpointInPreferredUnits = Number.parseFloat(data.value);
+            const setpointInBaseUnits = Temperature.fromPreferredUnits(
+              setpointInPreferredUnits,
+              userPreferences
+            );
+            const setpoint = roundToMultipleOf(setpointInBaseUnits, temperatureStepInCelsius);
+
+            const updatedSetpoints: Partial<ThermostatSetting> = { [setPointName]: setpoint };
+
+            updateMutableSetting({
+              ...mutableSetting,
+              ...updatedSetpoints,
+            });
+          }}
+          step={RelativeTemperature.toPreferredUnits(temperatureStepInCelsius, userPreferences)}
+          type="number"
+          value={Temperature.toPreferredUnits(mutableSetting[setPointName], userPreferences)}
+        />
+      </Form.Field>
+    );
+  }
+
+  function buildControlsForAction(): React.ReactElement {
+    switch (action) {
+      case GraphQL.ThermostatAction.Heat:
+        return buildControlForSetPoint("setPointHeat");
+      case GraphQL.ThermostatAction.Cool:
+        return buildControlForSetPoint("setPointCool");
+      case GraphQL.ThermostatAction.Circulate:
+        return (
+          <Form.Group>
+            {buildControlForSetPoint("setPointCirculateAbove", "above")}
+            {buildControlForSetPoint("setPointCirculateBelow", "below")}
+          </Form.Group>
+        );
+    }
+  }
+
   return availableActions.includes(action) ? (
     <Popup
       on="click"
@@ -64,16 +145,7 @@ function SetpointPopup({
         <Button style={{ paddingLeft: InteriorPadding / 2, paddingRight: InteriorPadding / 2 }}>
           <Icon color={iconColor} name={iconName} />
           {mutableSetting.allowedActions.includes(action) ? (
-            isCirculate ? (
-              <Icon name="check" />
-            ) : (
-              Temperature.toString(
-                action === GraphQL.ThermostatAction.Heat
-                  ? mutableSetting.setPointHeat
-                  : mutableSetting.setPointCool,
-                userPreferences
-              )
-            )
+            formatTemperatureForAction()
           ) : (
             <Icon name="window minimize outline" />
           )}
@@ -83,75 +155,20 @@ function SetpointPopup({
     >
       <Popup.Content>
         <Form>
-          <Form.Group inline>
-            <Form.Field>
-              <Checkbox
-                checked={isActionAllowed}
-                label={`${action} ${!isCirculate ? "to" : ""}`}
-                onChange={(): void => {
-                  const allowedActions = isActionAllowed
-                    ? mutableSetting.allowedActions.filter(
-                        allowedAction => allowedAction !== action
-                      )
-                    : mutableSetting.allowedActions.concat(action);
+          <Form.Field>
+            <Checkbox
+              checked={isActionAllowed}
+              label={`${action} ${!isCirculate ? "to" : "if"}`}
+              onChange={(): void => {
+                const allowedActions = isActionAllowed
+                  ? mutableSetting.allowedActions.filter(allowedAction => allowedAction !== action)
+                  : mutableSetting.allowedActions.concat(action);
 
-                  updateMutableSetting({ ...mutableSetting, allowedActions });
-                }}
-              />
-            </Form.Field>
-            {!isCirculate && (
-              <Form.Field>
-                <Input
-                  disabled={!isActionAllowed}
-                  label={Temperature.unitsToString(userPreferences)}
-                  labelPosition="right"
-                  max={Temperature.toPreferredUnits(
-                    ThermostatSettingSchema.SetPointRange.max,
-                    userPreferences
-                  )}
-                  min={Temperature.toPreferredUnits(
-                    ThermostatSettingSchema.SetPointRange.min,
-                    userPreferences
-                  )}
-                  onChange={(
-                    _event: React.ChangeEvent<HTMLInputElement>,
-                    data: InputOnChangeData
-                  ): void => {
-                    const setpointInPreferredUnits = Number.parseFloat(data.value);
-                    const setpointInBaseUnits = Temperature.fromPreferredUnits(
-                      setpointInPreferredUnits,
-                      userPreferences
-                    );
-                    const setpoint = roundToMultipleOf(
-                      setpointInBaseUnits,
-                      temperatureStepInCelsius
-                    );
-
-                    const updatedSetpoints =
-                      action === GraphQL.ThermostatAction.Heat
-                        ? { setPointHeat: setpoint }
-                        : { setPointCool: setpoint };
-
-                    updateMutableSetting({
-                      ...mutableSetting,
-                      ...updatedSetpoints,
-                    });
-                  }}
-                  step={RelativeTemperature.toPreferredUnits(
-                    temperatureStepInCelsius,
-                    userPreferences
-                  )}
-                  type="number"
-                  value={Temperature.toPreferredUnits(
-                    action === GraphQL.ThermostatAction.Heat
-                      ? mutableSetting.setPointHeat
-                      : mutableSetting.setPointCool,
-                    userPreferences
-                  )}
-                />
-              </Form.Field>
-            )}
-          </Form.Group>
+                updateMutableSetting({ ...mutableSetting, allowedActions });
+              }}
+            />
+          </Form.Field>
+          {buildControlsForAction()}
         </Form>
       </Popup.Content>
     </Popup>
