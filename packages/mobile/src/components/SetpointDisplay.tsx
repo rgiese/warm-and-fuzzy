@@ -21,26 +21,27 @@ function SetpointDisplay({
   thermostatSetting: ThermostatSetting;
   action: GraphQL.ThermostatAction;
 }): React.ReactElement {
-  const isCirculate = action === GraphQL.ThermostatAction.Circulate;
-
   const rootStore = useRootStore();
   const userPreferences = rootStore.userPreferencesStore.userPreferences;
 
+  function formatTemperatureForAction(): string {
+    switch (action) {
+      case GraphQL.ThermostatAction.Heat:
+        return Temperature.toString(thermostatSetting.setPointHeat, userPreferences);
+      case GraphQL.ThermostatAction.Cool:
+        return Temperature.toString(thermostatSetting.setPointCool, userPreferences);
+      case GraphQL.ThermostatAction.Circulate:
+        return (
+          Temperature.toString(thermostatSetting.setPointCirculateAbove, userPreferences) +
+          " / " +
+          Temperature.toString(thermostatSetting.setPointCirculateBelow, userPreferences)
+        );
+    }
+  }
   return thermostatSetting.allowedActions.includes(action) ? (
     <>
       <IconMDC color={ColorCodes[action]} name={IconNames[action]} size={iconSize} />
-      <Text style={{ color: ColorCodes[action] }}>
-        {isCirculate ? (
-          <IconMDC color={ColorCodes[action]} name="check" size={iconSize} />
-        ) : (
-          Temperature.toString(
-            action === GraphQL.ThermostatAction.Heat
-              ? thermostatSetting.setPointHeat
-              : thermostatSetting.setPointCool,
-            userPreferences
-          )
-        )}
-      </Text>
+      <Text style={{ color: ColorCodes[action] }}>{formatTemperatureForAction()}</Text>
       <Text>&nbsp;</Text>
     </>
   ) : (

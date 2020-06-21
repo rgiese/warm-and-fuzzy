@@ -173,9 +173,11 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
               mode="dropdown"
               // onValueChange is typed as `any` -> tell eslint to go away
               // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-              onValueChange={(value: any): void =>
-                updateMutableSetting({ ...mutableSetting, holdUntil: new Date(value as number) })
-              }
+              onValueChange={(value: any): void => {
+                if (value !== mutableSetting.holdUntil?.valueOf()) {
+                  updateMutableSetting({ ...mutableSetting, holdUntil: new Date(value as number) });
+                }
+              }}
               selectedValue={mutableSetting.holdUntil?.valueOf()}
               style={styles.holdPicker}
             >
@@ -317,18 +319,78 @@ const ThermostatSettingScreen: NavigationStackScreenComponent<ThermostatSettingN
 
         {/* Set point: Circulate */}
         {availableActions.includes(GraphQL.ThermostatAction.Circulate) && (
-          <View style={styles.setPointRow}>
-            <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
-            <View style={styles.setPointSlider}>{/* Empty */}</View>
-            <Switch
-              color={ColorCodes[GraphQL.ThermostatAction.Circulate]}
-              onValueChange={(value: boolean): void =>
-                onChangeAllowedAction(GraphQL.ThermostatAction.Circulate, value)
-              }
-              style={styles.setPointSwitch}
-              value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Circulate)}
-            />
-          </View>
+          <>
+            <View style={styles.setPointRow}>
+              <ThemedText.Circulate style={styles.setPointText}>Circulate</ThemedText.Circulate>
+              <View style={styles.setPointSlider}>{/* Empty */}</View>
+              <Switch
+                color={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+                onValueChange={(value: boolean): void =>
+                  onChangeAllowedAction(GraphQL.ThermostatAction.Circulate, value)
+                }
+                style={styles.setPointSwitch}
+                value={mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Circulate)}
+              />
+            </View>
+            {mutableSetting.allowedActions.includes(GraphQL.ThermostatAction.Circulate) && (
+              <>
+                <View style={styles.setPointRow}>
+                  <Text style={styles.setPointText}>
+                    <ThemedText.Circulate>if </ThemedText.Circulate>
+                    above{" "}
+                    {Temperature.toString(mutableSetting.setPointCirculateAbove, userPreferences)}
+                  </Text>
+                  <Slider
+                    maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+                    maximumValue={ThermostatSettingSchema.SetPointRange.max}
+                    minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+                    minimumValue={ThermostatSettingSchema.SetPointRange.min}
+                    onValueChange={(value: number): void =>
+                      updateMutableSetting({
+                        ...mutableSetting,
+                        setPointCirculateAbove: Math.max(
+                          value,
+                          mutableSetting.setPointCirculateBelow
+                        ),
+                      })
+                    }
+                    step={1}
+                    style={styles.setPointSlider}
+                    thumbTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+                    value={mutableSetting.setPointCirculateAbove}
+                  />
+                  <Text style={styles.setPointSwitch}></Text>
+                </View>
+                <View style={styles.setPointRow}>
+                  <Text style={styles.setPointText}>
+                    <ThemedText.Circulate>or </ThemedText.Circulate>
+                    below{" "}
+                    {Temperature.toString(mutableSetting.setPointCirculateBelow, userPreferences)}
+                  </Text>
+                  <Slider
+                    maximumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+                    maximumValue={ThermostatSettingSchema.SetPointRange.max}
+                    minimumTrackTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+                    minimumValue={ThermostatSettingSchema.SetPointRange.min}
+                    onValueChange={(value: number): void =>
+                      updateMutableSetting({
+                        ...mutableSetting,
+                        setPointCirculateBelow: Math.min(
+                          value,
+                          mutableSetting.setPointCirculateAbove
+                        ),
+                      })
+                    }
+                    step={1}
+                    style={styles.setPointSlider}
+                    thumbTintColor={ColorCodes[GraphQL.ThermostatAction.Circulate]}
+                    value={mutableSetting.setPointCirculateBelow}
+                  />
+                  <Text style={styles.setPointSwitch}></Text>
+                </View>
+              </>
+            )}
+          </>
         )}
 
         <View style={styles.saveButtonRow}>
