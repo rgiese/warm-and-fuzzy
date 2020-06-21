@@ -69,8 +69,8 @@ export default class ThermostatSetting {
 
     this.setPointHeat = NaN;
     this.setPointCool = NaN;
-    this.setPointCirculateAbove = NaN;
-    this.setPointCirculateBelow = NaN;
+    this.setPointCirculateAbove = undefined;
+    this.setPointCirculateBelow = undefined;
     this.allowedActions = undefined;
   }
 }
