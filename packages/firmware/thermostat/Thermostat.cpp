@@ -65,7 +65,7 @@ void Thermostat::Apply(Configuration const& Configuration,
     if (!!(m_CurrentActions & ThermostatAction::Circulate))
     {
         // Consider turning off circulation
-        if (CurrentTemperature > (setPointCirculateBelow + threshold) ||
+        if (CurrentTemperature > (setPointCirculateBelow + threshold) &&
             CurrentTemperature < (setPointCirculateAbove - threshold))
         {
             // Turn off circulation
