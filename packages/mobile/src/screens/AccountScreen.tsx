@@ -1,12 +1,13 @@
 import * as GraphQL from "../../generated/graphqlClient";
 
 import { Button, Divider, List } from "react-native-paper";
-import { Picker, ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import BaseView from "../components/BaseView";
 import { ConfigStageName } from "../config";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
+import { Picker } from "@react-native-community/picker";
 import ScreenRoutes from "./ScreenRoutes";
 import StoreChecks from "../components/StoreChecks";
 import { UserPreferencesSchema } from "@grumpycorp/warm-and-fuzzy-shared";
