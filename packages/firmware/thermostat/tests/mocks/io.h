@@ -22,6 +22,11 @@ inline void pinMode(pin_t _pin, PinMode _setMode)
 {
 }
 
+inline PinMode getPinMode(pin_t _pin)
+{
+    return OUTPUT;
+}
+
 inline void digitalWrite(pin_t _pin, uint8_t _value)
 {
 }
