@@ -102,6 +102,13 @@ void Thermostat::Apply(Configuration const& Configuration,
 
 void Thermostat::ApplyActions(ThermostatAction const& Actions)
 {
+    // TEMPORARY
+    PinMode const switchOverPinMode = getPinMode(sc_RelayPin_SwitchOver);
+
+    char rgDebugText[100];
+    sprintf(rgDebugText, "PM=%u,%c", switchOverPinMode, switchOverPinMode == OUTPUT ? 'O' : 'x');
+    Particle.publish("debugPinMode", rgDebugText, 60 /* TTL, unused */, PRIVATE | WITH_ACK);
+
     //
     // Relays are used in the following configuration:
     //
