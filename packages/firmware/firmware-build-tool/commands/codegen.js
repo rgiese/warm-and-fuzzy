@@ -1,6 +1,7 @@
 const { Command, flags } = require("@oclif/command");
 const { execSync } = require("child_process");
 const fs = require("fs");
+const glob = require("glob");
 const path = require("path");
 
 class CodegenCommand extends Command {
@@ -44,7 +45,7 @@ class CodegenCommand extends Command {
       // because we don't get to set additional include roots with the Particle compiler
       const fileContent = fs.readFileSync(fileName).toString();
 
-      const fixedUpFileContent = fileContent.replace('#include "flatbuffers/', '#include "');
+      const fixedUpFileContent = fileContent.replace(/#include "flatbuffers\//g, '#include "');
 
       fs.writeFileSync(fileName, fixedUpFileContent);
     };
@@ -67,9 +68,11 @@ class CodegenCommand extends Command {
     // Copy C++ headers
     const flatbuffersIncludesSource = path.join(flatbuffersRoot, "include/flatbuffers");
 
-    ["flatbuffers.h", "base.h", "stl_emulation.h"].map(header => {
-      const source = path.join(flatbuffersIncludesSource, header);
-      const destination = path.join(projectGeneratedRoot, header);
+    glob
+    .sync(`${flatbuffersIncludesSource}/*.h`)
+    .forEach(source => {
+      const relativeSourcePath = path.relative(flatbuffersIncludesSource, source).replace("\\", "/");
+      const destination = path.join(projectGeneratedRoot, relativeSourcePath);
 
       this.log(`Rewriting ${source} -> ${destination}`);
       fs.copyFileSync(source, destination);
