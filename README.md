@@ -35,19 +35,26 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - `choco install awscli cmake mingw` and make sure the CMake directory (e.g. `%ProgramFiles%\CMake\bin` is in the system path)
         - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
       - Mac:
+        - Install Xcode
         - `xcode-select --install`
-        - `brew install python pyenv`
+        - `sudo xcode-select -r`
+        - `brew install awscli cmake lerna python pyenv`
         - `pyenv install 2.7.18`, `pyenv global 2.7.18`
         - Modify path (e.g. `~/.zshrc`) to `export PATH="/usr/local/sbin:$(pyenv root)/shims:$PATH"` to front-load both Homebrew and PyEnv's paths
+        - `bash <( curl -sL https://particle.io/install-cli )`
     - Set the environment variable `GRUMPYCORP_ROOT` to point to the parent directory of this repo
     - In that directory:
-      - `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
+      - `git clone https://github.com/google/flatbuffers.git --branch v22.12.06`, creating a peer to this repo
         - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
       - `git clone https://github.com/particle-iot/device-os.git` for firmware headers
     - `cd flatbuffers` and build:
       - Windows:
         - `cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release`
         - `mingw32-make`
+      - macOS:
+        - `cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release`
+        - Open `FlatBuffers.xcodeproj` in Xcode and build for running
+        - `ln -s Debug/flatc .`
     - Configure credentials
       - `aws configure` with `AWS Access Key ID` = `AKIA...`, `AWW Secret Access Key` = password on file, `Default region name` = `us-west-2`
       - Set the environment variable `PARTICLE_ACCESS_TOKEN` to a Particle API token (generate with `particle token create`)
