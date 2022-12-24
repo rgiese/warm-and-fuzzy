@@ -35,7 +35,10 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - `choco install awscli cmake mingw` and make sure the CMake directory (e.g. `%ProgramFiles%\CMake\bin` is in the system path)
         - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
       - Mac:
-        - (TBD)
+        - `xcode-select --install`
+        - `brew install python pyenv`
+        - `pyenv install 2.7.18`, `pyenv global 2.7.18`
+        - Modify path (e.g. `~/.zshrc`) to `export PATH="/usr/local/sbin:$(pyenv root)/shims:$PATH"` to front-load both Homebrew and PyEnv's paths
     - Set the environment variable `GRUMPYCORP_ROOT` to point to the parent directory of this repo
     - In that directory:
       - `git clone https://github.com/google/flatbuffers.git --branch v1.11.0`, creating a peer to this repo
