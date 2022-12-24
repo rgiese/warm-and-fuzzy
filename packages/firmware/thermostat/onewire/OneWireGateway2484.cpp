@@ -6,8 +6,7 @@
 // Interface implementation
 //
 
-OneWireGateway2484::OneWireGateway2484()
-    : m_LatestReadPointer(GatewayRegister::Unknown)
+OneWireGateway2484::OneWireGateway2484() : m_LatestReadPointer(GatewayRegister::Unknown)
 {
 }
 
@@ -116,14 +115,14 @@ bool OneWireGateway2484::EnumerateDevices(std::function<void(OneWireAddress cons
                 // If there was no previous conflict...
                 (idxPreviousRound_LatestConflictingBit == c_NotSet)
                     ? c_DefaultDirectionOnConflict  // ...move in the default direction.
-                    // If we're at a bit prior to a previously conflicting bit...
-                    : (idxBit < idxPreviousRound_LatestConflictingBit)
-                          ? address.GetBit(idxBit)  // ...follow the same path as before.
-                          // If we're at the site of the previously conflicting bit...
-                          : (idxBit == idxPreviousRound_LatestConflictingBit)
-                                ? !c_DefaultDirectionOnConflict  // ...choose a different path;
-                                : c_DefaultDirectionOnConflict;  // otherwise, choose the default direction
-                                                                 // again.
+                // If we're at a bit prior to a previously conflicting bit...
+                : (idxBit < idxPreviousRound_LatestConflictingBit)
+                    ? address.GetBit(idxBit)  // ...follow the same path as before.
+                // If we're at the site of the previously conflicting bit...
+                : (idxBit == idxPreviousRound_LatestConflictingBit)
+                    ? !c_DefaultDirectionOnConflict  // ...choose a different path;
+                    : c_DefaultDirectionOnConflict;  // otherwise, choose the default direction
+                                                     // again.
 
             // The triplet operation will evaluate the retrieved bit/complement-bit values
             // for the current address bit and send out a direction bit as follows:

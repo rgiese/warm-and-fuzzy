@@ -2,8 +2,7 @@
 
 #include "inc/stdinc.h"
 
-Thermostat::Thermostat()
-    : m_CurrentActions(ThermostatAction::NONE)
+Thermostat::Thermostat() : m_CurrentActions(ThermostatAction::NONE)
 {
 }
 
