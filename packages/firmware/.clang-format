@@ -17,19 +17,19 @@ BinPackParameters: false
 AccessModifierOffset: -4
 
 BreakBeforeBraces: Custom
-BraceWrapping:   
-  AfterClass:      true
+BraceWrapping:
+  AfterClass: true
   AfterControlStatement: true
-  AfterEnum:       true
-  AfterFunction:   true
-  AfterNamespace:  true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
   AfterObjCDeclaration: true
-  AfterStruct:     true
-  AfterUnion:      true
+  AfterStruct: true
+  AfterUnion: true
   AfterExternBlock: true
-  BeforeCatch:     true
-  BeforeElse:      true
-  IndentBraces:    false
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
   SplitEmptyFunction: true
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
@@ -42,4 +42,3 @@ MaxEmptyLinesToKeep: 2
 
 IncludeBlocks: Preserve
 SortIncludes: false
-...

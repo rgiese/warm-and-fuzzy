@@ -39,7 +39,7 @@ class BuildCommand extends Command {
 
     glob
       .sync(`${projectRoot}/**/*.{c,cpp,h,hpp,properties}`, { ignore: "**/tests/**/*" })
-      .forEach(fileName => {
+      .forEach((fileName) => {
         const relativePath = path.relative(projectRoot, fileName).replace("\\", "/");
         this.log(`  ${relativePath}`);
 
@@ -90,14 +90,14 @@ class BuildCommand extends Command {
       .query({ access_token: particleAccessToken })
       .on(
         "error",
-        function(error) {
+        function (error) {
           this.error(error);
         }.bind(this)
       )
       .pipe(builtImageStream)
       .on(
         "finish",
-        function() {
+        function () {
           this.log(`Downloaded firmware to ${builtImage}.`);
         }.bind(this)
       );

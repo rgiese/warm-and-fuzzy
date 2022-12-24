@@ -35,15 +35,12 @@ class UploadCommand extends Command {
     let productVersion = null;
     {
       const mainSourceFilePath = path.join(projectRoot, flags.mainSourceFile);
-      const mainSourceFile = fs
-        .readFileSync(mainSourceFilePath)
-        .toString()
-        .split("\n");
+      const mainSourceFile = fs.readFileSync(mainSourceFilePath).toString().split("\n");
 
       const productIdRegExp = /^PRODUCT_ID\((\d+)\)/;
       const productVersionRegExp = /^PRODUCT_VERSION\((\d+)\)/;
 
-      mainSourceFile.forEach(sourceLine => {
+      mainSourceFile.forEach((sourceLine) => {
         // Check for product ID
         const thisProductId = sourceLine.match(productIdRegExp);
 

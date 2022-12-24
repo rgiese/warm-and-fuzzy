@@ -40,7 +40,7 @@ class CodegenCommand extends Command {
 
     const flatbuffersRoot = path.join(grumpycorpRoot, "flatbuffers");
 
-    const fixIncludePathsInFile = fileName => {
+    const fixIncludePathsInFile = (fileName) => {
       // Modify include locations from "flatbuffers/{foo.h}" to "{foo.h}"
       // because we don't get to set additional include roots with the Particle compiler
       const fileContent = fs.readFileSync(fileName).toString();
@@ -51,7 +51,7 @@ class CodegenCommand extends Command {
     };
 
     // Run codegen
-    ["firmware.fbs"].map(fbs => {
+    ["firmware.fbs"].map((fbs) => {
       const flatbuffersSchema = path.join(schemasRoot, fbs);
       this.log(`Processing ${flatbuffersSchema}`);
 
@@ -68,10 +68,10 @@ class CodegenCommand extends Command {
     // Copy C++ headers
     const flatbuffersIncludesSource = path.join(flatbuffersRoot, "include/flatbuffers");
 
-    glob
-    .sync(`${flatbuffersIncludesSource}/*.h`)
-    .forEach(source => {
-      const relativeSourcePath = path.relative(flatbuffersIncludesSource, source).replace("\\", "/");
+    glob.sync(`${flatbuffersIncludesSource}/*.h`).forEach((source) => {
+      const relativeSourcePath = path
+        .relative(flatbuffersIncludesSource, source)
+        .replace("\\", "/");
       const destination = path.join(projectGeneratedRoot, relativeSourcePath);
 
       this.log(`Rewriting ${source} -> ${destination}`);
