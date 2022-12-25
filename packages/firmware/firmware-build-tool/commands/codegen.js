@@ -1,4 +1,4 @@
-const { Command, flags } = require("@oclif/command");
+const { Command, Flags } = require("@oclif/core");
 const { execSync } = require("child_process");
 const fs = require("fs");
 const glob = require("glob");
@@ -7,7 +7,7 @@ const path = require("path");
 class CodegenCommand extends Command {
   async run() {
     // Check parameters
-    const { flags } = this.parse(CodegenCommand);
+    const { flags } = await this.parse(CodegenCommand);
 
     if (!flags.project) {
       this.error("No project directory specified (-p). Exiting.");
@@ -87,7 +87,7 @@ Provide name of project directory with -p
 `;
 
 CodegenCommand.flags = {
-  project: flags.string({ char: "p", description: "Project to codegen for" }),
+  project: Flags.string({ char: "p", description: "Project to codegen for" }),
 };
 
 module.exports = CodegenCommand;

@@ -1,4 +1,1 @@
-require("@oclif/command")
-  .run()
-  .then(require("@oclif/command/flush"))
-  .catch(require("@oclif/errors/handle"));
+require("@oclif/core").run();

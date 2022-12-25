@@ -1,5 +1,5 @@
 const { execSync } = require("child_process");
-const { Command, flags } = require("@oclif/command");
+const { Command, Flags } = require("@oclif/core");
 const fs = require("fs");
 const path = require("path");
 
@@ -7,7 +7,7 @@ const { getBuiltImagePath } = require("../common");
 
 class UploadCommand extends Command {
   async run() {
-    const { flags } = this.parse(UploadCommand);
+    const { flags } = await this.parse(UploadCommand);
 
     if (!flags.project) {
       this.error("No project directory specified (-p). Exiting.");
@@ -93,8 +93,8 @@ Provide name of project directory with -p
 `;
 
 UploadCommand.flags = {
-  project: flags.string({ char: "p", description: "Project to upload firmware for" }),
-  mainSourceFile: flags.string({
+  project: Flags.string({ char: "p", description: "Project to upload firmware for" }),
+  mainSourceFile: Flags.string({
     char: "m",
     description:
       "Project-relative path to source file containing product ID and version definition",

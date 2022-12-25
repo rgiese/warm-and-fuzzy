@@ -26,11 +26,11 @@
   },
   "devDependencies": {
     "clang-format": "^1.8.0",
-    "glob": "^7.1.6",
-    "oclif": "^1.16.1",
-    "particle-api-js": "^9.0.0",
+    "glob": "^8.0.3",
+    "oclif": "^3.4.2",
+    "particle-api-js": "^9.4.1",
     "path": "^0.12.7",
-    "superagent": "^5.2.2"
+    "superagent": "^8.0.6"
   },
   "oclif": {
     "commands": "./firmware-build-tool/commands"

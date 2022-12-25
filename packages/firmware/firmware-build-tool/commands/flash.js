@@ -1,12 +1,12 @@
 const { execSync } = require("child_process");
-const { Command, flags } = require("@oclif/command");
+const { Command, Flags } = require("@oclif/core");
 const path = require("path");
 
 const { getBuiltImagePath } = require("../common");
 
 class FlashCommand extends Command {
   async run() {
-    const { flags } = this.parse(FlashCommand);
+    const { flags } = await this.parse(FlashCommand);
 
     if (!flags.project) {
       this.error("No project directory specified (-p). Exiting.");
@@ -30,7 +30,7 @@ Provide name of project directory with -p
 `;
 
 FlashCommand.flags = {
-  project: flags.string({ char: "p", description: "Project to flash" }),
+  project: Flags.string({ char: "p", description: "Project to flash" }),
 };
 
 module.exports = FlashCommand;

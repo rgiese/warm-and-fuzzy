@@ -1,5 +1,5 @@
 const { execSync } = require("child_process");
-const { Command } = require("@oclif/command");
+const { Command } = require("@oclif/core");
 
 class MonitorCommand extends Command {
   async run() {
