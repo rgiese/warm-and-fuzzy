@@ -142,11 +142,12 @@ void loop()
         uint32_t const timeNow = Time.now();
         int const idxDayOfWeek = Time.weekday(timeNow);
 
-        Serial.printlnf("-- It is currently %02d:%02d on a %sday (%u Unix time)",
-                        Time.hour(timeNow),
-                        Time.minute(timeNow),
-                        idxDayOfWeek < countof(rgDaysOfWeek) ? rgDaysOfWeek[idxDayOfWeek] : "<unexpected>",
-                        timeNow);
+        Serial.printlnf(
+            "-- It is currently %02d:%02d on a %sday (%lu Unix time)",
+            Time.hour(timeNow),
+            Time.minute(timeNow),
+            idxDayOfWeek < static_cast<int>(countof(rgDaysOfWeek)) ? rgDaysOfWeek[idxDayOfWeek] : "<unexpected>",
+            timeNow);
     }
 
     //
@@ -202,7 +203,7 @@ void loop()
     }
 
     // Override onboard temperature if requested and available
-    OneWireAddress const externalSensorId(g_Configuration.rootConfiguration().externalSensorId());
+    OneWireAddress const externalSensorId(g_Configuration.rootConfiguration().external_sensor_id());
     float operableTemperature = onboardTemperature;
     bool fUsedExternalSensor = false;
 
@@ -409,11 +410,13 @@ void applyTimezoneConfiguration()
     // the next one and when to switch over, in case we don't update frequently.
     //
 
-    bool const inNextTimezone = g_Configuration.rootConfiguration().nextTimezoneChange() <= Time.now();
+    bool const inNextTimezone =
+        g_Configuration.rootConfiguration().next_timezone_change() <= static_cast<uint32_t>(Time.now());
 
     // {current,next}TimezoneUTCOffset: signed IANA UTC offset, e.g. PST = 480
-    int16_t const timezoneUTCOffset = inNextTimezone ? g_Configuration.rootConfiguration().nextTimezoneUTCOffset()
-                                                     : g_Configuration.rootConfiguration().currentTimezoneUTCOffset();
+    int16_t const timezoneUTCOffset = inNextTimezone
+                                          ? g_Configuration.rootConfiguration().next_timezone_utc_offset()
+                                          : g_Configuration.rootConfiguration().current_timezone_utc_offset();
 
     // particleTimezone: signed fractional hours, e.g. PST = -8.0
     float const particleTimezone = -1.0f * (timezoneUTCOffset / 60.0f);

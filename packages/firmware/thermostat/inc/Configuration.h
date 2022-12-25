@@ -188,20 +188,20 @@ public:
     void PrintConfiguration() const
     {
         char szExternalSensorId[OneWireAddress::sc_cchAsHexString_WithTerminator];
-        OneWireAddress externalSensorId(rootConfiguration().externalSensorId());
+        OneWireAddress externalSensorId(rootConfiguration().external_sensor_id());
 
         externalSensorId.ToString(szExternalSensorId);
 
         Serial.printlnf(
-            "Threshold = +/-%.1f C, Cadence = %u sec, ExternalSensorId = %s, Timezone UTC offset %d/%d pre/post %u",
+            "Threshold = +/-%.1f C, Cadence = %u sec, ExternalSensorId = %s, Timezone UTC offset %d/%d pre/post %lu",
             Configuration::getTemperature(rootConfiguration().threshold_x100()),
             rootConfiguration().cadence(),
             szExternalSensorId,
-            rootConfiguration().currentTimezoneUTCOffset(),
-            rootConfiguration().nextTimezoneUTCOffset(),
-            rootConfiguration().nextTimezoneChange());
+            rootConfiguration().current_timezone_utc_offset(),
+            rootConfiguration().next_timezone_utc_offset(),
+            rootConfiguration().next_timezone_change());
 
-        auto const pvThermostatSettings = rootConfiguration().thermostatSettings();
+        auto const pvThermostatSettings = rootConfiguration().thermostat_settings();
 
         if (pvThermostatSettings)
         {
@@ -211,14 +211,14 @@ public:
                 {
                     case ThermostatSettingType::Hold: {
                         Serial.print("  Hold: ");
-                        Serial.printf("until %lu", pThermostatSetting->holdUntil());
+                        Serial.printf("until %lu", pThermostatSetting->hold_until());
                         break;
                     }
 
                     case ThermostatSettingType::Scheduled: {
                         Serial.print("  Scheduled: ");
 
-                        DaysOfWeek const daysOfWeek = pThermostatSetting->daysOfWeek();
+                        DaysOfWeek const daysOfWeek = pThermostatSetting->days_of_week();
 
                         for (uint8_t idxEnumBit = 0; idxEnumBit < 7; ++idxEnumBit)
                         {
@@ -229,26 +229,26 @@ public:
                             }
                         }
 
-                        uint16_t const atMinutesSinceMidnight = pThermostatSetting->atMinutesSinceMidnight();
+                        uint16_t const atMinutesSinceMidnight = pThermostatSetting->at_minutes_since_midnight();
                         Serial.printf(" at %02u:%02u", atMinutesSinceMidnight / 60, atMinutesSinceMidnight % 60);
                         break;
                     }
 
                     default: {
-                        Serial.printf("  UnknownSettingType(%u)", pThermostatSetting->type());
+                        Serial.printf("  UnknownSettingType(%lu)", static_cast<uint32_t>(pThermostatSetting->type()));
                         break;
                     }
                 }
 
-                ThermostatAction const allowedActions = pThermostatSetting->allowedActions();
+                ThermostatAction const allowedActions = pThermostatSetting->allowed_actions();
 
                 Serial.printlnf(
                     ": %.1f C (heat), %.1f C (cool), %.1f C / %.1f C (circulate above/below), AllowedActions = "
                     "[%c%c%c]",
-                    Configuration::getTemperature(pThermostatSetting->setPointHeat_x100()),
-                    Configuration::getTemperature(pThermostatSetting->setPointCool_x100()),
-                    Configuration::getTemperature(pThermostatSetting->setPointCirculateAbove_x100()),
-                    Configuration::getTemperature(pThermostatSetting->setPointCirculateBelow_x100()),
+                    Configuration::getTemperature(pThermostatSetting->set_point_heat_x100()),
+                    Configuration::getTemperature(pThermostatSetting->set_point_cool_x100()),
+                    Configuration::getTemperature(pThermostatSetting->set_point_circulate_above_x100()),
+                    Configuration::getTemperature(pThermostatSetting->set_point_circulate_below_x100()),
                     !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Heat) ? 'H' : '_',
                     !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Cool) ? 'C' : '_',
                     !!(allowedActions & Flatbuffers::Firmware::ThermostatAction::Circulate) ? 'R' : '_');
@@ -326,7 +326,7 @@ private:
         // Verify size and casting limits
         if (flatbufferBuilder.GetSize() > sizeof(m_Data.rgFlatbufferData))
         {
-            Serial.printlnf("Default configuration size of %u exceeds limits. Bailing.", flatbufferBuilder.GetSize());
+            Serial.printlnf("Default configuration size of %lu exceeds limits. Bailing.", flatbufferBuilder.GetSize());
 
             delay(60 * 1000);
             System.reset();

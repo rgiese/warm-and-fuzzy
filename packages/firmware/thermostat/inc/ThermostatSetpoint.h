@@ -25,11 +25,11 @@ struct ThermostatSetpoint
     }
 
     ThermostatSetpoint(Flatbuffers::Firmware::ThermostatSetting const& thermostatSetting)
-        : AllowedActions(thermostatSetting.allowedActions())
-        , SetPointHeat(Configuration::getTemperature(thermostatSetting.setPointHeat_x100()))
-        , SetPointCool(Configuration::getTemperature(thermostatSetting.setPointCool_x100()))
-        , SetPointCirculateAbove(Configuration::getTemperature(thermostatSetting.setPointCirculateAbove_x100()))
-        , SetPointCirculateBelow(Configuration::getTemperature(thermostatSetting.setPointCirculateBelow_x100()))
+        : AllowedActions(thermostatSetting.allowed_actions())
+        , SetPointHeat(Configuration::getTemperature(thermostatSetting.set_point_heat_x100()))
+        , SetPointCool(Configuration::getTemperature(thermostatSetting.set_point_cool_x100()))
+        , SetPointCirculateAbove(Configuration::getTemperature(thermostatSetting.set_point_circulate_above_x100()))
+        , SetPointCirculateBelow(Configuration::getTemperature(thermostatSetting.set_point_circulate_below_x100()))
     {
     }
 

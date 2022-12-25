@@ -12,7 +12,7 @@ ThermostatSetpointScheduler::~ThermostatSetpointScheduler()
 
 ThermostatSetpoint ThermostatSetpointScheduler::getCurrentThermostatSetpoint(Configuration const& Configuration) const
 {
-    auto const pvThermostatSettings = Configuration.rootConfiguration().thermostatSettings();
+    auto const pvThermostatSettings = Configuration.rootConfiguration().thermostat_settings();
 
     if (!pvThermostatSettings || pvThermostatSettings->size() == 0)
     {
@@ -41,7 +41,7 @@ ThermostatSetpoint ThermostatSetpointScheduler::getCurrentThermostatSetpoint(Con
                 continue;
             }
 
-            if (thermostatSetting.holdUntil() < timeNow)
+            if (thermostatSetting.hold_until() < timeNow)
             {
                 // No longer valid
                 continue;
@@ -54,7 +54,7 @@ ThermostatSetpoint ThermostatSetpointScheduler::getCurrentThermostatSetpoint(Con
                 continue;
             }
 
-            if (thermostatSetting.holdUntil() < pvThermostatSettings->Get(idxEarliestHoldUntil)->holdUntil())
+            if (thermostatSetting.hold_until() < pvThermostatSettings->Get(idxEarliestHoldUntil)->hold_until())
             {
                 // This setting is earlier, adopt it
                 idxEarliestHoldUntil = idxSetting;
@@ -101,12 +101,12 @@ ThermostatSetpoint ThermostatSetpointScheduler::getCurrentThermostatSetpoint(Con
             {
                 DaysOfWeek const settingDayOfWeek = Flatbuffers::Firmware::EnumValuesDaysOfWeek()[idxDayOfWeekEnum];
 
-                if (!(settingDayOfWeek & thermostatSetting.daysOfWeek()))
+                if (!(settingDayOfWeek & thermostatSetting.days_of_week()))
                 {
                     continue;
                 }
 
-                uint16_t const settingAtMinutesSinceMidnight = thermostatSetting.atMinutesSinceMidnight();
+                uint16_t const settingAtMinutesSinceMidnight = thermostatSetting.at_minutes_since_midnight();
                 uint8_t const settingScalarDayOfWeek = getScalarDayOfWeek(settingDayOfWeek);
 
                 uint16_t const settingAtMinutesSinceStartOfWeek =

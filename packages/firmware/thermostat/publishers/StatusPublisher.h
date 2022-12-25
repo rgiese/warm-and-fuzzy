@@ -49,11 +49,11 @@ public:
         // Configuration
         {
             // See main.cpp#applyTimezoneConfiguration()
-            bool const inNextTimezone = configuration.rootConfiguration().nextTimezoneChange() <= Time.now();
+            bool const inNextTimezone = configuration.rootConfiguration().next_timezone_change() <= static_cast<uint32_t>(Time.now());
 
             int16_t const timezoneUTCOffset = inNextTimezone
-                                                  ? configuration.rootConfiguration().nextTimezoneUTCOffset()
-                                                  : configuration.rootConfiguration().currentTimezoneUTCOffset();
+                                                  ? configuration.rootConfiguration().next_timezone_utc_offset()
+                                                  : configuration.rootConfiguration().current_timezone_utc_offset();
 
             sb.AppendFormat(",\"cc\":{\"sh\":%.1f,\"sc\":%.1f,\"sa\":%.1f,\"sb\":%.1f,\"th\":%.2f,\"tz\":%d",
                             thermostatSetpoint.SetPointHeat,
