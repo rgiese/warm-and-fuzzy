@@ -9,8 +9,8 @@
   "license": "CC-BY-NC-SA-4.0",
   "author": "robin@grumpycorp.com",
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "build": "lerna run --concurrency 1 build --stream",
+    "bootstrap": "lerna bootstrap --ignore @grumpycorp/warm-and-fuzzy-mobile",
+    "build": "lerna run --concurrency 1 build --stream --ignore @grumpycorp/warm-and-fuzzy-mobile",
     "build:shared": "lerna run build --scope \"@grumpycorp/warm-and-fuzzy-shared*\" --stream",
     "decrypt-secrets": "lerna run decrypt-secrets --parallel",
     "encrypt-secrets": "lerna run encrypt-secrets --parallel",
