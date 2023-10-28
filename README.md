@@ -35,7 +35,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - `choco install awscli cmake mingw` and make sure the CMake directory (e.g. `%ProgramFiles%\CMake\bin` is in the system path)
         - [Particle CLI](https://docs.particle.io/tutorials/developer-tools/cli/)
       - Mac:
-        - Install Xcode
+        - Install Xcode (or open Xcode if it's been a while, just to make sure all packages are installed)
         - `xcode-select --install`
         - `sudo xcode-select -r`
         - `brew install awscli cmake lerna python pyenv`
@@ -44,7 +44,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - `bash <( curl -sL https://particle.io/install-cli )`
     - Set the environment variable `GRUMPYCORP_ROOT` to point to the parent directory of this repo
     - In that directory:
-      - `git clone https://github.com/google/flatbuffers.git --branch v22.12.06`, creating a peer to this repo
+      - `git clone https://github.com/google/flatbuffers.git --branch v23.5.26`, creating a peer to this repo
         - Check the [CI Dockerfile](https://github.com/rgiese/warm-and-fuzzy-ci-images/blob/master/Dockerfile) to make sure the version tag above is still correct
       - `git clone https://github.com/particle-iot/device-os.git` for firmware headers
     - `cd flatbuffers` and build:
@@ -53,6 +53,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - `mingw32-make`
       - macOS:
         - `cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release`
+          - If this fails, open Xcode, install updated packages, and run `sudo xcode-select -r`
         - Open `FlatBuffers.xcodeproj` in Xcode and build for running
         - `ln -s Debug/flatc .`
     - Configure credentials
