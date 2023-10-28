@@ -10,6 +10,6 @@
   "license": "CC-BY-NC-SA-4.0",
   "author": "robin@grumpycorp.com",
   "scripts": {
-    "format:fix": "prettier --write {.,..,../..,../../.circleci}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest,yml} --no-error-on-unmatched-pattern"
+    "format:fix": "prettier --write \"{.,..,../..,../../.circleci}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest,yml}\" --no-error-on-unmatched-pattern"
   }
 }
