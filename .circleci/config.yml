@@ -120,71 +120,11 @@ jobs:
           name: Upload firmware to Particle
           command: npm run deploy-firmware:prod
 
-  #
-  # Mobile jobs
-  #
-
-  mobile-build:
-    executor: grumpy-executor
-    steps:
-      # Check out source
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-mobile-dependencies-{{ checksum "package.json" }}
-
-      # Install dependencies
-      - run: npm install
-      - run: npm run bootstrap
-
-      # Save cache
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-mobile-dependencies-{{ checksum "package.json" }}
-
-      # Run builds
-      - run: npm run decrypt-secrets
-      - run: npm run build:shared
-      - run: npm run bundle:mobile
-
-      # Persist workspace for deployment
-      - persist_to_workspace:
-          root: .
-          paths:
-            - packages
-
-  mobile-publish:
-    executor: grumpy-executor
-    steps:
-      # Check out source
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-mobile-dependencies-{{ checksum "package.json" }}
-
-      # Attach to `build` workspace (provides built packages/)
-      - attach_workspace:
-          at: .
-
-      # Install dependencies
-      - run: npm install
-      - run: npm run bootstrap
-
-      # Run publish to internal Google Play channel
-      - run: npm run publish-mobile:internal
-
 #
 # Workflows
 #
 
 workflows:
-  version: 2
-
   cloud-and-firmware:
     jobs:
       - build:
@@ -208,25 +148,6 @@ workflows:
           context: warm-and-fuzzy-particle
           requires:
             - hold-to-deploy-firmware
-          filters:
-            branches:
-              only: master
-
-  mobile:
-    jobs:
-      - mobile-build:
-          context: warm-and-fuzzy-git-secrets
-      - hold-to-publish:
-          type: approval
-          requires:
-            - mobile-build
-          filters:
-            branches:
-              only: master
-      - mobile-publish:
-          context: warm-and-fuzzy-git-secrets
-          requires:
-            - hold-to-publish
           filters:
             branches:
               only: master
