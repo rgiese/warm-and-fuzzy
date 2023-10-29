@@ -18,7 +18,7 @@ SCENARIO("Synthetic configuration", "[SyntheticConfiguration]")
 
             THEN("The provided values are propagated")
             {
-                auto const pvThermostatSettings = configuration.rootConfiguration().thermostatSettings();
+                auto const pvThermostatSettings = configuration.rootConfiguration().thermostat_settings();
 
                 REQUIRE(pvThermostatSettings);
                 REQUIRE(pvThermostatSettings->size() == 2);
@@ -26,31 +26,31 @@ SCENARIO("Synthetic configuration", "[SyntheticConfiguration]")
                 auto const& holdSetting = pvThermostatSettings->Get(0);
                 {
                     REQUIRE(holdSetting->type() == ThermostatSettingType::Hold);
-                    REQUIRE(holdSetting->holdUntil() == 1000);
-                    REQUIRE(holdSetting->allowedActions() == setpointHold.AllowedActions);
-                    REQUIRE(Configuration::getTemperature(holdSetting->setPointHeat_x100()) ==
+                    REQUIRE(holdSetting->hold_until() == 1000);
+                    REQUIRE(holdSetting->allowed_actions() == setpointHold.AllowedActions);
+                    REQUIRE(Configuration::getTemperature(holdSetting->set_point_heat_x100()) ==
                             setpointHold.SetPointHeat);
-                    REQUIRE(Configuration::getTemperature(holdSetting->setPointCool_x100()) ==
+                    REQUIRE(Configuration::getTemperature(holdSetting->set_point_cool_x100()) ==
                             setpointHold.SetPointCool);
-                    REQUIRE(Configuration::getTemperature(holdSetting->setPointCirculateAbove_x100()) ==
+                    REQUIRE(Configuration::getTemperature(holdSetting->set_point_circulate_above_x100()) ==
                             setpointHold.SetPointCirculateAbove);
-                    REQUIRE(Configuration::getTemperature(holdSetting->setPointCirculateBelow_x100()) ==
+                    REQUIRE(Configuration::getTemperature(holdSetting->set_point_circulate_below_x100()) ==
                             setpointHold.SetPointCirculateBelow);
                 }
 
                 auto const& scheduledSetting = pvThermostatSettings->Get(1);
                 {
                     REQUIRE(scheduledSetting->type() == ThermostatSettingType::Scheduled);
-                    REQUIRE(scheduledSetting->daysOfWeek() == (DaysOfWeek::Monday | DaysOfWeek::Tuesday));
-                    REQUIRE(scheduledSetting->atMinutesSinceMidnight() == 120);
-                    REQUIRE(scheduledSetting->allowedActions() == setpointScheduled.AllowedActions);
-                    REQUIRE(Configuration::getTemperature(scheduledSetting->setPointHeat_x100()) ==
+                    REQUIRE(scheduledSetting->days_of_week() == (DaysOfWeek::Monday | DaysOfWeek::Tuesday));
+                    REQUIRE(scheduledSetting->at_minutes_since_midnight() == 120);
+                    REQUIRE(scheduledSetting->allowed_actions() == setpointScheduled.AllowedActions);
+                    REQUIRE(Configuration::getTemperature(scheduledSetting->set_point_heat_x100()) ==
                             setpointScheduled.SetPointHeat);
-                    REQUIRE(Configuration::getTemperature(scheduledSetting->setPointCool_x100()) ==
+                    REQUIRE(Configuration::getTemperature(scheduledSetting->set_point_cool_x100()) ==
                             setpointScheduled.SetPointCool);
-                    REQUIRE(Configuration::getTemperature(scheduledSetting->setPointCirculateAbove_x100()) ==
+                    REQUIRE(Configuration::getTemperature(scheduledSetting->set_point_circulate_above_x100()) ==
                             setpointScheduled.SetPointCirculateAbove);
-                    REQUIRE(Configuration::getTemperature(scheduledSetting->setPointCirculateBelow_x100()) ==
+                    REQUIRE(Configuration::getTemperature(scheduledSetting->set_point_circulate_below_x100()) ==
                             setpointScheduled.SetPointCirculateBelow);
                 }
             }
