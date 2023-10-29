@@ -29,7 +29,9 @@ const sourceFiles = glob.sync(`${testsRoot}/*.cpp`);
 const testExecutable = path.join(outputRoot, "tests");
 
 execSync(
-  `g++ -I${projectRoot} -I${testsRoot} ${sourceFiles.join(" ")} -std=c++17 -lstdc++ -lm -o ${testExecutable}`,
+  `g++ -I${projectRoot} -I${testsRoot} ${sourceFiles.join(
+    " "
+  )} -std=c++17 -lstdc++ -lm -o ${testExecutable}`,
   {
     cwd: testsRoot,
     stdio: "inherit",
