@@ -17,15 +17,20 @@
   "scripts": {
     "prebuild": "npm-run-all codegen:*",
     "build": "tsc",
-    "codegen:flatbuffers": "node ./codegen-flatbuffers.js",
-    "codegen:graphql": "graphql-codegen --config graphql-codegen.yml",
+    "codegen:flatbuffers": "ts-node ./codegen-flatbuffers.ts",
+    "codegen:graphql": "graphql-codegen --config graphql-codegen.ts",
     "format:fix": "prettier --write \"{.,./src/**,./public/**}/*.{css,graphql,html,js,jsx,json,md,scss,ts,tsx,webmanifest}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@types/flatbuffers": "^1.10.2",
+    "flatbuffers": "^23.5.26",
     "graphql": "^16.8.1",
     "yup": "^1.3.2"
+  },
+  "devDependencies": {
+    "@graphql-codegen/add": "^5.0.0",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1"
   }
 }
