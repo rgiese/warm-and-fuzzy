@@ -6,8 +6,7 @@ private:
     static uint8_t constexpr sc_cAddressBytes = 8;
 
 public:
-    OneWireAddress()
-        : m_Address()
+    OneWireAddress() : m_Address()
     {
     }
 

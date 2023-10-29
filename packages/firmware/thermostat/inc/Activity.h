@@ -3,9 +3,7 @@
 class Activity
 {
 public:
-    Activity(char const* const szName)
-        : m_szName(szName)
-        , m_StartTime_msec(millis())
+    Activity(char const* const szName) : m_szName(szName), m_StartTime_msec(millis())
     {
         WITH_LOCK(Serial)
         {

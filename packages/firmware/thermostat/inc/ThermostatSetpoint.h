@@ -3,11 +3,7 @@
 struct ThermostatSetpoint
 {
     ThermostatSetpoint()
-        : AllowedActions()
-        , SetPointHeat()
-        , SetPointCool()
-        , SetPointCirculateAbove()
-        , SetPointCirculateBelow()
+        : AllowedActions(), SetPointHeat(), SetPointCool(), SetPointCirculateAbove(), SetPointCirculateBelow()
     {
     }
 

@@ -4,9 +4,7 @@ template <uint16_t cchBuffer>
 class FixedStringBuffer
 {
 public:
-    FixedStringBuffer()
-        : m_rgBuffer()
-        , m_cchUsed()
+    FixedStringBuffer() : m_rgBuffer(), m_cchUsed()
     {
     }
 

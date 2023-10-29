@@ -26,8 +26,7 @@ enum class ParticleDayOfWeek : uint8_t
 class MockTime
 {
 public:
-    MockTime()
-        : m_Now()
+    MockTime() : m_Now()
     {
     }
 

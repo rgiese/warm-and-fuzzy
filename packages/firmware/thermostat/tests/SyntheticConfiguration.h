@@ -4,11 +4,7 @@
 class SyntheticConfiguration
 {
 public:
-    SyntheticConfiguration()
-        : m_Configuration()
-        , m_fIsBuilt()
-        , m_FlatbufferBuilder(1024)
-        , m_ThermostatSettings()
+    SyntheticConfiguration() : m_Configuration(), m_fIsBuilt(), m_FlatbufferBuilder(1024), m_ThermostatSettings()
     {
     }
 
@@ -85,7 +81,7 @@ public:
     // Accessors
     //
 
-    operator Configuration const &() const
+    operator Configuration const&() const
     {
         REQUIRE(m_fIsBuilt);
         return m_Configuration;

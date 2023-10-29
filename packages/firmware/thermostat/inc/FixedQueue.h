@@ -7,10 +7,7 @@ public:
     typedef uint16_t size_type;
 
 public:
-    FixedQueue()
-        : m_rgszQueue()
-        , m_nItems()
-        , m_idxFront()
+    FixedQueue() : m_rgszQueue(), m_nItems(), m_idxFront()
     {
     }
 

@@ -4,9 +4,7 @@ template <uint8_t c_cOneWireDevices_Max>
 class StatusPublisher
 {
 public:
-    StatusPublisher()
-        : m_QueuedPublisher("status")
-        , m_SerialNumber()
+    StatusPublisher() : m_QueuedPublisher("status"), m_SerialNumber()
     {
     }
 
@@ -49,7 +47,8 @@ public:
         // Configuration
         {
             // See main.cpp#applyTimezoneConfiguration()
-            bool const inNextTimezone = configuration.rootConfiguration().next_timezone_change() <= static_cast<uint32_t>(Time.now());
+            bool const inNextTimezone =
+                configuration.rootConfiguration().next_timezone_change() <= static_cast<uint32_t>(Time.now());
 
             int16_t const timezoneUTCOffset = inNextTimezone
                                                   ? configuration.rootConfiguration().next_timezone_utc_offset()
@@ -100,7 +99,7 @@ public:
 
 private:
     static size_t constexpr cchEventData =
-        static_strlen("{'ts':4294967295,'ser':4294967295")   // Header
+        static_strlen("{'ts':4294967295,'ser':4294967295")               // Header
         + static_strlen(",'t':-100.0,'t2':-100.0,'h':100.0,'ca':'HCR'")  // Status
         + static_strlen(
               ",cc:{'sh':10.0,'sc':10.0,'sa':10.0,'sb':10.0,'th':10.00,'tz':-999,'aa':'HCR','tz'}")  // Configuration

@@ -31,12 +31,7 @@
 class Configuration
 {
 public:
-    Configuration()
-        : m_Data()
-        , m_pConfiguration()
-        , m_cbPendingData()
-        , m_rgPendingData()
-        , m_UpdateMutex()
+    Configuration() : m_Data(), m_pConfiguration(), m_cbPendingData(), m_rgPendingData(), m_UpdateMutex()
     {
     }
 
@@ -265,9 +260,7 @@ private:
         uint16_t Signature;
         uint16_t Version;
 
-        ConfigurationHeader()
-            : Signature()
-            , Version()
+        ConfigurationHeader() : Signature(), Version()
         {
         }
 
@@ -290,10 +283,7 @@ private:
         uint16_t cbFlatbufferData;
         alignas(alignof(uint64_t)) uint8_t rgFlatbufferData[sc_cbFlatbufferData_Max];
 
-        ConfigurationData()
-            : Header()
-            , cbFlatbufferData()
-            , rgFlatbufferData()
+        ConfigurationData() : Header(), cbFlatbufferData(), rgFlatbufferData()
         {
         }
     };

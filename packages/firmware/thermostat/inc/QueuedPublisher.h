@@ -4,9 +4,7 @@ template <uint16_t cchEvent_Max, uint16_t nEvents_Max, bool fEvictOldest = true>
 class QueuedPublisher
 {
 public:
-    QueuedPublisher(char const* const szEventName)
-        : m_Queue()
-        , m_szEventName(szEventName)
+    QueuedPublisher(char const* const szEventName) : m_Queue(), m_szEventName(szEventName)
     {
     }
 
