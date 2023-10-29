@@ -22,6 +22,14 @@ module.exports = {
     "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/indent": "off",
     "@typescript-eslint/space-before-function-paren": "off",
+    // Naming conventions
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"] // We like PascalCase around here
+      }
+    ],
     // JavaScript
     "sort-imports": "error", // Use `sort-imports` VSCode extension to auto-fix
     // TypeScript
