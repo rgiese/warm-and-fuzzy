@@ -1,6 +1,7 @@
 import * as yup from "yup";
 
-import { TemperatureUnits, UserPreferences } from "../generated/graphqlTypes";
+import { TemperatureUnits } from "../generated/graphqlTypes";
+import type { UserPreferences } from "../generated/graphqlTypes";
 
 export namespace UserPreferencesSchema {
   export const Schema = yup.object().shape({

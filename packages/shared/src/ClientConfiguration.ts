@@ -7,7 +7,7 @@ export namespace ClientConfiguration {
     };
   }
 
-  export const ByStage: { [key: string]: Configuration } = {
+  export const ByStage: Record<string, Configuration> = {
     local: {
       isProduction: false,
       apiGateway: {

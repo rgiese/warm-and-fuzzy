@@ -26,9 +26,9 @@ module.exports = {
     "@typescript-eslint/naming-convention": [
       "error",
       {
-        "selector": "typeLike",
-        "format": ["PascalCase"] // We like PascalCase around here
-      }
+        selector: "typeLike",
+        format: ["PascalCase"], // We like PascalCase around here
+      },
     ],
     // JavaScript
     "sort-imports": "error", // Use `sort-imports` VSCode extension to auto-fix
