@@ -22,7 +22,8 @@
     "firmware:flash": "ts-node firmware-build-tool/flash.ts thermostat",
     "firmware:monitor": "ts-node firmware-build-tool/monitor.ts",
     "format:check": "prettier --check . --ignore-path ../../.prettierignore & clang-format \"--glob=**/*.{cpp,h}\"",
-    "format:fix": "prettier --write . --ignore-path ../../.prettierignore & clang-format \"--glob=**/*.{cpp,h}\" -i"
+    "format:fix": "prettier --write . --ignore-path ../../.prettierignore & clang-format \"--glob=**/*.{cpp,h}\" -i",
+    "lint": ""
   },
   "devDependencies": {
     "clang-format": "^1.8.0",

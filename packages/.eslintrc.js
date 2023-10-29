@@ -1,15 +1,8 @@
 module.exports = {
   root: true,
   parser: "@typescript-eslint/parser", // Specifies the ESLint parser
-  plugins: ["react", "react-native"],
-  extends: [
-    "plugin:@typescript-eslint/all", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
-    "plugin:react/all",
-    "plugin:react-native/all",
-    "plugin:promise/recommended",
-    "prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
-    "plugin:prettier/recommended", // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
-  ],
+  plugins: ["react", "prettier"],
+  extends: ["plugin:@typescript-eslint/all", "plugin:react/all", "plugin:promise/recommended"],
   settings: {
     react: {
       version: "detect",
@@ -22,6 +15,13 @@ module.exports = {
   },
   ignorePatterns: ["generated/"],
   rules: {
+    // Formatting
+    "prettier/prettier": "error",
+    // Turn off ESLint formatting
+    "@typescript-eslint/object-curly-spacing": "off",
+    "@typescript-eslint/comma-dangle": "off",
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/space-before-function-paren": "off",
     // JavaScript
     "sort-imports": "error", // Use `sort-imports` VSCode extension to auto-fix
     // TypeScript
@@ -43,13 +43,6 @@ module.exports = {
         allowConditionalTypes: "always", // ...because we are fancy
         allowConstructors: "always", // ...because we are extra-fancy
         allowLiterals: "in-intersections",
-      },
-    ],
-    "@typescript-eslint/restrict-template-expressions": [
-      "error",
-      {
-        allowNumber: true,
-        allowNullable: true,
       },
     ],
     "@typescript-eslint/typedef": "off", // Prettier tends to remove trivially inferred ones
@@ -85,9 +78,5 @@ module.exports = {
     "react/jsx-no-literals": "off", // Literals make code easier to read
     "react/jsx-props-no-spreading": "off", // Fine to use intentionally - get off my lawn
     "react/prop-types": "off", // Not investing in PropTypes at this time
-    // ReactNative
-    "react-native/no-inline-styles": "off",
-    "react-native/no-raw-text": "off",
-    "react-native/sort-styles": ["error", "asc", { ignoreClassNames: true }],
   },
 };
