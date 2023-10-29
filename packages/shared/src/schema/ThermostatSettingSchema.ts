@@ -20,10 +20,7 @@ export namespace ThermostatSettingSchema {
   export const SetPointRange = { min: 16, max: 40 };
 
   export const Schema = yup.object().shape({
-    type: yup
-      .string()
-      .required()
-      .oneOf(Types),
+    type: yup.string().required().oneOf(Types),
 
     // For Hold settings
     holdUntil: yup
@@ -36,11 +33,7 @@ export namespace ThermostatSettingSchema {
       .of(yup.string().oneOf(DaysOfWeek))
       .when("type", {
         is: ThermostatSettingType.Scheduled,
-        then: yup
-          .array()
-          .required()
-          .min(1)
-          .max(7),
+        then: yup.array().required().min(1).max(7),
         otherwise: yup.array().max(0),
       }),
     atMinutesSinceMidnight: yup.number().when("type", {
@@ -55,25 +48,9 @@ export namespace ThermostatSettingSchema {
 
     // For all types
     allowedActions: yup.array().of(yup.string().oneOf(Actions)),
-    setPointHeat: yup
-      .number()
-      .required()
-      .min(SetPointRange.min)
-      .max(SetPointRange.max),
-    setPointCool: yup
-      .number()
-      .required()
-      .min(SetPointRange.min)
-      .max(SetPointRange.max),
-    setPointCirculateAbove: yup
-      .number()
-      .required()
-      .min(SetPointRange.min)
-      .max(SetPointRange.max),
-    setPointCirculateBelow: yup
-      .number()
-      .required()
-      .min(SetPointRange.min)
-      .max(SetPointRange.max),
+    setPointHeat: yup.number().required().min(SetPointRange.min).max(SetPointRange.max),
+    setPointCool: yup.number().required().min(SetPointRange.min).max(SetPointRange.max),
+    setPointCirculateAbove: yup.number().required().min(SetPointRange.min).max(SetPointRange.max),
+    setPointCirculateBelow: yup.number().required().min(SetPointRange.min).max(SetPointRange.max),
   });
 }

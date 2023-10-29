@@ -21,18 +21,8 @@ export namespace ThermostatConfigurationSchema {
       .notRequired()
       .nullable()
       .matches(/^$|^[a-f0-9]{16}$/),
-    timezone: yup
-      .string()
-      .notRequired()
-      .nullable(),
-    threshold: yup
-      .number()
-      .min(ThresholdRange.min)
-      .max(ThresholdRange.max),
-    cadence: yup
-      .number()
-      .integer()
-      .min(CadenceRange.min)
-      .max(CadenceRange.max),
+    timezone: yup.string().notRequired().nullable(),
+    threshold: yup.number().min(ThresholdRange.min).max(ThresholdRange.max),
+    cadence: yup.number().integer().min(CadenceRange.min).max(CadenceRange.max),
   });
 }
