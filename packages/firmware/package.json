@@ -16,6 +16,7 @@
   "scripts": {
     "prebuild": "npm-run-all \"codegen:*\"",
     "build": "ts-node firmware-build-tool/build.ts thermostat",
+    "clean": "rimraf build thermostat/build thermostat/generated thermostat/tests/generated",
     "codegen:flatbuffers": "ts-node firmware-build-tool/codegen.ts thermostat",
     "deploy-firmware:prod": "ts-node firmware-build-tool/upload.ts thermostat Main.cpp",
     "test": "ts-node firmware-build-tool/test.ts thermostat",

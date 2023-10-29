@@ -17,6 +17,7 @@
   "scripts": {
     "prebuild": "npm-run-all codegen:*",
     "build": "tsc",
+    "clean": "rimraf build src/generated",
     "codegen:flatbuffers": "ts-node ./codegen-flatbuffers.ts",
     "codegen:graphql": "graphql-codegen --config graphql-codegen.ts",
     "format:fix": "prettier --write \"{.,./src/**,./public/**}/*.{css,graphql,html,js,jsx,json,md,scss,ts,tsx,webmanifest}\"",
