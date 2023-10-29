@@ -28,7 +28,7 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
         - Install Xcode (or open Xcode if it's been a while, just to make sure all packages are installed)
         - `xcode-select --install`
         - `sudo xcode-select -r`
-        - `brew install awscli cmake corepack python pyenv`
+        - `brew install awscli cmake python pyenv`
         - `pyenv install 2.7.18`, `pyenv global 2.7.18`
         - Modify path (e.g. `~/.zshrc`) to `export PATH="/usr/local/sbin:$(pyenv root)/shims:$PATH"` to front-load both Homebrew and PyEnv's paths
         - `bash <( curl -sL https://particle.io/install-cli )`
@@ -49,24 +49,23 @@ Licensed under [CC-BY-NC-SA](LICENSE.md). Commercial licensing negotiable (hah).
     - Configure credentials
       - `aws configure` with `AWS Access Key ID` = `AKIA...`, `AWW Secret Access Key` = password on file, `Default region name` = `us-west-2`
       - Set the environment variable `PARTICLE_ACCESS_TOKEN` to a Particle API token (generate with `particle token create`)
-  - `corepack enable`
-  - `yarn install`
+  - `npm install`
 - Pre-commit
-  - `yarn run format:fix`
-  - `yarn run lint:fix`
+  - `npm run format:fix -ws`
+  - `npm run lint:fix -ws`
 - Deploy (dev API only, if needed - everything should run through CI)
-  - `yarn run deploy:dev`
+  - `npm run deploy:dev -ws`
 
 # Running the web app locally
 
 All commands below start the web app locally, varying which API it calls:
 
-| Command                      | API          | Cloud DB |
-| ---------------------------- | ------------ | -------- |
-| `yarn run start:local:dev`   | Local        | Dev      |
-| `yarn run start:local:prod`  | Local        | Prod     |
-| `yarn run start:remote:dev`  | Cloud (Dev)  | Dev      |
-| `yarn run start:remote:prod` | Cloud (Prod) | Prod     |
+| Command                     | API          | Cloud DB |
+| --------------------------- | ------------ | -------- |
+| `npm run start:local:dev`   | Local        | Dev      |
+| `npm run start:local:prod`  | Local        | Prod     |
+| `npm run start:remote:dev`  | Cloud (Dev)  | Dev      |
+| `npm run start:remote:prod` | Cloud (Prod) | Prod     |
 
 ### CI
 

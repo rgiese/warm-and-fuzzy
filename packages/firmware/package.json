@@ -14,22 +14,19 @@
     "./thermostat"
   ],
   "scripts": {
-    "build": "yarn npm-run-all \"codegen:*\" && yarn bun firmware-build-tool/build.ts thermostat",
-    "codegen:flatbuffers": "yarn bun firmware-build-tool/codegen.ts thermostat",
-    "deploy-firmware:prod": "yarn bun firmware-build-tool/upload.ts thermostat Main.cpp",
-    "test": "yarn bun firmware-build-tool/test.ts thermostat",
-    "firmware:flash": "yarn bun firmware-build-tool/flash.ts thermostat",
-    "firmware:monitor": "yarn bun firmware-build-tool/monitor.ts",
-    "format:check": "yarn prettier --check . --ignore-path ../../.prettierignore & clang-format \"--glob=**/*.{cpp,h}\"",
-    "format:fix": "yarn prettier --write . --ignore-path ../../.prettierignore & clang-format \"--glob=**/*.{cpp,h}\" -i"
+    "prebuild": "npm-run-all \"codegen:*\"",
+    "build": "ts-node firmware-build-tool/build.ts thermostat",
+    "codegen:flatbuffers": "ts-node firmware-build-tool/codegen.ts thermostat",
+    "deploy-firmware:prod": "ts-node firmware-build-tool/upload.ts thermostat Main.cpp",
+    "test": "ts-node firmware-build-tool/test.ts thermostat",
+    "firmware:flash": "ts-node firmware-build-tool/flash.ts thermostat",
+    "firmware:monitor": "ts-node firmware-build-tool/monitor.ts",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore & clang-format \"--glob=**/*.{cpp,h}\"",
+    "format:fix": "prettier --write . --ignore-path ../../.prettierignore & clang-format \"--glob=**/*.{cpp,h}\" -i"
   },
   "devDependencies": {
-    "@types/node": "^20.8.9",
-    "bun": "^1.0.7",
     "clang-format": "^1.8.0",
     "glob": "^10.3.10",
-    "npm-run-all": "^4.1.5",
-    "path": "^0.12.7",
-    "prettier": "^3.0.3"
+    "path": "^0.12.7"
   }
 }
