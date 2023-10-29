@@ -22,7 +22,9 @@ if (!particleAccessToken) {
 }
 
 // Log in Particle CLI
-execSync(`particle login --token ${particleAccessToken}`, { stdio: "inherit" });
+if (process.env.CIRCLECI) {
+  execSync(`particle login --token ${particleAccessToken}`, { stdio: "inherit" });
+}
 
 // Set up paths
 const packageRoot = process.cwd();
