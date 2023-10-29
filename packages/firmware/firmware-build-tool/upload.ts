@@ -6,7 +6,7 @@ import { getBuiltImagePath } from "./common";
 
 // Check parameters
 if (process.argv.length < 3) {
-  console.error(`Usage: bun ${process.argv[1]} <projectDirectory> <mainSourceFile>`);
+  console.error(`Usage: ${process.argv[1]} <projectDirectory> <mainSourceFile>`);
   process.exit(1);
 }
 
