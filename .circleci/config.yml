@@ -25,7 +25,6 @@ jobs:
 
       # Install dependencies
       - run: npm install
-      - run: npm run bootstrap
 
       # Save cache
       - save_cache:
@@ -40,17 +39,17 @@ jobs:
             if [ "$CIRCLE_BRANCH" == "master" ]; then
               REACT_APP_API_STAGE=prod npm run build
             else
-            npm run build
+            npm run build -ws
             fi
           environment:
             # Limit NodeJS heap size so we don't OOM
             NODE_OPTIONS: --max_old_space_size=1500
 
       # Run tests
-      - run: npm run test
+      - run: npm run test -ws
 
       # Run lint
-      - run: npm run lint
+      - run: npm run lint -ws
 
       # Persist workspace for deployment
       - persist_to_workspace:
