@@ -14,7 +14,6 @@ const projectName = process.argv[2];
 const mainSourceFile = process.argv[3];
 
 // Check environment
-
 const particleAccessToken = process.env.PARTICLE_ACCESS_TOKEN;
 
 if (!particleAccessToken) {

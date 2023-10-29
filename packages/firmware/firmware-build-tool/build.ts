@@ -13,6 +13,17 @@ if (process.argv.length < 2) {
 
 const projectName = process.argv[2];
 
+// Check environment
+const particleAccessToken = process.env.PARTICLE_ACCESS_TOKEN;
+
+if (!particleAccessToken) {
+  console.error("Environment variable PARTICLE_ACCESS_TOKEN must be defined.");
+  process.exit(1);
+}
+
+// Log in Particle CLI
+execSync(`particle login --token ${particleAccessToken}`, { stdio: "inherit" });
+
 // Set up paths
 const packageRoot = process.cwd();
 const projectRoot = path.join(packageRoot, projectName);
