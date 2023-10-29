@@ -9,4 +9,3 @@ export * from "./schema/ThermostatSettingsSchema";
 export * from "./schema/UserPreferencesSchema";
 
 export * from "./generated/firmware_generated";
-export { flatbuffers } from "./flatbuffers";
