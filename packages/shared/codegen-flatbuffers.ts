@@ -1,6 +1,6 @@
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+import { execSync } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 
 const grumpycorpRoot = process.env.GRUMPYCORP_ROOT;
 
@@ -24,7 +24,7 @@ if (!fs.existsSync(projectGeneratedRoot)) {
 const flatbuffersRoot = path.join(grumpycorpRoot, "flatbuffers");
 
 // Run codegen
-const fixIncludePathsInFile = (fileName) => {
+const fixIncludePathsInFile = (fileName: string) => {
   // Modify import locations from "./flatbuffers" to "../flatbuffers"
   // so we don't need to copy our library code into the `generated` directory.
   const fileContent = fs.readFileSync(fileName).toString();
