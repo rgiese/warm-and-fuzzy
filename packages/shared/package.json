@@ -22,7 +22,8 @@
     "codegen:graphql": "graphql-codegen --config graphql-codegen.ts",
     "format:fix": "prettier --write \"{.,./src/**,./public/**}/*.{css,graphql,html,js,jsx,json,md,scss,ts,tsx,webmanifest}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
-    "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\""
+    "lint:fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
+    "test": ""
   },
   "dependencies": {
     "flatbuffers": "^23.5.26",

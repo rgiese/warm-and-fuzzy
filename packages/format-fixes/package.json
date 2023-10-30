@@ -13,6 +13,7 @@
     "build": "",
     "clean": "",
     "format:fix": "prettier --write \"{.,..,../..,../../.circleci}/*.{css,html,js,jsx,json,md,scss,ts,tsx,webmanifest,yml}\" --no-error-on-unmatched-pattern",
-    "lint": ""
+    "lint": "",
+    "test": ""
   }
 }
