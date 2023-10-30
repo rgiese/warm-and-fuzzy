@@ -8,4 +8,4 @@ export * from "./schema/ThermostatSettingSchema";
 export * from "./schema/ThermostatSettingsSchema";
 export * from "./schema/UserPreferencesSchema";
 
-export * from "./generated/firmware_generated";
+export * from "./generated/flatbuffers/firmware";
