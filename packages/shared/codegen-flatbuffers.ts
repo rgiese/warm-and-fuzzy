@@ -24,25 +24,10 @@ if (!fs.existsSync(projectGeneratedRoot)) {
 const flatbuffersRoot = path.join(grumpycorpRoot, "flatbuffers");
 
 // Run codegen
-const fixIncludePathsInFile = (fileName: string) => {
-  // Modify import locations from "./flatbuffers" to "../flatbuffers"
-  // so we don't need to copy our library code into the `generated` directory.
-  const fileContent = fs.readFileSync(fileName).toString();
-
-  const fixedUpFileContent = fileContent.replace(
-    'import { flatbuffers } from "./flatbuffers"',
-    'import { flatbuffers } from "../flatbuffers"'
-  );
-
-  fs.writeFileSync(fileName, fixedUpFileContent);
-};
-
 ["firmware.fbs"].map((fbs) => {
   const flatbuffersSchema = path.join(projectSchemasRoot, fbs);
   console.log(`Processing ${flatbuffersSchema}`);
   execSync(`${flatbuffersRoot}/flatc --ts -o ${projectGeneratedRoot} ${flatbuffersSchema}`, {
     stdio: "inherit",
   });
-
-  fixIncludePathsInFile(path.join(projectGeneratedRoot, fbs.replace(".fbs", "_generated.ts")));
 });
