@@ -15,7 +15,7 @@
     "clean": "rimraf obj build",
     "format:fix": "dotnet format --verbosity detailed && prettier --write \"./*.{css,html,json}\" --no-error-on-unmatched-pattern",
     "lint": "",
-    "start": "dotnet run -- ./src/settings/waf-test-server-settings.json",
+    "start": "dotnet run -- ./src/store/waf-test-server-configuration.json",
     "test": ""
   }
 }

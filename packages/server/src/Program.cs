@@ -1,20 +1,21 @@
-﻿
+﻿using WarmAndFuzzy;
+
 // Parse command line
 if (args.Length < 1)
 {
-    Console.Error.WriteLine("server.exe pathToSettings.json");
+    Console.Error.WriteLine("server.exe pathToServerConfiguration.json");
     return -1;
 }
 
 string settingsFileName = args[0];
 
 // Load settings
-WarmAndFuzzyServerSettings.ServerSettings = WarmAndFuzzyServerSettings.ReadFromFile(settingsFileName);
+Store.Initialize(settingsFileName);
 
-WarmAndFuzzyDeviceSettings.DeviceSettings = WarmAndFuzzyDeviceSettings.ReadFromFile(Path.Combine(new string[] { Path.GetDirectoryName(settingsFileName) ?? ".", WarmAndFuzzyServerSettings.ServerSettings.DeviceSettingsFile }));
+Store store = Store.Instance; // grab shortcut
 
 // Run
-Console.WriteLine($"Opening web server at {WarmAndFuzzyServerSettings.ServerSettings.WebServerPort}...");
+Console.WriteLine($"Opening web server at {store.ServerConfiguration.WebServerPort}...");
 
 WebApplication webApplication;
 {
@@ -38,7 +39,7 @@ WebApplication webApplication;
     webApplication.MapRazorPages();
 }
 
-Console.WriteLine($"Opening device API server at {WarmAndFuzzyServerSettings.ServerSettings.DeviceApiServerPort}...");
+Console.WriteLine($"Opening device API server at {store.ServerConfiguration.DeviceApiServerPort}...");
 
 WebApplication deviceApiApplication;
 {
@@ -49,15 +50,15 @@ WebApplication deviceApiApplication;
     deviceApiApplication = builder.Build();
 
     // Configure API
-    deviceApiApplication.MapGet("/devices", async () =>
+    deviceApiApplication.MapGet("/devices", () =>
     {
-        return WarmAndFuzzyDeviceSettings.DeviceSettings.Devices;
+        return store.DeviceConfigurations.Devices;
     });
 }
 
 await Task.WhenAny(
-webApplication.RunAsync($"http://localhost:{WarmAndFuzzyServerSettings.ServerSettings.WebServerPort}"),
-deviceApiApplication.RunAsync($"http://localhost:{WarmAndFuzzyServerSettings.ServerSettings.DeviceApiServerPort}"));
+webApplication.RunAsync($"http://localhost:{store.ServerConfiguration.WebServerPort}"),
+deviceApiApplication.RunAsync($"http://localhost:{store.ServerConfiguration.DeviceApiServerPort}"));
 
 
 return 0;

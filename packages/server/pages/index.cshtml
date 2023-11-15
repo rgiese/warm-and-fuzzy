@@ -5,10 +5,8 @@
 
 <div>
     <h1>Device settings</h1>
-    @if (@Model.DeviceSettings != null){
-    @foreach (var (deviceKey, deviceSetting) in @Model.DeviceSettings.Devices) {
+    @foreach (var (deviceKey, deviceConfiguration) in @Model.DeviceConfigurations.Devices) {
         <h2>@deviceKey</h2>
-        <p>Name: @deviceSetting.Name</p>
-    }
+        <p>Name: @deviceConfiguration.Name</p>
     }
 </div>

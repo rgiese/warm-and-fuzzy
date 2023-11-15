@@ -1,5 +1,0 @@
-{
-  "WebServerPort": 5550,
-  "DeviceApiServerPort": 4440,
-  "DeviceSettingsFile": "waf-test-device-settings.json"
-}
