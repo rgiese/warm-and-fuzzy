@@ -3,12 +3,12 @@ using System.Text.Json;
 namespace WarmAndFuzzy
 {
 
-    public class ServerConfiguration
+    public record ServerConfiguration
     {
-        public required int WebServerPort { get; set; }
-        public required int DeviceApiServerPort { get; set; }
+        public required int WebServerPort { get; init; }
+        public required int DeviceApiServerPort { get; init; }
 
-        public required string DeviceConfigurationsFile { get; set; }
+        public required string DeviceConfigurationsFile { get; init; }
 
         public static ServerConfiguration ReadFromFile(string configurationFileName)
         {

@@ -3,16 +3,16 @@ using System.Text.RegularExpressions;
 
 namespace WarmAndFuzzy
 {
-    public class DeviceConfiguration
+    public record DeviceConfiguration
     {
-        public required string Name { get; set; }
+        public required string Name { get; init; }
 
         public void Validate() { }
     }
 
-    public class DeviceConfigurations
+    public record DeviceConfigurations
     {
-        public required Dictionary<string, DeviceConfiguration> Devices { get; set; }
+        public required Dictionary<string, DeviceConfiguration> Devices { get; init; }
 
         public void Validate()
         {
