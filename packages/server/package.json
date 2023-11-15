@@ -13,7 +13,7 @@
     "postinstall": "dotnet restore",
     "build": "dotnet build",
     "clean": "rimraf obj build",
-    "format:fix": "dotnet format --verbosity detailed",
+    "format:fix": "dotnet format --verbosity detailed && prettier --write \"./*.{css,html,json}\" --no-error-on-unmatched-pattern",
     "lint": "",
     "start": "dotnet run -- ./src/settings/waf-test-server-settings.json",
     "test": ""

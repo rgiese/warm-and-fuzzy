@@ -15,4 +15,6 @@ public class WarmAndFuzzyServerSettings
 
         return JsonSerializer.Deserialize<WarmAndFuzzyServerSettings>(serverSettingsJson) ?? throw new Exception("Could not read server settings");
     }
+
+    public static WarmAndFuzzyServerSettings? ServerSettings { get; set; }
 }

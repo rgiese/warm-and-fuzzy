@@ -11,6 +11,7 @@ public class WarmAndFuzzyDeviceSetting
 public class WarmAndFuzzyDeviceSettings
 {
     public required Dictionary<string, WarmAndFuzzyDeviceSetting> Devices { get; set; }
+    public static WarmAndFuzzyDeviceSettings? DeviceSettings { get; set; }
 
     public void Validate()
     {

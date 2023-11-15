@@ -9,18 +9,37 @@ if (args.Length < 1)
 string settingsFileName = args[0];
 
 // Load settings
-WarmAndFuzzyServerSettings serverSettings = WarmAndFuzzyServerSettings.ReadFromFile(settingsFileName);
+WarmAndFuzzyServerSettings.ServerSettings = WarmAndFuzzyServerSettings.ReadFromFile(settingsFileName);
 
-WarmAndFuzzyDeviceSettings deviceSettings = WarmAndFuzzyDeviceSettings.ReadFromFile(Path.Combine(new string[] { Path.GetDirectoryName(settingsFileName) ?? ".", serverSettings.DeviceSettingsFile }));
-
-foreach (var deviceSetting in deviceSettings.Devices)
-{
-    Console.WriteLine($"  Device {deviceSetting.Key}: {deviceSetting.Value.Name}");
-}
+WarmAndFuzzyDeviceSettings.DeviceSettings = WarmAndFuzzyDeviceSettings.ReadFromFile(Path.Combine(new string[] { Path.GetDirectoryName(settingsFileName) ?? ".", WarmAndFuzzyServerSettings.ServerSettings.DeviceSettingsFile }));
 
 // Run
-Console.WriteLine($"Opening web server at {serverSettings.WebServerPort}...");
+Console.WriteLine($"Opening web server at {WarmAndFuzzyServerSettings.ServerSettings.WebServerPort}...");
 
-Console.WriteLine($"Opening device API server at {serverSettings.DeviceApiServerPort}...");
+WebApplication webApplication;
+{
+    // Create builder
+    var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+    {
+        WebRootPath = "webroot"
+    });
+    {
+        builder.Services.AddRazorPages();
+    }
+
+    // Build app
+    webApplication = builder.Build();
+
+    // Configure app
+    webApplication.UseStaticFiles();
+
+    webApplication.UseRouting();
+
+    webApplication.MapRazorPages();
+}
+
+webApplication.Run($"http://localhost:{WarmAndFuzzyServerSettings.ServerSettings.WebServerPort}");
+
+Console.WriteLine($"Opening device API server at {WarmAndFuzzyServerSettings.ServerSettings.DeviceApiServerPort}...");
 
 return 0;
