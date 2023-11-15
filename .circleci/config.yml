@@ -4,7 +4,7 @@ version: 2.1
 executors:
   grumpy-executor:
     docker:
-      - image: grumpycorp/warm-and-fuzzy-ci:9
+      - image: grumpycorp/warm-and-fuzzy-ci:10
     working_directory: ~/warm-and-fuzzy
 
 jobs:
