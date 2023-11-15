@@ -1,0 +1,21 @@
+{
+  "name": "@grumpycorp/warm-and-fuzzy-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WarmAndFuzzy local server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rgiese/warm-and-fuzzy.git"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "robin@grumpycorp.com",
+  "scripts": {
+    "postinstall": "dotnet restore",
+    "build": "dotnet build",
+    "clean": "rimraf obj build",
+    "format:fix": "dotnet format --verbosity detailed",
+    "lint": "",
+    "start": "dotnet run",
+    "test": ""
+  }
+}
