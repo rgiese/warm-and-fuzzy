@@ -38,8 +38,26 @@ WebApplication webApplication;
     webApplication.MapRazorPages();
 }
 
-webApplication.Run($"http://localhost:{WarmAndFuzzyServerSettings.ServerSettings.WebServerPort}");
-
 Console.WriteLine($"Opening device API server at {WarmAndFuzzyServerSettings.ServerSettings.DeviceApiServerPort}...");
+
+WebApplication deviceApiApplication;
+{
+    // Create builder
+    var builder = WebApplication.CreateBuilder();
+
+    // Build app
+    deviceApiApplication = builder.Build();
+
+    // Configure API
+    deviceApiApplication.MapGet("/devices", async () =>
+    {
+        return WarmAndFuzzyDeviceSettings.DeviceSettings.Devices;
+    });
+}
+
+await Task.WhenAny(
+webApplication.RunAsync($"http://localhost:{WarmAndFuzzyServerSettings.ServerSettings.WebServerPort}"),
+deviceApiApplication.RunAsync($"http://localhost:{WarmAndFuzzyServerSettings.ServerSettings.DeviceApiServerPort}"));
+
 
 return 0;
